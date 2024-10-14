@@ -45,7 +45,7 @@ textURL:	https://feeds.feedburner.com/ubuntu-news
 
 programs:								      \
 			"1SSM" 	mpv --really-quiet --loop inf --fs	      \
-				  --wid=$XSCREENSAVER_WINDOW		      \
+				  --aspect=4:3 --wid=$XSCREENSAVER_WINDOW     \
 				  $HOME/scsmachadao.mp4			    \n\
 				maze -root				    \n\
 - GL: 				superquadrics -root			    \n\
