@@ -25,7 +25,7 @@ echo "3. Loja 3 - Matupá"
 echo "4. Loja 5 - Alta Floresta"
 echo "5. Loja 6 - Primavera"
 echo "6. Loja 7 - Confresa"
-
+read -p "Digite a sua opção: " opcao
 case $opcao in
     1)
         # Comandos para a opção 1
