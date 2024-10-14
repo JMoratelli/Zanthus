@@ -44,7 +44,7 @@ case $opcao in
         ;;
     5)
         # Grava os dados de inicialização do PDV Filial 52
-        curl -s -o /home/zanthus/atualizaSC.sh https://raw.githubusercontent.com/M4ch4d0C0l1d4r/Zanthus/refs/heads/main/atualizaSC52.sh
+        curl -s -o /home/zanthus/atualizaSC52.sh https://raw.githubusercontent.com/M4ch4d0C0l1d4r/Zanthus/refs/heads/main/atualizaSC52.sh
 	# Força a execução do script de atualização pela primeira vez
 	chmod +x /home/zanthus/atualizaSC52.sh && /home/zanthus/atualizaSC52.sh
 	# Adiciona o script de atualização do screensaver à inicialização do sistema
