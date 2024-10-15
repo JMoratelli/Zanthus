@@ -14,6 +14,14 @@ sudo apt install mpv -y
 curl -s -o /home/zanthus/.xscreensaver https://raw.githubusercontent.com/M4ch4d0C0l1d4r/Zanthus/refs/heads/main/.xscreensaver
 
 # Grava a variável em /etc/profile para que usuário Zanthus possa executar o screensaver
+# Verifica se a linha já existe no arquivo
+if ! grep -Fxq "export DISPLAY=:0" /etc/profile; then
+  # Se não existir, adiciona a linha
+  sudo echo "export DISPLAY=:0" >> /etc/profile
+  echo "Linha adicionada ao arquivo /etc/profile"
+else
+  echo "Linha já existe no arquivo /etc/profile"
+fi
 sudo echo "export DISPLAY=:0" >> /etc/profile
 
 # Pergunta ao usuário a filial
@@ -43,12 +51,8 @@ case $opcao in
         echo "Você escolheu a opção 4"
         ;;
     5)
-        # Grava os dados de inicialização do PDV Filial 52
-        curl -s -o /home/zanthus/atualizaSC52.sh https://raw.githubusercontent.com/M4ch4d0C0l1d4r/Zanthus/refs/heads/main/atualizaSC52.sh
-	# Força a execução do script de atualização pela primeira vez
-	chmod +x /home/zanthus/atualizaSC52.sh && /home/zanthus/atualizaSC52.sh
-	# Adiciona o script de atualização do screensaver à inicialização do sistema
-	sudo sed -i '1asudo xhost +local:zanthus\nsudo -u zanthus xscreensaver -no-splash &\nchmod +x /home/zanthus/atualizaSC52.sh && /home/zanthus/atualizaSC52.sh' /Zanthus/Zeus/pdvJava/PDVTouch.sh
+        echo "Você escolheu a Filial de Primavera do Leste"
+	filial=52
         ;;
     6)
         # Comandos para a opção 6
@@ -58,3 +62,19 @@ case $opcao in
         echo "Opção inválida!"
         ;;
 esac
+
+# Grava os dados de inicialização do PDV
+curl -s -o /home/zanthus/atualizaSC$filial.sh https://raw.githubusercontent.com/M4ch4d0C0l1d4r/Zanthus/refs/heads/main/atualizaSC$filial.sh
+echo "Realizado download do script para filial $filial"
+
+# Força a execução do script de atualização pela primeira vez
+chmod +x /home/zanthus/atualizaSC$filial.sh && /home/zanthus/atualizaSC$filial.sh
+
+#Comando que gravará no PDVTouch.sh, buscará se já foi executado, caso sim, não será executado uma segunda vez
+if ! grep -Fxq "sudo xhost +local:zanthus" /Zanthus/Zeus/pdvJava/PDVTouch.sh; then
+    echo "A linha 'sudo xhost +local:zanthus' não foi encontrada. Adicionando..."
+    sed -i '1asudo xhost +local:zanthus\nsudo -u zanthus xscreensaver -no-splash &\nchmod +x /home/zanthus/atualizaSC$filial.sh && /home/zanthus/atualizaSC$filial.sh' /Zanthus/Zeus/pdvJava/PDVTouch.sh
+    echo "Linhas adicionadas ao arquivo /Zanthus/Zeus/pdvJava/PDVTouch.sh"
+else
+    echo "A linha 'sudo xhost +local:zanthus' já existe no arquivo."
+fi
