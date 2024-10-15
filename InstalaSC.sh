@@ -70,19 +70,7 @@ chmod +x /home/zanthus/atualizaSC$filial.sh && /home/zanthus/atualizaSC$filial.s
 #Comando que gravará no PDVTouch.sh, buscará se já foi executado, caso sim, não será executado uma segunda vez
 if ! grep -Fxq "sudo xhost +local:zanthus" /Zanthus/Zeus/pdvJava/PDVTouch.sh; then
     echo "A linha 'sudo xhost +local:zanthus' não foi encontrada. Adicionando..."
-    # Nome do arquivo
-    arquivo="/home/zanthus/scripts/PDVTouch.sh"
-    # Texto a ser inserido
-    novo_texto="sudo xhost +local:zanthus\nsudo -u zanthus xscreensaver -no-splash &\nchmod +x /home/zanthus/atualizaSC$filial.sh && /home/zanthus/atualizaSC$filial.sh"
-    # Dividir o arquivo em duas partes
-    parte1=$(head -n1 "$arquivo")
-    parte2=$(tail -n+2 "$arquivo")
-    # Concatenar as partes com o novo texto
-    echo "$parte1"
-    echo "$novo_texto"
-    echo "$parte2" > "$arquivo.tmp"
-    # Substituir o arquivo original
-    mv "$arquivo.tmp" "$arquivo"
+    printf "#!/bin/bash\nsudo xhost +local:zanthus\nsudo -u zanthus xscreensaver -no-splash &\nchmod +x /home/zanthus/atualizaSC$filial.sh && /home/zanthus/atualizaSC$filial.sh\nchmod -x /usr/local/bin/igraficaJava;\nchmod -x /usr/local/bin/dualmonitor_control-PDVJava\nnohup recreate-user-rabbitmq.sh &\n/Zanthus/Zeus/pdvJava/pdvJava2 &\nnohup chromium-browser --disable-pinch --disable-gpu --test-type --no-sandbox --kiosk --no-context-menu --disable-translate file:////Zanthus/Zeus/Interface/index.html" > /Zanthus/Zeus/pdvJava/PDVTouch.sh
     echo "Linhas adicionadas ao arquivo /Zanthus/Zeus/pdvJava/PDVTouch.sh"
 else
     echo "A linha 'sudo xhost +local:zanthus' já existe no arquivo."
