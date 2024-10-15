@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Definindo as URLs dos arquivos
-url_origem="http://intranet.redemachado.local/protecaotela/52/screensaver.mp4"
+url_origem="http://serv-web/uploads/screensaver/52/screensaver.mp4"
 arquivo_destino="/home/zanthus/scsmachadao.mp4"
 
 # Função para obter o tamanho do arquivo em bytes
