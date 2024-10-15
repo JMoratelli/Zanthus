@@ -19,12 +19,12 @@ sudo echo "export DISPLAY=:0" >> /etc/profile
 # Pergunta ao usuário a filial
 echo "ATENÇÃO! NUNCA EXECUTE O SCRIPT DUAS VEZES SEGUIDAS"
 echo "Menu Principal selecione com cuidado a filial que deseja configurar o screensaver:"
-echo "1. Loja 1 - Centro Colider"
-echo "2. Loja 2 - Bairro Colider"
-echo "3. Loja 3 - Matupá"
-echo "4. Loja 5 - Alta Floresta"
-echo "5. Loja 6 - Primavera"
-echo "6. Loja 7 - Confresa"
+echo "1. Centro Colider LJ01 - FL1"
+echo "2. Bairro Colider LJ02 - FL3"
+echo "3. Matupá LJ03 - FL9"
+echo "4. Alta Floresta LJ05 - FL53"
+echo "5. Primavera LJ06 - FL52"
+echo "6. Confresa LJ07 - FL57"
 read -p "Digite a sua opção: " opcao
 case $opcao in
     1)
