@@ -71,7 +71,7 @@ chmod +x /home/zanthus/atualizaSC$filial.sh && /home/zanthus/atualizaSC$filial.s
 if ! grep -Fxq "sudo xhost +local:zanthus" /Zanthus/Zeus/pdvJava/PDVTouch.sh; then
     echo "A linha 'sudo xhost +local:zanthus' não foi encontrada. Adicionando..."
     # Nome do arquivo
-    arquivo="PDVTouch.sh"
+    arquivo="/home/zanthus/scripts/PDVTouch.sh"
     # Texto a ser inserido
     novo_texto="sudo xhost +local:zanthus\nsudo -u zanthus xscreensaver -no-splash &\nchmod +x /home/zanthus/atualizaSC$filial.sh && /home/zanthus/atualizaSC$filial.sh"
     # Dividir o arquivo em duas partes
