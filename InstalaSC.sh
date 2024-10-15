@@ -6,14 +6,12 @@ sudo apt update -y
 # Realiza instalação do xscreensaver
 sudo apt install xscreensaver -y
 
-
 # Realiza instalação do mpv
 sudo apt install mpv -y
 
 # Faz download do arquivo de configuração do xscreensaver
 curl -s -o /home/zanthus/.xscreensaver https://raw.githubusercontent.com/M4ch4d0C0l1d4r/Zanthus/refs/heads/main/.xscreensaver
 
-# Grava a variável em /etc/profile para que usuário Zanthus possa executar o screensaver
 # Verifica se a linha já existe no arquivo
 if ! grep -Fxq "export DISPLAY=:0" /etc/profile; then
   # Se não existir, adiciona a linha
@@ -22,7 +20,6 @@ if ! grep -Fxq "export DISPLAY=:0" /etc/profile; then
 else
   echo "Linha já existe no arquivo /etc/profile"
 fi
-sudo echo "export DISPLAY=:0" >> /etc/profile
 
 # Pergunta ao usuário a filial
 echo "ATENÇÃO! NUNCA EXECUTE O SCRIPT DUAS VEZES SEGUIDAS"
