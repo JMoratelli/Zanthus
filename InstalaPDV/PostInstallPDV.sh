@@ -13,21 +13,17 @@ read -p "Digite 1 ou 2: " opcao
 
 case $opcao in
     1)
-        timedatectl set-timezone America/Cuiaba
-        hwclock -w
-        sed -i 's/UTC/LOCAL/g' /etc/adjtime
-        hwclock -w
-        sed -i 's/UTC/LOCAL/g' /etc/adjtime
-        hwclock -w
+        timedatectl set-timezone America/Cuiaba; hwclock -w; sed -i 's/UTC/LOCAL/g' /etc/adjtime; hwclock -w
+        echo "Aguarde..."
+        sleep 5
+        timedatectl set-timezone America/Cuiaba; hwclock -w; sed -i 's/UTC/LOCAL/g' /etc/adjtime; hwclock -w
         echo "Fuso horário definido para Cuiabá e ajustado relógio de hardware."
         ;;
     2)
-        timedatectl set-timezone America/Sao_Paulo
-        hwclock -w
-        sed -i 's/UTC/LOCAL/g' /etc/adjtime
-        hwclock -w
-        sed -i 's/UTC/LOCAL/g' /etc/adjtime
-        hwclock -w
+        timedatectl set-timezone America/Sao_Paulo; hwclock -w; sed -i 's/UTC/LOCAL/g' /etc/adjtime; hwclock -w
+        echo "Aguarde..."
+        sleep 5
+        timedatectl set-timezone America/Sao_Paulo; hwclock -w; sed -i 's/UTC/LOCAL/g' /etc/adjtime; hwclock -w
         echo "Fuso horário definido para São Paulo e ajustado relógio de hardware."
         ;;
     *)
@@ -69,6 +65,7 @@ echo "* Aos domingos: $hora_domingo horas"
 echo "Etapa de clone de Interface e Clisitef, clone de um PDV do mesmo tipo"
 echo "Nunca aponte de um Self para um PDV ou de um PDV para um Self"
 echo "Aponte para um PDV do mesmo tipo que já foi configurado, cuidado!"
+echo "Responda "yes" e digite a senha do usuário, a senha será perguntada duas vezes"
 read -p "Digite o IP do caixa a ser clonado (ou pressione Enter caso tenha feito manualmente): " IP_CAIXA
 
 # Validação básica do IP
@@ -92,7 +89,12 @@ cupsctl WebInterface=yes; service cups stop; service cups start
 cupsctl --remote-admin --remote-any
 printf "linux.impressora=IMP-NFE\nlinux.opcoes=3\n" > /Zanthus/Zeus/pdvJava/ZPDF00.CFG
 echo "Parâmetros CUPS ajustados com sucesso, será iniciado a instalação do ScreenSaver"
-sleep 5
+
+#Contador
+for i in {1..10}; do
+  echo "Contagem regressiva: $((10 - i))"
+  sleep 1
+done
 
 # Função que chama o script de configuração do ScreenSaver
 curl -s -o /home/zanthus/InstalaSC.sh https://raw.githubusercontent.com/M4ch4d0C0l1d4r/Zanthus/refs/heads/main/ScreenSaver/InstalaSC.sh && chmod +x /home/zanthus/InstalaSC.sh && /home/zanthus/InstalaSC.sh
