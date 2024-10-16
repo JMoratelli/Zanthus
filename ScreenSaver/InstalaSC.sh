@@ -80,3 +80,16 @@ if ! grep -Fxq "sudo xhost +local:zanthus" /Zanthus/Zeus/pdvJava/PDVTouch.sh; th
 else
     echo "A linha 'sudo xhost +local:zanthus' já existe no arquivo."
 fi
+
+echo "Script finalizado, aguarde o fim do contador para que o PDV reinicie"
+echo "Script feito por Jurandir Moratelli, aguarde o reinicio e finalize o manual para a correta instalação"
+sleep 5
+#Contador
+for i in {1..10}; do
+  echo "Contagem regressiva: $((10 - i))"
+  sleep 1
+done
+
+# Reinicia o PDV para aplicar configurações
+echo "Reiniciando"
+sudo reboot
