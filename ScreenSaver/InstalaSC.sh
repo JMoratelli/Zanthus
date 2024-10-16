@@ -34,26 +34,30 @@ read -p "Digite a sua opção: " opcao
 case $opcao in
     1)
         # Comandos para a opção 1
-        echo "Você escolheu a opção 1"
+        echo "Você escolheu a Filial de Colíder, Loja Centro"
+	filial=1
         ;;
     2)
         # Comandos para a opção 2
-        echo "Você escolheu a opção 2"
+        echo "Você escolheu a Filial de Colíder, Loja Bairro"
+	filial=3
         ;;
     3)
         # Comandos para a opção 3
-        echo "Você escolheu a opção 3"
+        echo "Você escolheu a Filial de Matupá"
+	filial=9
         ;;
     4)
-        echo "Você escolheu a opção 4"
+        echo "Você escolheu a Filial de Alta Floresta"
+	filial=53
         ;;
     5)
         echo "Você escolheu a Filial de Primavera do Leste"
 	filial=52
         ;;
     6)
-        # Comandos para a opção 6
-        echo "Você escolheu a opção 6"
+        echo "Você escolheu a Filial de Confresa"
+	filial=57
         ;;
     *)
         echo "Opção inválida!"
