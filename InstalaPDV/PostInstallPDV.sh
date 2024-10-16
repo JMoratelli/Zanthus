@@ -1,5 +1,5 @@
 #!/bin/bash
-
+echo "Ajustando opções no arquivo /etc/resolv.conf"
 # Configura servidor DNS e adiciona o parâmetro search para que resolva o DNS do AD.
 sudo printf "nameserver 192.168.12.1\n#options edns0 trust-ad\nsearch redemachado.local" > /etc/resolv.conf
 echo "Ajustado opções no arquivo /etc/resolv.conf"
@@ -42,7 +42,7 @@ validar_hora() {
       return 0
     fi
   fi
-  echo "Hora inválida. Por favor, digite um número entre 0 e 23."
+  echo "Hora inválida. Por favor, digite um número entre 00 e 23. Insira com atenção!"
   return 1
 }
 # Solicita as horas ao usuário
@@ -65,13 +65,11 @@ echo "Desligamento agendado:"
 echo "* Durante a semana: $hora_semana horas"
 echo "* Aos domingos: $hora_domingo horas"
 
-
-
 # Cópia de arquivos de interface
 echo "Etapa de clone de Interface e Clisitef, clone de um PDV do mesmo tipo"
 echo "Nunca aponte de um Self para um PDV ou de um PDV para um Self"
 echo "Aponte para um PDV do mesmo tipo que já foi configurado, cuidado!"
-read -p "Digite o IP do caixa a ser clonado (ou pressione Enter para pular essa etapa): " IP_CAIXA
+read -p "Digite o IP do caixa a ser clonado (ou pressione Enter caso tenha feito manualmente): " IP_CAIXA
 
 # Validação básica do IP
 if [[ $IP_CAIXA =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
@@ -81,25 +79,33 @@ else
   echo "IP inválido ou decidiu pular a etapa. "
   IP_CAIXA="batata"
 fi
-
+# Comando irá clonar os arquivos de interface do PDV que apontou
 rsync -avz -I -e "ssh -p 22" root@$IP_CAIXA:/Zanthus/Zeus/Interface/ /Zanthus/Zeus/Interface/
 sleep 5
-# Nessa etapa irá copiar os arquivos de ClisiTef do mesmo PDV
+# Nessa etapa irá copiar os arquivos de ClisiTef do PDV que apontou
 rsync -avz -I -e "ssh -p 22" root@$IP_CAIXA:/Zanthus/Zeus/pdvJava/CliSiTef.ini /Zanthus/Zeus/pdvJava/
 
-
+# Configurações do CUPS para ajustes da impressão
 echo "Alterando parâmetros CUPS"
 sudo sed 's/^BrowseLocalProtocols.*$/BrowseLocalProtocols\ none/' -i /etc/cups/cupsd.conf
 cupsctl WebInterface=yes; service cups stop; service cups start
 cupsctl --remote-admin --remote-any
 printf "linux.impressora=IMP-NFE\nlinux.opcoes=3\n" > /Zanthus/Zeus/pdvJava/ZPDF00.CFG
-echo "Parâmetros CUPS ajustados com sucesso, computador será reiniciado"
-echo "Siga corretamente o manual"
+echo "Parâmetros CUPS ajustados com sucesso, será iniciado a instalação do ScreenSaver"
+sleep 5
 
+# Função que chama o script de configuração do ScreenSaver
+curl -s -o /home/zanthus/InstalaSC.sh https://raw.githubusercontent.com/M4ch4d0C0l1d4r/Zanthus/refs/heads/main/ScreenSaver/InstalaSC.sh && chmod +x /home/zanthus/InstalaSC.sh && /home/zanthus/InstalaSC.sh
+
+echo "Script finalizado, aguarde o fim do contador para que o PDV reinicie"
+echo "Script feito por Jurandir Moratelli, aguarde o reinicio e finalize o manual para a correta instalação"
+sleep 5
 #Contador
 for i in {1..10}; do
   echo "Contagem regressiva: $((10 - i))"
   sleep 1
 done
+
+# Reinicia o PDV para aplicar configurações
 echo "Reiniciando"
 sudo reboot
