@@ -97,15 +97,3 @@ sleep 5
 # Função que chama o script de configuração do ScreenSaver
 curl -s -o /home/zanthus/InstalaSC.sh https://raw.githubusercontent.com/M4ch4d0C0l1d4r/Zanthus/refs/heads/main/ScreenSaver/InstalaSC.sh && chmod +x /home/zanthus/InstalaSC.sh && /home/zanthus/InstalaSC.sh
 
-echo "Script finalizado, aguarde o fim do contador para que o PDV reinicie"
-echo "Script feito por Jurandir Moratelli, aguarde o reinicio e finalize o manual para a correta instalação"
-sleep 5
-#Contador
-for i in {1..10}; do
-  echo "Contagem regressiva: $((10 - i))"
-  sleep 1
-done
-
-# Reinicia o PDV para aplicar configurações
-echo "Reiniciando"
-sudo reboot
