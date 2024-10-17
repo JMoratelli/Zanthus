@@ -22,47 +22,52 @@ else
 fi
 
 # Pergunta ao usuário a filial
-echo "ATENÇÃO! NUNCA EXECUTE O SCRIPT DUAS VEZES SEGUIDAS"
-echo "Menu Principal selecione com cuidado a filial que deseja configurar o screensaver:"
+echo "Não utilize esse script em caixa SelfCheckout!"
+echo "Selecione a filial que deseja configurar o screensaver, escolha com cuidado, operação não é reversível."
+echo "Caso tenha escolhido a alternativa errada, não adiantará reexecutar o script, atenção!"
 echo "1. Centro Colider LJ01 - FL1"
 echo "2. Bairro Colider LJ02 - FL3"
 echo "3. Matupá LJ03 - FL9"
 echo "4. Alta Floresta LJ05 - FL53"
 echo "5. Primavera LJ06 - FL52"
 echo "6. Confresa LJ07 - FL57"
-read -p "Digite a sua opção: " opcao
-case $opcao in
+
+#Cria um laço de repetição, que seguirá rodando até selecionar uma opção válida do menu.
+while true; do
+  read -p "Digite a sua opção: " opcao
+
+  case $opcao in
     1)
-        # Comandos para a opção 1
-        echo "Você escolheu a Filial de Colíder, Loja Centro"
-	filial=1
-        ;;
+      # Comandos para a opção 1
+      echo "Você escolheu a Filial de Colíder, Loja Centro"
+      filial=1
+      break ;;
     2)
-        # Comandos para a opção 2
-        echo "Você escolheu a Filial de Colíder, Loja Bairro"
-	filial=3
-        ;;
+      # Comandos para a opção 2
+      echo "Você escolheu a Filial de Colíder, Loja Bairro"
+      filial=3
+      break ;;
     3)
-        # Comandos para a opção 3
-        echo "Você escolheu a Filial de Matupá"
-	filial=9
-        ;;
+      # Comandos para a opção 3
+      echo "Você escolheu a Filial de Matupá"
+      filial=9
+      break ;;
     4)
-        echo "Você escolheu a Filial de Alta Floresta"
-	filial=53
-        ;;
+      echo "Você escolheu a Filial de Alta Floresta"
+      filial=53
+      break ;;
     5)
-        echo "Você escolheu a Filial de Primavera do Leste"
-	filial=52
-        ;;
+      echo "Você escolheu a Filial de Primavera do Leste"
+      filial=52
+      break ;;
     6)
-        echo "Você escolheu a Filial de Confresa"
-	filial=57
-        ;;
+      echo "Você escolheu a Filial de Confresa"
+      filial=57
+      break ;;
     *)
-        echo "Opção inválida!"
-        ;;
-esac
+      echo "Opção inválida! Por favor, digite uma opção válida." ;;
+  esac
+done
 
 # Grava os dados de inicialização do PDV
 curl -s -o /home/zanthus/atualizaSC$filial.sh https://raw.githubusercontent.com/M4ch4d0C0l1d4r/Zanthus/refs/heads/main/ScreenSaver/atualizaSC$filial.sh
