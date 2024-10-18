@@ -16,10 +16,12 @@ while true; do
         1)
             timedatectl set-timezone America/Cuiaba; hwclock -w; sed -i 's/UTC/LOCAL/g' /etc/adjtime; hwclock -a
             hwclock --systohc
+            hwclock --localtime
             echo "Aguarde..."
             sleep 5
             timedatectl set-timezone America/Cuiaba; hwclock -w; sed -i 's/UTC/LOCAL/g' /etc/adjtime; hwclock -w
             hwclock --systohc
+            hwclock --localtime
             echo "Fuso horário definido para Cuiabá e ajustado relógio de hardware."
             break ;;
         2)
