@@ -108,7 +108,8 @@ cupsctl WebInterface=yes; service cups stop; service cups start
 cupsctl --remote-admin --remote-any
 printf "linux.impressora=IMP-NFE\nlinux.opcoes=3\n" > /Zanthus/Zeus/pdvJava/ZPDF00.CFG
 echo "Parâmetros CUPS ajustados com sucesso, será iniciado a instalação do ScreenSaver"
-
+echo "Script feito por @jmoratelli, Jurandir Moratelli."
+sleep 5
 #Contador
 for i in {1..10}; do
   echo "Contagem regressiva: $((10 - i))"
