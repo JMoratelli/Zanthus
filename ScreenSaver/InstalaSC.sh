@@ -87,7 +87,7 @@ else
 fi
 
 echo "Script finalizado, aguarde o fim do contador para que o PDV reinicie"
-echo "Script feito por Jurandir Moratelli, aguarde o reinicio e finalize o manual para a correta instalação"
+echo "Script feito por @jjmoratelli, Jurandir Moratelli."
 sleep 5
 #Contador
 for i in {1..10}; do
