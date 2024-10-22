@@ -135,6 +135,10 @@ while true; do
   fi
 done
 
+echo "Realizando download arquivo ECF9NVOL"
+#Faz download do arquivo de configuração de funções do SelfCheckout
+curl -o "/Zanthus/Zeus/pdvJava/ECF9NVOL.NV_" https://github.com/M4ch4d0C0l1d4r/Zanthus/raw/refs/heads/main/InstalaPDV/PDVJava/ECF9NVOL.NV_
+
 echo "Script feito por @jjmoratelli, Jurandir Moratelli. PDV será reiniciado após o fim do contador"
 sleep 5
 #Contador
