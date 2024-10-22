@@ -119,6 +119,22 @@ echo "Linhas adicionadas ao arquivo /Zanthus/Zeus/pdvJava/PDVTouch.sh"
 # Exibir o valor de Y (opcional)
 echo "Balança conectada na porta: $Y"
 
+#Configura sinaleiro do PDV
+while true; do
+  read -p "O sinaleiro é do tipo torre (PDV 33 ao 36 de Primavera)? (s/n): " resposta
+  if [[ "$resposta" == "n" || "$resposta" == "N" ]]; then
+    sudo printf "modelo=1\n" > /Zanthus/Zeus/pdvJava/ZSINALIZ_LAURENTI_ARDUINO.CFG
+    echo "Sinaleiro tipo lâmpada única configurado."
+    break
+  elif [[ "$resposta" == "s" || "$resposta" == "S" ]]; then
+   sudo printf "modelo=0\n" > /Zanthus/Zeus/pdvJava/ZSINALIZ_LAURENTI_ARDUINO.CFG 
+   echo "Sinaleiro tipo torre configurado."
+    break
+  else
+    echo "Resposta inválida. Por favor, digite 's' ou 'n'."
+  fi
+done
+
 echo "Script feito por @jjmoratelli, Jurandir Moratelli. PDV será reiniciado após o fim do contador"
 sleep 5
 #Contador
