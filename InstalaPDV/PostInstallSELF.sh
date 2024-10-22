@@ -127,7 +127,7 @@ while true; do
     echo "Sinaleiro tipo lâmpada única configurado."
     break
   elif [[ "$resposta" == "s" || "$resposta" == "S" ]]; then
-   sudo printf "modelo=0\n" > /Zanthus/Zeus/pdvJava/ZSINALIZ_LAURENTI_ARDUINO.CFG 
+   #sudo printf "modelo=0\n" > /Zanthus/Zeus/pdvJava/ZSINALIZ_LAURENTI_ARDUINO.CFG 
    echo "Sinaleiro tipo torre configurado."
     break
   else
@@ -137,7 +137,7 @@ done
 
 echo "Realizando download arquivo ECF9NVOL"
 #Faz download do arquivo de configuração de funções do SelfCheckout
-curl -o "/Zanthus/Zeus/pdvJava/ECF9NVOL.NV_" https://github.com/M4ch4d0C0l1d4r/Zanthus/raw/refs/heads/main/InstalaPDV/PDVJava/ECF9NVOL.NV_
+#curl -o "/Zanthus/Zeus/pdvJava/ECF9NVOL.NV_" https://github.com/M4ch4d0C0l1d4r/Zanthus/raw/refs/heads/main/InstalaPDV/PDVJava/ECF9NVOL.NV_
 
 echo "Script feito por @jjmoratelli, Jurandir Moratelli. PDV será reiniciado após o fim do contador"
 sleep 5
