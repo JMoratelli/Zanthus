@@ -101,20 +101,30 @@ sleep 5
 echo "Digite a senha do usuário novamente para copiar os arquivos ClisiTef"
 rsync -avz -I -e "ssh -p 22" root@$IP_CAIXA:/Zanthus/Zeus/pdvJava/CliSiTef.ini /Zanthus/Zeus/pdvJava/
 
-# Configurações do CUPS para ajustes da impressão
-echo "Alterando parâmetros CUPS"
-sudo sed 's/^BrowseLocalProtocols.*$/BrowseLocalProtocols\ none/' -i /etc/cups/cupsd.conf
-cupsctl WebInterface=yes; service cups stop; service cups start
-cupsctl --remote-admin --remote-any
-printf "linux.impressora=IMP-NFE\nlinux.opcoes=3\n" > /Zanthus/Zeus/pdvJava/ZPDF00.CFG
-echo "Parâmetros CUPS ajustados com sucesso, será iniciado a instalação do ScreenSaver"
+#Obtém os valores de ACMx para o link simbólico
+output=$(ls -l /dev/serial/by-id/* | grep 'usb-TOLEDO_CDC_DEVICE_')
 
+# Verificar se a linha foi encontrada
+if [[ -z "$output" ]]; then
+  echo "Dispositivo não encontrado."
+  exit 1
+fi
+
+# Extrair o dígito Y usando expressões regulares
+Y=$(echo "$output" | grep -oP 'ttyACM\K\d')
+#Grava os arquivos no PDVTouch.sh
+printf "#! /bin/bash\nmv -vf /dev/ttyS4 /dev/ttyS104\nln -s /dev/ttyACM$Y /dev/ttyS4\nchmod -x /usr/local/bin/igraficaJava;\nchmod -x /usr/local/bin/dualmonitor_control-PDVJava\nnohup recreate-user-rabbitmq.sh &\n/Zanthus/Zeus/pdvJava/pdvJava2 &\nnohup chromium-browser --disable-pinch --disable-gpu --test-type --no-sandbox --kiosk --no-context-menu --disable-translate file:////Zanthus/Zeus/Interface/index.html" > /Zanthus/Zeus/pdvJava/PDVTouch.sh
+chmod +x /Zanthus/Zeus/pdvJava/PDVTouch.sh
+echo "Linhas adicionadas ao arquivo /Zanthus/Zeus/pdvJava/PDVTouch.sh"
+# Exibir o valor de Y (opcional)
+echo "Balança conectada na porta: $Y"
+
+echo "Script feito por @jjmoratelli, Jurandir Moratelli. PDV será reiniciado após o fim do contador"
+sleep 5
 #Contador
 for i in {1..10}; do
   echo "Contagem regressiva: $((10 - i))"
   sleep 1
 done
-
-# Função que chama o script de configuração do ScreenSaver
-curl -s -o /home/zanthus/InstalaSC.sh https://raw.githubusercontent.com/M4ch4d0C0l1d4r/Zanthus/refs/heads/main/ScreenSaver/InstalaSC.sh && chmod +x /home/zanthus/InstalaSC.sh && /home/zanthus/InstalaSC.sh
-
+echo "Adeus"
+sudo reboot
