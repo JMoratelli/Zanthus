@@ -93,13 +93,12 @@ else
   IP_CAIXA="batata"
 fi
 # Comando irá clonar os arquivos de interface do PDV que apontou
-echo "O sistema pode pedir para adicionar como fonte segura, responda "yes" caso o caixa pergunte, nem sempre ele pergunta!"
 echo "Digite a senha do usuário root (consulte manual)"
-rsync -avz -I -e "ssh -p 22" root@$IP_CAIXA:/Zanthus/Zeus/Interface/ /Zanthus/Zeus/Interface/
+rsync -avz -I -e "ssh -o StrictHostKeyChecking=no -p 22" root@$IP_CAIXA:/Zanthus/Zeus/Interface/ /Zanthus/Zeus/Interface/
 sleep 5
 # Nessa etapa irá copiar os arquivos de ClisiTef do PDV que apontou
 echo "Digite a senha do usuário novamente para copiar os arquivos ClisiTef"
-rsync -avz -I -e "ssh -p 22" root@$IP_CAIXA:/Zanthus/Zeus/pdvJava/CliSiTef.ini /Zanthus/Zeus/pdvJava/
+rsync -avz -I -e "ssh -o StrictHostKeyChecking=no -p 22" root@$IP_CAIXA:/Zanthus/Zeus/pdvJava/CliSiTef.ini /Zanthus/Zeus/pdvJava/
 
 # Configurações do CUPS para ajustes da impressão
 echo "Alterando parâmetros CUPS"
