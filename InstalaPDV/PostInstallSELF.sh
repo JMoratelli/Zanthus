@@ -81,7 +81,7 @@ echo "* Aos domingos: $hora_domingo horas"
 # Cópia de arquivos de interface
 echo "Etapa de clone de Interface e Clisitef, clone de um PDV do mesmo tipo"
 echo "Nunca aponte de um Self para um PDV ou de um PDV para um Self"
-echo "Aponte para um PDV do mesmo tipo que já foi configurado, cuidado!"
+echo "Aponte para um PDV do mesmo tipo que já foi configurado, cuidado! Nunca para esse PDV que está configurando."
 read -p "Digite o IP do caixa a ser clonado (ou pressione Enter caso tenha feito manualmente): " IP_CAIXA
 
 # Validação básica do IP
@@ -93,13 +93,12 @@ else
   IP_CAIXA="batata"
 fi
 # Comando irá clonar os arquivos de interface do PDV que apontou
-echo "O sistema pode pedir para adicionar como fonte segura, responda "yes" caso o caixa pergunte, nem sempre ele pergunta!"
 echo "Digite a senha do usuário root (consulte manual)"
-rsync -avz -I -e "ssh -p 22" root@$IP_CAIXA:/Zanthus/Zeus/Interface/ /Zanthus/Zeus/Interface/
+rsync -avz -I -y -e "ssh -o StrictHostKeyChecking=no -p 22" root@$IP_CAIXA:/Zanthus/Zeus/Interface/ /Zanthus/Zeus/Interface/
 sleep 5
 # Nessa etapa irá copiar os arquivos de ClisiTef do PDV que apontou
 echo "Digite a senha do usuário novamente para copiar os arquivos ClisiTef"
-rsync -avz -I -e "ssh -p 22" root@$IP_CAIXA:/Zanthus/Zeus/pdvJava/CliSiTef.ini /Zanthus/Zeus/pdvJava/
+rsync -avz -I -e "ssh -o StrictHostKeyChecking=no -p 22" root@$IP_CAIXA:/Zanthus/Zeus/pdvJava/CliSiTef.ini /Zanthus/Zeus/pdvJava/
 
 #Obtém os valores de ACMx para o link simbólico
 output=$(ls -l /dev/serial/by-id/* | grep 'usb-TOLEDO_CDC_DEVICE_')
