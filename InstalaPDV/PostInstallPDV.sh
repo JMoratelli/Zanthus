@@ -81,7 +81,7 @@ echo "* Aos domingos: $hora_domingo horas"
 # Cópia de arquivos de interface
 echo "Etapa de clone de Interface e Clisitef, clone de um PDV do mesmo tipo"
 echo "Nunca aponte de um Self para um PDV ou de um PDV para um Self"
-echo "Aponte para um PDV do mesmo tipo que já foi configurado, cuidado!"
+echo "Aponte para um PDV do mesmo tipo que já foi configurado, cuidado! Nunca para esse PDV que está configurando."
 read -p "Digite o IP do caixa a ser clonado (ou pressione Enter caso tenha feito manualmente): " IP_CAIXA
 
 # Validação básica do IP
