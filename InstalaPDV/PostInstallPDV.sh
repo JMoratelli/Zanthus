@@ -114,6 +114,24 @@ echo "Container docker reiniciado."
 echo "Rede alterada com sucesso para o endereço IP: $user_ip"
 echo "Script docker finalizado"
 
+#Duplicar monitores
+echo [Inicio] $(date) 2>&1>> /tmp/set-duplicate-monitor.log
+
+tela1=$(xrandr | grep ' connected' | awk '{print $1}' | head -n 1)
+tela2=$(xrandr | grep ' connected' | awk '{print $1}' | tail -n 1)
+
+linha="xrandr --output $tela1 --same-as $tela2"
+
+if [ -e /usr/local/bin/xrandr.set ]; then
+  echo >> /usr/local/bin/xrandr.set
+fi
+
+echo "$linha" | sudo tee -a /usr/local/bin/xrandr.set 2>&1>> /tmp/set-duplicate-monitor.log
+
+echo [Fim] $(date) 2>&1>> /tmp/set-duplicate-monitor.log
+echo [Reinicie sua maquina] 2>&1>> /tmp/set-duplicate-monitor.log
+
+
 # Configurações do CUPS para ajustes da impressão
 echo "Alterando parâmetros CUPS"
 sudo sed 's/^BrowseLocalProtocols.*$/BrowseLocalProtocols\ none/' -i /etc/cups/cupsd.conf
