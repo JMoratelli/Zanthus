@@ -100,6 +100,20 @@ sleep 5
 echo "Digite a senha do usuário novamente para copiar os arquivos ClisiTef"
 rsync -avz -I -e "ssh -o StrictHostKeyChecking=no -p 22" root@$IP_CAIXA:/Zanthus/Zeus/pdvJava/CliSiTef.ini /Zanthus/Zeus/pdvJava/
 
+#Executa script docker para alterar rede docker para padrão 10.220.0.1
+export DISPLAY=:0
+#Define variável IP para padrão
+user_ip="10.220.0.1"
+echo "Escrevendo arquivo..."
+#Altera configurações da rede Docker
+config_data="{ \"bip\": \"$user_ip/16\", \"mtu\": 1500 }"
+echo "$config_data" | sudo tee /etc/docker/daemon.json > /dev/null
+echo "Reiniciando container docker..."
+sudo systemctl restart docker 2>&1>> /tmp/switch-docker-network.log
+echo "Container docker reiniciado."
+echo "Rede alterada com sucesso para o endereço IP: $user_ip"
+echo "Script docker finalizado"
+
 # Configurações do CUPS para ajustes da impressão
 echo "Alterando parâmetros CUPS"
 sudo sed 's/^BrowseLocalProtocols.*$/BrowseLocalProtocols\ none/' -i /etc/cups/cupsd.conf
