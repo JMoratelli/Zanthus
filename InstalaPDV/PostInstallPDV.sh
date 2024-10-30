@@ -1,4 +1,6 @@
 #!/bin/bash
+# Função para limpar a tela
+clear
 echo "Ajustando opções no arquivo /etc/resolv.conf"
 # Configura servidor DNS e adiciona o parâmetro search para que resolva o DNS do AD.
 sudo printf "nameserver 192.168.12.1\n#options edns0 trust-ad\nsearch redemachado.local" > /etc/resolv.conf
@@ -35,7 +37,6 @@ while true; do
             echo "Opção inválida. Por favor, digite 1 ou 2." ;;
     esac
 done
-
 
 # Função para validar a hora
 validar_hora() {
@@ -138,6 +139,44 @@ sudo sed 's/^BrowseLocalProtocols.*$/BrowseLocalProtocols\ none/' -i /etc/cups/c
 cupsctl WebInterface=yes; service cups stop; service cups start
 cupsctl --remote-admin --remote-any
 printf "linux.impressora=IMP-NFE\nlinux.opcoes=3\n" > /Zanthus/Zeus/pdvJava/ZPDF00.CFG
+
+#Instalar impressora
+echo "Instalador de Impressora CUPS"
+
+# Função para validar o endereço IP
+validar_ip() {
+    local ip="$1"
+    if [[ $ip =~ ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$ ]]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+# Solicitar o IP da impressora
+while true; do
+    read -p "Digite o IP da impressora: " IP
+    if validar_ip "$IP"; then
+        break
+    else
+        echo "Endereço IP inválido. Tente novamente."
+    fi
+done
+
+# Comando CUPS para adicionar a impressora
+COMANDO="lpadmin -p IMP-NFE -E -v ipp://$IP -m everywhere"
+
+# Executar o comando
+echo "Executando o comando: $COMANDO"
+$COMANDO
+
+# Verificar se a impressão foi adicionada com sucesso
+if [ $? -eq 0 ]; then
+    echo "Impressora adicionada com sucesso!"
+else
+    echo "Ocorreu um erro ao adicionar a impressora."
+fi
+
 echo "Parâmetros CUPS ajustados com sucesso, será iniciado a instalação do ScreenSaver"
 echo "Script feito por @jjmoratelli, Jurandir Moratelli."
 sleep 5
@@ -149,4 +188,3 @@ done
 
 # Função que chama o script de configuração do ScreenSaver
 curl -s -o /home/zanthus/InstalaSC.sh https://raw.githubusercontent.com/M4ch4d0C0l1d4r/Zanthus/refs/heads/main/ScreenSaver/InstalaSC.sh && chmod +x /home/zanthus/InstalaSC.sh && /home/zanthus/InstalaSC.sh
-
