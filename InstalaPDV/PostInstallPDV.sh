@@ -155,7 +155,7 @@ validar_ip() {
 
 # Solicitar o IP da impressora
 while true; do
-    read -p "Digite o IP da impressora: " IP
+    read -p "Digite o IP da impressora de NFE: " IP
     if validar_ip "$IP"; then
         break
     else
@@ -167,7 +167,7 @@ done
 COMANDO="lpadmin -p IMP-NFE -E -v ipp://$IP -m everywhere"
 
 # Executar o comando
-echo "Executando o comando: $COMANDO"
+echo "Executando..."
 $COMANDO
 
 # Verificar se a impressão foi adicionada com sucesso
