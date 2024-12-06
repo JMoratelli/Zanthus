@@ -6,6 +6,10 @@ echo "Ajustando opções no arquivo /etc/resolv.conf"
 sudo printf "nameserver 192.168.12.1\n#options edns0 trust-ad\nsearch redemachado.local" > /etc/resolv.conf
 echo "Ajustado opções no arquivo /etc/resolv.conf"
 
+#Acrescenta parâmetros para tratar de forma melhor os erros que possam ser causados por instabilidades da Sefaz (Recomendação da Zanthus adicionar essa linha em PDVs comuns).
+sudo printf "timeout=60\n" > /Zanthus/Zeus/pdvJava/ZMWS1201.CFG
+echo "Ajustando arquivo ZMWS1201.CFG"
+
 # Ajusta Fuso horário
 echo "Escolha o fuso horário:"
 echo "1. Cuiabá (America/Cuiaba)"
