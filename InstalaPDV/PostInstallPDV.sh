@@ -119,7 +119,27 @@ echo "Container docker reiniciado."
 echo "Rede alterada com sucesso para o endereço IP: $user_ip"
 echo "Script docker finalizado"
 
-#Duplicar monitores
+#Lista quantidade de telas conectadas em numeral
+monCon=$(xrandr | grep " connected" | wc -l)
+#Extrai nome da entrada 1
+saida1=$(xrandr | grep " connected" | cut -d' ' -f1 | head -n 1)
+#Extrai nome da entrada 2
+saida2=$(xrandr | grep " connected" | cut -d' ' -f1 | head -n 2 | tail -n 1)
+
+#Lista quantidade de telas conectadas para o usuário.
+echo "$monCon monitor(es) conectados"
+
+#Define a resolução no momento de execução.
+echo "Definindo a resolução instantânea para a(s) tela(s) conectada(s)"
+xrandr --output $saida1  --mode 1024x768
+xrandr --output $saida2  --mode 1024x768
+
+#Grava os dados de forma permanente no arquivo xrandr
+echo "Gravando no arquivo xrandr a(s) tela(s) conectada(s)"
+eval "sed -i '/^xrandr --output '$saida1' --mode/c\xrandr --output '$saida1' --mode 1024x768' /usr/local/bin/xrandr.set"
+eval "sed -i '/^xrandr --output '$saida2' --mode/c\xrandr --output '$saida2' --mode 1024x768' /usr/local/bin/xrandr.set"
+
+#Duplicar monitores (script Zanthus)
 echo [Inicio] $(date) 2>&1>> /tmp/set-duplicate-monitor.log
 
 tela1=$(xrandr | grep ' connected' | awk '{print $1}' | head -n 1)
