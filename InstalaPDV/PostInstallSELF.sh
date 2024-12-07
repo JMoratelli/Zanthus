@@ -97,8 +97,8 @@ echo "Digite a senha do usuário root (consulte manual)"
 rsync -avz -I -y -e "ssh -o StrictHostKeyChecking=no -p 22" root@$IP_CAIXA:/Zanthus/Zeus/Interface/ /Zanthus/Zeus/Interface/
 sleep 5
 # Nessa etapa irá copiar os arquivos de ClisiTef do PDV que apontou
-echo "Digite a senha do usuário novamente para copiar os arquivos ClisiTef"
-rsync -avz -I -e "ssh -o StrictHostKeyChecking=no -p 22" root@$IP_CAIXA:/Zanthus/Zeus/pdvJava/CliSiTef.ini /Zanthus/Zeus/pdvJava/
+echo "Copiando arquivos CliSiTef do repositório"
+curl -o "/Zanthus/Zeus/pdvJava/CliSiTef.ini" "https://raw.githubusercontent.com/M4ch4d0C0l1d4r/Zanthus/refs/heads/main/InstalaPDV/Self/CliSiTef.ini"
 
 #Executa script docker para alterar rede docker para padrão 10.220.0.1
 export DISPLAY=:0
