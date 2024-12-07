@@ -84,7 +84,7 @@ echo "* Durante a semana: $hora_semana horas"
 echo "* Aos domingos: $hora_domingo horas"
 
 # Cópia de arquivos de interface
-echo "Etapa de clone de Interface e Clisitef, clone de um PDV do mesmo tipo"
+echo "Etapa de clone de Interface, clone de um PDV do mesmo tipo"
 echo "Nunca aponte de um Self para um PDV ou de um PDV para um Self"
 echo "Aponte para um PDV do mesmo tipo que já foi configurado, cuidado! Nunca para esse PDV que está configurando."
 read -p "Digite o IP do caixa a ser clonado (ou pressione Enter caso tenha feito manualmente): " IP_CAIXA
@@ -102,8 +102,8 @@ echo "Digite a senha do usuário root (consulte manual)"
 rsync -avz -I -e "ssh -o StrictHostKeyChecking=no -p 22" root@$IP_CAIXA:/Zanthus/Zeus/Interface/ /Zanthus/Zeus/Interface/
 sleep 5
 # Nessa etapa irá copiar os arquivos de ClisiTef do PDV que apontou
-echo "Digite a senha do usuário novamente para copiar os arquivos ClisiTef"
-rsync -avz -I -e "ssh -o StrictHostKeyChecking=no -p 22" root@$IP_CAIXA:/Zanthus/Zeus/pdvJava/CliSiTef.ini /Zanthus/Zeus/pdvJava/
+echo "Copiando arquivos CliSiTef do repositório"
+curl -o "/Zanthus/Zeus/pdvJava/CliSiTef.ini" "https://raw.githubusercontent.com/M4ch4d0C0l1d4r/Zanthus/refs/heads/main/InstalaPDV/PDV/CliSiTef.ini"
 
 #Executa script docker para alterar rede docker para padrão 10.220.0.1
 export DISPLAY=:0
