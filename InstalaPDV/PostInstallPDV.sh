@@ -84,24 +84,14 @@ echo "* Durante a semana: $hora_semana horas"
 echo "* Aos domingos: $hora_domingo horas"
 
 # Cópia de arquivos de interface
-echo "Etapa de clone de Interface, clone de um PDV do mesmo tipo"
-echo "Nunca aponte de um Self para um PDV ou de um PDV para um Self"
-echo "Aponte para um PDV do mesmo tipo que já foi configurado, cuidado! Nunca para esse PDV que está configurando."
-read -p "Digite o IP do caixa a ser clonado (ou pressione Enter caso tenha feito manualmente): " IP_CAIXA
-
-# Validação básica do IP
-if [[ $IP_CAIXA =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
-  echo "IP válido: $IP_CAIXA"
-else
-  # IP inválido
-  echo "IP inválido ou decidiu pular a etapa. "
-  IP_CAIXA="batata"
-fi
-# Comando irá clonar os arquivos de interface do PDV que apontou
-echo "Digite a senha do usuário root (consulte manual)"
-rsync -avz -I -e "ssh -o StrictHostKeyChecking=no -p 22" root@$IP_CAIXA:/Zanthus/Zeus/Interface/ /Zanthus/Zeus/Interface/
-sleep 5
-# Nessa etapa irá copiar os arquivos de ClisiTef do PDV que apontou
+echo "Iniciando copia de arquivos de interface a partir do git"
+echo "Copiando Zeus_V.gif"
+curl -o "/Zanthus/Zeus/Interface/resources/imagens/Zeus_V.gif" "https://raw.githubusercontent.com/M4ch4d0C0l1d4r/Zanthus/refs/heads/main/InstalaPDV/PDV/Interface/Zeus_V.gif"
+echo "Copiando config.js"
+curl -o "/Zanthus/Zeus/Interface/config/config.js" "https://raw.githubusercontent.com/M4ch4d0C0l1d4r/Zanthus/refs/heads/main/InstalaPDV/PDV/Interface/config.js"
+echo "Copiando Buttons.js"
+curl -o "/Zanthus/Zeus/Interface/app/api/dinamico/pdvMouse/Buttons.js" "https://raw.githubusercontent.com/M4ch4d0C0l1d4r/Zanthus/refs/heads/main/InstalaPDV/PDV/Interface/Buttons.js"
+# Nessa etapa irá copiar os arquivos de ClisiTef
 echo "Copiando arquivos CliSiTef do repositório"
 curl -o "/Zanthus/Zeus/pdvJava/CliSiTef.ini" "https://raw.githubusercontent.com/M4ch4d0C0l1d4r/Zanthus/refs/heads/main/InstalaPDV/PDV/CliSiTef.ini"
 
