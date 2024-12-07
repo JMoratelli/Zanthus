@@ -1,4 +1,6 @@
 #!/bin/bash
+# Função para limpar a tela
+clear
 echo "Ajustando opções no arquivo /etc/resolv.conf"
 # Configura servidor DNS e adiciona o parâmetro search para que resolva o DNS do AD.
 sudo printf "nameserver 192.168.12.1\n#options edns0 trust-ad\nsearch redemachado.local" > /etc/resolv.conf
@@ -79,24 +81,18 @@ echo "* Durante a semana: $hora_semana horas"
 echo "* Aos domingos: $hora_domingo horas"
 
 # Cópia de arquivos de interface
-echo "Etapa de clone de Interface e Clisitef, clone de um PDV do mesmo tipo"
-echo "Nunca aponte de um Self para um PDV ou de um PDV para um Self"
-echo "Aponte para um PDV do mesmo tipo que já foi configurado, cuidado! Nunca para esse PDV que está configurando."
-read -p "Digite o IP do caixa a ser clonado (ou pressione Enter caso tenha feito manualmente): " IP_CAIXA
-
-# Validação básica do IP
-if [[ $IP_CAIXA =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
-  echo "IP válido: $IP_CAIXA"
-else
-  # IP inválido
-  echo "IP inválido ou decidiu pular a etapa. "
-  IP_CAIXA="batata"
-fi
-# Comando irá clonar os arquivos de interface do PDV que apontou
-echo "Digite a senha do usuário root (consulte manual)"
-rsync -avz -I -y -e "ssh -o StrictHostKeyChecking=no -p 22" root@$IP_CAIXA:/Zanthus/Zeus/Interface/ /Zanthus/Zeus/Interface/
-sleep 5
-# Nessa etapa irá copiar os arquivos de ClisiTef do PDV que apontou
+echo "Iniciando copia de arquivos de interface a partir do git"
+echo "Copiando descanso1000.jpg"
+curl -o "/Zanthus/Zeus/Interface/resources/imagens/descanso1000.jpg" "https://raw.githubusercontent.com/M4ch4d0C0l1d4r/Zanthus/refs/heads/main/InstalaPDV/Self/Interface/descanso1000.jpg"
+echo "Copiando codigo.gif"
+curl -o "/Zanthus/Zeus/Interface/resources/imagens/self/codigo.gif" "https://raw.githubusercontent.com/M4ch4d0C0l1d4r/Zanthus/refs/heads/main/InstalaPDV/Self/Interface/codigo.gif"
+echo "Copiando telas_touch.js"
+curl -o "/Zanthus/Zeus/Interface/resources/js/telas_touch.js" "https://raw.githubusercontent.com/M4ch4d0C0l1d4r/Zanthus/refs/heads/main/InstalaPDV/Self/Interface/telas_touch.js"
+echo "Copiando telas_touch.js"
+curl -o "/Zanthus/Zeus/Interface/resources/js/teclas_touch.js" "https://raw.githubusercontent.com/M4ch4d0C0l1d4r/Zanthus/refs/heads/main/InstalaPDV/Self/Interface/teclas_touch.js"
+echo "Copiando config.js"
+curl -o "/Zanthus/Zeus/Interface/config/config.js" "https://raw.githubusercontent.com/M4ch4d0C0l1d4r/Zanthus/refs/heads/main/InstalaPDV/Self/Interface/config.js"
+# Nessa etapa irá copiar os arquivos de ClisiTef
 echo "Copiando arquivos CliSiTef do repositório"
 curl -o "/Zanthus/Zeus/pdvJava/CliSiTef.ini" "https://raw.githubusercontent.com/M4ch4d0C0l1d4r/Zanthus/refs/heads/main/InstalaPDV/Self/CliSiTef.ini"
 
