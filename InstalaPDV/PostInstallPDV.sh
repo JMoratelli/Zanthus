@@ -91,9 +91,13 @@ echo "Copiando config.js"
 curl -o "/Zanthus/Zeus/Interface/config/config.js" "https://raw.githubusercontent.com/M4ch4d0C0l1d4r/Zanthus/refs/heads/main/InstalaPDV/PDV/Interface/config.js"
 echo "Copiando Buttons.js"
 curl -o "/Zanthus/Zeus/Interface/app/api/dinamico/pdvMouse/Buttons.js" "https://raw.githubusercontent.com/M4ch4d0C0l1d4r/Zanthus/refs/heads/main/InstalaPDV/PDV/Interface/Buttons.js"
+echo "Aplicando permissões na pasta de interface"
+chmod 777 -R /Zanthus/Zeus/Interface/
 # Nessa etapa irá copiar os arquivos de ClisiTef
 echo "Copiando arquivos CliSiTef do repositório"
 curl -o "/Zanthus/Zeus/pdvJava/CliSiTef.ini" "https://raw.githubusercontent.com/M4ch4d0C0l1d4r/Zanthus/refs/heads/main/InstalaPDV/PDV/CliSiTef.ini"
+echo "Aplicando permissões no CliSiTef"
+chmod 777 -R /Zanthus/Zeus/pdvJava/CliSiTef.ini
 
 #Executa script docker para alterar rede docker para padrão 10.220.0.1
 export DISPLAY=:0
