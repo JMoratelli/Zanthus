@@ -182,11 +182,15 @@ while true; do
 done
 
 # Comando CUPS para adicionar a impressora
-COMANDO="lpadmin -p IMP-NFE -E -v ipp://$IP -m everywhere"
-
-# Executar o comando
-echo "Executando..."
-$COMANDO
+echo "Adicionando impressora..."
+# Verifica se o IP digitado é o do balcão fiscal de Confresa
+if [[ "$IP" == "192.168.57.125" ]]; then
+    #Caso a impressora seja a de Confresa, o Script vai executar esse script, para fazer os ajustes nela e adicionar o driver manualmente
+    curl -o /usr/share/cups/model/Kyocera_ECOSYS_MA5500ifx_.ppd https://raw.githubusercontent.com/M4ch4d0C0l1d4r/Zanthus/refs/heads/main/InstalaPDV/Drivers/Kyocera_ECOSYS_MA5500ifx_.ppd; lpadmin -p IMP-NFE -E -v socket://192.168.57.125 -i /usr/share/cups/model/Kyocera_ECOSYS_MA5500ifx_.ppd
+else
+    #Configura impressora em redes padrão, sem VLAN
+    lpadmin -p IMP-NFE -E -v ipp://$IP -m everywhere
+fi
 
 # Verificar se a impressão foi adicionada com sucesso
 if [ $? -eq 0 ]; then
@@ -196,7 +200,7 @@ else
 fi
 
 echo "Parâmetros CUPS ajustados com sucesso, será iniciado a instalação do ScreenSaver"
-echo "Script feito por @jjmoratelli, Jurandir Moratelli."
+echo "Script feito por @jjmoratelli, Jurandir Moratelli ;)."
 sleep 5
 #Contador
 for i in {1..10}; do
