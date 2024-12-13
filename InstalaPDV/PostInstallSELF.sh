@@ -100,6 +100,10 @@ curl -o "/Zanthus/Zeus/pdvJava/CliSiTef.ini" "https://raw.githubusercontent.com/
 echo "Aplicando permissões no CliSiTef"
 chmod 777 -R /Zanthus/Zeus/pdvJava/CliSiTef.ini
 
+#Define o volume do PDV para 84%
+echo "Ajustando volume Master"
+amixer set Master 60
+
 #Executa script docker para alterar rede docker para padrão 10.220.0.1
 export DISPLAY=:0
 #Define variável IP para padrão
