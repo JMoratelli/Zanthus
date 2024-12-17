@@ -134,7 +134,7 @@ eval "sed -i '/^xrandr --output '$saida1' --mode/c\xrandr --output '$saida1' --m
 eval "sed -i '/^xrandr --output '$saida2' --mode/c\xrandr --output '$saida2' --mode 1024x768' /usr/local/bin/xrandr.set"
 
 #Grava os dados de forma permanente no arquivo xrandr
-sed -i '/cut -d ";" -f 1 )$/a\xrandr --output $saida1 --mode 1024x768\xrandr --output $saida2 --mode 1024x768' /usr/local/bin/xrandr.set
+eval 'sed -i "/cut -d \";\" -f 1 )$/a\xrandr --output '$saida1' --mode '$resolucao'\xrandr --output '$saida2' --mode '$resolucao'" /usr/local/bin/xrandr.set'
 
 
 
