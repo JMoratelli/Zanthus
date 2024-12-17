@@ -130,7 +130,7 @@ xrandr --output $saida2  --mode 1024x768
 
 #Grava os dados de forma permanente no arquivo xrandr
 echo "Gerando arquivo xrandr"
-printf "#! /bin/bash\n#Arquivo Gerado por script de inicialização\n#@jjmoratelli\nxrandr > /tmp/displays\nxinput list --id-only > /tmp/xdevices-id\nxinput list --name-only > /tmp/xdevices-name\nDEFAULT=$(xrandr|grep -v eDP|awk 'BEGIN {} /^.*connected/{printf("%s;", $1)} END {}' | cut -d ";" -f 1 )\nxrandr --output '$saida1'  --mode 1024x768\nxrandr --output '$saida2'  --mode 1024x768" > /usr/local/bin/xrandr.set
+printf "#!/bin/bash\n#Arquivo Gerado por script de inicialização\n#@jjmoratelli\nxrandr > /tmp/displays\nxinput list --id-only > /tmp/xdevices-id\nxinput list --name-only > /tmp/xdevices-name\nDEFAULT=$(xrandr|grep -v eDP|awk 'BEGIN {} /^.*connected/{printf("%s;", $1)} END {}' | cut -d ";" -f 1 )\nxrandr --output '$saida1'  --mode 1024x768\nxrandr --output '$saida2'  --mode 1024x768" > /usr/local/bin/xrandr.set
 
 sleep 5
 #Duplicar monitores (script Zanthus)
