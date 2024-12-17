@@ -122,17 +122,17 @@ saida2=$(xrandr | grep " connected" | cut -d' ' -f1 | head -n 2 | tail -n 1)
 
 #Lista quantidade de telas conectadas para o usuário.
 echo "$monCon monitor(es) conectados"
-
+sleep 5
 #Define a resolução no momento de execução.
 echo "Definindo a resolução instantânea para a(s) tela(s) conectada(s)"
 xrandr --output $saida1  --mode 1024x768
 xrandr --output $saida2  --mode 1024x768
-
+sleep 5
 #Grava os dados de forma permanente no arquivo xrandr
 echo "Gravando no arquivo xrandr a(s) tela(s) conectada(s)"
 eval "sed -i '/^xrandr --output '$saida1' --mode/c\xrandr --output '$saida1' --mode 1024x768' /usr/local/bin/xrandr.set"
 eval "sed -i '/^xrandr --output '$saida2' --mode/c\xrandr --output '$saida2' --mode 1024x768' /usr/local/bin/xrandr.set"
-
+sleep 5
 #Duplicar monitores (script Zanthus)
 echo [Inicio] $(date) 2>&1>> /tmp/set-duplicate-monitor.log
 
