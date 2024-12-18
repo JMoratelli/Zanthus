@@ -132,8 +132,22 @@ fi
 
 # Extrair o dígito Y usando expressões regulares
 Y=$(echo "$output" | grep -oP 'ttyACM\K\d')
-#Grava os arquivos no PDVTouch.sh
-printf "#! /bin/bash\nmv -vf /dev/ttyS4 /dev/ttyS104\nln -s /dev/ttyACM$Y /dev/ttyS4\nchmod -x /usr/local/bin/igraficaJava;\nchmod -x /usr/local/bin/dualmonitor_control-PDVJava\nnohup recreate-user-rabbitmq.sh &\n/Zanthus/Zeus/pdvJava/pdvJava2 &\nnohup chromium-browser --disable-pinch --disable-gpu --test-type --no-sandbox --kiosk --no-context-menu --disable-translate file:////Zanthus/Zeus/Interface/index.html" > /Zanthus/Zeus/pdvJava/PDVTouch.sh
+#Comando que gravará no PDVTouch.sh
+script_PDVTouch=$(cat << EOF
+#! /bin/bash
+mv -vf /dev/ttyS4 /dev/ttyS104
+ln -s /dev/ttyACM$Y /dev/ttyS4
+chmod -x /usr/local/bin/igraficaJava;
+chmod -x /usr/local/bin/dualmonitor_control-PDVJava
+nohup recreate-user-rabbitmq.sh &
+/Zanthus/Zeus/pdvJava/pdvJava2 &
+sleep 30
+nohup chromium-browser --disable-pinch --disable-gpu --disk-cache-dir=/tmp/chromium-cache --user-data-dir=$(mktemp -d) --test-type --no-sandbox --kiosk --no-context-menu --disable-translate file:////Zanthus/Zeus/Interface/index.html
+EOF
+)
+# Grava o conteúdo do script no arquivo
+echo "$script_PDVTouch" > /Zanthus/Zeus/pdvJava/PDVTouch.sh
+
 chmod +x /Zanthus/Zeus/pdvJava/PDVTouch.sh
 echo "Linhas adicionadas ao arquivo /Zanthus/Zeus/pdvJava/PDVTouch.sh"
 # Exibir o valor de Y (opcional)
