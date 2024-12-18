@@ -20,7 +20,8 @@ if ! grep -Fxq "export DISPLAY=:0" /etc/profile; then
 else
   echo "Linha já existe no arquivo /etc/profile"
 fi
-
+# Função para limpar a tela
+clear
 # Pergunta ao usuário a filial
 echo "Não utilize esse script em caixa SelfCheckout!"
 echo "Selecione a filial que deseja configurar o screensaver, escolha com cuidado, operação não é reversível."
