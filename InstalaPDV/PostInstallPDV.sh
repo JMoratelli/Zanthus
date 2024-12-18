@@ -11,7 +11,8 @@ echo "Ajustado opções no arquivo /etc/resolv.conf"
 #Acrescenta parâmetros para tratar de forma melhor os erros que possam ser causados por instabilidades da Sefaz (Recomendação da Zanthus adicionar essa linha em PDVs comuns).
 sudo printf "timeout=60\n" > /Zanthus/Zeus/pdvJava/ZMWS1201.CFG
 echo "Ajustando arquivo ZMWS1201.CFG"
-
+# Função para limpar a tela
+clear
 # Ajusta Fuso horário
 echo "Escolha o fuso horário:"
 echo "1. Cuiabá (America/Cuiaba)"
@@ -189,7 +190,8 @@ validar_ip() {
         return 1
     fi
 }
-
+# Função para limpar a tela
+clear
 # Solicitar o IP da impressora
 while true; do
     read -p "Digite o IP da impressora de NFE: " IP
