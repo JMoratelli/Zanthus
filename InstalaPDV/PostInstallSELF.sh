@@ -7,7 +7,8 @@ echo "Ajustando opções no arquivo /etc/resolv.conf"
 # Configura servidor DNS e adiciona o parâmetro search para que resolva o DNS do AD.
 sudo printf "nameserver 192.168.12.1\n#options edns0 trust-ad\nsearch redemachado.local" > /etc/resolv.conf
 echo "Ajustado opções no arquivo /etc/resolv.conf"
-
+# Função para limpar a tela
+clear
 # Ajusta Fuso horário
 echo "Escolha o fuso horário:"
 echo "1. Cuiabá (America/Cuiaba)"
