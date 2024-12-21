@@ -88,14 +88,20 @@ echo "* Aos domingos: $hora_domingo horas"
 
 # Cópia de arquivos de interface
 echo "Iniciando copia de arquivos de interface a partir do git"
-echo "Copiando Zeus_V.gif"
+echo "Copiando Ícones"
+wget https://github.com/JMoratelli/Zanthus/raw/refs/heads/main/InstalaPDV/InterfaceUnificada/icones.7z -O /Zanthus/Zeus/Interface/resources/icones/icones.7z && cd /Zanthus/Zeus/Interface/resources/icones/ && 7z x -y icones.7z "*"echo "Copiando Zeus_V.gif"
 curl -o "/Zanthus/Zeus/Interface/resources/imagens/Zeus_V.gif" "https://raw.githubusercontent.com/M4ch4d0C0l1d4r/Zanthus/refs/heads/main/InstalaPDV/PDV/Interface/Zeus_V.gif"
+echo "Copiando cancela_sel.png"
+curl -o "/Zanthus/Zeus/Interface/resources/imagens/cancela_sel.png" "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/InterfaceUnificada/cancela_sel.png"
+echo "Copiando cancela.png"
+curl -o "/Zanthus/Zeus/Interface/resources/imagens/cancela.png" "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/InterfaceUnificada/cancela.png"
 echo "Copiando config.js"
 curl -o "/Zanthus/Zeus/Interface/config/config.js" "https://raw.githubusercontent.com/M4ch4d0C0l1d4r/Zanthus/refs/heads/main/InstalaPDV/PDV/Interface/config.js"
 echo "Copiando Buttons.js"
 curl -o "/Zanthus/Zeus/Interface/app/api/dinamico/pdvMouse/Buttons.js" "https://raw.githubusercontent.com/M4ch4d0C0l1d4r/Zanthus/refs/heads/main/InstalaPDV/PDV/Interface/Buttons.js"
 echo "Aplicando permissões na pasta de interface"
 chmod 777 -R /Zanthus/Zeus/Interface/
+
 # Nessa etapa irá copiar os arquivos de ClisiTef
 echo "Copiando arquivos CliSiTef do repositório"
 curl -o "/Zanthus/Zeus/pdvJava/CliSiTef.ini" "https://raw.githubusercontent.com/M4ch4d0C0l1d4r/Zanthus/refs/heads/main/InstalaPDV/PDV/CliSiTef.ini"
