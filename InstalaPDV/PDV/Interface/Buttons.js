@@ -156,7 +156,7 @@ Ext.define("Pdv.api.dinamico.pdvMouse.Buttons", {
         itemId: "teclaF9",
         pdvfn: 12803,
         atalho: !0,
-        text: "F9 - Vendedor",
+        text: "F9 - Pesquisa Cliente",
         icon: _resources_icon_10,
         iconAlign: "top",
         cls: "bt_atalho"
