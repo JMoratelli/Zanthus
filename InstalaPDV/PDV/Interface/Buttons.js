@@ -153,6 +153,17 @@ Ext.define("Pdv.api.dinamico.pdvMouse.Buttons", {
         cls: "bt_atalho"
     }, {
         xtype: "teclagatilho",
+        itemId: "teclaF9",
+        autoLabel: "C&oacute;d. Vendedor",
+        evento: 3,
+        atalho: !0,
+        autoColeta: !0,
+        text: "F9 - Vendedor",
+        icon: _resources_icon_10,
+        iconAlign: "top",
+        cls: "bt_atalho"
+    }, {
+        xtype: "teclagatilho",
         itemId: "teclaF10",
         evento: 2,
         atalho: !0,
