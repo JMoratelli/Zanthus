@@ -83,10 +83,21 @@ echo "Desligamento agendado:"
 echo "* Durante a semana: $hora_semana horas"
 echo "* Aos domingos: $hora_domingo horas"
 
+#Clone arquivos de áudio do PDV
+base_url="https://github.com/JMoratelli/Zanthus/raw/refs/heads/main/InstalaPDV/Self/Interface/audio/"
+# Diretório de destino
+destino="/Zanthus/Zeus/Interface/resources/audio/"
+# Loop para gerar as URLs e executar o wget
+for i in {0..24}; do
+  url="${base_url}${i}.mp3"
+  wget -N -P "$destino" "$url"
+done
+
 # Cópia de arquivos de interface
 echo "Iniciando copia de arquivos de interface a partir do git"
 echo "Copiando Ícones"
-wget https://github.com/JMoratelli/Zanthus/raw/refs/heads/main/InstalaPDV/InterfaceUnificada/icones.7z -O /Zanthus/Zeus/Interface/resources/icones/icones.7z && cd /Zanthus/Zeus/Interface/resources/icones/ && 7z x -y icones.7z "*"echo "Copiando Zeus_V.gif"
+wget https://github.com/JMoratelli/Zanthus/raw/refs/heads/main/InstalaPDV/InterfaceUnificada/icones.7z -O /Zanthus/Zeus/Interface/resources/icones/icones.7z && cd /Zanthus/Zeus/Interface/resources/icones/ && 7z x -y icones.7z "*"
+echo "Copiando Zeus_V.gif"
 curl -o "/Zanthus/Zeus/Interface/resources/imagens/Zeus_V.gif" "https://raw.githubusercontent.com/M4ch4d0C0l1d4r/Zanthus/refs/heads/main/InstalaPDV/PDV/Interface/Zeus_V.gif"
 echo "Copiando cancela_sel.png"
 curl -o "/Zanthus/Zeus/Interface/resources/imagens/cancela_sel.png" "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/InterfaceUnificada/cancela_sel.png"
