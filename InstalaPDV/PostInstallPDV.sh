@@ -228,7 +228,7 @@ else
 fi
 
 echo "Parâmetros CUPS ajustados com sucesso, será iniciado a instalação do ScreenSaver"
-echo "Script feito por @jjmoratelli, Jurandir Moratelli ;)."
+echo "Script desenvolvido por @jjmoratelli, Jurandir Moratelli ;)."
 sleep 5
 #Contador
 for i in {1..10}; do
