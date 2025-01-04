@@ -187,7 +187,7 @@ while true; do
   fi
 done
 
-echo "Script feito por @jjmoratelli, Jurandir Moratelli. PDV será reiniciado após o fim do contador"
+echo "Script desenvolvido por @jjmoratelli, Jurandir Moratelli. PDV será reiniciado após o fim do contador"
 sleep 5
 #Contador
 for i in {1..10}; do
