@@ -10,7 +10,7 @@ sudo apt install xscreensaver -y
 sudo apt install mpv -y
 
 # Faz download do arquivo de configuração do xscreensaver
-curl -s -o /home/zanthus/.xscreensaver https://raw.githubusercontent.com/M4ch4d0C0l1d4r/Zanthus/refs/heads/main/ScreenSaver/.xscreensaver
+curl -s -o /home/zanthus/.xscreensaver https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/ScreenSaver/.xscreensaver
 
 # Verifica se a linha já existe no arquivo
 if ! grep -Fxq "export DISPLAY=:0" /etc/profile; then
