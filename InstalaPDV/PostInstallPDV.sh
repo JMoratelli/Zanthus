@@ -1,4 +1,7 @@
 #!/bin/bash
+#Funcao Provisioria para corrigir arquivos de carga
+sed -i "s/endereco=serv-zt-aplic/endereco=192.168.13.250:80/g" /Zanthus/Zeus/pdvJava/RESTG0000.CFG
+sed -i "s/endereco=serv-zt-aplic/endereco=192.168.13.250:80/g" /Zanthus/Zeus/pdvJava/CARG0000.CFG
 # Função para limpar a tela
 clear
 # Atualiza o Grub, para acelerar processo de boot.
