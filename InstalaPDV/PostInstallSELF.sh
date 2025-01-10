@@ -140,22 +140,13 @@ echo "Container docker reiniciado."
 echo "Rede alterada com sucesso para o endereço IP: $user_ip"
 echo "Script docker finalizado"
 
-#Obtém os valores de ACMx para o link simbólico
-output=$(ls -l /dev/serial/by-id/* | grep 'usb-TOLEDO_CDC_DEVICE_')
+curl -s -o /home/zanthus/BalancaUSB.sh https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/BalancaUSB.sh
+chmod +x /home/zanthus/BalancaUSB.sh && /home/zanthus/BalancaUSB.sh
 
-# Verificar se a linha foi encontrada
-if [[ -z "$output" ]]; then
-  echo "Dispositivo não encontrado."
-  exit 1
-fi
-
-# Extrair o dígito Y usando expressões regulares
-Y=$(echo "$output" | grep -oP 'ttyACM\K\d')
 #Comando que gravará no PDVTouch.sh
 script_PDVTouch=$(cat << EOF
 #! /bin/bash
-mv -vf /dev/ttyS4 /dev/ttyS104
-ln -s /dev/ttyACM$Y /dev/ttyS4
+nohup /home/zanthus/BalancaUSB.sh &
 chmod -x /usr/local/bin/igraficaJava;
 chmod -x /usr/local/bin/dualmonitor_control-PDVJava
 nohup recreate-user-rabbitmq.sh &
