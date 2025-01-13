@@ -126,60 +126,7 @@ echo "Container docker reiniciado."
 echo "Rede alterada com sucesso para o endereço IP: $user_ip"
 echo "Script docker finalizado"
 
-#Lista quantidade de telas conectadas em numeral
-monCon=$(xrandr | grep " connected" | wc -l)
-#Extrai nome da entrada 1
-saida1=$(xrandr | grep " connected" | cut -d' ' -f1 | head -n 1)
-#Extrai nome da entrada 2
-saida2=$(xrandr | grep " connected" | cut -d' ' -f1 | head -n 2 | tail -n 1)
-
-#Lista quantidade de telas conectadas para o usuário.
-echo "$monCon monitor(es) conectados"
-sleep 5
-#Define a resolução no momento de execução.
-echo "Definindo a resolução instantânea para a(s) tela(s) conectada(s)"
-xrandr --output $saida1  --mode 1024x768
-xrandr --output $saida2  --mode 1024x768
-
-#Grava os dados de forma permanente no arquivo xrandr
-echo "Gerando arquivo xrandr"
-
-#Script xrandr.set
-script_content=$(cat << EOF
-#!/bin/bash
-#Arquivo Gerado por script de inicialização
-#@jjmoratelli
-xrandr > /tmp/displays
-xinput list --id-only > /tmp/xdevices-id
-xinput list --name-only > /tmp/xdevices-name
-DEFAULT=$(xrandr|grep -v eDP|awk 'BEGIN {} /^.*connected/{printf("%s;", $1)} END {}' | cut -d ";" -f 1 )
-xrandr --output "$saida1" --mode 1024x768
-xrandr --output "$saida2" --mode 1024x768
-EOF
-)
-
-# Grava o conteúdo do script no arquivo
-echo "$script_content" > /usr/local/bin/xrandr.set
-# Torna o script executável
-chmod +x /usr/local/bin/xrandr.set
-sleep 5
-#Duplicar monitores (script Zanthus)
-echo [Inicio] $(date) 2>&1>> /tmp/set-duplicate-monitor.log
-
-tela1=$(xrandr | grep ' connected' | awk '{print $1}' | head -n 1)
-tela2=$(xrandr | grep ' connected' | awk '{print $1}' | tail -n 1)
-
-linha="xrandr --output $tela1 --same-as $tela2"
-
-if [ -e /usr/local/bin/xrandr.set ]; then
-  echo >> /usr/local/bin/xrandr.set
-fi
-
-echo "$linha" | sudo tee -a /usr/local/bin/xrandr.set 2>&1>> /tmp/set-duplicate-monitor.log
-
-echo [Fim] $(date) 2>&1>> /tmp/set-duplicate-monitor.log
-echo [Reinicie sua maquina] 2>&1>> /tmp/set-duplicate-monitor.log
-
+#Removidas linhas de duplicação de monitores.
 
 # Configurações do CUPS para ajustes da impressão
 echo "Alterando parâmetros CUPS"
@@ -204,7 +151,7 @@ validar_ip() {
 clear
 # Solicitar o IP da impressora
 while true; do
-    read -p "Digite o IP da impressora de NFE: " IP
+    read -p "Digite o IP da impressora de NFE do Atendimento ao cliente: " IP
     if validar_ip "$IP"; then
         break
     else
@@ -215,7 +162,7 @@ done
 # Comando CUPS para adicionar a impressora
 echo "Adicionando impressora..."
 # Verifica se o IP digitado é o do balcão fiscal de Confresa
-if [[ "$IP" == "192.168.57.125" ]]; then
+if [[ "$IP" == "192.168.57.126" ]]; then
     #Caso a impressora seja a de Confresa, o Script vai executar esse script, para fazer os ajustes nela e adicionar o driver manualmente
     curl -o /usr/share/cups/model/Kyocera_ECOSYS_MA5500ifx_.ppd https://raw.githubusercontent.com/M4ch4d0C0l1d4r/Zanthus/refs/heads/main/InstalaPDV/Drivers/Kyocera_ECOSYS_MA5500ifx_.ppd; lpadmin -p IMP-NFE -E -v socket://192.168.57.125 -i /usr/share/cups/model/Kyocera_ECOSYS_MA5500ifx_.ppd
 else
@@ -233,11 +180,112 @@ fi
 echo "Parâmetros CUPS ajustados com sucesso, será iniciado a instalação do ScreenSaver"
 echo "Script desenvolvido por @jjmoratelli, Jurandir Moratelli ;)."
 sleep 5
+#ACRESCENTADO SCRIPT DE SCREENSAVER AO SCRIPT PRINCIPAL - Parâmetros únicos são aplicados à PDVs do atendimento.
+# Executa atualização do sistema
+sudo apt update -y
+
+# Realiza instalação do xscreensaver
+sudo apt install xscreensaver -y
+
+# Realiza instalação do mpv
+sudo apt install mpv -y
+
+# Faz download do arquivo de configuração do xscreensaver
+curl -s -o /home/zanthus/.xscreensaver https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/ScreenSaver/.xscreensaver
+
+# Verifica se a linha já existe no arquivo
+if ! grep -Fxq "export DISPLAY=:0" /etc/profile; then
+  # Se não existir, adiciona a linha
+  sudo echo "export DISPLAY=:0" >> /etc/profile
+  echo "Linha adicionada ao arquivo /etc/profile"
+else
+  echo "Linha já existe no arquivo /etc/profile"
+fi
+# Função para limpar a tela
+clear
+# Pergunta ao usuário a filial
+echo "Não utilize esse script em caixa SelfCheckout!"
+echo "Selecione a filial que deseja configurar o screensaver, escolha com cuidado, operação não é reversível."
+echo "Caso tenha escolhido a alternativa errada, não adiantará reexecutar o script, atenção!"
+echo "1. Centro Colider LJ01 - FL1"
+echo "2. Bairro Colider LJ02 - FL3"
+echo "3. Matupá LJ03 - FL9"
+echo "4. Alta Floresta LJ05 - FL53"
+echo "5. Primavera LJ06 - FL52"
+echo "6. Confresa LJ07 - FL57"
+
+#Cria um laço de repetição, que seguirá rodando até selecionar uma opção válida do menu.
+while true; do
+  read -p "Digite a sua opção: " opcao
+
+  case $opcao in
+    1)
+      # Comandos para a opção 1
+      echo "Você escolheu a Filial de Colíder, Loja Centro"
+      filial=1
+      break ;;
+    2)
+      # Comandos para a opção 2
+      echo "Você escolheu a Filial de Colíder, Loja Bairro"
+      filial=3
+      break ;;
+    3)
+      # Comandos para a opção 3
+      echo "Você escolheu a Filial de Matupá"
+      filial=9
+      break ;;
+    4)
+      echo "Você escolheu a Filial de Alta Floresta"
+      filial=53
+      break ;;
+    5)
+      echo "Você escolheu a Filial de Primavera do Leste"
+      filial=52
+      break ;;
+    6)
+      echo "Você escolheu a Filial de Confresa"
+      filial=57
+      break ;;
+    *)
+      echo "Opção inválida! Por favor, digite uma opção válida." ;;
+  esac
+done
+
+# Grava os dados de inicialização do PDV
+curl -s -o /home/zanthus/atualizaSC$filial.sh https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/ScreenSaver/atualizaSC$filial.sh
+echo "Realizado download do script para filial $filial"
+
+# Força a execução do script de atualização pela primeira vez
+chmod +x /home/zanthus/atualizaSC$filial.sh && /home/zanthus/atualizaSC$filial.sh
+
+#Comando que gravará no PDVTouch.sh
+script_PDVTouch=$(cat << EOF
+#! /bin/bash
+sudo xhost +local:zanthus
+sudo -u zanthus xscreensaver -no-splash &
+chmod +x /home/zanthus/atualizaSC$filial.sh && /home/zanthus/atualizaSC$filial.sh
+chmod -x /usr/local/bin/igraficaJava;
+chmod -x /usr/local/bin/dualmonitor_control-PDVJava
+nohup recreate-user-rabbitmq.sh &
+/Zanthus/Zeus/pdvJava/pdvJava2 &
+sleep 30
+nohup chromium-browser --disable-pinch --disable-gpu --disk-cache-dir=/tmp/chromium-cache --user-data-dir=$(mktemp -d) --test-type --no-sandbox --no-context-menu --disable-translate file:////Zanthus/Zeus/Interface/index.html
+EOF
+)
+# Grava o conteúdo do script no arquivo
+echo "$script_PDVTouch" > /Zanthus/Zeus/pdvJava/PDVTouch.sh
+
+chmod +x /Zanthus/Zeus/pdvJava/PDVTouch.sh
+
+echo "Script finalizado, aguarde o fim do contador para que o PDV reinicie"
+echo "Script feito por @jjmoratelli, Jurandir Moratelli."
+sleep 5
 #Contador
 for i in {1..10}; do
   echo "Contagem regressiva: $((10 - i))"
   sleep 1
 done
 
-# Função que chama o script de configuração do ScreenSaver
-curl -s -o /home/zanthus/InstalaSC.sh https://raw.githubusercontent.com/M4ch4d0C0l1d4r/Zanthus/refs/heads/main/ScreenSaver/InstalaSC.sh && chmod +x /home/zanthus/InstalaSC.sh && /home/zanthus/InstalaSC.sh
+# Reinicia o PDV para aplicar configurações
+echo "Reiniciando"
+sudo reboot
