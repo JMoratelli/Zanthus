@@ -5,7 +5,15 @@ sed -i "s/endereco=serv-zt-aplic/endereco=192.168.13.250:80/g" /Zanthus/Zeus/pdv
 # Função para limpar a tela
 clear
 # Atualiza o Grub, para acelerar processo de boot.
-sudo grub-install
+read -p "Deseja atualizar o Grub? (Não recomendado para dispositivos antigos) [S/n]: " resposta
+if [[ "$resposta" == "S" || "$resposta" == "s" ]]; then
+  # Executa o comando sudo grub-install
+  sudo grub-install
+else
+  # Mensagem caso o usuário não queira atualizar
+  echo "Ok, grub não será atualizado."
+fi
+
 echo "Ajustando opções no arquivo /etc/resolv.conf"
 # Configura servidor DNS e adiciona o parâmetro search para que resolva o DNS do AD.
 sudo printf "nameserver 192.168.12.1\n#options edns0 trust-ad\nsearch redemachado.local" > /etc/resolv.conf
