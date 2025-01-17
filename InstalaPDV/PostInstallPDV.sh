@@ -9,15 +9,19 @@ sudo sed -i 's/#Storage=auto/Storage=none/g' /etc/systemd/journald.conf
 sudo sed -i 's/#SystemKeepFree=/SystemKeepFree=60G/g' /etc/systemd/journald.conf
 sudo sed -i 's/#SystemMaxUse=/SystemMaxUse=1G/g' /etc/systemd/journald.conf
 sudo sed -i 's/#SystemMaxFileSize=/SystemMaxFileSize=1G/g' /etc/systemd/journald.conf
-echo "Ajustando parâmetros journald.conf, aguarde..."
+echo "Ajustando parâmetros journald.conf"
 # Atualiza o Grub, para acelerar processo de boot.
-read -p "Deseja atualizar o Grub? (Não recomendado para dispositivos antigos) [S/n]: " resposta
+echo "Parâmetros abaixo são necessários para o bom funcionamento do sistema. Lojas 1 e 2 reportam erros se selecionar S no menu a seguir."
+read -p "Atualizar o GRUB sem ajustar parâmetros? (Digite "n" para máquinas mais antigas)[S/n]: " resposta
 if [[ "$resposta" == "S" || "$resposta" == "s" ]]; then
   # Executa o comando sudo grub-install
+  echo "Atualizando GRUB"
   sudo grub-install
 else
   # Mensagem caso o usuário não queira atualizar
-  echo "Ok, grub não será atualizado."
+  echo "Ok, ajustes legados iniciados. Atualizando GRUB... Esse processo pode demorar, aguarde..."
+  sudo grub-install
+  echo "Parâmetros de inicialização serão aplicados, aguarde..."
   sudo sed -i '/GRUB_CMDLINE_LINUX_DEFAULT="quiet splash \(pci=nommconf\|pcie_aspm=off\|pci=noaer\)/! s/\(GRUB_CMDLINE_LINUX_DEFAULT="quiet splash\)/\1 pci=nommconf pcie_aspm=off pci=noaer/' /etc/default/grub
   echo "Aguarde, esse processo pode ser demorado. Ajustando parâmetros kernel para máquinas legado."
   sleep 5
