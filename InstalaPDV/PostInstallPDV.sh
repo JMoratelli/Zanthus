@@ -5,7 +5,7 @@ sed -i "s/endereco=serv-zt-aplic/endereco=192.168.13.250:80/g" /Zanthus/Zeus/pdv
 # Função para limpar a tela
 clear
 #Função para ajustar parâmetro de log, evitando lotar o HD
-sudo sed -i 's/#SystemMaxUse=/SystemMaxUse=1G/g; s/#RuntimeKeepFree=/SystemKeepFree=60%/g' /etc/systemd/journald.conf
+sudo sed -i 's/#SystemMaxUse=/SystemMaxUse=1G/g; s/#RuntimeKeepFree=/SystemKeepFree=80%/g' /etc/systemd/journald.conf
 echo "Ajustando parâmetros journald.conf, aguarde..."
 # Atualiza o Grub, para acelerar processo de boot.
 read -p "Deseja atualizar o Grub? (Não recomendado para dispositivos antigos) [S/n]: " resposta
