@@ -15,12 +15,10 @@ if [[ "$resposta" == "S" || "$resposta" == "s" ]]; then
 else
   # Mensagem caso o usuário não queira atualizar
   echo "Ok, grub não será atualizado."
-  sudo systemctl stop systemd-journald
   sudo sed -i '/GRUB_CMDLINE_LINUX_DEFAULT="quiet splash \(pci=nommconf\|pcie_aspm=off\|pci=noaer\)/! s/\(GRUB_CMDLINE_LINUX_DEFAULT="quiet splash\)/\1 pci=nommconf pcie_aspm=off pci=noaer/' /etc/default/grub
   echo "Aguarde, esse processo pode ser demorado. Ajustando parâmetros kernel para máquinas legado."
   sleep 5
   sudo update-grub
-  sudo systemctl start systemd-journald
 fi
 
 echo "Ajustando opções no arquivo /etc/resolv.conf"
