@@ -4,6 +4,13 @@ sed -i "s/endereco=serv-zt-aplic/endereco=192.168.13.250:80/g" /Zanthus/Zeus/pdv
 sed -i "s/endereco=serv-zt-aplic/endereco=192.168.13.250:80/g" /Zanthus/Zeus/pdvJava/CARG0000.CFG
 # Função para limpar a tela
 clear
+#Função para ajustar parâmetro de log, evitando lotar o HD
+sudo sed -i 's/#SystemMaxUse=/SystemMaxUse=1G/g; s/#RuntimeKeepFree=/SystemKeepFree=10%/g' /etc/systemd/journald.conf
+echo "Ajustando parâmetros journald.conf, aguarde..."
+sleep 5
+sudo systemctl restart systemd-journald
+echo "Reiniciando journald, aguarde..."
+sleep 5
 # Atualiza o Grub, para acelerar processo de boot.
 read -p "Deseja atualizar o Grub? (Não recomendado para dispositivos antigos) [S/n]: " resposta
 if [[ "$resposta" == "S" || "$resposta" == "s" ]]; then
