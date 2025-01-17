@@ -31,3 +31,5 @@ if [ "$tamanho_origem_num" != "$tamanho_destino_num" ]; then
 else
     echo "Os arquivos possuem o mesmo tamanho. Download não realizado."
 fi
+#Apaga logs, evitando lotar o HD
+sudo journalctl --vacuum-size=200M
