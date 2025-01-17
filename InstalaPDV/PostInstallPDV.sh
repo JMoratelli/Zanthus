@@ -8,9 +8,6 @@ clear
 sudo sed -i 's/#SystemMaxUse=/SystemMaxUse=1G/g; s/#RuntimeKeepFree=/SystemKeepFree=60%/g' /etc/systemd/journald.conf
 echo "Ajustando parâmetros journald.conf, aguarde..."
 sleep 5
-sudo systemctl restart systemd-journald
-echo "Reiniciando journald, aguarde..."
-sleep 5
 # Atualiza o Grub, para acelerar processo de boot.
 read -p "Deseja atualizar o Grub? (Não recomendado para dispositivos antigos) [S/n]: " resposta
 if [[ "$resposta" == "S" || "$resposta" == "s" ]]; then
