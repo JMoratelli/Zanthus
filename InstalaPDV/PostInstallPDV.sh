@@ -24,6 +24,7 @@ else
   echo "Aguarde, esse processo pode ser demorado. Ajustando parâmetros kernel para máquinas legado."
   sleep 5
   sudo update-grub
+  sudo systemctl start systemd-journald
 fi
 
 echo "Ajustando opções no arquivo /etc/resolv.conf"
