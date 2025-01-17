@@ -5,7 +5,7 @@ sed -i "s/endereco=serv-zt-aplic/endereco=192.168.13.250:80/g" /Zanthus/Zeus/pdv
 # Função para limpar a tela
 clear
 #Função para ajustar parâmetro de log, evitando lotar o HD
-sudo sed -i 's/#SystemMaxUse=/SystemMaxUse=1G/g; s/#RuntimeKeepFree=/SystemKeepFree=10%/g' /etc/systemd/journald.conf
+sudo sed -i 's/#SystemMaxUse=/SystemMaxUse=1G/g; s/#RuntimeKeepFree=/SystemKeepFree=40%/g' /etc/systemd/journald.conf
 echo "Ajustando parâmetros journald.conf, aguarde..."
 sleep 5
 sudo systemctl restart systemd-journald
