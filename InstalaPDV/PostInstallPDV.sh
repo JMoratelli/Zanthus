@@ -28,6 +28,7 @@ else
   sudo update-grub
   echo "A máquina será reinicializada para finalizar, selecione S ao executar novamente o script ao passar por essa opção, para evitar um loop."
   sleep 5
+  reboot
 fi
 
 echo "Ajustando opções no arquivo /etc/resolv.conf"
