@@ -26,7 +26,7 @@ clear
 gateway=$(ip route show default | awk '{print $3}')
 
 #Lê o retorno da variável gateway
-case $opcao in
+case $gateway in
     1)
         # Comandos para a opção 1
         echo "Você escolheu a Filial de Colíder, Loja Centro"
