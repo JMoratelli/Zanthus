@@ -256,12 +256,8 @@ else
 fi
 echo "Parâmetros CUPS ajustados com sucesso, será iniciado a instalação do ScreenSaver"
 echo "Script desenvolvido por @jjmoratelli, Jurandir Moratelli ;)."
+echo "Instalação ScreenSaver será iniciada. Aguarde..."
 sleep 5
-#Contador
-for i in {1..10}; do
-  echo "Contagem regressiva: $((10 - i))"
-  sleep 1
-done
 
 # Função que chama o script de configuração do ScreenSaver
 curl -s -o /home/zanthus/InstalaSC.sh https://raw.githubusercontent.com/M4ch4d0C0l1d4r/Zanthus/refs/heads/main/ScreenSaver/InstalaSC.sh && chmod +x /home/zanthus/InstalaSC.sh && /home/zanthus/InstalaSC.sh
