@@ -254,8 +254,6 @@ if [ $? -eq 0 ]; then
 else
     echo "Ocorreu um erro ao adicionar a impressora."
 fi
-#Apaga logs (caixas de Colíder)
-rm /var/log *
 echo "Parâmetros CUPS ajustados com sucesso, será iniciado a instalação do ScreenSaver"
 echo "Script desenvolvido por @jjmoratelli, Jurandir Moratelli ;)."
 sleep 5
