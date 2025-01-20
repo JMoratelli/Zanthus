@@ -1,12 +1,12 @@
 #!/bin/bash
 
-# Executa atualização do sistema
+#Executa atualização do sistema
 sudo apt update -y
 
-# Realiza instalação do xscreensaver
+#Realiza instalação do xscreensaver
 sudo apt install xscreensaver -y
 
-# Realiza instalação do mpv
+#Realiza instalação do mpv
 sudo apt install mpv -y
 
 # Faz download do arquivo de configuração do xscreensaver
@@ -22,54 +22,69 @@ else
 fi
 # Função para limpar a tela
 clear
-# Pergunta ao usuário a filial
-echo "Não utilize esse script em caixa SelfCheckout!"
-echo "Selecione a filial que deseja configurar o screensaver, escolha com cuidado, operação não é reversível."
-echo "Caso tenha escolhido a alternativa errada, não adiantará reexecutar o script, atenção!"
-echo "1. Centro Colider LJ01 - FL1"
-echo "2. Bairro Colider LJ02 - FL3"
-echo "3. Matupá LJ03 - FL9"
-echo "4. Alta Floresta LJ05 - FL53"
-echo "5. Primavera LJ06 - FL52"
-echo "6. Confresa LJ07 - FL57"
+#Extrai o Gateway para definir a filial
+gateway=$(ip route show default | awk '{print $3}')
 
-#Cria um laço de repetição, que seguirá rodando até selecionar uma opção válida do menu.
-while true; do
-  read -p "Digite a sua opção: " opcao
-
-  case $opcao in
+#Lê o retorno da variável gateway
+case $opcao in
     1)
-      # Comandos para a opção 1
-      echo "Você escolheu a Filial de Colíder, Loja Centro"
-      filial=1
-      break ;;
+        # Comandos para a opção 1
+        echo "Você escolheu a Filial de Colíder, Loja Centro"
+        gateway=10.1.1.1
+        ;;
     2)
-      # Comandos para a opção 2
-      echo "Você escolheu a Filial de Colíder, Loja Bairro"
-      filial=3
-      break ;;
+        # Comandos para a opção 2
+        echo "Você escolheu a Filial de Colíder, Loja Bairro"
+        gateway=192.168.11.253
+        ;;
     3)
-      # Comandos para a opção 3
-      echo "Você escolheu a Filial de Matupá"
-      filial=9
-      break ;;
+        # Comandos para a opção 3
+        echo "Você escolheu a Filial de Matupá"
+        gateway=192.168.5.253
+        ;;
     4)
-      echo "Você escolheu a Filial de Alta Floresta"
-      filial=53
-      break ;;
+        # Comandos para a opção 4
+        echo "Você escolheu a Filial de Alta Floresta"
+        gateway=192.168.7.253
+        ;;
     5)
-      echo "Você escolheu a Filial de Primavera do Leste"
-      filial=52
-      break ;;
+        # Comandos para a opção 5
+        echo "Você escolheu a Filial de Primavera do Leste"
+        gateway=192.168.9.253
+        ;;
     6)
-      echo "Você escolheu a Filial de Confresa"
-      filial=57
-      break ;;
+        # Comandos para a opção 6
+        echo "Você escolheu a Filial de Confresa"
+        gateway=192.168.57.193
+        ;;
     *)
-      echo "Opção inválida! Por favor, digite uma opção válida." ;;
-  esac
-done
+        echo "Opção inválida! Por favor, digite uma opção válida." ;;
+esac
 
+#Traduz o gateway em filial
+case $gateway in
+    10.1.1.1)
+        filial=1
+        ;;
+    192.168.11.253)
+        filial=3
+        ;;
+    192.168.5.253)
+        filial=9
+        ;;
+     192.168.7.253)
+        filial=53
+        ;;
+     192.168.9.253)
+        filial=52
+        ;;
+      192.168.57.193)
+        filial=57
+        ;;
+    *)
+        echo "Valor de gateway não mapeado: $gateway"
+        ;;
+esac
 # Grava os dados de inicialização do PDV
 curl -s -o /home/zanthus/atualizaSC$filial.sh https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/ScreenSaver/atualizaSC$filial.sh
 echo "Realizado download do script para filial $filial"
