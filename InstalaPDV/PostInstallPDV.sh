@@ -159,7 +159,8 @@ echo "Sucesso!"
 echo "Desligamento agendado:"
 echo "* Durante a semana: 23 horas"
 echo "* Aos domingos: $hora_domingo horas"
-
+echo "Confira as informações acima, contate suporte Jurandir caso haja incoerências. O processo continuará, não o interrompa caso esteja correto."
+sleep 6
 # Cópia de arquivos de interface
 echo "Iniciando copia de arquivos de interface a partir do git"
 echo "Copiando Ícones"
