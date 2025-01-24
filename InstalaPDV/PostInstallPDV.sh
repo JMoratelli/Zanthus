@@ -41,66 +41,113 @@ sudo printf "timeout=60\n" > /Zanthus/Zeus/pdvJava/ZMWS1201.CFG
 echo "Ajustando arquivo ZMWS1201.CFG"
 # Função para limpar a tela
 clear
+
+# Configurações do CUPS para ajustes da impressão
+echo "Alterando parâmetros CUPS"
+sudo sed 's/^BrowseLocalProtocols.*$/BrowseLocalProtocols\ none/' -i /etc/cups/cupsd.conf
+cupsctl WebInterface=yes; service cups stop; service cups start
+cupsctl --remote-admin --remote-any
+printf "linux.impressora=IMP-NFE\nlinux.opcoes=3\n" > /Zanthus/Zeus/pdvJava/ZPDF00.CFG
+
+#Instalar impressora
+echo "Instalador de Impressora CUPS"
+echo "Adicionando impressora..."
+#Lê e extrai o gateway da máquina
+gateway=$(ip route show default | awk '{print $3}')
+
+#Lê o Gateway e instala impressora de acordo com a loja
+case $gateway in
+    10.1.1.1)
+        echo "Detectada impressora da Loja Centro"
+        lpadmin -p IMP-NFE -E -v ipp://10.1.1.221 -m everywhere
+        filial=1
+        ;;
+    192.168.11.253)
+        echo "Detectada impressora da Loja Bairro"
+        lpadmin -p IMP-NFE -E -v ipp://192.168.11.94 -m everywhere
+        filial=3
+        ;;
+    192.168.5.253)
+        echo "Detectada impressora de Matupá"
+        lpadmin -p IMP-NFE -E -v ipp://192.168.4.24 -m everywhere
+        filial=9
+        ;;
+     192.168.7.253)
+        echo "Detectada impressora de Alta Floresta"        
+	      lpadmin -p IMP-NFE -E -v ipp://192.168.6.14 -m everywhere
+        filial=53
+        ;;
+     192.168.9.253)
+        echo "Detectada impressora de Primavera do Leste"
+        lpadmin -p IMP-NFE -E -v ipp://192.168.8.27 -m everywhere
+        filial=52
+        ;;
+      192.168.57.193)
+        echo "Detectada impressora de Confresa"
+	      curl -o /usr/share/cups/model/Kyocera_ECOSYS_MA5500ifx_.ppd https://raw.githubusercontent.com/M4ch4d0C0l1d4r/Zanthus/refs/heads/main/InstalaPDV/Drivers/Kyocera_ECOSYS_MA5500ifx_.ppd; lpadmin -p IMP-NFE -E -v socket://192.168.57.125 -i /usr/share/cups/model/Kyocera_ECOSYS_MA5500ifx_.ppd
+        filial=57
+        ;;
+    *)
+        echo "Valor de gateway não mapeado: $gateway"
+        ;;
+esac
+
+echo "Ajustando fuso horário..."
 # Ajusta Fuso horário
-echo "Escolha o fuso horário:"
-echo "1. Cuiabá (America/Cuiaba)"
-echo "2. São Paulo (America/Sao_Paulo)"
+case $filial in
+  1 | 3 | 9 | 52 | 53)
+    timedatectl set-timezone America/Cuiaba
+    hwclock -w
+    sed -i 's/UTC/LOCAL/g' /etc/adjtime
+    hwclock -w
+    hwclock --systohc
+    hwclock --localtime
+    echo "Aguarde..."
+    sleep 5
+    timedatectl set-timezone America/Cuiaba
+    hwclock -w
+    sed -i 's/UTC/LOCAL/g' /etc/adjtime
+    hwclock -w
+    hwclock --systohc
+    hwclock --localtime
+    echo "Fuso horário definido para Cuiabá e ajustado relógio de hardware."
+    ;;
+  57)
+    timedatectl set-timezone America/Sao_Paulo
+    hwclock -w
+    sed -i 's/UTC/LOCAL/g' /etc/adjtime
+    hwclock -w
+    echo "Aguarde..."
+    sleep 5
+    hwclock -w
+    timedatectl set-timezone America/Sao_Paulo
+    hwclock -w
+    sed -i 's/UTC/LOCAL/g' /etc/adjtime
+    hwclock -w
+    echo "Fuso horário definido para São Paulo e ajustado relógio de hardware."
+    ;;
+  *)
+    echo "Erro: Valor inválido para a variável 'filial'."
+    exit 1
+    ;;
+esac
 
-# Laço de repetição para selecionar o correto fuso horário
-while true; do
-    read -p "Digite 1 ou 2: " opcao
-    case $opcao in
-        1)
-            timedatectl set-timezone America/Cuiaba; hwclock -w; sed -i 's/UTC/LOCAL/g' /etc/adjtime; hwclock -a
-            hwclock --systohc
-            hwclock --localtime
-            echo "Aguarde..."
-            sleep 5
-            timedatectl set-timezone America/Cuiaba; hwclock -w; sed -i 's/UTC/LOCAL/g' /etc/adjtime; hwclock -w
-            hwclock --systohc
-            hwclock --localtime
-            echo "Fuso horário definido para Cuiabá e ajustado relógio de hardware."
-            break ;;
-        2)
-            timedatectl set-timezone America/Sao_Paulo; hwclock -w; sed -i 's/UTC/LOCAL/g' /etc/adjtime; hwclock -w
-            echo "Aguarde..."
-            sleep 5
-            hwclock -w
-            timedatectl set-timezone America/Sao_Paulo; hwclock -w; sed -i 's/UTC/LOCAL/g' /etc/adjtime; hwclock -w
-            break ;;
-        *)
-            echo "Opção inválida. Por favor, digite 1 ou 2." ;;
-    esac
-done
-
-# Função para validar a hora
-validar_hora() {
-  if [[ $1 =~ ^[0-9]{2}$ ]]; then
-    if [[ $1 -ge 0 && $1 -le 23 ]]; then
-      return 0
-    fi
-  fi
-  echo "Hora inválida. Por favor, digite um número entre 00 e 23. Insira com atenção!"
-  return 1
-}
-# Solicita as horas durante a semana ao usuário
-while true; do
-  read -p "Digite a hora para desligar o computador durante a semana (00-23): " hora_semana
-  if validar_hora "$hora_semana"; then
-    break
-  fi
-done
-
-# Solicita as horas para desligar aos domingos ao usuário
-while true; do
-  read -p "Digite a hora para desligar o computador aos domingos (00-23): " hora_domingo
-  if validar_hora "$hora_domingo"; then
-    break
-  fi
-done
+#Verifica filial para programar parâmetro ctron
+case $filial in
+  1 | 3 | 9)
+    hora_domingo=18
+    ;;
+  52 | 53 | 57)
+    hora_domingo=21
+    ;;
+  *)
+    echo "Erro: Valor inválido para a variável 'filial'."
+    exit 1
+    ;;
+esac
 
 # Cria as linhas para o crontab
-linha_semana="00 $hora_semana * * * /sbin/shutdown -h now"
+linha_semana="00 23 * * * /sbin/shutdown -h now"
 linha_domingo="00 $hora_domingo * * SUN /sbin/shutdown -h now"
 
 # Adiciona as linhas ao crontab
@@ -108,10 +155,9 @@ echo "Gravando linhas ao crontab, por favor aguarde"
 (echo "$linha_semana"; echo "$linha_domingo") | crontab -
 sleep 5
 (echo "$linha_semana"; echo "$linha_domingo") | crontab -
-echo "Sucesso!?"
-
+echo "Sucesso!"
 echo "Desligamento agendado:"
-echo "* Durante a semana: $hora_semana horas"
+echo "* Durante a semana: 23 horas"
 echo "* Aos domingos: $hora_domingo horas"
 
 # Cópia de arquivos de interface
@@ -205,56 +251,7 @@ echo "$linha" | sudo tee -a /usr/local/bin/xrandr.set 2>&1>> /tmp/set-duplicate-
 echo [Fim] $(date) 2>&1>> /tmp/set-duplicate-monitor.log
 echo [Reinicie sua maquina] 2>&1>> /tmp/set-duplicate-monitor.log
 
-
-# Configurações do CUPS para ajustes da impressão
-echo "Alterando parâmetros CUPS"
-sudo sed 's/^BrowseLocalProtocols.*$/BrowseLocalProtocols\ none/' -i /etc/cups/cupsd.conf
-cupsctl WebInterface=yes; service cups stop; service cups start
-cupsctl --remote-admin --remote-any
-printf "linux.impressora=IMP-NFE\nlinux.opcoes=3\n" > /Zanthus/Zeus/pdvJava/ZPDF00.CFG
-
-#Instalar impressora
-echo "Instalador de Impressora CUPS"
-
-# Função para validar o endereço IP
-validar_ip() {
-    local ip="$1"
-    if [[ $ip =~ ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$ ]]; then
-        return 0
-    else
-        return 1
-    fi
-}
-# Função para limpar a tela
-clear
-# Solicitar o IP da impressora
-while true; do
-    read -p "Digite o IP da impressora de NFE: " IP
-    if validar_ip "$IP"; then
-        break
-    else
-        echo "Endereço IP inválido. Tente novamente."
-    fi
-done
-
-# Comando CUPS para adicionar a impressora
-echo "Adicionando impressora..."
-# Verifica se o IP digitado é o do balcão fiscal de Confresa
-if [[ "$IP" == "192.168.57.125" ]]; then
-    #Caso a impressora seja a de Confresa, o Script vai executar esse script, para fazer os ajustes nela e adicionar o driver manualmente
-    curl -o /usr/share/cups/model/Kyocera_ECOSYS_MA5500ifx_.ppd https://raw.githubusercontent.com/M4ch4d0C0l1d4r/Zanthus/refs/heads/main/InstalaPDV/Drivers/Kyocera_ECOSYS_MA5500ifx_.ppd; lpadmin -p IMP-NFE -E -v socket://192.168.57.125 -i /usr/share/cups/model/Kyocera_ECOSYS_MA5500ifx_.ppd
-else
-    #Configura impressora em redes padrão, sem VLAN
-    lpadmin -p IMP-NFE -E -v ipp://$IP -m everywhere
-fi
-
-# Verificar se a impressão foi adicionada com sucesso
-if [ $? -eq 0 ]; then
-    echo "Impressora adicionada com sucesso!"
-else
-    echo "Ocorreu um erro ao adicionar a impressora."
-fi
-echo "Parâmetros CUPS ajustados com sucesso, será iniciado a instalação do ScreenSaver"
+echo "Parâmetros ajustados com sucesso, será iniciado a instalação do ScreenSaver"
 echo "Script desenvolvido por @jjmoratelli, Jurandir Moratelli ;)."
 echo "Instalação ScreenSaver será iniciada. Aguarde..."
 sleep 5
