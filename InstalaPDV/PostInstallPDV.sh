@@ -59,7 +59,7 @@ gateway=$(ip route show default | awk '{print $3}')
 case $gateway in
     10.1.1.1)
         echo "Detectada impressora da Loja Centro"
-        lpadmin -p IMP-NFE -E -v ipp://10.1.1.221 -m everywhere
+	curl -o /usr/share/cups/model/Kyocera_ECOSYS_M3655idn.ppd https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Drivers/Kyocera_ECOSYS_M3655idn.ppd; lpadmin -p IMP-NFE -E -v socket://10.1.1.221 -i /usr/share/cups/model/Kyocera_ECOSYS_M3655idn.ppd
         filial=1
         ;;
     192.168.11.253)
@@ -69,17 +69,17 @@ case $gateway in
         ;;
     192.168.5.253)
         echo "Detectada impressora de Matupá"
-        lpadmin -p IMP-NFE -E -v ipp://192.168.4.24 -m everywhere
+	curl -o /usr/share/cups/model/Kyocera_ECOSYS_M3655idn.ppd https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Drivers/Kyocera_ECOSYS_M3655idn.ppd; lpadmin -p IMP-NFE -E -v socket://192.168.4.24 -i /usr/share/cups/model/Kyocera_ECOSYS_M3655idn.ppd
         filial=9
         ;;
      192.168.7.253)
-        echo "Detectada impressora de Alta Floresta"        
-	lpadmin -p IMP-NFE -E -v ipp://192.168.6.14 -m everywhere
+        echo "Detectada impressora de Alta Floresta"  
+	curl -o /usr/share/cups/model/Kyocera_ECOSYS_M3655idn.ppd https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Drivers/Kyocera_ECOSYS_M3655idn.ppd; lpadmin -p IMP-NFE -E -v socket://192.168.6.14 -i /usr/share/cups/model/Kyocera_ECOSYS_M3655idn.ppd
         filial=53
         ;;
      192.168.9.253)
         echo "Detectada impressora de Primavera do Leste"
-        lpadmin -p IMP-NFE -E -v ipp://192.168.8.27 -m everywhere
+        curl -o /usr/share/cups/model/Kyocera_ECOSYS_M3655idn.ppd https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Drivers/Kyocera_ECOSYS_M3655idn.ppd; lpadmin -p IMP-NFE -E -v socket://192.168.8.27 -i /usr/share/cups/model/Kyocera_ECOSYS_M3655idn.ppd
         filial=52
         ;;
       192.168.57.193)
