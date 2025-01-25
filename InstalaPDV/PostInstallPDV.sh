@@ -74,7 +74,7 @@ case $gateway in
         ;;
      192.168.7.253)
         echo "Detectada impressora de Alta Floresta"        
-	      lpadmin -p IMP-NFE -E -v ipp://192.168.6.14 -m everywhere
+	lpadmin -p IMP-NFE -E -v ipp://192.168.6.14 -m everywhere
         filial=53
         ;;
      192.168.9.253)
