@@ -59,7 +59,7 @@ gateway=$(ip route show default | awk '{print $3}')
 case $gateway in
     10.1.1.1)
         echo "Detectada impressora da Loja Centro"
-	curl -o /usr/share/cups/model/Kyocera_ECOSYS_M3655idn.ppd https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Drivers/Kyocera_ECOSYS_M3655idn.ppd; lpadmin -p IMP-NFE -E -v socket://10.1.1.221 -i /usr/share/cups/model/Kyocera_ECOSYS_M3655idn.ppd
+	curl -o /usr/share/cups/model/Kyocera_ECOSYS_M3655idn.ppd https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Drivers/Kyocera_ECOSYS_M3655idn.ppd; lpadmin -p IMP-NFE -E -v socket://10.1.1.139 -i /usr/share/cups/model/Kyocera_ECOSYS_M3655idn.ppd
         filial=1
         ;;
     192.168.11.253)
