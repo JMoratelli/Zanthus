@@ -12,67 +12,103 @@ sudo printf "nameserver 192.168.12.1\n#options edns0 trust-ad\nsearch redemachad
 echo "Ajustado opções no arquivo /etc/resolv.conf"
 # Função para limpar a tela
 clear
+
+#Lê e extrai o gateway da máquina
+gateway=$(ip route show default | awk '{print $3}')
+
+#Lê o Gateway e instala impressora de acordo com a loja
+case $gateway in
+    10.1.1.1)
+        echo "Detectada impressora da Loja Centro"
+	    curl -o /usr/share/cups/model/Kyocera_ECOSYS_M3655idn.ppd https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Drivers/Kyocera_ECOSYS_M3655idn.ppd; lpadmin -p IMP-NFE -E -v socket://10.1.1.139 -i /usr/share/cups/model/Kyocera_ECOSYS_M3655idn.ppd
+        filial=1
+        ;;
+    192.168.11.253)
+        echo "Detectada impressora da Loja Bairro"
+    	curl -o /usr/share/cups/model/Kyocera_ECOSYS_MA5500ifx_.ppd https://raw.githubusercontent.com/M4ch4d0C0l1d4r/Zanthus/refs/heads/main/InstalaPDV/Drivers/Kyocera_ECOSYS_MA5500ifx_.ppd; lpadmin -p IMP-NFE -E -v socket://192.168.11.94 -i /usr/share/cups/model/Kyocera_ECOSYS_MA5500ifx_.ppd
+        filial=3
+        ;;
+    192.168.5.253)
+        echo "Detectada impressora de Matupá"
+    	curl -o /usr/share/cups/model/Kyocera_ECOSYS_M3655idn.ppd https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Drivers/Kyocera_ECOSYS_M3655idn.ppd; lpadmin -p IMP-NFE -E -v socket://192.168.4.24 -i /usr/share/cups/model/Kyocera_ECOSYS_M3655idn.ppd
+        filial=9
+        ;;
+     192.168.7.253)
+        echo "Detectada impressora de Alta Floresta"  
+    	curl -o /usr/share/cups/model/Kyocera_ECOSYS_M3655idn.ppd https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Drivers/Kyocera_ECOSYS_M3655idn.ppd; lpadmin -p IMP-NFE -E -v socket://192.168.6.14 -i /usr/share/cups/model/Kyocera_ECOSYS_M3655idn.ppd
+        filial=53
+        ;;
+     192.168.9.253)
+        echo "Detectada impressora de Primavera do Leste"
+        curl -o /usr/share/cups/model/Kyocera_ECOSYS_M3655idn.ppd https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Drivers/Kyocera_ECOSYS_M3655idn.ppd; lpadmin -p IMP-NFE -E -v socket://192.168.8.27 -i /usr/share/cups/model/Kyocera_ECOSYS_M3655idn.ppd
+        filial=52
+        ;;
+      192.168.57.193)
+        echo "Detectada impressora de Confresa"
+    	curl -o /usr/share/cups/model/Kyocera_ECOSYS_MA5500ifx_.ppd https://raw.githubusercontent.com/M4ch4d0C0l1d4r/Zanthus/refs/heads/main/InstalaPDV/Drivers/Kyocera_ECOSYS_MA5500ifx_.ppd; lpadmin -p IMP-NFE -E -v socket://192.168.57.125 -i /usr/share/cups/model/Kyocera_ECOSYS_MA5500ifx_.ppd
+        filial=57
+        ;;
+    *)
+        echo "Valor de gateway não mapeado: $gateway"
+        ;;
+esac
+
+echo "Ajustando fuso horário..."
 # Ajusta Fuso horário
-echo "Escolha o fuso horário:"
-echo "1. Cuiabá (America/Cuiaba)"
-echo "2. São Paulo (America/Sao_Paulo)"
+case $filial in
+  1 | 3 | 9 | 52 | 53)
+    timedatectl set-timezone America/Cuiaba
+    hwclock -w
+    sed -i 's/UTC/LOCAL/g' /etc/adjtime
+    hwclock -w
+    hwclock --systohc
+    hwclock --localtime
+    echo "Aguarde..."
+    sleep 5
+    timedatectl set-timezone America/Cuiaba
+    hwclock -w
+    sed -i 's/UTC/LOCAL/g' /etc/adjtime
+    hwclock -w
+    hwclock --systohc
+    hwclock --localtime
+    echo "Fuso horário definido para Cuiabá e ajustado relógio de hardware."
+    ;;
+  57)
+    timedatectl set-timezone America/Sao_Paulo
+    hwclock -w
+    sed -i 's/UTC/LOCAL/g' /etc/adjtime
+    hwclock -w
+    echo "Aguarde..."
+    sleep 5
+    hwclock -w
+    timedatectl set-timezone America/Sao_Paulo
+    hwclock -w
+    sed -i 's/UTC/LOCAL/g' /etc/adjtime
+    hwclock -w
+    echo "Fuso horário definido para São Paulo e ajustado relógio de hardware."
+    ;;
+  *)
+    echo "Erro: Valor inválido para a variável 'filial'."
+    exit 1
+    ;;
+esac
 
-# Laço de repetição para selecionar o correto fuso horário
-while true; do
-    read -p "Digite 1 ou 2: " opcao
-    case $opcao in
-        1)
-            timedatectl set-timezone America/Cuiaba; hwclock -w; sed -i 's/UTC/LOCAL/g' /etc/adjtime; hwclock -a
-            hwclock --systohc
-            hwclock --localtime
-            echo "Aguarde..."
-            sleep 5
-            timedatectl set-timezone America/Cuiaba; hwclock -w; sed -i 's/UTC/LOCAL/g' /etc/adjtime; hwclock -w
-            hwclock --systohc
-            hwclock --localtime
-            echo "Fuso horário definido para Cuiabá e ajustado relógio de hardware."
-            break ;;
-        2)
-            timedatectl set-timezone America/Sao_Paulo; hwclock -w; sed -i 's/UTC/LOCAL/g' /etc/adjtime; hwclock -w
-            echo "Aguarde..."
-            sleep 5
-            hwclock -w
-            timedatectl set-timezone America/Sao_Paulo; hwclock -w; sed -i 's/UTC/LOCAL/g' /etc/adjtime; hwclock -w
-            break ;;
-        *)
-            echo "Opção inválida. Por favor, digite 1 ou 2." ;;
-    esac
-done
-
-
-# Função para validar a hora
-validar_hora() {
-  if [[ $1 =~ ^[0-9]{2}$ ]]; then
-    if [[ $1 -ge 0 && $1 -le 23 ]]; then
-      return 0
-    fi
-  fi
-  echo "Hora inválida. Por favor, digite um número entre 00 e 23. Insira com atenção!"
-  return 1
-}
-# Solicita as horas durante a semana ao usuário
-while true; do
-  read -p "Digite a hora para desligar o computador durante a semana (00-23): " hora_semana
-  if validar_hora "$hora_semana"; then
-    break
-  fi
-done
-
-# Solicita as horas para desligar aos domingos ao usuário
-while true; do
-  read -p "Digite a hora para desligar o computador aos domingos (00-23): " hora_domingo
-  if validar_hora "$hora_domingo"; then
-    break
-  fi
-done
+#Verifica filial para programar parâmetro ctron
+case $filial in
+  1 | 3 | 9)
+    hora_domingo=14
+    ;;
+  52 | 53 | 57)
+    hora_domingo=19
+    ;;
+  *)
+    echo "Erro: Valor inválido para a variável 'filial'."
+    exit 1
+    ;;
+esac
 
 # Cria as linhas para o crontab
-linha_semana="00 $hora_semana * * * /sbin/shutdown -h now"
+linha_semana="00 21 * * * /sbin/shutdown -h now"
 linha_domingo="00 $hora_domingo * * SUN /sbin/shutdown -h now"
 
 # Adiciona as linhas ao crontab
@@ -80,11 +116,12 @@ echo "Gravando linhas ao crontab, por favor aguarde"
 (echo "$linha_semana"; echo "$linha_domingo") | crontab -
 sleep 5
 (echo "$linha_semana"; echo "$linha_domingo") | crontab -
-echo "Sucesso!?"
-
+echo "Sucesso!"
 echo "Desligamento agendado:"
-echo "* Durante a semana: $hora_semana horas"
+echo "* Durante a semana: 21 horas"
 echo "* Aos domingos: $hora_domingo horas"
+echo "Confira as informações acima, contate suporte Jurandir caso haja incoerências. O processo continuará, não o interrompa caso esteja correto."
+sleep 6
 
 #Clone arquivos de áudio do PDV
 base_url="https://github.com/JMoratelli/Zanthus/raw/refs/heads/main/InstalaPDV/Self/Interface/audio/"
