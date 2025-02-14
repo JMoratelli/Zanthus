@@ -34,6 +34,7 @@ if [ "$tamanho_origem_num" != "$tamanho_destino_num" ]; then
     zenity --warning --text "<span foreground='red'><b>PDV ATUALIZADO, AGUARDE REINÍCIO</b></span>" --width=300 --height=150 &
     reboot
 else
-    echo "Os arquivos possuem o mesmo tamanho. Download não realizado."
+    echo "Interface está na última versão disponível."
+    sleep 3
 fi
 exit
