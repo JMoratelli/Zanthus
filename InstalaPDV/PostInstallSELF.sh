@@ -1,6 +1,8 @@
 #!/bin/bash
-#Função para realizar atualização das interfaces
-wget -q "https://github.com/JMoratelli/Zanthus/raw/refs/heads/main/InstalaPDV/InterfaceUnificada/Interface.7z" -O Interface.7z && 7z x -o/Zanthus/Zeus/Interface/ -y Interface.7z
+#Realiza Download script de atualização de script
+curl -s -o /home/zanthus/AtualizaInterface.sh https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/AtualizaInterface.sh
+#Aplica as permissões de execução atualizador
+chmod +x /home/zanthus/AtualizaInterface.sh
 #Funcao Provisioria para corrigir arquivos de carga
 sed -i "s/endereco=serv-zt-aplic/endereco=192.168.13.250:80/g" /Zanthus/Zeus/pdvJava/RESTG0000.CFG
 sed -i "s/endereco=serv-zt-aplic/endereco=192.168.13.250:80/g" /Zanthus/Zeus/pdvJava/CARG0000.CFG
@@ -189,6 +191,7 @@ chmod +x /home/zanthus/BalancaUSB.sh && /home/zanthus/BalancaUSB.sh
 script_PDVTouch=$(cat << EOF
 #! /bin/bash
 nohup /home/zanthus/BalancaUSB.sh &
+chmod +x /home/zanthus/AtualizaInterface.sh && /home/zanthus/AtualizaInterface.sh
 chmod -x /usr/local/bin/igraficaJava;
 chmod -x /usr/local/bin/dualmonitor_control-PDVJava
 nohup recreate-user-rabbitmq.sh &
