@@ -12,25 +12,31 @@ sudo sed -i 's/#SystemKeepFree=/SystemKeepFree=60G/g' /etc/systemd/journald.conf
 sudo sed -i 's/#SystemMaxUse=/SystemMaxUse=1G/g' /etc/systemd/journald.conf
 sudo sed -i 's/#SystemMaxFileSize=/SystemMaxFileSize=1G/g' /etc/systemd/journald.conf
 echo "Ajustando parâmetros journald.conf"
-# Atualiza o Grub, para acelerar processo de boot.
-echo "Parâmetros abaixo são necessários para o bom funcionamento do sistema. Lojas 1 e 2 reportam erros se selecionar S no menu a seguir."
-read -p "Atualizar o GRUB sem ajustar parâmetros? (Digite "n" para máquinas mais antigas)[S/n]: " resposta
-if [[ "$resposta" == "S" || "$resposta" == "s" ]]; then
-  # Executa o comando sudo grub-install
-  echo "Atualizando GRUB"
+
+# Verifica se o script já foi executado
+if grep -q 'GRUB_CMDLINE_LINUX_DEFAULT="quiet splash \(pci=nommconf\|pcie_aspm=off\|pci=noaer\)' /etc/default/grub; then
+  # Se a linha já existe, executa o grub-install diretamente
+  echo "Script já executado, script seguirá de forma automática, aguarde..."
+  sleep 5
   sudo grub-install
 else
-  # Mensagem caso o usuário não queira atualizar
-  echo "Ok, ajustes legados iniciados. Atualizando GRUB... Esse processo pode demorar, aguarde..."
-  sudo grub-install
-  echo "Parâmetros de inicialização serão aplicados, aguarde..."
-  sudo sed -i '/GRUB_CMDLINE_LINUX_DEFAULT="quiet splash \(pci=nommconf\|pcie_aspm=off\|pci=noaer\)/! s/\(GRUB_CMDLINE_LINUX_DEFAULT="quiet splash\)/\1 pci=nommconf pcie_aspm=off pci=noaer/' /etc/default/grub
-  echo "Aguarde, esse processo pode ser demorado. Ajustando parâmetros kernel para máquinas legado."
-  sleep 5
-  sudo update-grub
-  echo "A máquina será reinicializada para finalizar, selecione S ao executar novamente o script ao passar por essa opção, para evitar um loop."
-  sleep 5
-  reboot
+  #Se primeira execução, exibe pergunta ao usuário
+  read -p "Atualizar o GRUB sem ajustar parâmetros? (Digite \"n\" para máquinas mais antigas)[S/n]: " resposta
+  if [[ "$resposta" == "S" || "$resposta" == "s" ]]; then
+    echo "Atualizando GRUB..."
+    sudo grub-install
+  else
+    echo "Ok, ajustes legados iniciados. Atualizando GRUB... Esse processo pode demorar, aguarde..."
+    sudo grub-install
+    echo "Parâmetros de inicialização serão aplicados, aguarde..."
+    sudo sed -i '/GRUB_CMDLINE_LINUX_DEFAULT="quiet splash \(pci=nommconf\|pcie_aspm=off\|pci=noaer\)/! s/\(GRUB_CMDLINE_LINUX_DEFAULT="quiet splash\)/\1 pci=nommconf pcie_aspm=off pci=noaer/' /etc/default/grub
+    echo "Aguarde, esse processo pode ser demorado. Ajustando parâmetros kernel para máquinas legado."
+    sleep 5
+    sudo update-grub
+    echo "A máquina será reinicializada para finalizar."
+    sleep 5
+    reboot
+  fi
 fi
 
 echo "Ajustando opções no arquivo /etc/resolv.conf"
