@@ -88,16 +88,18 @@ esac
 # Grava os dados de inicialização do PDV
 curl -s -o /home/zanthus/atualizaSC$filial.sh https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/ScreenSaver/atualizaSC$filial.sh
 echo "Realizado download do script para filial $filial"
-
+# Faz download do atualizador de interface
+curl -s -o /home/zanthus/AtualizaInterface.sh https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/AtualizaInterface.sh
 # Força a execução do script de atualização pela primeira vez
 chmod +x /home/zanthus/atualizaSC$filial.sh && /home/zanthus/atualizaSC$filial.sh
-
+chmod +x /home/zanthus/AtualizaInterface.sh
 #Comando que gravará no PDVTouch.sh
 script_PDVTouch=$(cat << EOF
 #! /bin/bash
 sudo xhost +local:zanthus
 sudo -u zanthus xscreensaver -no-splash &
 chmod +x /home/zanthus/atualizaSC$filial.sh && /home/zanthus/atualizaSC$filial.sh
+chmod +x /home/zanthus/AtualizaInterface.sh && /home/zanthus/AtualizaInterface.sh
 chmod -x /usr/local/bin/igraficaJava;
 chmod -x /usr/local/bin/dualmonitor_control-PDVJava
 nohup recreate-user-rabbitmq.sh &
