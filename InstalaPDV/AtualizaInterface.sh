@@ -31,19 +31,8 @@ if [ "$tamanho_origem_num" != "$tamanho_destino_num" ]; then
     echo "Atualizado com sucesso!"
     echo "Aplicando permissões na pasta de interface"
     chmod 777 -R /Zanthus/Zeus/Interface/
-    (
-      zenity --warning --no-wrap --text "<span foreground='red'><b>PDV ATUALIZADO, AGUARDE REINÍCIO</b></span>" --width=300 --height=150 &
-      PID=$!
-
-      for i in {5..1}; do
-        sleep 1
-        zenity --warning --no-wrap --text "<span foreground='red'><b>PDV SERÁ REINICIADO EM $i SEGUNDOS</b></span>" --width=300 --height=150 --pid=$PID
-      done
-
-      sleep 1
-      zenity --warning --text "<span foreground='red'><b>PDV REINICIANDO...</b></span>" --width=300 --height=150 --pid=$PID
-      reboot
-    )
+    zenity --warning --text "<span foreground='red'><b>PDV ATUALIZADO, AGUARDE REINÍCIO</b></span>" --width=300 --height=150 &
+    reboot
 else
     echo "Os arquivos possuem o mesmo tamanho. Download não realizado."
 fi
