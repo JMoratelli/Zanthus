@@ -32,3 +32,7 @@ if [ "$tamanho_origem_num" != "$tamanho_destino_num" ]; then
 else
     echo "Os arquivos possuem o mesmo tamanho. Download não realizado."
 fi
+echo "Aplicando permissões na pasta de interface"
+chmod 777 -R /Zanthus/Zeus/Interface/
+sleep 5
+reboot
