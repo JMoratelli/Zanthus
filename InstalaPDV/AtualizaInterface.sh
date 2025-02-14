@@ -29,23 +29,22 @@ if [ "$tamanho_origem_num" != "$tamanho_destino_num" ]; then
     cd /Zanthus/Zeus/Interface/
     wget -q "$url_origem" -O "$arquivo_destino" && 7z x -o/Zanthus/Zeus/Interface/ -y interface.7z
     echo "Atualizado com sucesso!"
+    echo "Aplicando permissões na pasta de interface"
+    chmod 777 -R /Zanthus/Zeus/Interface/
+    (
+      zenity --warning --no-wrap --text "<span foreground='red'><b>PDV ATUALIZADO, AGUARDE REINÍCIO</b></span>" --width=300 --height=150 &
+      PID=$!
+
+      for i in {5..1}; do
+        sleep 1
+        zenity --warning --no-wrap --text "<span foreground='red'><b>PDV SERÁ REINICIADO EM $i SEGUNDOS</b></span>" --width=300 --height=150 --pid=$PID
+      done
+
+      sleep 1
+      zenity --warning --text "<span foreground='red'><b>PDV REINICIANDO...</b></span>" --width=300 --height=150 --pid=$PID
+      reboot
+    )
 else
     echo "Os arquivos possuem o mesmo tamanho. Download não realizado."
 fi
-echo "Aplicando permissões na pasta de interface"
-chmod 777 -R /Zanthus/Zeus/Interface/
-# Exibe o alerta com contagem regressiva
-(
-  zenity --warning --no-wrap --text "<span foreground='red'><b>PDV ATUALIZADO, AGUARDE REINÍCIO</b></span>" --width=300 --height=150 &
-  PID=$!
-
-  for i in {5..1}; do
-    sleep 1
-    zenity --warning --no-wrap --text "<span foreground='red'><b>PDV SERÁ REINICIADO EM $i SEGUNDOS</b></span>" --width=300 --height=150 --pid=$PID
-  done
-
-  sleep 1
-  zenity --warning --text "<span foreground='red'><b>PDV REINICIANDO...</b></span>" --width=300 --height=150 --pid=$PID
-  reboot
-)
-
+exit
