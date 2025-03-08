@@ -1,4 +1,6 @@
 #!/bin/bash
+#Remove Script Zanthus de Identificação de Balança
+rm /opt/webadmin/extra/rules/Balanca/toledoDCPSC-var.sh
 #Realiza Download script de atualização de script
 curl -s -o /home/zanthus/AtualizaInterface.sh https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/AtualizaInterface.sh
 #Aplica as permissões de execução atualizador
