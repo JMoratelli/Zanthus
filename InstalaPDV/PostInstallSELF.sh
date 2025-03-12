@@ -219,9 +219,10 @@ ips_permitidos=("192.168.8.133" "192.168.8.134" "192.168.8.135" "192.168.8.136")
 
 #Verifica se o IP do host é ou não do tipo torre
 if [[ " ${ips_permitidos[@]} " =~ " ${ip} " ]]; then
+  printf "modelo=0\n#Reserva\n" > /Zanthus/Zeus/pdvJava/ZSINALIZ_LAURENTI_ARDUINO.CFG
   echo "Sinaleiro tipo torre configurado."
 else
-  sudo printf "modelo=1\n" > /Zanthus/Zeus/pdvJava/ZSINALIZ_LAURENTI_ARDUINO.CFG
+  printf "modelo=1\n#Reserva\n" > /Zanthus/Zeus/pdvJava/ZSINALIZ_LAURENTI_ARDUINO.CFG
   echo "Sinaleiro tipo lâmpada única configurado."
 fi
 
