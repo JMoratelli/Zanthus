@@ -186,13 +186,13 @@ echo "Container docker reiniciado."
 echo "Rede alterada com sucesso para o endereço IP: $user_ip"
 echo "Script docker finalizado"
 
-curl -s -o /home/zanthus/BalancaUSB.sh https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/BalancaUSB.sh
-chmod +x /home/zanthus/BalancaUSB.sh && /home/zanthus/BalancaUSB.sh
+curl -s -o /home/zanthus/PerifericosUSB.sh https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/PerifericosUSB.sh
+chmod +x /home/zanthus/PerifericosUSB.sh && /home/zanthus/PerifericosUSB.sh
 
 #Comando que gravará no PDVTouch.sh
 script_PDVTouch=$(cat << EOF
 #! /bin/bash
-nohup /home/zanthus/BalancaUSB.sh &
+nohup /home/zanthus/PerifericosUSB.sh &
 chmod +x /home/zanthus/AtualizaInterface.sh && /home/zanthus/AtualizaInterface.sh
 chmod -x /usr/local/bin/igraficaJava;
 chmod -x /usr/local/bin/dualmonitor_control-PDVJava
