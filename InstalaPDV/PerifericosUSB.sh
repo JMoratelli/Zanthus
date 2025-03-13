@@ -6,7 +6,7 @@ config_file="/Zanthus/Zeus/pdvJava/ZSINALIZ_LAURENTI_ARDUINO.CFG"
 output=$(ls -l /dev/serial/by-id/* | grep 'usb-TOLEDO_CDC_DEVICE_')
 
 #Obtém valor númerico da porta do sinaleiro
-portaSin=$(ls -l /dev/serial/by-id/* | grep "usb-1a86_USB_Serial-if00-port0" | grep -o "[0-9]$")
+portaSin=$(ls -l /dev/serial/by-id/* | grep "usb-1a86" | grep -o "[0-9]$")
 
 #Extrai a porta da balança e grava em "Y"
 Y=$(echo "$output" | grep -oP 'ttyACM\K\d')
