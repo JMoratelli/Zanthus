@@ -1,4 +1,6 @@
 #!/bin/bash
+#Adiciona parâmetros arquivos RESTG do MercaFacil, ajustando o TimeOut de 30 para 5.
+printf "timeout=5\n" > /Zanthus/Zeus/pdvJava/RESTG4650.CFG && printf "timeout=5\n" > /Zanthus/Zeus/pdvJava/RESTG4651.CFG
 #Remove Script Zanthus de Identificação de Balança
 rm /opt/webadmin/extra/rules/Balanca/toledoDCPSC-var.sh
 #Realiza Download script de atualização de script
