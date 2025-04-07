@@ -93,7 +93,7 @@ case $gateway in
         curl -o /usr/share/cups/model/Kyocera_ECOSYS_M3655idn.ppd https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Drivers/Kyocera_ECOSYS_M3655idn.ppd; lpadmin -p IMP-NFE -E -v socket://192.168.8.27 -i /usr/share/cups/model/Kyocera_ECOSYS_M3655idn.ppd
         filial=52
         ;;
-      192.168.57.193)
+     192.168.57.193|192.168.57.1|192.168.156.1|192.168.57.129)
         echo "Detectada impressora de Confresa"
 	curl -o /usr/share/cups/model/Kyocera_ECOSYS_MA5500ifx_.ppd https://raw.githubusercontent.com/M4ch4d0C0l1d4r/Zanthus/refs/heads/main/InstalaPDV/Drivers/Kyocera_ECOSYS_MA5500ifx_.ppd; lpadmin -p IMP-NFE -E -v socket://192.168.57.125 -i /usr/share/cups/model/Kyocera_ECOSYS_MA5500ifx_.ppd
         filial=57
