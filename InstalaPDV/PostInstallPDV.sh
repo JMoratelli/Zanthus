@@ -1,34 +1,23 @@
 #!/bin/bash
-echo "Script para configurar o sistema como root."
-
-# Função para verificar se a senha root está definida
-check_root_password() {
-  if ! getent shadow root | grep -q ':\*:' && ! getent shadow root | grep -q '!!:'; then
-    return 0
-  else
-    return 1
-  fi
-}
-
-# Verifica se o script NÃO está sendo executado como root
+# Verifica se o script está sendo executado como root
 if [[ "$EUID" -ne 0 ]]; then
-  echo "O script precisa ser executado com privilégios de root."
+  echo "Este script precisa ser executado como root."
+  echo "Tentando fazer login como root e reexecutar..."
 
-  # Verifica se a senha root está definida
-  if check_root_password; then
-    echo "A senha root parece estar definida. Tentando executar como root..."
-    sudo "$0" "$@"
-    exit $?
-  else
-    echo "A senha root não está definida. Você precisa definir uma senha root para continuar."
-    sudo passwd root
-    echo "Senha root definida. Reexecutando o script como root..."
-    sudo "$0" "$@"
-    exit $?
+  # Tenta executar o script novamente usando su
+  su root -c "$0 $@"
+
+  # Verifica o código de saída do comando su
+  if [[ "$?" -ne 0 ]]; then
+    echo "Falha ao fazer login como root. Verifique suas permissões e senha."
+    exit 1
   fi
-else
-  echo "Você já está logado como root. Continuando com a execução do script."
+
+  # Se o comando su foi bem-sucedido, o script será reexecutado como root
+  exit $?
 fi
+
+echo "Script sendo executado como usuário root."
 
 #Adiciona parâmetros arquivos RESTG do MercaFacil, ajustando o TimeOut de 30 para 5.
 printf "timeout=5\n" > /Zanthus/Zeus/pdvJava/RESTG4650.CFG && printf "timeout=5\n" > /Zanthus/Zeus/pdvJava/RESTG4651.CFG
