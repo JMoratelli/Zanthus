@@ -1,4 +1,35 @@
 #!/bin/bash
+echo "Script para configurar o sistema como root."
+
+# Função para verificar se a senha root está definida
+check_root_password() {
+  if ! getent shadow root | grep -q ':\*:' && ! getent shadow root | grep -q '!!:'; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+# Verifica se o script NÃO está sendo executado como root
+if [[ "$EUID" -ne 0 ]]; then
+  echo "O script precisa ser executado com privilégios de root."
+
+  # Verifica se a senha root está definida
+  if check_root_password; then
+    echo "A senha root parece estar definida. Tentando executar como root..."
+    sudo "$0" "$@"
+    exit $?
+  else
+    echo "A senha root não está definida. Você precisa definir uma senha root para continuar."
+    sudo passwd root
+    echo "Senha root definida. Reexecutando o script como root..."
+    sudo "$0" "$@"
+    exit $?
+  fi
+else
+  echo "Você já está logado como root. Continuando com a execução do script."
+fi
+
 #Adiciona parâmetros arquivos RESTG do MercaFacil, ajustando o TimeOut de 30 para 5.
 printf "timeout=5\n" > /Zanthus/Zeus/pdvJava/RESTG4650.CFG && printf "timeout=5\n" > /Zanthus/Zeus/pdvJava/RESTG4651.CFG
 #Funcao Provisioria para corrigir arquivos de carga
