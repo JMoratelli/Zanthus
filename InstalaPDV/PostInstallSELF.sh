@@ -1,4 +1,24 @@
 #!/bin/bash
+# Verifica se o script está sendo executado como root
+if [[ "$EUID" -ne 0 ]]; then
+  echo "Este script precisa ser executado como root."
+  echo "Tentando fazer login como root e reexecutar..."
+
+  # Tenta executar o script novamente usando su
+  su root -c "$0 $@"
+
+  # Verifica o código de saída do comando su
+  if [[ "$?" -ne 0 ]]; then
+    echo "Falha ao fazer login como root. Verifique suas permissões e senha."
+    exit 1
+  fi
+
+  # Se o comando su foi bem-sucedido, o script será reexecutado como root
+  exit $?
+fi
+
+echo "Script sendo executado como usuário root."
+
 #Adiciona parâmetros arquivos RESTG do MercaFacil, ajustando o TimeOut de 30 para 5.
 printf "timeout=5\n" > /Zanthus/Zeus/pdvJava/RESTG4650.CFG && printf "timeout=5\n" > /Zanthus/Zeus/pdvJava/RESTG4651.CFG
 #Remove Script Zanthus de Identificação de Balança
