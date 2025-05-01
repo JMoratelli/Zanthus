@@ -62,7 +62,6 @@ else
     echo "Máquina com BIOS posterior a 2018, atualizando GRUB sem ajustes legados."
     sudo grub-install
     sleep 5
-    sudo update-grub
   fi
 fi
 
