@@ -124,4 +124,5 @@ done
 
 # Reinicia o PDV para aplicar configurações
 echo "Reiniciando"
+rm -- "$0"
 sudo reboot
