@@ -282,12 +282,11 @@ echo "$linha" | sudo tee -a /usr/local/bin/xrandr.set 2>&1>> /tmp/set-duplicate-
 
 echo [Fim] $(date) 2>&1>> /tmp/set-duplicate-monitor.log
 echo [Reinicie sua maquina] 2>&1>> /tmp/set-duplicate-monitor.log
-
+clear
 echo "Parâmetros ajustados com sucesso, será iniciado a instalação do ScreenSaver"
 echo "Script desenvolvido por @jjmoratelli, Jurandir Moratelli ;)."
 echo "Instalação ScreenSaver será iniciada. Aguarde..."
 sleep 5
-
+rm -- "$0"
 # Função que chama o script de configuração do ScreenSaver
 curl -s -o /home/zanthus/InstalaSC.sh https://raw.githubusercontent.com/M4ch4d0C0l1d4r/Zanthus/refs/heads/main/ScreenSaver/InstalaSC.sh && chmod +x /home/zanthus/InstalaSC.sh && /home/zanthus/InstalaSC.sh
-rm -- "$0"
