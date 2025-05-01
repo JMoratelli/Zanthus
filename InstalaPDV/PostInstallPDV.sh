@@ -36,29 +36,33 @@ sudo sed -i 's/#SystemMaxUse=/SystemMaxUse=1G/g' /etc/systemd/journald.conf
 sudo sed -i 's/#SystemMaxFileSize=/SystemMaxFileSize=1G/g' /etc/systemd/journald.conf
 echo "Ajustando parâmetros journald.conf"
 
-# Verifica se o script já foi executado
+#Script Grub - Atualiza e repara se necessário
+cutoff_year=2018
+bios_year=$(dmidecode -t 0 | grep "Release Date" | awk -F: '{ print $2 }' | sed 's/^[ \t]*//;s/[ \t]*$//' | awk -F'/' '{ print $3 }')
+
+# Verifica se os parâmetros legados já foram aplicados
 if grep -q 'GRUB_CMDLINE_LINUX_DEFAULT="quiet splash \(pci=nommconf\|pcie_aspm=off\|pci=noaer\)' /etc/default/grub; then
-  # Se a linha já existe, executa o grub-install diretamente
   echo "Script já executado, script seguirá de forma automática, aguarde..."
-  sleep 5
-  sudo grub-install
 else
-  #Se primeira execução, exibe pergunta ao usuário
-  read -p "Atualizar o GRUB sem ajustar parâmetros? (Digite \"n\" para máquinas mais antigas)[S/n]: " resposta
-  if [[ "$resposta" == "S" || "$resposta" == "s" ]]; then
-    echo "Atualizando GRUB..."
-    sudo grub-install
-  else
-    echo "Ok, ajustes legados iniciados. Atualizando GRUB... Esse processo pode demorar, aguarde..."
+  # Se a BIOS for anterior a 2020, aplica os ajustes legados
+  if [[ "$bios_year" -lt "$cutoff_year" ]]; then
+    echo "Máquina com BIOS anterior a 2018, ajustes legados serão aplicados."
+
+    # Atualiza o GRUB e aplica os parâmetros legados
     sudo grub-install
     echo "Parâmetros de inicialização serão aplicados, aguarde..."
     sudo sed -i '/GRUB_CMDLINE_LINUX_DEFAULT="quiet splash \(pci=nommconf\|pcie_aspm=off\|pci=noaer\)/! s/\(GRUB_CMDLINE_LINUX_DEFAULT="quiet splash\)/\1 pci=nommconf pcie_aspm=off pci=noaer/' /etc/default/grub
     echo "Aguarde, esse processo pode ser demorado. Ajustando parâmetros kernel para máquinas legado."
     sleep 5
     sudo update-grub
-    echo "A máquina será reinicializada para finalizar."
+    echo "A máquina será reinicializada para aplicar a configuração. Inicie novamente o script para continuar a instalação."
     sleep 5
     reboot
+  else
+    echo "Máquina com BIOS posterior a 2018, atualizando GRUB sem ajustes legados."
+    sudo grub-install
+    sleep 5
+    sudo update-grub
   fi
 fi
 
