@@ -18,7 +18,8 @@ if [[ "$EUID" -ne 0 ]]; then
 fi
 
 echo "Script sendo executado como usuário root."
-
+#Ajusta Parâmetros de carga, para aumentar tempo de handshake
+sed -i 's/^endereco=.*/endereco=serv-zt-aplic/' /Zanthus/Zeus/pdvJava/CARG0000.CFG /Zanthus/Zeus/pdvJava/RESTG0000.CFG /Zanthus/Zeus/pdvJava/ZMWS0000.CFG
 #Adiciona parâmetros arquivos RESTG do MercaFacil, ajustando o TimeOut de 30 para 5.
 printf "timeout=5\n" > /Zanthus/Zeus/pdvJava/RESTG4650.CFG && printf "timeout=5\n" > /Zanthus/Zeus/pdvJava/RESTG4651.CFG
 #Funcao Provisioria para corrigir arquivos de carga
