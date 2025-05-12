@@ -16,8 +16,9 @@ if [[ "$EUID" -ne 0 ]]; then
   # Se o comando su foi bem-sucedido, o script será reexecutado como root
   exit $?
 fi
-
 echo "Script sendo executado como usuário root."
+#Ajustes para melhoria na resposta de resolução de nomes no Linux
+sudo sed -i 's/^hosts:          files.*/hosts:          files dns/' /etc/nsswitch.conf
 #Ajusta Parâmetros de carga, para aumentar tempo de handshake
 grep -q '^conexao_timeout=10$' /Zanthus/Zeus/pdvJava/CARG0000.CFG || sed -i '/^opcoes=/a conexao_timeout=10' /Zanthus/Zeus/pdvJava/CARG0000.CFG
 grep -q '^conexao_timeout=10$' /Zanthus/Zeus/pdvJava/RESTG0000.CFG || sed -i '/^opcoes=/a conexao_timeout=10' /Zanthus/Zeus/pdvJava/RESTG0000.CFG
