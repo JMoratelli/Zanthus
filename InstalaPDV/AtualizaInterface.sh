@@ -35,6 +35,6 @@ if [ "$tamanho_origem_num" != "$tamanho_destino_num" ]; then
     reboot
 else
     echo "Interface está na última versão disponível."
-    sleep 3
+    sleep 6
 fi
 exit
