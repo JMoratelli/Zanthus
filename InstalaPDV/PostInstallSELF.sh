@@ -20,6 +20,10 @@ echo "Script sendo executado como usuário root."
 
 #Ajustes para melhoria na resposta de resolução de nomes no Linux
 sudo sed -i 's/^hosts:          files.*/hosts:          files dns/' /etc/nsswitch.conf
+#Ajusta Parâmetros de carga, para aumentar tempo de handshake
+grep -q '^conexao_timeout=10$' /Zanthus/Zeus/pdvJava/CARG0000.CFG || sed -i '/^opcoes=/a conexao_timeout=10' /Zanthus/Zeus/pdvJava/CARG0000.CFG
+grep -q '^conexao_timeout=10$' /Zanthus/Zeus/pdvJava/RESTG0000.CFG || sed -i '/^opcoes=/a conexao_timeout=10' /Zanthus/Zeus/pdvJava/RESTG0000.CFG
+grep -q '^conexao_timeout=10$' /Zanthus/Zeus/pdvJava/ZMWS0000.CFG || sed -i '/^opcoes=/a conexao_timeout=10' /Zanthus/Zeus/pdvJava/ZMWS0000.CFG
 #Adiciona parâmetros arquivos RESTG do MercaFacil, ajustando o TimeOut de 30 para 5.
 printf "timeout=5\n" > /Zanthus/Zeus/pdvJava/RESTG4650.CFG && printf "timeout=5\n" > /Zanthus/Zeus/pdvJava/RESTG4651.CFG
 #Remove Script Zanthus de Identificação de Balança
@@ -28,9 +32,8 @@ rm /opt/webadmin/extra/rules/Balanca/toledoDCPSC-var.sh
 curl -s -o /home/zanthus/AtualizaInterface.sh https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/AtualizaInterface.sh
 #Aplica as permissões de execução atualizador
 chmod +x /home/zanthus/AtualizaInterface.sh
-#Funcao Provisioria para corrigir arquivos de carga
-sed -i "s/endereco=serv-zt-aplic/endereco=192.168.13.250:80/g" /Zanthus/Zeus/pdvJava/RESTG0000.CFG
-sed -i "s/endereco=serv-zt-aplic/endereco=192.168.13.250:80/g" /Zanthus/Zeus/pdvJava/CARG0000.CFG
+#Ajusta e se certifica que os arquivos de carga estejam corretamente preenchidos, através da resolução de nomes
+sed -i '/^endereco=/c endereco=serv-manager-balance:81' /Zanthus/Zeus/pdvJava/CARG0000.CFG /Zanthus/Zeus/pdvJava/RESTG0000.CFG /Zanthus/Zeus/pdvJava/ZMWS0000.CFG
 # Função para limpar a tela
 clear
 # Atualiza o Grub, para acelerar processo de boot.
