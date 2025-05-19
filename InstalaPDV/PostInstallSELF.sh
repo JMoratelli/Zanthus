@@ -139,6 +139,26 @@ case $filial in
     ;;
 esac
 
+#Verifica e configura servidor Easy Cash para as lojas.
+case $filial in
+  1)
+    echo "Servidor EasyCash configurado para Loja 1"
+    ipEasyCash=192.168.50.130
+    ;;
+  3)
+    echo "Servidor EasyCash configurado para Loja 2"
+    ipEasyCash=192.168.50.2
+    ;;
+  *)
+    echo "Erro: Valor inválido para a variável 'filial'. Não existe parâmetro para servidor EasyCash para essa loja."
+    exit 1
+    ;;
+esac
+
+#Grava arquivos EasyCash
+printf "ENDERECO=$ipEasyCash\nPORTA=23454\n" > /Zanthus/Zeus/pdvJava/ZPPERD01.CFG
+printf "TIPO01=1\nOPCOESLOG=255\n" > /Zanthus/Zeus/pdvJava/ZPPERD00.CFG
+
 # Cria as linhas para o crontab
 linha_semana="00 21 * * * /sbin/shutdown -h now"
 linha_domingo="00 $hora_domingo * * SUN /sbin/shutdown -h now"
