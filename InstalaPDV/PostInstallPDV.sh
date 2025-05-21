@@ -17,6 +17,29 @@ if [[ "$EUID" -ne 0 ]]; then
   exit $?
 fi
 echo "Script sendo executado como usuário root."
+
+#Instalador numlockx.
+PACKAGE_NAME="numlockx"
+DEB_FILENAME="numlockx_1.2-9_amd64.deb"
+DEB_URL="http://archive.ubuntu.com/ubuntu/pool/universe/n/numlockx/$DEB_FILENAME"
+
+# Verifica se o pacote numlockx NÃO está instalado
+if ! dpkg -s "$PACKAGE_NAME" >/dev/null 2>&1; then
+  echo "Pacote '$PACKAGE_NAME' não encontrado. Iniciando instalação..."
+
+  echo "Tentando baixar e instalar o pacote de: $DEB_URL"
+  wget "$DEB_URL" && sudo apt install -y "./$DEB_FILENAME"
+
+  #Remove .deb para evitar lixo no PDV.
+  if [ -f "./$DEB_FILENAME" ]; then
+    echo "Removendo o arquivo baixado: ./$DEB_FILENAME"
+    rm "./$DEB_FILENAME"
+  fi
+  
+else
+  echo "Pacote '$PACKAGE_NAME' já está instalado. Nenhuma ação necessária."
+fi
+
 #Ajustes para melhoria na resposta de resolução de nomes no Linux
 sudo sed -i 's/^hosts:          files.*/hosts:          files dns/' /etc/nsswitch.conf
 #Ajusta Parâmetros de carga, para aumentar tempo de handshake
