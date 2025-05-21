@@ -173,7 +173,6 @@ case $filial in
     ;;
   *)
     echo "Erro: Valor inválido para a variável 'filial'. Não existe parâmetro para servidor EasyCash para essa loja."
-    exit 1
     ;;
 esac
 
