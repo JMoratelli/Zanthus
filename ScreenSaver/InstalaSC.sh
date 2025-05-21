@@ -96,6 +96,7 @@ chmod +x /home/zanthus/AtualizaInterface.sh
 #Comando que gravará no PDVTouch.sh
 script_PDVTouch=$(cat << EOF
 #! /bin/bash
+numlockx on
 sudo xhost +local:zanthus
 sudo -u zanthus xscreensaver -no-splash &
 chmod +x /home/zanthus/atualizaSC$filial.sh && /home/zanthus/atualizaSC$filial.sh
