@@ -17,6 +17,9 @@ if [[ "$EUID" -ne 0 ]]; then
   exit $?
 fi
 echo "Script sendo executado como usuário root."
+#Alerta para o operador
+export DISPLAY=:0
+zenity --progress --title="AVISO DO SISTEMA" --text="<span foreground='red' size='44pt'><b>    ATUALIZANDO PDV\n    AGUARDE REINÍCIO\n        NÃO DESLIGUE\n       O COMPUTADOR</b></span>" --pulsate --no-cancel --width=800 --height=300 &
 
 #Instalador numlockx.
 PACKAGE_NAME="numlockx"
