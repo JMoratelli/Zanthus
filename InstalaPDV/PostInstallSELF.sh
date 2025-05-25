@@ -59,6 +59,7 @@ curl -s -o /home/zanthus/AtualizaInterface.sh https://raw.githubusercontent.com/
 chmod +x /home/zanthus/AtualizaInterface.sh
 #Ajusta e se certifica que os arquivos de carga estejam corretamente preenchidos, através da resolução de nomes
 sed -i '/^endereco=/c endereco=serv-manager-balance:81' /Zanthus/Zeus/pdvJava/CARG0000.CFG /Zanthus/Zeus/pdvJava/RESTG0000.CFG /Zanthus/Zeus/pdvJava/ZMWS0000.CFG /Zanthus/Zeus/pdvJava/ZMWS1200.CFG
+sed -i "s#\(^var __urlManager = \).*#\1'http://serv-manager-balance:81/manager/';#" /Zanthus/Zeus/Interface/config/manager.js
 # Função para limpar a tela
 clear
 # Atualiza o Grub, para acelerar processo de boot.
