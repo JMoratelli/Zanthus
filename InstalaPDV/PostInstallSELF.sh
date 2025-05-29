@@ -238,6 +238,7 @@ echo "Copiando arquivos CliSiTef do repositório"
 curl -o "/Zanthus/Zeus/pdvJava/CliSiTef.ini" "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Self/CliSiTef.ini"
 echo "Aplicando permissões no CliSiTef"
 chmod 777 -R /Zanthus/Zeus/pdvJava/CliSiTef.ini
+cd /Zanthus/Zeus/pdvJava && wget -q "http://serv-web/uploads/interfaceZanthus/libCliSiTef.7z" -O "/Zanthus/Zeus/pdvJava/libCliSiTef.7z" && 7z x -o/Zanthus/Zeus/pdvJava/ -y libCliSiTef.7z
 
 #Define o volume do PDV para 84%
 echo "Ajustando volume Master"
