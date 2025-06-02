@@ -28,6 +28,7 @@ make && sudo make install
 sudo systemctl enable keyd && sudo systemctl start keyd
 sudo printf '[ids]\n*\n\n[main]\n\n[control]\ntab = noop\nw = noop\nt = noop\n' > /etc/keyd/default.conf
 sudo keyd reload
+cd ..
 
 #Instalador numlockx.
 PACKAGE_NAME="numlockx"
