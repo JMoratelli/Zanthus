@@ -26,7 +26,7 @@ git clone https://github.com/rvaiya/keyd
 cd keyd
 make && sudo make install
 sudo systemctl enable keyd && sudo systemctl start keyd
-sudo printf '[ids]\n*\n\n[main]\n\n[control]\ntab = noop\nw = noop\nt = noop\n' > /etc/keyd/default.conf
+sudo printf "[ids]\n*\n\n[main]\n\n[control]\ntab = noop\nw = noop\nt = noop\n\n[alt]\nf4 = noop\n" > /etc/keyd/default.conf
 sudo keyd reload
 cd ..
 
