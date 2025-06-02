@@ -21,6 +21,14 @@ echo "Script sendo executado como usuário root."
 export DISPLAY=:0
 zenity --progress --title="AVISO DO SISTEMA" --text="<span foreground='red' size='44pt'><b>    ATUALIZANDO PDV\n    AGUARDE REINÍCIO\n        NÃO DESLIGUE\n       O COMPUTADOR</b></span>" --pulsate --no-cancel --width=800 --height=300 &
 
+#Desativa atalhos CTRL W, CTRL T e CTRL TAB no teclado físico (self checkout não será inativado)
+git clone https://github.com/rvaiya/keyd
+cd keyd
+make && sudo make install
+sudo systemctl enable keyd && sudo systemctl start keyd
+sudo printf '[ids]\n*\n\n[main]\n\n[control]\ntab = noop\nw = noop\nt = noop\n' > /etc/keyd/default.conf
+sudo keyd reload
+
 #Instalador numlockx.
 PACKAGE_NAME="numlockx"
 DEB_FILENAME="numlockx_1.2-9_amd64.deb"
