@@ -229,6 +229,10 @@ case $filial in
     echo "Servidor EasyCash configurado para Loja 2"
     ipEasyCash=192.168.50.2
     ;;
+  4)
+    echo "Servidor EasyCash configurado para Loja 5 - Alta Floresta"
+    ipEasyCash=192.168.51.2
+    ;;
   *)
     echo "Erro: Valor inválido para a variável 'filial'. Não existe parâmetro para servidor EasyCash para essa loja."
     ;;
