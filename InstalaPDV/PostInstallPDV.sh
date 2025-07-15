@@ -229,7 +229,7 @@ case $filial in
     echo "Servidor EasyCash configurado para Loja 2"
     ipEasyCash=192.168.50.2
     ;;
-  4)
+  53)
     echo "Servidor EasyCash configurado para Loja 5 - Alta Floresta"
     ipEasyCash=192.168.51.2
     ;;
