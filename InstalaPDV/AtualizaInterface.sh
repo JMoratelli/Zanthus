@@ -24,8 +24,10 @@ tamanho_origem_num=$(echo "$tamanho_origem" | grep -Eo '[0-9]+')
 tamanho_destino_num=$(echo "$tamanho_destino" | grep -Eo '[0-9]+')
 
 # Comparando os tamanhos
-if [ "$tamanho_origem_num" != "$tamanho_destino_num" ]; then
-    # Baixando o arquivo se os tamanhos forem diferentes
+if [ -z "$tamanho_origem_num" ]; then
+    echo "Não foi possível verificar a versão da interface, erro de rede ou arquivo origem indisponível."
+    sleep 6
+elif [ "$tamanho_origem_num" != "$tamanho_destino_num" ]; then
     cd /Zanthus/Zeus/Interface/
     wget -q "$url_origem" -O "$arquivo_destino" && 7z x -o/Zanthus/Zeus/Interface/ -y interface.7z
     echo "Atualizado com sucesso!"
