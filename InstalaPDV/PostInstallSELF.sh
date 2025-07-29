@@ -1,4 +1,5 @@
 #!/bin/bash
+
 # Verifica se o script está sendo executado como root
 if [[ "$EUID" -ne 0 ]]; then
   echo "Este script precisa ser executado como root."
