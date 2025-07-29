@@ -1,4 +1,5 @@
 #!/bin/bash
+pkill -9 pdvJava2 ; pkill -9 jav ; pkill -9 lnx ; sleep 3 ; pkill -9 chro
 
 # Verifica se o script está sendo executado como root
 if [[ "$EUID" -ne 0 ]]; then
@@ -312,5 +313,4 @@ for i in {1..10}; do
   sleep 1
 done
 echo "Adeus"
-rm -- "$0"
 sudo reboot
