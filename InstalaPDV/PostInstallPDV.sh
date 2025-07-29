@@ -352,6 +352,6 @@ echo "Parâmetros ajustados com sucesso, será iniciado a instalação do Screen
 echo "Script desenvolvido por @jjmoratelli, Jurandir Moratelli ;)."
 echo "Instalação ScreenSaver será iniciada. Aguarde..."
 sleep 5
-rm -- "$0"
+
 # Função que chama o script de configuração do ScreenSaver
 curl -s -o /home/zanthus/InstalaSC.sh https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/ScreenSaver/InstalaSC.sh && chmod +x /home/zanthus/InstalaSC.sh && /home/zanthus/InstalaSC.sh
