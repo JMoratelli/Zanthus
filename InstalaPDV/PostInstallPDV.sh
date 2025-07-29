@@ -1,5 +1,6 @@
 #!/bin/bash
 pkill -9 pdvJava2 ; pkill -9 jav ; pkill -9 lnx ; sleep 3 ; pkill -9 chro
+
 # Verifica se o script está sendo executado como root
 if [[ "$EUID" -ne 0 ]]; then
   echo "Este script precisa ser executado como root."
