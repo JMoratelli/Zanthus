@@ -3,6 +3,8 @@ pkill -9 pdvJava2 ; pkill -9 jav ; pkill -9 lnx
 echo "Aguarde, encerrando sistema PDV com segurança"
 sleep 10
 pkill -9 chro
+sleep 5
+pkill -9 chro
 echo "Iniciando validações iniciais"
 # Verifica se o script está sendo executado como root
 if [[ "$EUID" -ne 0 ]]; then
