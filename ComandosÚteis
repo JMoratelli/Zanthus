@@ -1,11 +1,14 @@
 Encerra o PDV e mata a interface
   pkill -9 pdvJava2 ; pkill -9 jav ; pkill -9 lnx ; sleep 3 ; pkill -9 chro
 
+
 Força atualização das LIBs do TEF
   cd /Zanthus/Zeus/pdvJava && wget -q "http://serv-web/uploads/interfaceZanthus/libCliSiTef.7z" -O "/Zanthus/Zeus/pdvJava/libCliSiTef.7z" && 7z x -o/Zanthus/Zeus/pdvJava/ -y libCliSiTef.7z && reboot
 
+
 Atualiza arquivos de comunicação
   nano CARG*  RESTG*  ZMWS*
+
 
 Apaga arquivos NVL USE COM CAUTELA!
   mkdir -p BKUPNVL && mv -f *.NVL BKUPNVL/
