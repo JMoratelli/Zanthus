@@ -185,6 +185,10 @@ case $filial in
     echo "Servidor EasyCash configurado para Loja 2"
     ipEasyCash=192.168.50.2
     ;;
+  52)
+    echo "Servidor EasyCash configurado para Loja 6 - Primavera do Leste"
+    ipEasyCash=192.168.51.130
+    ;;
   53)
     echo "Servidor EasyCash configurado para Loja 5 - Alta Floresta"
     ipEasyCash=192.168.51.2
