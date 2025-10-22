@@ -1,6 +1,9 @@
-var __template = localStorage.getItem("zantplcorrente") || 100;
+var __template = localStorage.getItem("zantplcorrente") || 2;
+var __forcarModoTouch = true;
 var __ConsultaClienteAvancada = true;
 var __colocarAtalhosNaFinalizadorasPagamento = true;
 var __exibeNumItemGridCupom = true;
 var __habilita_atalho_opcoes = true;
 var __habilita_setas_opcoes = true;
+var __solicitarOperadorComanda = false;
+var __incluirBotaoImprimirComanda = true;
