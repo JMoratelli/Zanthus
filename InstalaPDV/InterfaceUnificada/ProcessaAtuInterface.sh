@@ -43,6 +43,7 @@ rm -f "$diretorio_base/pasta_temporaria/resources/imagens/self/codigo.gif"
 rm -f "$diretorio_base/pasta_temporaria/resources/js/telas_touch.js"
 rm -f "$diretorio_base/pasta_temporaria/resources/js/teclas_touch.js"
 rm -f "$diretorio_base/pasta_temporaria/config/config.js"
+rm -f "$diretorio_base/pasta_temporaria/app/view/tela/2/TelaComanda.js"
 
 rm -rf "$diretorio_base/pasta_temporaria/resources/icones"
 rm -rf "$diretorio_base/pasta_temporaria/resources/audio"
