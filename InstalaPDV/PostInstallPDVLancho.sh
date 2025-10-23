@@ -279,7 +279,7 @@ curl -o "/Zanthus/Zeus/Interface/resources/imagens/cancela_sel.png" "https://raw
 echo "Copiando cancela.png"
 curl -o "/Zanthus/Zeus/Interface/resources/imagens/cancela.png" "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/InterfaceUnificada/cancela.png"
 echo "Copiando config.js"
-curl -o "/Zanthus/Zeus/Interface/config/config.js" "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Lanchonete/config.jsPDV/Interface/config.js"
+curl -o "/Zanthus/Zeus/Interface/config/config.js" "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Lanchonete/config.js"
 echo "Copiando Buttons.js"
 curl -o "/Zanthus/Zeus/Interface/app/api/dinamico/pdvMouse/Buttons.js" "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/PDV/Interface/Buttons.js"
 echo "Copiando telas_touch.js"
