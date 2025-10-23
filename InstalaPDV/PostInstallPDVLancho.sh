@@ -285,7 +285,10 @@ curl -o "/Zanthus/Zeus/Interface/app/api/dinamico/pdvMouse/Buttons.js" "https://
 echo "Copiando telas_touch.js"
 curl -o "/Zanthus/Zeus/Interface/resources/js/telas_touch.js" "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Self/Interface/telas_touch.js"
 echo "Copiando teclas_touch.js"
-curl -o "/Zanthus/Zeus/Interface/resources/js/teclas_touch.js" "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Lanchonete/teclas_touch.js
+curl -o "/Zanthus/Zeus/Interface/resources/js/teclas_touch.js" "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Lanchonete/teclas_touch.js"
+echo "Copiando TelaComanda.js"
+curl -o "/Zanthus/Zeus/Interface/app/view/tela/2/TelaComanda.js" "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Lanchonete/TelaComanda.js"
+
 echo "Aplicando permissões na pasta de interface"
 chmod 777 -R /Zanthus/Zeus/Interface/
 
