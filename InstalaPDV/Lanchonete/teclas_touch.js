@@ -61,7 +61,7 @@ var __teclas_templates = {
         "value": null,
         "autoLabel": null
     }, {
-        "text": "Importar<br />Comanda",
+        "text": "Pagar<br />Comanda",
         "pdvfn": "11168",
         "xtype": "teclafuncional",
         "cls": "bt_teclado_y",
