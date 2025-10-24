@@ -67,7 +67,7 @@ Ext.define("Pdv.view.tela.2.TelaComanda", {
                             xtype: "teclafuncional",
                             cls: "bt_teclado_y",
                             pdvfn: 11168,
-                            text: "Finaliza <br />Comanda"
+                            text: "Pagar <br />Comanda"
                         }, {
                             xtype: "teclafuncional",
                             cls: "bt_teclado_a",
