@@ -26,7 +26,7 @@ var __teclas_templates = {
     }],
     "2": [{
         "text": "Saida<br />Operador",
-        "pdvfn": "159",
+        "pdvfn": "155",
         "xtype": "teclafuncional",
         "cls": "bt_teclado_y",
         "lin": 1,
