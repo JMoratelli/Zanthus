@@ -7,3 +7,4 @@ var __habilita_atalho_opcoes = true;
 var __habilita_setas_opcoes = true;
 var __solicitarOperadorComanda = false;
 var __incluirBotaoImprimirComanda = true;
+var __cancelarItemComandaSupervisor = true;
