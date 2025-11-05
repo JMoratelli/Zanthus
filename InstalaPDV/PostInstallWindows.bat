@@ -34,7 +34,9 @@ REM ZMWS1201.CFG
 REM ZPDF00.CFG
 (
     echo windows.impressora=IMP-NFE
-    echo windows.opcoes=2
+    echo windows.executavel=C:\Program Files\SumatraPDF\SumatraPDF.exe
+    echo windows.comando=-silent -print-to "IMP-NFE"
+    echo windows.opcoes=32
 ) > "%CAMINHO%\ZPDF00.CFG"
 
 REM RESTG4650.CFG
