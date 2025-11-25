@@ -113,7 +113,7 @@ fi
 
 echo "Ajustando opções no arquivo /etc/resolv.conf"
 # Configura servidor DNS e adiciona o parâmetro search para que resolva o DNS do AD.
-sudo printf "nameserver 192.168.12.1\n#options edns0 trust-ad\nsearch redemachado.local" > /etc/resolv.conf
+sudo printf "nameserver 192.168.12.1\nnameserver 192.168.2.1\nnameserver 192.168.12.99\n#options edns0 trust-ad\nsearch redemachado.local\n" > /etc/resolv.conf
 echo "Ajustado opções no arquivo /etc/resolv.conf"
 
 #Acrescenta parâmetros para tratar de forma melhor os erros que possam ser causados por instabilidades da Sefaz (Recomendação da Zanthus adicionar essa linha em PDVs comuns).
