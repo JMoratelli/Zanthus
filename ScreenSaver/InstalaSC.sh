@@ -6,10 +6,10 @@ echo "Atualizando o sistema... Aguarde, pode demorar."
 sudo apt-get update -y > /dev/null 2>&1
 echo "Instalando pacote xscreensaver..."
 #Realiza instalação do xscreensaver
-sudo apt install xscreensaver -y -qq /dev/null 2>&1
+sudo apt install xscreensaver -y -qq
 echo "Instalando pacote MPV..."
 #Realiza instalação do mpv
-sudo apt install mpv -y -qq /dev/null 2>&1
+sudo apt install mpv -y -qq
 echo "Pacotes instalados, realizando configurações..."
 # Faz download do arquivo de configuração do xscreensaver
 curl -s -o /home/zanthus/.xscreensaver https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/ScreenSaver/.xscreensaver
