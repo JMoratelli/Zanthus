@@ -28,27 +28,7 @@ echo "Script sendo executado como usuário root."
 export DISPLAY=:0
 zenity --progress --title="AVISO DO SISTEMA" --text="<span foreground='red' size='44pt'><b>    ATUALIZANDO PDV\n    AGUARDE REINÍCIO\n        NÃO DESLIGUE\n       O COMPUTADOR</b></span>" --pulsate --no-cancel --width=800 --height=300 &
 
-#Instalador numlockx.
-PACKAGE_NAME="numlockx"
-DEB_FILENAME="numlockx_1.2-9_amd64.deb"
-DEB_URL="http://archive.ubuntu.com/ubuntu/pool/universe/n/numlockx/$DEB_FILENAME"
-
-# Verifica se o pacote numlockx NÃO está instalado
-if ! dpkg -s "$PACKAGE_NAME" >/dev/null 2>&1; then
-  echo "Pacote '$PACKAGE_NAME' não encontrado. Iniciando instalação..."
-
-  echo "Tentando baixar e instalar o pacote de: $DEB_URL"
-  wget "$DEB_URL" && sudo apt install -y "./$DEB_FILENAME"
-
-  #Remove .deb para evitar lixo no PDV.
-  if [ -f "./$DEB_FILENAME" ]; then
-    echo "Removendo o arquivo baixado: ./$DEB_FILENAME"
-    rm "./$DEB_FILENAME"
-  fi
-  
-else
-  echo "Pacote '$PACKAGE_NAME' já está instalado. Nenhuma ação necessária."
-fi
+#Removido NumLockX
 
 #Ajustes para melhoria na resposta de resolução de nomes no Linux
 sudo sed -i 's/^hosts:          files.*/hosts:          files dns/' /etc/nsswitch.conf
@@ -88,7 +68,7 @@ gateway=$(ip route show default | awk '{print $3}')
 case $gateway in
     10.1.1.1)
         echo "Detectada impressora da Loja Centro"
-	curl -o /usr/share/cups/model/Kyocera_ECOSYS_M3655idn.ppd https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Drivers/Kyocera_ECOSYS_M3655idn.ppd; lpadmin -p IMP-NFE -E -v socket://10.1.1.139 -i /usr/share/cups/model/Kyocera_ECOSYS_M3655idn.ppd
+		curl -o /usr/share/cups/model/Kyocera_ECOSYS_M3655idn.ppd https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Drivers/Kyocera_ECOSYS_M3655idn.ppd; lpadmin -p IMP-NFE -E -v socket://10.1.1.139 -i /usr/share/cups/model/Kyocera_ECOSYS_M3655idn.ppd
         filial=1
         ;;
     192.168.11.253)
@@ -193,6 +173,10 @@ case $filial in
     echo "Servidor EasyCash configurado para Loja 5 - Alta Floresta"
     ipEasyCash=192.168.51.2
     ;;
+  57)
+    echo "Servidor EasyCash configurado para Loja 7 - Confresa"
+    ipEasyCash=192.168.51.66
+    ;;
   *)
     echo "Erro: Valor inválido para a variável 'filial'. Não existe parâmetro para servidor EasyCash para essa loja."
     ;;
@@ -282,7 +266,10 @@ chmod +x /home/zanthus/PerifericosUSB.sh && /home/zanthus/PerifericosUSB.sh
 #Comando que gravará no PDVTouch.sh
 script_PDVTouch=$(cat << EOF
 #! /bin/bash
-numlockx on
+/usr/bin/setxkbmap -layout br -variant abnt2 > /tmp/setxkbmap.log 2>&1
+if ! mountpoint -q /media/root/GERSAT3/; then
+    mount /media/root/GERSAT3/
+fi
 nohup /home/zanthus/PerifericosUSB.sh &
 chmod +x /home/zanthus/AtualizaInterface.sh && /home/zanthus/AtualizaInterface.sh
 chmod -x /usr/local/bin/igraficaJava;
