@@ -1,4 +1,6 @@
  #!/bin/bash
+clear
+echo "Iniciando instalação do scripts de screensaver, não encerre o processo =)"
 echo "Atualizando o sistema... Aguarde, pode demorar."
 #Executa atualização do sistema
 sudo apt-get update -y > /dev/null 2>&1
