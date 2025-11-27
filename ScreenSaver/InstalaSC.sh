@@ -1,4 +1,4 @@
- #!/bin/bash
+#!/bin/bash
 clear
 echo "Iniciando instalação do scripts de screensaver, não encerre o processo =)"
 echo "Atualizando o sistema... Aguarde, pode demorar."
