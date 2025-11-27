@@ -97,7 +97,9 @@ case $gateway in
         filial=57
         ;;
     *)
-        echo "Valor de gateway não mapeado: $gateway"
+        clear
+        echo "Valor de gateway não mapeado: $gateway. Encerrando, contate o Jurandir para correções."
+        exit 0
         ;;
 esac
 
