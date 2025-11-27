@@ -37,27 +37,7 @@ sudo printf "[ids]\n*\n\n[main]\n\n[control]\ntab = noop\nw = noop\nt = noop\nh 
 sudo keyd reload
 cd ..
 
-#Instalador numlockx.
-PACKAGE_NAME="numlockx"
-DEB_FILENAME="numlockx_1.2-9_amd64.deb"
-DEB_URL="http://archive.ubuntu.com/ubuntu/pool/universe/n/numlockx/$DEB_FILENAME"
-
-# Verifica se o pacote numlockx NÃO está instalado
-if ! dpkg -s "$PACKAGE_NAME" >/dev/null 2>&1; then
-  echo "Pacote '$PACKAGE_NAME' não encontrado. Iniciando instalação..."
-
-  echo "Tentando baixar e instalar o pacote de: $DEB_URL"
-  wget "$DEB_URL" && sudo apt install -y "./$DEB_FILENAME"
-
-  #Remove .deb para evitar lixo no PDV.
-  if [ -f "./$DEB_FILENAME" ]; then
-    echo "Removendo o arquivo baixado: ./$DEB_FILENAME"
-    rm "./$DEB_FILENAME"
-  fi
-  
-else
-  echo "Pacote '$PACKAGE_NAME' já está instalado. Nenhuma ação necessária."
-fi
+#Removido NumLockX
 
 #Ajustes para melhoria na resposta de resolução de nomes no Linux
 sudo sed -i 's/^hosts:          files.*/hosts:          files dns/' /etc/nsswitch.conf
@@ -106,15 +86,14 @@ else
     reboot
   else
     echo "Máquina com BIOS posterior a 2018, atualizando GRUB sem ajustes legados."
-    sudo grub-install
     sleep 5
   fi
 fi
 
-echo "Ajustando opções no arquivo /etc/resolv.conf"
-# Configura servidor DNS e adiciona o parâmetro search para que resolva o DNS do AD.
-sudo printf "nameserver 192.168.12.1\nnameserver 192.168.2.1\nnameserver 192.168.12.99\n#options edns0 trust-ad\nsearch redemachado.local\n" > /etc/resolv.conf
-echo "Ajustado opções no arquivo /etc/resolv.conf"
+echo "Ajustando opções no arquivo /etc/systemd/resolved.conf"
+# Configura servidor DNS e adiciona o parâmetro search para que resolva o DNS do AD. Alterado para system resolved
+printf "[Resolve]\nDNS=192.168.12.1 192.168.2.1\nFallbackDNS=192.168.12.99\nDomains=redemachado.local\n" | sudo tee /etc/systemd/resolved.conf
+echo "Ajustado opções no arquivo /etc/systemd/resolved.conf"
 
 #Acrescenta parâmetros para tratar de forma melhor os erros que possam ser causados por instabilidades da Sefaz (Recomendação da Zanthus adicionar essa linha em PDVs comuns).
 sudo printf "timeout=60\n" > /Zanthus/Zeus/pdvJava/ZMWS1201.CFG
@@ -139,22 +118,22 @@ gateway=$(ip route show default | awk '{print $3}')
 case $gateway in
     10.1.1.1)
         echo "Detectada impressora da Loja Centro"
-	curl -o /usr/share/cups/model/Kyocera_ECOSYS_M3655idn.ppd https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Drivers/Kyocera_ECOSYS_M3655idn.ppd; lpadmin -p IMP-NFE -E -v socket://10.1.1.139 -i /usr/share/cups/model/Kyocera_ECOSYS_M3655idn.ppd
+		curl -o /usr/share/cups/model/Kyocera_ECOSYS_M3655idn.ppd https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Drivers/Kyocera_ECOSYS_M3655idn.ppd; lpadmin -p IMP-NFE -E -v socket://10.1.1.139 -i /usr/share/cups/model/Kyocera_ECOSYS_M3655idn.ppd
         filial=1
         ;;
     192.168.11.253)
         echo "Detectada impressora da Loja Bairro"
-	curl -o /usr/share/cups/model/Kyocera_ECOSYS_MA5500ifx_.ppd https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Drivers/Kyocera_ECOSYS_MA5500ifx_.ppd; lpadmin -p IMP-NFE -E -v socket://192.168.11.94 -i /usr/share/cups/model/Kyocera_ECOSYS_MA5500ifx_.ppd
+		curl -o /usr/share/cups/model/Kyocera_ECOSYS_MA5500ifx_.ppd https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Drivers/Kyocera_ECOSYS_MA5500ifx_.ppd; lpadmin -p IMP-NFE -E -v socket://192.168.11.94 -i /usr/share/cups/model/Kyocera_ECOSYS_MA5500ifx_.ppd
         filial=3
         ;;
     192.168.5.253)
         echo "Detectada impressora de Matupá"
-	curl -o /usr/share/cups/model/Kyocera_ECOSYS_M3655idn.ppd https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Drivers/Kyocera_ECOSYS_M3655idn.ppd; lpadmin -p IMP-NFE -E -v socket://192.168.4.24 -i /usr/share/cups/model/Kyocera_ECOSYS_M3655idn.ppd
+		curl -o /usr/share/cups/model/Kyocera_ECOSYS_M3655idn.ppd https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Drivers/Kyocera_ECOSYS_M3655idn.ppd; lpadmin -p IMP-NFE -E -v socket://192.168.4.24 -i /usr/share/cups/model/Kyocera_ECOSYS_M3655idn.ppd
         filial=9
         ;;
      192.168.7.253)
         echo "Detectada impressora de Alta Floresta"  
-	curl -o /usr/share/cups/model/Kyocera_ECOSYS_M3655idn.ppd https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Drivers/Kyocera_ECOSYS_M3655idn.ppd; lpadmin -p IMP-NFE -E -v socket://192.168.6.14 -i /usr/share/cups/model/Kyocera_ECOSYS_M3655idn.ppd
+		curl -o /usr/share/cups/model/Kyocera_ECOSYS_M3655idn.ppd https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Drivers/Kyocera_ECOSYS_M3655idn.ppd; lpadmin -p IMP-NFE -E -v socket://192.168.6.14 -i /usr/share/cups/model/Kyocera_ECOSYS_M3655idn.ppd
         filial=53
         ;;
      192.168.9.253)
@@ -164,11 +143,13 @@ case $gateway in
         ;;
      192.168.57.193|192.168.57.1|192.168.156.1|192.168.57.129)
         echo "Detectada impressora de Confresa"
-	curl -o /usr/share/cups/model/Kyocera_ECOSYS_MA5500ifx_.ppd https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Drivers/Kyocera_ECOSYS_MA5500ifx_.ppd; lpadmin -p IMP-NFE -E -v socket://192.168.57.125 -i /usr/share/cups/model/Kyocera_ECOSYS_MA5500ifx_.ppd
+		curl -o /usr/share/cups/model/Kyocera_ECOSYS_MA5500ifx_.ppd https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Drivers/Kyocera_ECOSYS_MA5500ifx_.ppd; lpadmin -p IMP-NFE -E -v socket://192.168.57.125 -i /usr/share/cups/model/Kyocera_ECOSYS_MA5500ifx_.ppd
         filial=57
         ;;
     *)
-        echo "Valor de gateway não mapeado: $gateway"
+        clear
+		echo "Valor de gateway não mapeado contate o responsável pelo script (Jurandir): $gateway"
+		exit
         ;;
 esac
 
@@ -243,6 +224,10 @@ case $filial in
   53)
     echo "Servidor EasyCash configurado para Loja 5 - Alta Floresta"
     ipEasyCash=192.168.51.2
+    ;;
+  57)
+    echo "Servidor EasyCash configurado para Loja 7 - Confresa"
+    ipEasyCash=192.168.51.66
     ;;
   *)
     echo "Erro: Valor inválido para a variável 'filial'. Não existe parâmetro para servidor EasyCash para essa loja."
