@@ -1,14 +1,14 @@
  #!/bin/bash
-
+echo "Atualizando o sistema... Aguarde, pode demorar."
 #Executa atualização do sistema
-sudo apt update -y
-
+sudo apt-get update -y > /dev/null 2>&1
+echo "Instalando pacote xscreensaver..."
 #Realiza instalação do xscreensaver
-sudo apt install xscreensaver -y
-
+sudo apt install xscreensaver -y -qq
+echo "Instalando pacote MPV..."
 #Realiza instalação do mpv
-sudo apt install mpv -y
-
+sudo apt install mpv -y -qq
+echo "Pacotes instalados, realizando configurações..."
 # Faz download do arquivo de configuração do xscreensaver
 curl -s -o /home/zanthus/.xscreensaver https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/ScreenSaver/.xscreensaver
 
@@ -18,71 +18,42 @@ if ! grep -Fxq "export DISPLAY=:0" /etc/profile; then
   sudo echo "export DISPLAY=:0" >> /etc/profile
   echo "Linha adicionada ao arquivo /etc/profile"
 else
-  echo "Linha já existe no arquivo /etc/profile"
+  echo "Linha já existe no arquivo /etc/profile, já configurando."
 fi
-# Função para limpar a tela
-clear
+
 #Extrai o Gateway para definir a filial
 gateway=$(ip route show default | awk '{print $3}')
-
-#Lê o retorno da variável gateway
-case $gateway in
-    1)
-        # Comandos para a opção 1
-        echo "Você escolheu a Filial de Colíder, Loja Centro"
-        gateway=10.1.1.1
-        ;;
-    2)
-        # Comandos para a opção 2
-        echo "Você escolheu a Filial de Colíder, Loja Bairro"
-        gateway=192.168.11.253
-        ;;
-    3)
-        # Comandos para a opção 3
-        echo "Você escolheu a Filial de Matupá"
-        gateway=192.168.5.253
-        ;;
-    4)
-        # Comandos para a opção 4
-        echo "Você escolheu a Filial de Alta Floresta"
-        gateway=192.168.7.253
-        ;;
-    5)
-        # Comandos para a opção 5
-        echo "Você escolheu a Filial de Primavera do Leste"
-        gateway=192.168.9.253
-        ;;
-    6)
-        # Comandos para a opção 6
-        echo "Você escolheu a Filial de Confresa"
-        gateway=192.168.57.193
-        ;;
-    *)
-        echo "Opção inválida! Por favor, digite uma opção válida." ;;
-esac
 
 #Traduz o gateway em filial
 case $gateway in
     10.1.1.1)
         filial=1
+        echo "Detectada a filial $filial"
         ;;
     192.168.11.253)
         filial=3
+        echo "Detectada a filial $filial"
         ;;
     192.168.5.253)
         filial=9
+        echo "Detectada a filial $filial"
         ;;
      192.168.7.253)
         filial=53
+        echo "Detectada a filial $filial"
         ;;
      192.168.9.253)
         filial=52
+        echo "Detectada a filial $filial"
         ;;
-      192.168.57.193)
+      192.168.57.193|192.168.57.1|192.168.156.1|192.168.57.129)
         filial=57
+        echo "Detectada a filial $filial"
         ;;
     *)
-        echo "Valor de gateway não mapeado: $gateway"
+        clear
+        echo "Valor de gateway não mapeado: $gateway. Encerrando, contate o Jurandir para correções."
+        exit 0
         ;;
 esac
 # Grava os dados de inicialização do PDV
