@@ -125,7 +125,7 @@ while true; do
                 break
                 ;;
             *)
-                echo -e "${RED}Responda com 'sim', 'não' ou 'cancelar'.${NC}"
+                echo -e "${RED}Responda com 'sim' ou 'não'.${NC}"
                 ;;
         esac
     done
