@@ -30,6 +30,7 @@ show_header() {
     echo -e "${CYAN}############################################################${NC}"
     echo -e "${CYAN}#                                                          #${NC}"
     echo -e "${CYAN}#          ${WHITE}SCRIPT DE INSTALAÇÃO ZANTHUS PDV${CYAN}                #${NC}"
+    echo -e "${CYAN}#          ${WHITE}  DESENVOLVIDO POR @JJMORATELLI ${CYAN}                #${NC}"
     echo -e "${CYAN}#                                                          #${NC}"
     echo -e "${CYAN}############################################################${NC}"
     echo ""
