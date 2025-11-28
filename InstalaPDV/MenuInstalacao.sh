@@ -12,19 +12,10 @@ WHITE='\033[1;37m'
 NC='\033[0m' # No Color (Reset)
 
 # ==============================================================================
-# VALIDAÇÃO DE ROOT (SUPERUSUÁRIO)
-# ==============================================================================
-if [ "$EUID" -ne 0 ]; then
-    echo -e "${RED}ERRO CRÍTICO:${NC}"
-    echo -e "Este script precisa ser executado como ${WHITE}ROOT${NC}."
-    echo -e "Por favor, execute novamente utilizando: ${YELLOW}sudo $0${NC}"
-    exit 1
-fi
-
-# ==============================================================================
 # FUNÇÕES VISUAIS
 # ==============================================================================
 
+# Função para limpar a tela e mostrar o cabeçalho
 show_header() {
     clear
     echo -e "${CYAN}############################################################${NC}"
@@ -36,6 +27,7 @@ show_header() {
     echo ""
 }
 
+# Função para executar o script remoto
 run_installer() {
     local url=$1
     local name=$2
@@ -44,12 +36,12 @@ run_installer() {
     echo -e "${GREEN}--> Iniciando download e execução de: $name...${NC}"
     echo -e "${CYAN}------------------------------------------------------------${NC}"
     
+    # Verifica se tem curl instalado
     if command -v curl >/dev/null 2>&1; then
         bash <(curl -s "$url")
     else
-        echo -e "${RED}Erro: 'curl' não está instalado. Instalando curl...${NC}"
-        apt-get install curl -y >/dev/null 2>&1
-        bash <(curl -s "$url")
+        echo -e "${RED}Erro: 'curl' não está instalado. Por favor instale para continuar.${NC}"
+        read -p "Pressione ENTER para voltar."
     fi
 }
 
@@ -70,6 +62,7 @@ while true; do
     echo -e "${CYAN}------------------------------------------------------------${NC}"
     read -p "Digite o número da opção: " opcao_menu
 
+    # Definição das variáveis com base na escolha
     case $opcao_menu in
         1)
             NOME_SCRIPT="Instalação PDV Comum"
@@ -90,45 +83,40 @@ while true; do
         *)
             echo -e "${RED}Opção inválida! Por favor, escolha entre 1, 2, 3 ou 0.${NC}"
             sleep 2
-            continue
+            continue # Volta para o início do loop principal
             ;;
     esac
 
     # ==========================================================================
-    # LOOP DE CONFIRMAÇÃO (SIM / NÃO / CANCELAR)
+    # LOOP DE CONFIRMAÇÃO (SIM/NÃO)
     # ==========================================================================
     while true; do
         echo ""
         echo -e "${YELLOW}Você selecionou: ${WHITE}$NOME_SCRIPT${NC}"
-        echo -e "Para prosseguir digite 'sim', para voltar 'não', ou 'cancelar' para cancelar."
-        read -p "Confirma? (sim/nao/cancelar): " confirmacao
+        read -p "Você tem certeza que gostaria de iniciar a instalação? (sim/nao): " confirmacao
 
-        # Converte para minúsculas
+        # Converte a entrada para minúsculas para facilitar a comparação
         confirmacao=$(echo "$confirmacao" | tr '[:upper:]' '[:lower:]')
 
         case $confirmacao in
             sim|s)
-                # Executa instalação
+                # Executa o instalador e sai do loop de confirmação
                 run_installer "$URL_SCRIPT" "$NOME_SCRIPT"
                 
+                # Após a instalação, pergunta se quer sair ou voltar ao menu
                 echo ""
                 echo -e "${GREEN}Processo finalizado.${NC}"
                 read -p "Pressione ENTER para voltar ao menu principal..."
-                break 
+                break # Sai do loop de confirmação, volta para o menu principal
                 ;;
             nao|não|n)
-                echo -e "${BLUE}Retornando ao menu inicial...${NC}"
+                echo -e "${BLUE}Operação cancelada. Retornando ao menu principal...${NC}"
                 sleep 1
-                break 
-                ;;
-            cancelar)
-                echo -e "${RED}Operação cancelada.${NC}"
-                sleep 2
-                break # Sai do loop de confirmação e volta ao menu principal
+                break # Sai do loop de confirmação, volta para o menu principal
                 ;;
             *)
-                echo -e "${RED}Resposta inválida! Digite 'sim', 'não' ou 'cancelar'.${NC}"
-                # Loop repete
+                echo -e "${RED}Resposta inválida! Digite apenas 'sim' ou 'não'.${NC}"
+                # O loop continua aqui, repetindo a pergunta
                 ;;
         esac
     done
