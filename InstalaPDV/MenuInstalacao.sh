@@ -77,15 +77,15 @@ while true; do
     case $opcao_menu in
         1)
             NOME="Instalação PDV Comum"
-            URL="https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/PostInstallPDV.sh"
+            URL="https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/PosInstallPDV.sh"
             ;;
         2)
             NOME="Instalação PDV SelfCheckout"
-            URL="https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/PostInstallSELF.sh"
+            URL="https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/PosInstallSELF.sh"
             ;;
         3)
             NOME="Instalação PDV Lanchonete"
-            URL="https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/PostInstallPDVLancho.sh"
+            URL="https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/PosInstallPDVLancho.sh"
             ;;
         0)
             echo -e "${GREEN}Saindo...${NC}"
