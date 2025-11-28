@@ -104,7 +104,7 @@ while true; do
     while true; do
         echo ""
         echo -e "${YELLOW}Selecionado: ${WHITE}$NOME${NC}"
-        echo -ne "Confirma? (digite ${GREEN}sim${NC}, ${RED}nao${NC} ou ${BLUE}cancelar${NC}): "
+        echo -ne "Confirma? (digite ${GREEN}sim${NC}, ${RED}nao${NC}): "
         
         # CORREÇÃO AQUI TAMBÉM: < /dev/tty
         read -r confirmacao < /dev/tty
@@ -112,7 +112,7 @@ while true; do
         confirmacao=$(echo "$confirmacao" | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]')
 
         case $confirmacao in
-            sim|s)
+            sim)
                 run_installer "$URL" "$NOME"
                 echo -e "${GREEN}Finalizado.${NC}"
                 
@@ -121,12 +121,7 @@ while true; do
                 read -r dummy < /dev/tty
                 break 
                 ;;
-            nao|não|n)
-                break 
-                ;;
-            cancelar)
-                echo -e "${RED}Cancelado.${NC}"
-                sleep 2
+            nao|não)
                 break
                 ;;
             *)
