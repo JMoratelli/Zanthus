@@ -1,23 +1,19 @@
-Encerra o PDV e mata a interface
-```bash
+<b>Encerra o PDV e mata a interface</b>
+```
 pkill -9 pdvJava2 ; pkill -9 jav ; pkill -9 lnx ; sleep 3 ; pkill -9 chro
-bash
 ```
 
-Força atualização das LIBs do TEF
-```bash
+<b>Força atualização das LIBs do TEF</b>
+```
 cd /Zanthus/Zeus/pdvJava && wget -q "http://serv-web/uploads/interfaceZanthus/libCliSiTef.7z" -O "/Zanthus/Zeus/pdvJava/libCliSiTef.7z" && 7z x -o/Zanthus/Zeus/pdvJava/ -y libCliSiTef.7z && reboot
-bash
 ```
 
-Atualiza arquivos de comunicação
-```bash
+<b>Atualiza arquivos de comunicação</b>
+```
 nano CARG*  RESTG*  ZMWS*
-bash
 ```
 
-Apaga arquivos NVL USE COM CAUTELA!
-```bash
+<b>Apaga arquivos NVL USE COM CAUTELA! Isso apaga os arquivos de venda do PDV</b>
+```
 mkdir -p BKUPNVL && mv -f *.NVL BKUPNVL/
-bash
 ```
