@@ -54,10 +54,10 @@ chmod 777 /Zanthus/Zeus/pdvJava/RECRGOP0.CFG
 clear
 # Atualiza o Grub, para acelerar processo de boot.
 sudo grub-install
-echo "Ajustando opções no arquivo /etc/resolv.conf"
-# Configura servidor DNS e adiciona o parâmetro search para que resolva o DNS do AD.
-sudo printf "nameserver 192.168.12.1\nnameserver 192.168.2.1\nnameserver 192.168.12.99\n#options edns0 trust-ad\nsearch redemachado.local\n" > /etc/resolv.conf
-echo "Ajustado opções no arquivo /etc/resolv.conf"
+echo "Ajustando opções no arquivo /etc/systemd/resolved.conf"
+# Configura servidor DNS e adiciona o parâmetro search para que resolva o DNS do AD. Alterado para system resolved
+printf "[Resolve]\nDNS=192.168.12.1 192.168.2.1\nFallbackDNS=192.168.12.99\nDomains=redemachado.local\n" | sudo tee /etc/systemd/resolved.conf
+echo "Ajustado opções no arquivo /etc/systemd/resolved.conf"
 # Função para limpar a tela
 clear
 
