@@ -17,3 +17,7 @@ nano CARG*  RESTG*  ZMWS*
 ```
 mkdir -p BKUPNVL && mv -f *.NVL BKUPNVL/
 ```
+<b>Rollback de versão MóduloPHP Caixas</b>
+```
+cd /Zanthus/Zeus/pdvJava/GERAL/SINCRO/WEB/ ; mkdir -p crash ; mv moduloPHPPDV crash ; cp -a moduloPHPPDV_OLD moduloPHPPDV
+```
