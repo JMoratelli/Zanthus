@@ -21,3 +21,7 @@ mkdir -p BKUPNVL && mv -f *.NVL BKUPNVL/
 ```
 cd /Zanthus/Zeus/pdvJava/GERAL/SINCRO/WEB/ ; mkdir -p crash ; mv moduloPHPPDV crash ; cp -a moduloPHPPDV_OLD moduloPHPPDV
 ```
+<b>Copia Versão PHP PDV de um terminal ao lado</b>
+```
+rsync -avz --delete root@192.168.8.121:/Zanthus/Zeus/pdvJava/GERAL/SINCRO/WEB/moduloPHPPDV/ /Zanthus/Zeus/pdvJava/GERAL/SINCRO/WEB/moduloPHPPDV/
+```
