@@ -54,7 +54,7 @@ fi
 # --- Passo 3: Solicitar IP de um terminal funcional ---
 echo ""
 echo "Digite o IP de um terminal que esteja funcionando corretamente:"
-read -p "IP do Terminal Origem: " IP_ORIGEM
+read -r IP_ORIGEM < /dev/tty
 
 # Validação simples se o usuário digitou algo
 if [ -z "$IP_ORIGEM" ]; then
