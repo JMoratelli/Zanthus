@@ -25,3 +25,8 @@ cd /Zanthus/Zeus/pdvJava/GERAL/SINCRO/WEB/ ; mkdir -p crash ; mv moduloPHPPDV cr
 ```
 rsync -avz --delete zanthus@192.168.8.121:/Zanthus/Zeus/pdvJava/GERAL/SINCRO/WEB/moduloPHPPDV/ /Zanthus/Zeus/pdvJava/GERAL/SINCRO/WEB/moduloPHPPDV/
 ```
+<b>Executa automação de correção do PHPPDV via Script</b>
+```
+curl -s https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/CorrigePHPPDV.sh https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/CorrigePHPPDV.sh | bash
+```
+
