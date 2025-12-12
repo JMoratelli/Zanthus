@@ -127,7 +127,7 @@ echo Criando CliSiTef.ini...
     echo ConfiguracaoEnderecoIP=tls-prod.fiservapp.com
 ) > "%CAMINHO%\CliSiTef.ini"
 
-
+sc create CTPIPE binPath= "C:\Zanthus\Zeus\ctpipe.exe" type= own start= auto displayname= "Zanthus - CTPIPE" obj= ".\LocalSystem"
 echo.
 echo Todos os arquivos foram criados/atualizados com sucesso em: %CAMINHO%
 echo.
