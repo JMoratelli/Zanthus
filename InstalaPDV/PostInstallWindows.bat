@@ -127,9 +127,37 @@ echo Criando CliSiTef.ini...
     echo ConfiguracaoEnderecoIP=tls-prod.fiservapp.com
 ) > "%CAMINHO%\CliSiTef.ini"
 
-sc create CTPIPE binPath= "C:\Zanthus\Zeus\ctpipe.exe" type= own start= auto displayname= "Zanthus - CTPIPE" obj= ".\LocalSystem"
-echo.
 echo Todos os arquivos foram criados/atualizados com sucesso em: %CAMINHO%
-echo.
+
+setlocal
+set SEVENZIP="C:\Program Files\7-Zip\7z.exe"
+
+echo Copiando Icones
+if not exist "C:\Zanthus\Zeus\Interface\resources\icones" mkdir "C:\Zanthus\Zeus\Interface\resources\icones"
+
+curl -L -o "C:\Zanthus\Zeus\Interface\resources\icones\icones.7z" "https://github.com/JMoratelli/Zanthus/raw/refs/heads/main/InstalaPDV/InterfaceUnificada/icones.7z"
+
+pushd "C:\Zanthus\Zeus\Interface\resources\icones"
+%SEVENZIP% x -y icones.7z *
+popd
+
+echo Copiando Zeus_V.gif
+curl -L -o "C:\Zanthus\Zeus\Interface\resources\imagens\Zeus_V.gif" "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/PDV/Interface/Zeus_V.gif"
+
+echo Copiando cancela_sel.png
+curl -L -o "C:\Zanthus\Zeus\Interface\resources\imagens\cancela_sel.png" "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/InterfaceUnificada/cancela_sel.png"
+
+echo Copiando cancela.png
+curl -L -o "C:\Zanthus\Zeus\Interface\resources\imagens\cancela.png" "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/InterfaceUnificada/cancela.png"
+
+echo Copiando config.js
+curl -L -o "C:\Zanthus\Zeus\Interface\config\config.js" "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/PDV/Interface/config.js"
+
+echo Copiando Buttons.js
+curl -L -o "C:\Zanthus\Zeus\Interface\app\api\dinamico\pdvMouse\Buttons.js" "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/PDV/Interface/Buttons.js"
+
+echo Aplicando permissoes na pasta de interface (Nota: No Windows as permissoes sao herdadas por padrao)
+
+echo Concluido.
 pause
 endlocal
