@@ -1,26 +1,79 @@
 @echo off
 setlocal
 
-REM Define o caminho base
+REM --- CONFIGURACOES INICIAIS ---
 set "CAMINHO=C:\Zanthus\Zeus\pdvJava"
 
-REM 1. Cria o diret\Uffffffff se ele n\Uffffffffexistir
+echo.
+echo Verificando diretorio de destino: %CAMINHO%
 if not exist "%CAMINHO%" (
-    echo Criando diret\Uffffffff: %CAMINHO%
+    echo Criando pasta %CAMINHO%...
     mkdir "%CAMINHO%"
 )
 
-REM 2. Solicita o IP para o ZPPERD01.CFG (SEM VALIDA\UffffffffO DE FORMATO IP)
 echo.
-set /p IP_SERVIDOR="IP Servidor Darwin: "
+echo Detectando Gateway da rede...
 
-REM 3. Cria\Uffffffff de ZPPERD01.CFG (Conte\Uffffffffin\Uffffffffco)
-echo Criando ZPPERD01.CFG...
+REM --- PASSO 1: Captura o Gateway usando PowerShell (Mais robusto) ---
+set "GATEWAY="
+
+REM Este comando invoca o PowerShell apenas para pegar o IP do Gateway e joga dentro da variavel GATEWAY do CMD
+for /f "usebackq tokens=*" %%a in (`powershell -NoProfile -Command "(Get-WmiObject -Class Win32_NetworkAdapterConfiguration | Where-Object { $_.DefaultIPGateway -ne $null }).DefaultIPGateway[0]"`) do (
+    set "GATEWAY=%%a"
+)
+
+REM Remove espacos em branco caso existam
+set "GATEWAY=%GATEWAY: =%"
+
+if "%GATEWAY%"=="" (
+    echo [ERRO] Gateway nao encontrado. Verifique a conexao.
+    pause
+    exit /b
+)
+echo Gateway detectado: [%GATEWAY%]
+
+REM --- PASSO 2: Define a FILIAL baseada no Gateway ---
+set "FILIAL="
+if "%GATEWAY%"=="10.1.1.1"       set "FILIAL=1"
+if "%GATEWAY%"=="192.168.11.253" set "FILIAL=3"
+if "%GATEWAY%"=="192.168.5.253"  set "FILIAL=9"
+if "%GATEWAY%"=="192.168.7.253"  set "FILIAL=53"
+if "%GATEWAY%"=="192.168.9.253"  set "FILIAL=52"
+
+REM Multiplos gateways para Loja 57
+if "%GATEWAY%"=="192.168.57.193" set "FILIAL=57"
+if "%GATEWAY%"=="192.168.57.1"   set "FILIAL=57"
+if "%GATEWAY%"=="192.168.156.1"  set "FILIAL=57"
+if "%GATEWAY%"=="192.168.57.129" set "FILIAL=57"
+
+echo Ate aqui rodou 6
+REM --- PASSO 3: Define IP do Servidor ---
+set "IP_SERVIDOR="
+
+if "%FILIAL%"=="1" set "IP_SERVIDOR=192.168.50.130" & echo Loja 1 detectada.
+if "%FILIAL%"=="3" set "IP_SERVIDOR=192.168.50.2" & echo Loja 2 detectada.
+if "%FILIAL%"=="9" set "IP_SERVIDOR=192.168.51.194" & echo Loja 3 detectada.
+if "%FILIAL%"=="52" set "IP_SERVIDOR=192.168.51.130" & echo Loja 6 (Primavera) detectada.
+if "%FILIAL%"=="53" set "IP_SERVIDOR=192.168.51.2" & echo Loja 5 (Alta Floresta) detectada.
+if "%FILIAL%"=="57" set "IP_SERVIDOR=192.168.51.66" & echo Loja 7 (Confresa) detectada.
+
+REM --- PASSO 4: Criacao dos Arquivos ---
+
+echo.
+echo Criando ZPPERD01.CFG em %CAMINHO% com IP: %IP_SERVIDOR%...
 (
     echo ENDERECO=%IP_SERVIDOR%
     echo PORTA=23454
 ) > "%CAMINHO%\ZPPERD01.CFG"
 
+echo.
+echo Criando ZMWS1201.CFG em %CAMINHO%...
+(
+    echo timeout=60
+) > "%CAMINHO%\ZMWS1201.CFG"
+
+echo.
+echo Configuracao Darwin EasyCash concluida!
 
 REM 4. Cria\Uffffffff dos Arquivos com Conte\Uffffffffixo
 echo.
