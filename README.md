@@ -8,3 +8,8 @@ Novo menu de Instalação do Script, agora tendo sido incluído vários métodos
 curl -s https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/MenuInstalacao.sh https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/MenuInstalacao.sh | bash
 ```
 **-------------------------------------------------------------------------------------------------------------------**
+
+Scrip para terminais Windows, execute no powershell.
+```
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/PostInstallWindows.bat" -OutFile "PostInstallWindows.bat"; Start-Process "PostInstallWindows.bat" -Verb RunAs
+```
