@@ -45,8 +45,34 @@ curl -s -o /home/zanthus/AtualizaInterface.sh https://raw.githubusercontent.com/
 # Força a execução do script de atualização pela primeira vez
 chmod +x /home/zanthus/atualizaSC$filial.sh && /home/zanthus/atualizaSC$filial.sh
 chmod +x /home/zanthus/AtualizaInterface.sh
+
 #Comando que gravará no PDVTouch.sh
-script_PDVTouch=$(cat << EOF
+case "$tipoInstala" in
+    "PDVTouch")
+        # O conteúdo dentro do EOF deve ficar encostado na margem esquerda
+        script_PDVTouch=$(cat << EOF
+#! /bin/bash
+xinput list --id-only "ILITEK ILITEK-TP" | xargs -I{} xinput disable {}
+/usr/bin/setxkbmap -layout br -variant abnt2 > /tmp/setxkbmap.log 2>&1
+if ! mountpoint -q /media/root/GERSAT3/; then
+    mount /media/root/GERSAT3/
+fi
+sudo xhost +local:zanthus
+sudo -u zanthus xscreensaver -no-splash &
+chmod +x /home/zanthus/atualizaSC${filial}.sh && /home/zanthus/atualizaSC${filial}.sh
+chmod +x /home/zanthus/AtualizaInterface.sh && /home/zanthus/AtualizaInterface.sh
+chmod -x /usr/local/bin/igraficaJava;
+chmod -x /usr/local/bin/dualmonitor_control-PDVJava
+nohup recreate-user-rabbitmq.sh &
+/Zanthus/Zeus/pdvJava/pdvJava2 &
+sleep 30
+nohup chromium-browser --disable-pinch --disable-gpu --disk-cache-dir=/tmp/chromium-cache --user-data-dir=\$(mktemp -d) --test-type --no-sandbox --kiosk --no-context-menu --disable-translate file:////Zanthus/Zeus/Interface/index.html
+EOF
+)
+        ;;
+
+    "PDVComum")
+        script_PDVTouch=$(cat << EOF
 #! /bin/bash
 /usr/bin/setxkbmap -layout br -variant abnt2 > /tmp/setxkbmap.log 2>&1
 if ! mountpoint -q /media/root/GERSAT3/; then
@@ -54,16 +80,23 @@ if ! mountpoint -q /media/root/GERSAT3/; then
 fi
 sudo xhost +local:zanthus
 sudo -u zanthus xscreensaver -no-splash &
-chmod +x /home/zanthus/atualizaSC$filial.sh && /home/zanthus/atualizaSC$filial.sh
+chmod +x /home/zanthus/atualizaSC${filial}.sh && /home/zanthus/atualizaSC${filial}.sh
 chmod +x /home/zanthus/AtualizaInterface.sh && /home/zanthus/AtualizaInterface.sh
 chmod -x /usr/local/bin/igraficaJava;
 chmod -x /usr/local/bin/dualmonitor_control-PDVJava
 nohup recreate-user-rabbitmq.sh &
 /Zanthus/Zeus/pdvJava/pdvJava2 &
 sleep 30
-nohup chromium-browser --disable-pinch --disable-gpu --disk-cache-dir=/tmp/chromium-cache --user-data-dir=$(mktemp -d) --test-type --no-sandbox --kiosk --no-context-menu --disable-translate file:////Zanthus/Zeus/Interface/index.html
+nohup chromium-browser --disable-pinch --disable-gpu --disk-cache-dir=/tmp/chromium-cache --user-data-dir=\$(mktemp -d) --test-type --no-sandbox --kiosk --no-context-menu --disable-translate file:////Zanthus/Zeus/Interface/index.html
 EOF
 )
+        ;;
+    
+    *)
+        # Caso não seja nenhum dos dois, deixa a variável vazia ou define um padrão
+        script_PDVTouch=""
+        ;;
+esac
 # Grava o conteúdo do script no arquivo
 echo "$script_PDVTouch" > /Zanthus/Zeus/pdvJava/PDVTouch.sh
 
