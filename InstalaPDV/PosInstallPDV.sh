@@ -282,7 +282,7 @@ if [ "$tipoInstala" == "PDVTouch" ]; then
     echo "Copiando telas_touch.js PDV PDVTouch"
     curl -s -o "/Zanthus/Zeus/Interface/resources/js/telas_touch.js" "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Self/Interface/telas_touch.js"
     echo "Copiando teclas_touch.js PDV PDVTouch"
-    curl -s -o "/Zanthus/Zeus/Interface/resources/js/teclas_touch.js" "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Lanchonete/teclas_touch.js"
+    curl -s -o "/Zanthus/Zeus/Interface/resources/js/teclas_touch.js" "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/PDV/Interface/teclas_touch.js"
 	echo "Copiando config.js PDV PDVTouch"
 	curl -o "/Zanthus/Zeus/Interface/config/config.js" "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Lanchonete/config.js"
 fi
