@@ -204,7 +204,7 @@ while true; do
             touch "$CONF_DIR/tipoConfLancho.conf"
             
             NOME="Instalação PDV Lanchonete"
-            URL="https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/PosInstallPDVLancho.sh"
+            URL="https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/PosInstallPDV.sh"
             ;;
         0)
             echo -e "${GREEN}Saindo...${NC}"
