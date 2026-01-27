@@ -28,6 +28,20 @@ echo "Script sendo executado como usuário root."
 export DISPLAY=:0
 zenity --progress --title="AVISO DO SISTEMA" --text="<span foreground='red' size='44pt'><b>    ATUALIZANDO PDV\n    AGUARDE REINÍCIO\n        NÃO DESLIGUE\n       O COMPUTADOR</b></span>" --pulsate --no-cancel --width=800 --height=300 &
 
+#Lê Variáveis em disco
+#!/bin/bash
+D="/home/zanthus/tmp/Script"
+#1. Lê Filial e Caixa (Pega o nome do arquivo, remove extensão e mantém só números)
+filial=$(basename "$D"/filial*.conf .conf 2>/dev/null | tr -dc '0-9')
+caixa=$(basename "$D"/caixa*.conf .conf 2>/dev/null | tr -dc '0-9')
+#2. Define Tipo de Instalação (Verifica existência e atribui em uma linha)
+[ -f "$D/tipoConfComum.conf" ]  && tipoInstala="PDVComum"
+[ -f "$D/tipoConfTouch.conf" ]  && tipoInstala="PDVTouch"
+[ -f "$D/tipoConfSelf.conf" ]   && tipoInstala="SelfCheckout"
+[ -f "$D/tipoConfLancho.conf" ] && tipoInstala="Lanchonete"
+#3. Exibe (Usando expansão padrão :- se a variável estiver vazia)
+echo "Filial: ${filial:-ND} | Caixa: ${caixa:-ND} | Tipo: ${tipoInstala:-Desconhecido}"
+
 #Desativa atalhos CTRL W, CTRL T e CTRL TAB no teclado físico (self checkout não será inativado)
 git clone https://github.com/rvaiya/keyd
 cd keyd
@@ -110,44 +124,34 @@ printf "linux.impressora=IMP-NFE\nlinux.opcoes=3\n" > /Zanthus/Zeus/pdvJava/ZPDF
 
 #Instalar impressora
 echo "Adicionando impressora..."
-#Lê e extrai o gateway da máquina
-gateway=$(ip route show default | awk '{print $3}')
-
-#Lê o Gateway e instala impressora de acordo com a loja
-case $gateway in
-    10.1.1.1)
+case $filial in
+    1)
         echo "Detectada impressora da Loja Centro"
 		curl -o /usr/share/cups/model/Kyocera_ECOSYS_M3655idn.ppd https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Drivers/Kyocera_ECOSYS_M3655idn.ppd; lpadmin -p IMP-NFE -E -v socket://10.1.1.139 -i /usr/share/cups/model/Kyocera_ECOSYS_M3655idn.ppd
-        filial=1
         ;;
-    192.168.11.253)
+    3)
         echo "Detectada impressora da Loja Bairro"
 		curl -o /usr/share/cups/model/Kyocera_ECOSYS_MA5500ifx_.ppd https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Drivers/Kyocera_ECOSYS_MA5500ifx_.ppd; lpadmin -p IMP-NFE -E -v socket://192.168.11.94 -i /usr/share/cups/model/Kyocera_ECOSYS_MA5500ifx_.ppd
-        filial=3
         ;;
-    192.168.5.253)
+    9)
         echo "Detectada impressora de Matupá"
 		curl -o /usr/share/cups/model/Kyocera_ECOSYS_M3655idn.ppd https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Drivers/Kyocera_ECOSYS_M3655idn.ppd; lpadmin -p IMP-NFE -E -v socket://192.168.4.24 -i /usr/share/cups/model/Kyocera_ECOSYS_M3655idn.ppd
-        filial=9
         ;;
-     192.168.7.253)
-        echo "Detectada impressora de Alta Floresta"  
+     53)
+        echo "Detectada impressora de Alta Floresta"
 		curl -o /usr/share/cups/model/Kyocera_ECOSYS_M3655idn.ppd https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Drivers/Kyocera_ECOSYS_M3655idn.ppd; lpadmin -p IMP-NFE -E -v socket://192.168.6.14 -i /usr/share/cups/model/Kyocera_ECOSYS_M3655idn.ppd
-        filial=53
         ;;
-     192.168.9.253)
+     52)
         echo "Detectada impressora de Primavera do Leste"
         curl -o /usr/share/cups/model/Kyocera_ECOSYS_M3655idn.ppd https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Drivers/Kyocera_ECOSYS_M3655idn.ppd; lpadmin -p IMP-NFE -E -v socket://192.168.8.27 -i /usr/share/cups/model/Kyocera_ECOSYS_M3655idn.ppd
-        filial=52
         ;;
-     192.168.57.193|192.168.57.1|192.168.156.1|192.168.57.129)
+     57)
         echo "Detectada impressora de Confresa"
 		curl -o /usr/share/cups/model/Kyocera_ECOSYS_MA5500ifx_.ppd https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Drivers/Kyocera_ECOSYS_MA5500ifx_.ppd; lpadmin -p IMP-NFE -E -v socket://192.168.57.125 -i /usr/share/cups/model/Kyocera_ECOSYS_MA5500ifx_.ppd
-        filial=57
         ;;
     *)
         clear
-		echo "Valor de gateway não mapeado contate o responsável pelo script (Jurandir): $gateway"
+		echo "Valor de gateway não mapeado contate o responsável pelo script (Jurandir): $filial"
 		exit
         ;;
 esac
@@ -257,6 +261,41 @@ echo "* Aos domingos: $hora_domingo horas"
 echo "Confira as informações acima, contate suporte Jurandir caso haja incoerências. O processo continuará, não o interrompa caso esteja correto."
 sleep 6
 # Cópia de arquivos de interface
+
+#-------------------Lanchonete-------------------------
+#Copia arquivos lanchonete, interface lanchonete
+if [ "$tipoInstala" == "Lanchonete" ]; then
+    echo "Copiando telas_touch.js PDV Lanchonete"
+    curl -s -o "/Zanthus/Zeus/Interface/resources/js/telas_touch.js" "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Self/Interface/telas_touch.js"
+    echo "Copiando teclas_touch.js PDV Lanchonete"
+    curl -s -o "/Zanthus/Zeus/Interface/resources/js/teclas_touch.js" "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Lanchonete/teclas_touch.js"
+    echo "Copiando TelaComanda.js PDV Lanchonete"
+    curl -s -o "/Zanthus/Zeus/Interface/app/view/tela/2/TelaComanda.js" "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Lanchonete/TelaComanda.js"
+	echo "Copiando config.js PDV Lanchonete"
+	curl -o "/Zanthus/Zeus/Interface/config/config.js" "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Lanchonete/config.js"
+fi
+#Fim----------------Lanchonete-------------------------
+
+#-------------------ComumTouch-------------------------
+#Copia arquivos PDV Comum, interface touch
+if [ "$tipoInstala" == "PDVTouch" ]; then
+    echo "Copiando telas_touch.js PDV PDVTouch"
+    curl -s -o "/Zanthus/Zeus/Interface/resources/js/telas_touch.js" "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Self/Interface/telas_touch.js"
+    echo "Copiando teclas_touch.js PDV PDVTouch"
+    curl -s -o "/Zanthus/Zeus/Interface/resources/js/teclas_touch.js" "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Lanchonete/teclas_touch.js"
+	echo "Copiando config.js PDV PDVTouch"
+	curl -o "/Zanthus/Zeus/Interface/config/config.js" "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Lanchonete/config.js"
+fi
+#Fim----------------ComumTouch-------------------------
+
+#----------------------Comum---------------------------
+#Copia arquivos PDV Comum, interface comum
+if [ "$tipoInstala" == "PDVComum" ]; then
+	echo "Copiando config.js PDV Comum"
+	curl -o "/Zanthus/Zeus/Interface/config/config.js" "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/PDV/Interface/config.js"
+fi
+#Fim-------------------Comum---------------------------
+
 echo "Iniciando copia de arquivos de interface a partir do git"
 echo "Copiando Ícones"
 wget https://github.com/JMoratelli/Zanthus/raw/refs/heads/main/InstalaPDV/InterfaceUnificada/icones.7z -O /Zanthus/Zeus/Interface/resources/icones/icones.7z && cd /Zanthus/Zeus/Interface/resources/icones/ && 7z x -y icones.7z "*"
@@ -266,14 +305,12 @@ echo "Copiando cancela_sel.png"
 curl -o "/Zanthus/Zeus/Interface/resources/imagens/cancela_sel.png" "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/InterfaceUnificada/cancela_sel.png"
 echo "Copiando cancela.png"
 curl -o "/Zanthus/Zeus/Interface/resources/imagens/cancela.png" "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/InterfaceUnificada/cancela.png"
-echo "Copiando config.js"
-curl -o "/Zanthus/Zeus/Interface/config/config.js" "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/PDV/Interface/config.js"
 echo "Copiando Buttons.js"
 curl -o "/Zanthus/Zeus/Interface/app/api/dinamico/pdvMouse/Buttons.js" "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/PDV/Interface/Buttons.js"
 echo "Aplicando permissões na pasta de interface"
 chmod 777 -R /Zanthus/Zeus/Interface/
 
-# Nessa etapa irá copiar os arquivos de ClisiTef e atualziar LIBs
+# Nessa etapa irá copiar os arquivos de ClisiTef e atualizar LIBs
 echo "Copiando arquivos CliSiTef do repositório"
 curl -o "/Zanthus/Zeus/pdvJava/CliSiTef.ini" "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/PDV/CliSiTef.ini"
 echo "Aplicando permissões no CliSiTef"
