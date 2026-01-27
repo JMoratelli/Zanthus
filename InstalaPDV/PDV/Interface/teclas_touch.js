@@ -25,24 +25,24 @@ var __teclas_templates = {
         "teclado": "1"
     }],
     "2": [{
-        "text": "Saida<br />Operador",
-        "pdvfn": "155",
+        "text": "Pesquisa<br />Produto",
+        "pdvfn": "12801",
         "xtype": "teclafuncional",
         "cls": "bt_teclado_y",
         "lin": 1,
         "col": 5,
         "teclado": "1"
     }, {
-        "text": "Entrada<br />Operador",
-        "pdvfn": "154",
+        "text": "Pesquisa<br />Embalagem",
+        "pdvfn": "1123",
         "xtype": "teclafuncional",
         "cls": "bt_teclado_y",
         "lin": 1,
         "col": 6,
         "teclado": "1"
     }, {
-        "text": "Abrir<br />Comanda",
-        "pdvfn": "12804",
+        "text": "Identifica<br />Cliente<br />Nota",
+        "pdvfn": "1771",
         "xtype": "teclafuncional",
         "cls": "bt_teclado_y",
         "lin": 2,
@@ -61,28 +61,28 @@ var __teclas_templates = {
         "value": null,
         "autoLabel": null
     }, {
-        "text": "Pagar<br />Comanda",
-        "pdvfn": "11168",
+        "text": "Pesquisa<br />Cliente",
+        "pdvfn": "12803",
         "xtype": "teclafuncional",
         "cls": "bt_teclado_y",
         "lin": 2,
         "col": 6,
         "teclado": "1"
     }, {
-        "text": "Lista<br />Produtos",
-        "pdvfn": "3014",
-        "xtype": "teclafuncional",
-        "cls": "bt_teclado_y",
-        "lin": 3,
-        "col": 6,
-        "teclado": "1"
-    }, {
-        "text": "Pesquisa<br />Produtos",
-        "pdvfn": "12801",
+        "text": "Abrir<br />Pedido<br />Venda",
+        "pdvfn": "11169",
         "xtype": "teclafuncional",
         "cls": "bt_teclado_y",
         "lin": 3,
         "col": 5,
+        "teclado": "1"
+    }, {
+        "text": "Reimprimir<br />Ultima<br />Operacao",
+        "pdvfn": "5082",
+        "xtype": "teclafuncional",
+        "cls": "bt_teclado_y",
+        "lin": 3,
+        "col": 6,
         "teclado": "1"
     }, {
         "text": "Saida<br />Sistema",
