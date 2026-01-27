@@ -109,7 +109,6 @@ cupsctl --remote-admin --remote-any
 printf "linux.impressora=IMP-NFE\nlinux.opcoes=3\n" > /Zanthus/Zeus/pdvJava/ZPDF00.CFG
 
 #Instalar impressora
-echo "Instalador de Impressora CUPS"
 echo "Adicionando impressora..."
 #Lê e extrai o gateway da máquina
 gateway=$(ip route show default | awk '{print $3}')
