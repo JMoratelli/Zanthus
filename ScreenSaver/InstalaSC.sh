@@ -23,41 +23,20 @@ else
   echo "Linha já existe no arquivo /etc/profile, já configurando."
 fi
 
-#Extrai o Gateway para definir a filial
-gateway=$(ip route show default | awk '{print $3}')
+#Lê Variáveis em disco
+#!/bin/bash
+D="/home/zanthus/tmp/Script"
+#1. Lê Filial e Caixa (Pega o nome do arquivo, remove extensão e mantém só números)
+filial=$(basename "$D"/filial*.conf .conf 2>/dev/null | tr -dc '0-9')
+caixa=$(basename "$D"/caixa*.conf .conf 2>/dev/null | tr -dc '0-9')
+#2. Define Tipo de Instalação (Verifica existência e atribui em uma linha)
+[ -f "$D/tipoConfComum.conf" ]  && tipoInstala="PDVComum"
+[ -f "$D/tipoConfTouch.conf" ]  && tipoInstala="PDVTouch"
+[ -f "$D/tipoConfSelf.conf" ]   && tipoInstala="SelfCheckout"
+[ -f "$D/tipoConfLancho.conf" ] && tipoInstala="Lanchonete"
+#3. Exibe (Usando expansão padrão :- se a variável estiver vazia)
+echo "Filial: ${filial:-ND} | Caixa: ${caixa:-ND} | Tipo: ${tipoInstala:-Desconhecido}"
 
-#Traduz o gateway em filial
-case $gateway in
-    10.1.1.1)
-        filial=1
-        echo "Detectada a filial $filial"
-        ;;
-    192.168.11.253)
-        filial=3
-        echo "Detectada a filial $filial"
-        ;;
-    192.168.5.253)
-        filial=9
-        echo "Detectada a filial $filial"
-        ;;
-     192.168.7.253)
-        filial=53
-        echo "Detectada a filial $filial"
-        ;;
-     192.168.9.253)
-        filial=52
-        echo "Detectada a filial $filial"
-        ;;
-      192.168.57.193|192.168.57.1|192.168.156.1|192.168.57.129)
-        filial=57
-        echo "Detectada a filial $filial"
-        ;;
-    *)
-        clear
-        echo "Valor de gateway não mapeado: $gateway. Encerrando, contate o Jurandir para correções."
-        exit 0
-        ;;
-esac
 # Grava os dados de inicialização do PDV
 curl -s -o /home/zanthus/atualizaSC$filial.sh https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/ScreenSaver/atualizaSC$filial.sh
 echo "Realizado download do script para filial $filial"
