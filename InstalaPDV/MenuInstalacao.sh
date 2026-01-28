@@ -46,12 +46,12 @@ case $gateway in
         ;;
     192.168.11.253)
         DISPLAY_FILIAL="3"
-        ID_FILIAL="3"
+        ID_FILIAL="2"
         NOME_ARQUIVO_FILIAL="filial3.conf"
         ;;
     192.168.5.253)
         DISPLAY_FILIAL="9"
-        ID_FILIAL="9"
+        ID_FILIAL="3"
         NOME_ARQUIVO_FILIAL="filial9.conf"
         ;;
      192.168.7.253)
