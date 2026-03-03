@@ -19,10 +19,18 @@ ler_entrada() {
 }
 
 # --- 1. Recebendo e Validando a Nova Versão ---
-ler_entrada "Digite a nova versão do manager (ex: ORA_8_1.26_134-132-b):" novaVersao
+ler_entrada "Digite a nova versão do manager (ex: ORA_8_1.26_184-159-a):" novaVersao
 
+# --- SANITIZAÇÃO DE TEXTO ---
+# Substitui traços especiais (en-dash/em-dash) por hífen normal
+novaVersao="${novaVersao//–/-}"
+novaVersao="${novaVersao//—/-}"
+# Remove qualquer espaço em branco ou "carriage return" (lixo invisível de Windows/cópia)
+novaVersao=$(echo "$novaVersao" | tr -d ' \t\r\n')
+
+# Validação do Padrão
 if [[ ! "$novaVersao" =~ ^ORA_8_1\.26_([0-9]{3})-(.+)$ ]]; then
-    echo "Erro de validação: O valor inserido é inválido. Verifique se os dados inseridos são reais CUIDADO!"
+    echo "Erro de validação: O valor inserido é inválido. Ele deve iniciar obrigatoriamente com 'ORA_8_1.26_', possuir 3 dígitos para o banco, um hífen e a versão do manager."
     exit 1
 fi
 
@@ -33,7 +41,7 @@ versaoManager="${BASH_REMATCH[2]}"
 ler_entrada "Versão do banco exigida $versaoBanco deseja prosseguir? (sim/não):" confirmaBanco
 
 if [[ "${confirmaBanco,,}" != "sim" ]]; then
-    echo "Operação abortada pelo usuário. Opção digitada diferente de sim."
+    echo "Operação abortada pelo usuário."
     exit 1
 fi
 
