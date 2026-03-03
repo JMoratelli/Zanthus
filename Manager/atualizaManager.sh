@@ -6,8 +6,11 @@ caminhoManager="/docker/manager/docker-compose.yml"
 dirMirage="/docker/mirage"
 dirManager="/docker/manager"
 
+# --- Variáveis para Armazenar Versões Atuais ---
+versaoAtualMirage=""
+versaoAtualManager=""
+
 # --- Função de Leitura para Pipe ---
-# Permite solicitar inputs de texto mesmo se o script for chamado via "curl ... | bash"
 ler_entrada() {
     local prompt="$1"
     local var_name="$2"
@@ -18,7 +21,6 @@ ler_entrada() {
 # --- 1. Recebendo e Validando a Nova Versão ---
 ler_entrada "Digite a nova versão do manager (ex: ORA_8_1.26_184-159-a):" novaVersao
 
-# Validação: Começa com ORA_8_1.26_, seguido de 3 dígitos, um hífen e o resto (manager)
 if [[ ! "$novaVersao" =~ ^ORA_8_1\.26_([0-9]{3})-(.+)$ ]]; then
     echo "Erro de validação: O valor inserido é inválido. Ele deve iniciar obrigatoriamente com 'ORA_8_1.26_', possuir 3 dígitos para o banco, um hífen e a versão do manager."
     exit 1
@@ -30,7 +32,6 @@ versaoManager="${BASH_REMATCH[2]}"
 # --- 2. Confirmação do Banco de Dados ---
 ler_entrada "Versão do banco exigida $versaoBanco deseja prosseguir? (sim/não):" confirmaBanco
 
-# Converte a resposta para minúscula e valida
 if [[ "${confirmaBanco,,}" != "sim" ]]; then
     echo "Operação abortada pelo usuário."
     exit 1
@@ -40,38 +41,29 @@ echo "A versão do Manager identificada para atualização é: $versaoManager"
 echo "--------------------------------------------------------"
 
 # --- 3. Busca e Validação das Versões Atuais ---
-novaVersaoMirage=""
-novaVersaoManager=""
-
-# Busca no Mirage
 if [[ -f "$caminhoMirage" ]]; then
-    # O comando grep com \K extrai apenas o que está DEPOIS do "managerweb:"
-    novaVersaoMirage=$(grep -oP 'image:\s*zanthusinovacao1/managerweb:\K.*' "$caminhoMirage" | tr -d ' "')
+    versaoAtualMirage=$(grep -oP 'image:\s*zanthusinovacao1/managerweb:\K.*' "$caminhoMirage" | tr -d ' "')
 fi
 
-# Busca no Manager
 if [[ -f "$caminhoManager" ]]; then
-    novaVersaoManager=$(grep -oP 'image:\s*zanthusinovacao1/managerweb:\K.*' "$caminhoManager" | tr -d ' "')
+    versaoAtualManager=$(grep -oP 'image:\s*zanthusinovacao1/managerweb:\K.*' "$caminhoManager" | tr -d ' "')
 fi
 
-# Verifica se nenhum foi encontrado
-if [[ -z "$novaVersaoMirage" && -z "$novaVersaoManager" ]]; then
+if [[ -z "$versaoAtualMirage" && -z "$versaoAtualManager" ]]; then
     echo "Erro: Nenhuma instalação do managerweb encontrada nos arquivos docker-compose.yml."
     exit 1
 fi
 
-# Exibe Mirage se existir e valida o padrão inicial da versão que estava lá
-if [[ -n "$novaVersaoMirage" ]]; then
-    echo "Mirage - versão atual é: $novaVersaoMirage e a versão atualizada é: $novaVersao"
-    if [[ ! "$novaVersaoMirage" =~ ^ORA_8_1\.26_([0-9]{3})-(.+)$ ]]; then
+if [[ -n "$versaoAtualMirage" ]]; then
+    echo "Mirage - versão atual é: $versaoAtualMirage e a versão atualizada é: $novaVersao"
+    if [[ ! "$versaoAtualMirage" =~ ^ORA_8_1\.26_([0-9]{3})-(.+)$ ]]; then
          echo "[Aviso] A versão atual lida no Mirage não corresponde ao padrão esperado (ORA_8_1.26_...)."
     fi
 fi
 
-# Exibe Manager se existir e valida o padrão inicial da versão que estava lá
-if [[ -n "$novaVersaoManager" ]]; then
-    echo "Manager - versão atual é: $novaVersaoManager e a versão atualizada é: $novaVersao"
-    if [[ ! "$novaVersaoManager" =~ ^ORA_8_1\.26_([0-9]{3})-(.+)$ ]]; then
+if [[ -n "$versaoAtualManager" ]]; then
+    echo "Manager - versão atual é: $versaoAtualManager e a versão atualizada é: $novaVersao"
+    if [[ ! "$versaoAtualManager" =~ ^ORA_8_1\.26_([0-9]{3})-(.+)$ ]]; then
          echo "[Aviso] A versão atual lida no Manager não corresponde ao padrão esperado (ORA_8_1.26_...)."
     fi
 fi
@@ -86,22 +78,16 @@ if [[ "${confirmaAtualizacao,,}" != "sim" ]]; then
     exit 1
 fi
 
-# --- 5. Atualizando os Arquivos (Substituindo APENAS após os dois pontos) ---
+# --- 5. Funções Auxiliares de Atualização e Reinício ---
 atualizar_arquivo() {
     local arquivo=$1
+    local versao=$2
     if [[ -f "$arquivo" ]]; then
-        # O 'sed' agrupa tudo até os dois pontos como \1, mantendo intacto, e injeta a $novaVersao logo após
-        sed -i -E "s|(image:[[:space:]]*zanthusinovacao1/managerweb:).*|\1$novaVersao|" "$arquivo"
-        echo "Sucesso: Atualizado o arquivo $arquivo"
+        sed -i -E "s|(image:[[:space:]]*zanthusinovacao1/managerweb:).*|\1$versao|" "$arquivo"
+        echo "Sucesso: Atualizado o arquivo $arquivo para a versão $versao"
     fi
 }
 
-atualizar_arquivo "$caminhoMirage"
-atualizar_arquivo "$caminhoManager"
-
-echo "--------------------------------------------------------"
-
-# --- 6. Executando os Comandos do Docker ---
 reiniciar_docker() {
     local dir=$1
     local nome=$2
@@ -115,12 +101,49 @@ reiniciar_docker() {
         echo "Iniciando os serviços do $nome..."
         docker-compose up -d
     else
-        echo "Aviso mais amigável: Opa, parece que o caminho '$dir' não existe nesta máquina. Vou pular a reinicialização do $nome!"
+         echo "Aviso: O caminho '$dir' não existe nesta máquina. Reinicialização do $nome ignorada."
     fi
 }
+
+# --- 6. Aplicando a Nova Versão ---
+atualizar_arquivo "$caminhoMirage" "$novaVersao"
+atualizar_arquivo "$caminhoManager" "$novaVersao"
 
 reiniciar_docker "$dirMirage" "Mirage"
 reiniciar_docker "$dirManager" "Manager"
 
 echo "--------------------------------------------------------"
-echo "Processo finalizado com sucesso! Todas as etapas permitidas foram executadas."
+
+# --- 7. Confirmação Final / Rollback ---
+while true; do
+    ler_entrada "Processo finalizado, deseja confirmar atualização ou dar rollback? Digite sim para confirmar, ou rollback para dar rollback:" acaoFinal
+    
+    # Valida as opções estritas
+    acaoFinal_lower="${acaoFinal,,}"
+    if [[ "$acaoFinal_lower" == "sim" || "$acaoFinal_lower" == "rollback" ]]; then
+        break
+    else
+        echo "Opção inválida. Digite apenas 'sim' ou 'rollback'."
+    fi
+done
+
+if [[ "$acaoFinal_lower" == "sim" ]]; then
+    echo "Atualização confirmada com sucesso!"
+elif [[ "$acaoFinal_lower" == "rollback" ]]; then
+    echo "Iniciando processo de Rollback..."
+    
+    # Aplica as versões antigas guardadas em memória
+    if [[ -n "$versaoAtualMirage" && -f "$caminhoMirage" ]]; then
+        atualizar_arquivo "$caminhoMirage" "$versaoAtualMirage"
+    fi
+    
+    if [[ -n "$versaoAtualManager" && -f "$caminhoManager" ]]; then
+        atualizar_arquivo "$caminhoManager" "$versaoAtualManager"
+    fi
+    
+    # Reinicia com a versão antiga
+    reiniciar_docker "$dirMirage" "Mirage (Rollback)"
+    reiniciar_docker "$dirManager" "Manager (Rollback)"
+    
+    echo "Rollback concluído. O sistema retornou às versões anteriores."
+fi
