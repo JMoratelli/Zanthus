@@ -1,5 +1,5 @@
 #!/bin/bash
-
+clear
 # --- Variáveis de Caminho ---
 caminhoMirage="/docker/mirage/docker-compose.yml"
 caminhoManager="/docker/manager/docker-compose.yml"
