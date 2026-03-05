@@ -57,13 +57,15 @@ cd ..
 sudo sed -i 's/^hosts:          files.*/hosts:          files dns/' /etc/nsswitch.conf
 #Ajusta Parâmetros de carga, para aumentar tempo de handshake
 grep -q '^conexao_timeout=10$' /Zanthus/Zeus/pdvJava/CARG0000.CFG || sed -i '/^opcoes=/a conexao_timeout=10' /Zanthus/Zeus/pdvJava/CARG0000.CFG
-grep -q '^conexao_timeout=10$' /Zanthus/Zeus/pdvJava/RESTG0000.CFG || sed -i '/^opcoes=/a conexao_timeout=10' /Zanthus/Zeus/pdvJava/RESTG0000.CFG
-grep -q '^conexao_timeout=10$' /Zanthus/Zeus/pdvJava/ZMWS0000.CFG || sed -i '/^opcoes=/a conexao_timeout=10' /Zanthus/Zeus/pdvJava/ZMWS0000.CFG
+grep -q '^conexao_timeout=10$' /Zanthus/Zeus/pdvJava/RESTG0000. || sed -i '/^opcoes=/a conexao_timeout=10' /Zanthus/Zeus/pdvJava/RESTG0000.
+grep -q '^conexao_timeout=10$' /Zanthus/Zeus/pdvJava/ZMWS0000. || sed -i '/^opcoes=/a conexao_timeout=10' /Zanthus/Zeus/pdvJava/ZMWS0000.
 #Adiciona parâmetros arquivos RESTG do MercaFacil, ajustando o TimeOut de 30 para 5.
 printf "timeout=5\n" > /Zanthus/Zeus/pdvJava/RESTG4650.CFG && printf "timeout=5\n" > /Zanthus/Zeus/pdvJava/RESTG4651.CFG
-#Ajusta e se certifica que os arquivos de carga estejam corretamente preenchidos, através da resolução de nomes
-sed -i '/^endereco=/c endereco=serv-manager-balance:81' /Zanthus/Zeus/pdvJava/CARG0000.CFG /Zanthus/Zeus/pdvJava/RESTG0000.CFG /Zanthus/Zeus/pdvJava/ZMWS0000.CFG /Zanthus/Zeus/pdvJava/ZMWS1200.CFG
-sed -i "s#\(^var __urlManager = \).*#\1'http://serv-manager-balance:81/manager/';#" /Zanthus/Zeus/Interface/config/manager.js
+
+#Ajuste de endereço de mirage manager - depreciado
+#sed -i '/^endereco=/c endereco=serv-manager-balance:81' /Zanthus/Zeus/pdvJava/CARG0000.CFG /Zanthus/Zeus/pdvJava/RESTG0000.CFG /Zanthus/Zeus/pdvJava/ZMWS0000.CFG /Zanthus/Zeus/pdvJava/ZMWS1200.CFG
+#sed -i "s#\(^var __urlManager = \).*#\1'http://serv-manager-balance:81/manager/';#" /Zanthus/Zeus/Interface/config/manager.js
+
 #Adiciona linha de operadoras de recarga ao script
 printf "Vivo=22\nClaro=12000000\nOi=35000000\nTim=74000000\nBrasil Telecom=11\nCTBC-Celular=12201\nCTBC-Fixo=12299\nEmbratel=14000000\nSercomtel-Celular=12301\nSercomtel-Fixo=12399\nL Economica=97100\nNextel=75000000\n" > /Zanthus/Zeus/pdvJava/RECRGOP0.CFG
 chmod 777 /Zanthus/Zeus/pdvJava/RECRGOP0.CFG
