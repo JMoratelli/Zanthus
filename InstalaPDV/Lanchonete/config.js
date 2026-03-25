@@ -8,3 +8,5 @@ var __habilita_setas_opcoes = true;
 var __solicitarOperadorComanda = false;
 var __incluirBotaoImprimirComanda = true;
 var __cancelarItemComandaSupervisor = false;
+var __pesquisa_dinamica_923 = 2;
+var __fn_principal_pesquisa_dinamica_923 = 3014;
