@@ -109,7 +109,7 @@ chmod -x /usr/local/bin/dualmonitor_control-PDVJava
 nohup recreate-user-rabbitmq.sh &
 /Zanthus/Zeus/pdvJava/pdvJava2 &
 sleep 30
-nohup chromium-browser --disable-pinch --disable-gpu --disk-cache-dir=/tmp/chromium-cache --user-data-dir=\$(mktemp -d) --test-type --no-sandbox --kiosk --no-context-menu --disable-translate file:////Zanthus/Zeus/Interface/index.html
+nohup chromium-browser --touch-events=enabled --disable-pinch --disable-gpu --disk-cache-dir=/tmp/chromium-cache --user-data-dir=\$(mktemp -d) --test-type --no-sandbox --kiosk --no-context-menu --disable-translate file:////Zanthus/Zeus/Interface/index.html
 EOF
 )
         ;;
