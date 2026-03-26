@@ -362,34 +362,29 @@ echo "Script docker finalizado"
 
 #------------------Dois-Monitores------------------------
 if [[ "$tipoInstala" == "PDVComum" || "$tipoInstala" == "PDVTouch" || "$tipoInstala" == "Lanchonete" ]]; then
-    # Lista quantidade de telas conectadas em numeral
-    monCon=$(xrandr | grep " connected" | wc -l)
-    # Extrai nome da entrada 1
-    saida1=$(xrandr | grep " connected" | cut -d' ' -f1 | head -n 1)
-    # Extrai nome da entrada 2
-    saida2=$(xrandr | grep " connected" | cut -d' ' -f1 | head -n 2 | tail -n 1)
+	#Lista quantidade de telas conectadas em numeral
+	monCon=$(xrandr | grep " connected" | wc -l)
+	#Extrai nome da entrada 1
+	saida1=$(xrandr | grep " connected" | cut -d' ' -f1 | head -n 1)
+	#Extrai nome da entrada 2
+	saida2=$(xrandr | grep " connected" | cut -d' ' -f1 | head -n 2 | tail -n 1)
 
-    # Lista quantidade de telas conectadas para o usuário.
-    echo "$monCon monitor(es) conectados"
-    sleep 5
-    # Define a resolução no momento de execução.
-    echo "Definindo a resolução instantânea para a(s) tela(s) conectada(s)"
-    xrandr --output "$saida1" --mode 1024x768
-    
-    # Executa para a segunda tela apenas se ela existir
-    if [ "$monCon" -gt 1 ]; then
-        xrandr --output "$saida2" --mode 1024x768
-    fi
+	#Lista quantidade de telas conectadas para o usuário.
+	echo "$monCon monitor(es) conectados"
+	sleep 5
+	#Define a resolução no momento de execução.
+	echo "Definindo a resolução instantânea para a(s) tela(s) conectada(s)"
+	xrandr --output $saida1  --mode 1024x768
+	xrandr --output $saida2  --mode 1024x768
 
-    # Grava os dados de forma permanente no arquivo xrandr
-    echo "Gerando arquivo xrandr"
+	#Grava os dados de forma permanente no arquivo xrandr
+	echo "Gerando arquivo xrandr"
 
-    # Script xrandr.set
-    # Nota: Usamos aspas simples em 'EOF' para evitar que o shell atual resolva as variáveis do conteúdo
-    script_content=$(cat << 'EOF'
+	#Script xrandr.set
+	script_content=$(cat << EOF
 #!/bin/bash
-# Arquivo Gerado por script de inicialização
-# @jjmoratelli
+#Arquivo Gerado por script de inicialização
+#@jjmoratelli
 xrandr > /tmp/displays
 xinput list --id-only > /tmp/xdevices-id
 xinput list --name-only > /tmp/xdevices-name
@@ -397,30 +392,29 @@ DEFAULT=$(xrandr|grep -v eDP|awk 'BEGIN {} /^.*connected/{printf("%s;", $1)} END
 xrandr --output "$saida1" --mode 1024x768
 xrandr --output "$saida2" --mode 1024x768
 EOF
-    )
+)
 
-    # Grava o conteúdo do script no arquivo
-    echo "$script_content" > /usr/local/bin/xrandr.set
-    # Torna o script executável
-    chmod +x /usr/local/bin/xrandr.set
-    sleep 5
-    
-    # Duplicar monitores (script Zanthus)
-    echo "[Inicio] $(date)" >> /tmp/set-duplicate-monitor.log 2>&1
+	# Grava o conteúdo do script no arquivo
+	echo "$script_content" > /usr/local/bin/xrandr.set
+	# Torna o script executável
+	chmod +x /usr/local/bin/xrandr.set
+	sleep 5
+	#Duplicar monitores (script Zanthus)
+	echo [Inicio] $(date) 2>&1>> /tmp/set-duplicate-monitor.log
 
-    tela1=$(xrandr | grep ' connected' | awk '{print $1}' | head -n 1)
-    tela2=$(xrandr | grep ' connected' | awk '{print $1}' | tail -n 1)
+	tela1=$(xrandr | grep ' connected' | awk '{print $1}' | head -n 1)
+	tela2=$(xrandr | grep ' connected' | awk '{print $1}' | tail -n 1)
 
-    linha="xrandr --output $tela1 --same-as $tela2"
+	linha="xrandr --output $tela1 --same-as $tela2"
 
-    if [ -e /usr/local/bin/xrandr.set ]; then
-        echo >> /usr/local/bin/xrandr.set
-    fi
+	if [ -e /usr/local/bin/xrandr.set ]; then
+	  echo >> /usr/local/bin/xrandr.set
+	fi
 
-    echo "$linha" | sudo tee -a /usr/local/bin/xrandr.set >> /tmp/set-duplicate-monitor.log 2>&1
+	echo "$linha" | sudo tee -a /usr/local/bin/xrandr.set 2>&1>> /tmp/set-duplicate-monitor.log
 
-    echo "[Fim] $(date)" >> /tmp/set-duplicate-monitor.log 2>&1
-    echo "[Reinicie sua maquina]" >> /tmp/set-duplicate-monitor.log 2>&1
+	echo [Fim] $(date) 2>&1>> /tmp/set-duplicate-monitor.log
+	echo [Reinicie sua maquina] 2>&1>> /tmp/set-duplicate-monitor.log
 fi
 #Fim---------------Dois-Monitores------------------------
 
