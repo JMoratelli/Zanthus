@@ -197,7 +197,7 @@ while true; do
             touch "$CONF_DIR/tipoConfSelf.conf"
             
             NOME="Instalação PDV SelfCheckout"
-            URL="https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/PosInstallSELF.sh"
+            URL="https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/PosInstallPDV.sh"
             ;;
         3)
             # Cria arquivo de configuração Lanchonete
