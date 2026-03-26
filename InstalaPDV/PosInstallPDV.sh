@@ -263,6 +263,18 @@ echo "* Aos domingos: $hora_domingo horas"
 echo "Confira as informações acima, contate suporte Jurandir caso haja incoerências. O processo continuará, não o interrompa caso esteja correto."
 sleep 6
 # Cópia de arquivos de interface
+#-------------------SelfCheckout-------------------------
+if [ "$tipoInstala" == "SelfCheckout" ]; then
+    echo "Copiando telas_touch.js PDV Lanchonete"
+    curl -s -o "/Zanthus/Zeus/Interface/resources/js/telas_touch.js" "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Self/Interface/telas_touch.js"
+    echo "Copiando teclas_touch.js PDV Lanchonete"
+    curl -s -o "/Zanthus/Zeus/Interface/resources/js/teclas_touch.js" "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Self/Interface/teclas_touch.js"
+    echo "Copiando TelaComanda.js PDV Lanchonete"
+    curl -s -o "/Zanthus/Zeus/Interface/app/view/tela/2/TelaComanda.js" "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Lanchonete/TelaComanda.js"
+	echo "Copiando config.js PDV Lanchonete"
+	curl -o "/Zanthus/Zeus/Interface/config/config.js" "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Self/Interface/config.js"
+fi
+#Fim----------------SelfCheckout-------------------------
 
 #-------------------Lanchonete-------------------------
 #Copia arquivos lanchonete, interface lanchonete
@@ -313,11 +325,25 @@ echo "Aplicando permissões na pasta de interface"
 chmod 777 -R /Zanthus/Zeus/Interface/
 
 # Nessa etapa irá copiar os arquivos de ClisiTef e atualizar LIBs
-echo "Copiando arquivos CliSiTef do repositório"
-curl -o "/Zanthus/Zeus/pdvJava/CliSiTef.ini" "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/PDV/CliSiTef.ini"
+
+#-------------------SelfCheckout-------------------------
+if [ "$tipoInstala" == "SelfCheckout" ]; then
+	echo "Copiando arquivos CliSiTef do repositório SelfCheckout"
+	curl -o "/Zanthus/Zeus/pdvJava/CliSiTef.ini" "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Self/CliSiTef.ini"
+fi
+#Fim----------------SelfCheckout-------------------------
+
+#----------------------Comum-Self-Touch-Lancho-----------
+if [[ "$tipoInstala" == "PDVComum" || "$tipoInstala" == "PDVTouch" || "$tipoInstala" == "Lanchonete" ]]; then
+	echo "Copiando arquivos CliSiTef do repositório SelfCheckout"
+	curl -o "/Zanthus/Zeus/pdvJava/CliSiTef.ini" "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/PDV/CliSiTef.ini"
+fi
+#Fim-------------------Comum-Self-Touch-Lancho------------
+
 echo "Aplicando permissões no CliSiTef"
 chmod 777 -R /Zanthus/Zeus/pdvJava/CliSiTef.ini
 cd /Zanthus/Zeus/pdvJava && wget -q "http://192.168.12.223/uploads/interfaceZanthus/libCliSiTef.7z" -O "/Zanthus/Zeus/pdvJava/libCliSiTef.7z" && 7z x -o/Zanthus/Zeus/pdvJava/ -y libCliSiTef.7z
+
 #Executa script docker para alterar rede docker para padrão 10.220.0.1
 export DISPLAY=:0
 #Define variável IP para padrão
@@ -332,29 +358,38 @@ echo "Container docker reiniciado."
 echo "Rede alterada com sucesso para o endereço IP: $user_ip"
 echo "Script docker finalizado"
 
-#Lista quantidade de telas conectadas em numeral
-monCon=$(xrandr | grep " connected" | wc -l)
-#Extrai nome da entrada 1
-saida1=$(xrandr | grep " connected" | cut -d' ' -f1 | head -n 1)
-#Extrai nome da entrada 2
-saida2=$(xrandr | grep " connected" | cut -d' ' -f1 | head -n 2 | tail -n 1)
+#Script Duplicador de Telas
 
-#Lista quantidade de telas conectadas para o usuário.
-echo "$monCon monitor(es) conectados"
-sleep 5
-#Define a resolução no momento de execução.
-echo "Definindo a resolução instantânea para a(s) tela(s) conectada(s)"
-xrandr --output $saida1  --mode 1024x768
-xrandr --output $saida2  --mode 1024x768
+#------------------Dois-Monitores------------------------
+if [[ "$tipoInstala" == "PDVComum" || "$tipoInstala" == "PDVTouch" || "$tipoInstala" == "Lanchonete" ]]; then
+    # Lista quantidade de telas conectadas em numeral
+    monCon=$(xrandr | grep " connected" | wc -l)
+    # Extrai nome da entrada 1
+    saida1=$(xrandr | grep " connected" | cut -d' ' -f1 | head -n 1)
+    # Extrai nome da entrada 2
+    saida2=$(xrandr | grep " connected" | cut -d' ' -f1 | head -n 2 | tail -n 1)
 
-#Grava os dados de forma permanente no arquivo xrandr
-echo "Gerando arquivo xrandr"
+    # Lista quantidade de telas conectadas para o usuário.
+    echo "$monCon monitor(es) conectados"
+    sleep 5
+    # Define a resolução no momento de execução.
+    echo "Definindo a resolução instantânea para a(s) tela(s) conectada(s)"
+    xrandr --output "$saida1" --mode 1024x768
+    
+    # Executa para a segunda tela apenas se ela existir
+    if [ "$monCon" -gt 1 ]; then
+        xrandr --output "$saida2" --mode 1024x768
+    fi
 
-#Script xrandr.set
-script_content=$(cat << EOF
+    # Grava os dados de forma permanente no arquivo xrandr
+    echo "Gerando arquivo xrandr"
+
+    # Script xrandr.set
+    # Nota: Usamos aspas simples em 'EOF' para evitar que o shell atual resolva as variáveis do conteúdo
+    script_content=$(cat << 'EOF'
 #!/bin/bash
-#Arquivo Gerado por script de inicialização
-#@jjmoratelli
+# Arquivo Gerado por script de inicialização
+# @jjmoratelli
 xrandr > /tmp/displays
 xinput list --id-only > /tmp/xdevices-id
 xinput list --name-only > /tmp/xdevices-name
@@ -362,29 +397,33 @@ DEFAULT=$(xrandr|grep -v eDP|awk 'BEGIN {} /^.*connected/{printf("%s;", $1)} END
 xrandr --output "$saida1" --mode 1024x768
 xrandr --output "$saida2" --mode 1024x768
 EOF
-)
+    )
 
-# Grava o conteúdo do script no arquivo
-echo "$script_content" > /usr/local/bin/xrandr.set
-# Torna o script executável
-chmod +x /usr/local/bin/xrandr.set
-sleep 5
-#Duplicar monitores (script Zanthus)
-echo [Inicio] $(date) 2>&1>> /tmp/set-duplicate-monitor.log
+    # Grava o conteúdo do script no arquivo
+    echo "$script_content" > /usr/local/bin/xrandr.set
+    # Torna o script executável
+    chmod +x /usr/local/bin/xrandr.set
+    sleep 5
+    
+    # Duplicar monitores (script Zanthus)
+    echo "[Inicio] $(date)" >> /tmp/set-duplicate-monitor.log 2>&1
 
-tela1=$(xrandr | grep ' connected' | awk '{print $1}' | head -n 1)
-tela2=$(xrandr | grep ' connected' | awk '{print $1}' | tail -n 1)
+    tela1=$(xrandr | grep ' connected' | awk '{print $1}' | head -n 1)
+    tela2=$(xrandr | grep ' connected' | awk '{print $1}' | tail -n 1)
 
-linha="xrandr --output $tela1 --same-as $tela2"
+    linha="xrandr --output $tela1 --same-as $tela2"
 
-if [ -e /usr/local/bin/xrandr.set ]; then
-  echo >> /usr/local/bin/xrandr.set
+    if [ -e /usr/local/bin/xrandr.set ]; then
+        echo >> /usr/local/bin/xrandr.set
+    fi
+
+    echo "$linha" | sudo tee -a /usr/local/bin/xrandr.set >> /tmp/set-duplicate-monitor.log 2>&1
+
+    echo "[Fim] $(date)" >> /tmp/set-duplicate-monitor.log 2>&1
+    echo "[Reinicie sua maquina]" >> /tmp/set-duplicate-monitor.log 2>&1
 fi
+#Fim---------------Dois-Monitores------------------------
 
-echo "$linha" | sudo tee -a /usr/local/bin/xrandr.set 2>&1>> /tmp/set-duplicate-monitor.log
-
-echo [Fim] $(date) 2>&1>> /tmp/set-duplicate-monitor.log
-echo [Reinicie sua maquina] 2>&1>> /tmp/set-duplicate-monitor.log
 clear
 echo "Parâmetros ajustados com sucesso, será iniciado a instalação do ScreenSaver"
 echo "Script desenvolvido por @jjmoratelli, Jurandir Moratelli ;)."
