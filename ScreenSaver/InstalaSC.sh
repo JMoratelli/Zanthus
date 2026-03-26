@@ -48,6 +48,26 @@ chmod +x /home/zanthus/AtualizaInterface.sh
 
 #Comando que gravará no PDVTouch.sh
 case "$tipoInstala" in
+    "SelfCheckout")
+        # O conteúdo dentro do EOF deve ficar encostado na margem esquerda
+        script_PDVTouch=$(cat << EOF
+#! /bin/bash
+/usr/bin/setxkbmap -layout br -variant abnt2 > /tmp/setxkbmap.log 2>&1
+if ! mountpoint -q /media/root/GERSAT3/; then
+    mount /media/root/GERSAT3/
+fi
+nohup /home/zanthus/PerifericosUSB.sh &
+chmod +x /home/zanthus/AtualizaInterface.sh && /home/zanthus/AtualizaInterface.sh
+chmod -x /usr/local/bin/igraficaJava;
+chmod -x /usr/local/bin/dualmonitor_control-PDVJava
+nohup recreate-user-rabbitmq.sh &
+/Zanthus/Zeus/pdvJava/pdvJava2 &
+sleep 30
+nohup chromium-browser --touch-events=enabled --disable-pinch --disable-gpu --disk-cache-dir=/tmp/chromium-cache --user-data-dir=$(mktemp -d) --test-type --no-sandbox --kiosk --no-context-menu --disable-translate file:////Zanthus/Zeus/Interface/index.html
+EOF
+)
+        ;;
+
     "PDVTouch")
         # O conteúdo dentro do EOF deve ficar encostado na margem esquerda
         script_PDVTouch=$(cat << EOF
