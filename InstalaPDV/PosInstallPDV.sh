@@ -324,6 +324,16 @@ curl -o "/Zanthus/Zeus/Interface/app/api/dinamico/pdvMouse/Buttons.js" "https://
 echo "Aplicando permissões na pasta de interface"
 chmod 777 -R /Zanthus/Zeus/Interface/
 
+#Clone arquivos de áudio do PDV
+base_url="https://github.com/JMoratelli/Zanthus/raw/refs/heads/main/InstalaPDV/Self/Interface/audio/"
+# Diretório de destino
+destino="/Zanthus/Zeus/Interface/resources/audio/"
+# Loop para gerar as URLs e executar o wget
+for i in {0..24}; do
+  url="${base_url}${i}.mp3"
+  wget -N -P "$destino" "$url"
+done
+
 # Nessa etapa irá copiar os arquivos de ClisiTef e atualizar LIBs
 
 #-------------------SelfCheckout-------------------------
@@ -417,6 +427,29 @@ EOF
 	echo [Reinicie sua maquina] 2>&1>> /tmp/set-duplicate-monitor.log
 fi
 #Fim---------------Dois-Monitores------------------------
+
+#Lista de IPs PDVs do tipo torre Selfs Antigos 33, 34, 35 e 36
+ips_permitidos=("192.168.8.133" "192.168.8.134" "192.168.8.135" "192.168.8.136")
+
+#Verifica se o IP do host é ou não do tipo torre
+if [[ " ${ips_permitidos[@]} " =~ " ${ip} " ]]; then
+  printf "modelo=0\n#Reserva\n" > /Zanthus/Zeus/pdvJava/ZSINALIZ_LAURENTI_ARDUINO.CFG
+  echo "Sinaleiro tipo torre configurado."
+else
+  printf "modelo=1\n#Reserva\n" > /Zanthus/Zeus/pdvJava/ZSINALIZ_LAURENTI_ARDUINO.CFG
+  echo "Sinaleiro tipo lâmpada única configurado."
+fi
+
+#Define o volume do PDV para 84%
+echo "Ajustando volume Master"
+amixer set Master 87
+
+#Remove Script Zanthus de Identificação de Balança
+rm /opt/webadmin/extra/rules/Balanca/toledoDCPSC-var.sh
+
+#Faz Download e aplica permissão script PDVBalança
+curl -s -o /home/zanthus/PerifericosUSB.sh https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/PerifericosUSB.sh
+chmod +x /home/zanthus/PerifericosUSB.sh && /home/zanthus/PerifericosUSB.sh
 
 clear
 echo "Parâmetros ajustados com sucesso, será iniciado a instalação do ScreenSaver"
