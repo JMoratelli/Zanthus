@@ -1,4 +1,4 @@
-#!/bin/bash
+Drepreciado #!/bin/bash
 pkill -9 pdvJava2 ; pkill -9 jav ; pkill -9 lnx
 echo "Aguarde, encerrando sistema PDV com segurança"
 sleep 10
