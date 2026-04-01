@@ -151,6 +151,10 @@ case $filial in
         echo "Detectada impressora de Confresa"
 		curl -o /usr/share/cups/model/Kyocera_ECOSYS_MA5500ifx_.ppd https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Drivers/Kyocera_ECOSYS_MA5500ifx_.ppd; lpadmin -p IMP-NFE -E -v socket://192.168.57.125 -i /usr/share/cups/model/Kyocera_ECOSYS_MA5500ifx_.ppd
         ;;
+     58)
+        echo "Detectada impressora de Lucas do Rio Verde"
+		curl -o /usr/share/cups/model/Kyocera_ECOSYS_MA5500ifx_.ppd https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Drivers/Kyocera_ECOSYS_MA5500ifx_.ppd; lpadmin -p IMP-NFE -E -v socket://192.168.58.20 -i /usr/share/cups/model/Kyocera_ECOSYS_MA5500ifx_.ppd
+        ;;
     *)
         clear
 		echo "Valor de gateway não mapeado contate o responsável pelo script (Jurandir): $filial"
@@ -161,7 +165,7 @@ esac
 echo "Ajustando fuso horário..."
 # Ajusta Fuso horário
 case $filial in
-  1 | 3 | 9 | 52 | 53)
+  1 | 3 | 9 | 52 | 53 | 58)
     timedatectl set-timezone America/Cuiaba
     hwclock -w
     sed -i 's/UTC/LOCAL/g' /etc/adjtime
@@ -203,7 +207,7 @@ case $filial in
   1 | 3 | 9)
     hora_domingo=18
     ;;
-  52 | 53 | 57)
+  52 | 53 | 57 | 58)
     hora_domingo=21
     ;;
   *)
@@ -237,6 +241,10 @@ case $filial in
   57)
     echo "Servidor EasyCash configurado para Loja 7 - Confresa"
     ipEasyCash=192.168.51.66
+    ;;
+  58)
+    echo "Servidor EasyCash configurado para Loja 8 - Lucas do Rio Verde"
+    ipEasyCash=192.168.53.2
     ;;
   *)
     echo "Erro: Valor inválido para a variável 'filial'. Não existe parâmetro para servidor EasyCash para essa loja."
