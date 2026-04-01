@@ -68,7 +68,11 @@ case $gateway in
         DISPLAY_FILIAL="57"
         ID_FILIAL="57"
         NOME_ARQUIVO_FILIAL="filial57.conf"
-        ;;
+        ;;,
+     192.168.58.1)
+        DISPLAY_FILIAL="58"
+        ID_FILIAL="58"
+        NOME_ARQUIVO_FILIAL="filial58.conf"
     *)
         # Mantém padrão "--"
         ;;
