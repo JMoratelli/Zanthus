@@ -44,8 +44,8 @@ textProgram:	fortune
 textURL:	https://feeds.feedburner.com/ubuntu-news
 
 programs:								      \
-			"1SSM" 	mpv --really-quiet --loop inf --fs	      \
-				  --aspect=4:3 --wid=$XSCREENSAVER_WINDOW     \
+                  "1SSM"  mpv --really-quiet --loop=inf --no-osc --no-osd-bar \
+                              --aspect=4:3 --vo=xv --wid=$XSCREENSAVER_WINDOW \
 				  $HOME/scsmachadao.mp4			    \n\
 				maze -root				    \n\
 - GL: 				superquadrics -root			    \n\
