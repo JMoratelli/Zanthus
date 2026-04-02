@@ -7,6 +7,7 @@ sudo apt-get update -y > /dev/null 2>&1
 echo "Instalando pacote xscreensaver..."
 #Realiza instalação do xscreensaver
 sudo apt install xscreensaver -y -qq
+sudo apt install ubuntu-restricted-extras -y -qq
 echo "Instalando pacote MPV..."
 #Realiza instalação do mpv
 sudo apt install mpv -y -qq
