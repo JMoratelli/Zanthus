@@ -85,8 +85,8 @@ var __teclas_templates = {
         "col": 6,
         "teclado": "1"
     }, {
-        "text": "Saida<br />Sistema",
-        "pdvfn": "53",
+        "text": "Lista<br />Feirinha",
+        "pdvfn": "3014",
         "xtype": "teclafuncional",
         "cls": "bt_teclado_y",
         "lin": 4,
