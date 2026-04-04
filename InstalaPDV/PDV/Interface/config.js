@@ -4,3 +4,5 @@ var __colocarAtalhosNaFinalizadorasPagamento = true;
 var __exibeNumItemGridCupom = true;
 var __habilita_atalho_opcoes = true;
 var __habilita_setas_opcoes = true;
+var __pesquisa_dinamica_923 = 2;
+var __fn_principal_pesquisa_dinamica_923 = 3014;
