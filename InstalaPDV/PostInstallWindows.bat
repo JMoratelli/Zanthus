@@ -141,7 +141,7 @@ echo Criando CliSiTef.ini...
     echo ;NomeArqCheques=cheque.ini
     echo.
     echo [PagamentoContas]
-    echo HabilitaPagamentoContasFininvest=1
+    echo HabilitaPagamentoContasFininvest=0
     echo TrataConsultaSaqueComSaque=1
     echo.
     echo [Redes]
@@ -164,7 +164,7 @@ echo Criando CliSiTef.ini...
     echo ;DataEmAmbienteDeDesenvolvimento=20070721
     echo NumeroDeDiasNoLog=5
     echo ConfirmarValorPinPad=1
-    echo TransacoesAdicionaisHabilitadas=10;16;25;24;26;27;28;29;30;36;40;42;43;44;56;57;58;72;78;671;672;675;676;3006;3007;3034;3035;3036;3037;60;62;63;64;4178;
+    echo TransacoesAdicionaisHabilitadas=10;16;25;24;26;27;28;29;30;36;40;42;43;44;56;57;58;72;78;671;672;675;676;3006;3007;3034;3035;3036;3037;60;62;63;64;4178;3379;
     echo.
     echo.
     echo [CliSiTef]
