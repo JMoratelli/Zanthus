@@ -155,73 +155,39 @@ var __teclas_templates = {
         "value": null,
         "autoLabel": "Tipo de venda"
     }],
-    "1000": [{
-        xtype: 'container',
-        defaults: {
-            border: 0,
-            width: 90,
-            height: 50,
-            margin: '10 5 0 0',
-            cls: "bt_teclado_w",
-            /*style: "background-color: yellow !important;",*/
-        },
-        flex: 1,
-        layout: {
-            type: 'hbox',
-        },
-        items: [{
-            text: "Frutas",
-            pdvfn: "3050",
-            width: 60,
-            xtype: "teclafuncional",
-            lin: 3,
-            col: 0,
-            teclado: "1"
-        }, {
-            text: "Gelados",
-            width: 72,
-            pdvfn: "3064",
-            xtype: "teclafuncional",
-            lin: 3,
-            col: 1,
-            teclado: "1"
-        }, {
-            text: "Padaria",
-            pdvfn: "3071",
-            xtype: "teclafuncional",
-            width: 72,
-            lin: 6,
-            col: 1,
-            teclado: "1"
-        }, {
-            text: "Verduras",
-            pdvfn: "3057",
-            xtype: "teclafuncional",
-            width: 80,
-            lin: 6,
-            col: 1,
-            teclado: "1"
-        }, {
-            text: "Consulta<br />mercadoria",
-            pdvfn: "136",
-            xtype: "teclafuncional",
-            lin: 6,
-            width: 100,
-            col: 2,
-            teclado: "1"
-        }, {
-            text: "Informar<br />Quantidade",
-            lin: 6,
-            col: 2,
-            width: 105,
-            teclado: "1",
-            evento: "13",
-            xtype: "teclagatilho",
-            autoColeta: true,
-            monetario: null,
-            value: null,
-            autoLabel: 'Informe a quantidade'
-        }]
+    "1000": [
+        {
+            xtype: 'container',
+            defaults: {
+                border: 0,
+                width: 90,
+                height: 50,
+                margin: '10 5 0 0',
+                cls: "bt_teclado_w",
+                /*style: "background-color: yellow !important;",*/
+            },
+            flex: 1,
+            layout: {
+                type: 'hbox',
+            },
+            items: [
+                {
+                    text: "Informar<br />Quantidade",
+                    lin: 6,
+                    col: 2,
+                    width: 120,
+                    teclado: "1",
+                    evento: "13",
+                    xtype: "teclagatilho",
+                    autoColeta: true,
+                    monetario: null,
+                    value: null,
+                    autoLabel: 'Informe a quantidade'},
+		   {"text":"Cancelar<br />Item","pdvfn":"1146","xtype":"teclafuncional","cls":"bt_teclado_y","lin":6,"col":3,"teclado":"1"},
+		   {"text":"Cancelar<br />Cupom","pdvfn":"1148","xtype":"teclafuncional","cls":"bt_teclado_y","lin":6,"col":4,"teclado":"1"},
+		   {"text":"Pesquisa<br />Embalagem","pdvfn":"1123","xtype":"teclafuncional","cls":"bt_teclado_y","lin":6,"col":5,"teclado":"1"}
+
+]
     }],
     "caedu": [{
         opcoes: [{
