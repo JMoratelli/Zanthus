@@ -1,5 +1,5 @@
 #!/bin/bash
-clear
+
 # --- Variáveis de Caminho ---
 caminhoMirage="/docker/mirage/docker-compose.yml"
 caminhoManager="/docker/manager/docker-compose.yml"
@@ -19,7 +19,7 @@ ler_entrada() {
 }
 
 # --- 1. Recebendo e Validando a Nova Versão ---
-ler_entrada "Digite a nova versão do manager (ex: php_8_2.30_185-160_EV_1):" novaVersao
+ler_entrada "Digite a nova versão do manager (ex: php_8.2.30_manager_185-160_EV_1):" novaVersao
 
 # --- SANITIZAÇÃO DE TEXTO ---
 # Substitui traços especiais (en-dash/em-dash) por hífen normal
@@ -29,8 +29,8 @@ novaVersao="${novaVersao//—/-}"
 novaVersao=$(echo "$novaVersao" | tr -d ' \t\r\n')
 
 # Validação do Padrão Novo
-if [[ ! "$novaVersao" =~ ^php_8_2\.30_([0-9]{3})-(.+)$ ]]; then
-    echo "Erro de validação: O valor inserido é inválido. Ele deve iniciar obrigatoriamente com 'php_8_2.30_', possuir 3 dígitos para o banco, um hífen e a versão do manager."
+if [[ ! "$novaVersao" =~ ^php_8\.2\.30_manager_([0-9]{3})-(.+)$ ]]; then
+    echo "Erro de validação: O valor inserido é inválido. Ele deve iniciar obrigatoriamente com 'php_8.2.30_manager_', possuir 3 dígitos para o banco, um hífen e a versão do manager."
     exit 1
 fi
 
@@ -64,15 +64,15 @@ fi
 
 if [[ -n "$versaoAtualMirage" ]]; then
     echo "Mirage - versão atual é: $versaoAtualMirage e a versão atualizada será: $novaVersao"
-    if [[ ! "$versaoAtualMirage" =~ ^php_8_2\.30_([0-9]{3})-(.+)$ ]]; then
-         echo "[Aviso] A versão atual lida no Mirage não corresponde ao padrão esperado (php_8_2.30_...)."
+    if [[ ! "$versaoAtualMirage" =~ ^php_8\.2\.30_manager_([0-9]{3})-(.+)$ ]]; then
+         echo "[Aviso] A versão atual lida no Mirage não corresponde ao padrão esperado (php_8.2.30_manager_...)."
     fi
 fi
 
 if [[ -n "$versaoAtualManager" ]]; then
     echo "Manager - versão atual é: $versaoAtualManager e a versão atualizada será: $novaVersao"
-    if [[ ! "$versaoAtualManager" =~ ^php_8_2\.30_([0-9]{3})-(.+)$ ]]; then
-         echo "[Aviso] A versão atual lida no Manager não corresponde ao padrão esperado (php_8_2.30_...)."
+    if [[ ! "$versaoAtualManager" =~ ^php_8\.2\.30_manager_([0-9]{3})-(.+)$ ]]; then
+         echo "[Aviso] A versão atual lida no Manager não corresponde ao padrão esperado (php_8.2.30_manager_...)."
     fi
 fi
 
