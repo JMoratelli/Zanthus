@@ -28,9 +28,9 @@ novaVersao="${novaVersao//—/-}"
 # Remove qualquer espaço em branco ou "carriage return" (lixo invisível de Windows/cópia)
 novaVersao=$(echo "$novaVersao" | tr -d ' \t\r\n')
 
-# Validação do Padrão
-if [[ ! "$novaVersao" =~ ^ORA_8_1\.26_([0-9]{3})-(.+)$ ]]; then
-    echo "Erro de validação: O valor inserido é inválido. Ele deve iniciar obrigatoriamente com 'ORA_8_1.26_', possuir 3 dígitos para o banco, um hífen e a versão do manager."
+# Validação do Padrão não necessária pois foi unificada as versões de banco
+if [[ ! "$novaVersao" =~ ^php_8_2\.30_([0-9]{3})-(.+)$ ]]; then
+    echo "Erro de validação: O valor inserido é inválido. Ele deve iniciar obrigatoriamente com 'php_8_2.30_', possuir 3 dígitos para o banco, um hífen e a versão do manager."
     exit 1
 fi
 
