@@ -19,7 +19,7 @@ ler_entrada() {
 }
 
 # --- 1. Recebendo e Validando a Nova Versão ---
-ler_entrada "Digite a nova versão do manager (ex: ORA_8_1.26_184-159-a):" novaVersao
+ler_entrada "Digite a nova versão do manager (ex: php_8_2.30_185-160_EV_1):" novaVersao
 
 # --- SANITIZAÇÃO DE TEXTO ---
 # Substitui traços especiais (en-dash/em-dash) por hífen normal
@@ -28,7 +28,7 @@ novaVersao="${novaVersao//—/-}"
 # Remove qualquer espaço em branco ou "carriage return" (lixo invisível de Windows/cópia)
 novaVersao=$(echo "$novaVersao" | tr -d ' \t\r\n')
 
-# Validação do Padrão não necessária pois foi unificada as versões de banco
+# Validação do Padrão
 if [[ ! "$novaVersao" =~ ^php_8_2\.30_([0-9]{3})-(.+)$ ]]; then
     echo "Erro de validação: O valor inserido é inválido. Ele deve iniciar obrigatoriamente com 'php_8_2.30_', possuir 3 dígitos para o banco, um hífen e a versão do manager."
     exit 1
@@ -64,15 +64,15 @@ fi
 
 if [[ -n "$versaoAtualMirage" ]]; then
     echo "Mirage - versão atual é: $versaoAtualMirage e a versão atualizada é: $novaVersao"
-    if [[ ! "$versaoAtualMirage" =~ ^ORA_8_1\.26_([0-9]{3})-(.+)$ ]]; then
-         echo "[Aviso] A versão atual lida no Mirage não corresponde ao padrão esperado (ORA_8_1.26_...)."
+    if [[ ! "$versaoAtualMirage" =~ ^php_8_2\.30_([0-9]{3})-(.+)$ ]]; then
+         echo "[Aviso] A versão atual lida no Mirage não corresponde ao padrão esperado (php_8_2.30_...)."
     fi
 fi
 
 if [[ -n "$versaoAtualManager" ]]; then
     echo "Manager - versão atual é: $versaoAtualManager e a versão atualizada é: $novaVersao"
-    if [[ ! "$versaoAtualManager" =~ ^ORA_8_1\.26_([0-9]{3})-(.+)$ ]]; then
-         echo "[Aviso] A versão atual lida no Manager não corresponde ao padrão esperado (ORA_8_1.26_...)."
+    if [[ ! "$versaoAtualManager" =~ ^php_8_2\.30_([0-9]{3})-(.+)$ ]]; then
+         echo "[Aviso] A versão atual lida no Manager não corresponde ao padrão esperado (php_8_2.30_...)."
     fi
 fi
 
