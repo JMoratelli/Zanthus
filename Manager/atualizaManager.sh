@@ -28,7 +28,7 @@ novaVersao="${novaVersao//—/-}"
 # Remove qualquer espaço em branco ou "carriage return" (lixo invisível de Windows/cópia)
 novaVersao=$(echo "$novaVersao" | tr -d ' \t\r\n')
 
-# Validação do Padrão
+# Validação do Padrão Novo
 if [[ ! "$novaVersao" =~ ^php_8_2\.30_([0-9]{3})-(.+)$ ]]; then
     echo "Erro de validação: O valor inserido é inválido. Ele deve iniciar obrigatoriamente com 'php_8_2.30_', possuir 3 dígitos para o banco, um hífen e a versão do manager."
     exit 1
@@ -63,14 +63,14 @@ if [[ -z "$versaoAtualMirage" && -z "$versaoAtualManager" ]]; then
 fi
 
 if [[ -n "$versaoAtualMirage" ]]; then
-    echo "Mirage - versão atual é: $versaoAtualMirage e a versão atualizada é: $novaVersao"
+    echo "Mirage - versão atual é: $versaoAtualMirage e a versão atualizada será: $novaVersao"
     if [[ ! "$versaoAtualMirage" =~ ^php_8_2\.30_([0-9]{3})-(.+)$ ]]; then
          echo "[Aviso] A versão atual lida no Mirage não corresponde ao padrão esperado (php_8_2.30_...)."
     fi
 fi
 
 if [[ -n "$versaoAtualManager" ]]; then
-    echo "Manager - versão atual é: $versaoAtualManager e a versão atualizada é: $novaVersao"
+    echo "Manager - versão atual é: $versaoAtualManager e a versão atualizada será: $novaVersao"
     if [[ ! "$versaoAtualManager" =~ ^php_8_2\.30_([0-9]{3})-(.+)$ ]]; then
          echo "[Aviso] A versão atual lida no Manager não corresponde ao padrão esperado (php_8_2.30_...)."
     fi
