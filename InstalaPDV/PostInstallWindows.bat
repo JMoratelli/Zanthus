@@ -211,6 +211,12 @@ curl -L -o "C:\Zanthus\Zeus\Interface\app\api\dinamico\pdvMouse\Buttons.js" "htt
 
 echo Aplicando permissoes na pasta de interface (Nota: No Windows as permissoes sao herdadas por padrao)
 
+echo Instalando impressora
+powershell -Command "Start-Process -FilePath 'C:\opt\Zanthus Plug n Play\setup\impressora\epson\tm-t20\install.bat' -Verb RunAs"
+
+echo Ajustando Parametro SumatraPDF
+ren "C:\Zanthus\Zeus\SumatraPDF*.exe" "SumatraPDF.exe"
+
 echo Concluido.
 pause
 endlocal
