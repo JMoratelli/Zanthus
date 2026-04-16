@@ -97,6 +97,17 @@ if [ -n "$ID_FILIAL" ]; then
         touch "$CONF_DIR/caixa${NUMERO_FINAL}.conf"
     fi
 fi
+# --- BALANÇA-----------------------------
+qtd_balancas=$(ls -l /dev/serial/by-id/* 2>/dev/null | grep -c 'usb-TOLEDO_CDC_DEVICE_')
+
+if [ "$qtd_balancas" -eq 1 ]; then
+    touch "$CONF_DIR/tipoBalancaToledo.conf"
+elif [ "$qtd_balancas" -ge 2 ]; then
+    touch "$CONF_DIR/tipoBalancaToledoDual.conf"
+else
+    touch "$CONF_DIR/tipoBalancaNull.conf"
+fi
+# -----------------------------------------
 
 # ==============================================================================
 # FUNÇÕES DE INTERFACE
