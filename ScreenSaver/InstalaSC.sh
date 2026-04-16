@@ -25,7 +25,6 @@ else
 fi
 
 #Lê Variáveis em disco
-#!/bin/bash
 D="/home/zanthus/tmp/Script"
 #1. Lê Filial e Caixa (Pega o nome do arquivo, remove extensão e mantém só números)
 filial=$(basename "$D"/filial*.conf .conf 2>/dev/null | tr -dc '0-9')
@@ -37,6 +36,9 @@ caixa=$(basename "$D"/caixa*.conf .conf 2>/dev/null | tr -dc '0-9')
 [ -f "$D/tipoConfLancho.conf" ] && tipoInstala="Lanchonete"
 #3. Exibe (Usando expansão padrão :- se a variável estiver vazia)
 echo "Filial: ${filial:-ND} | Caixa: ${caixa:-ND} | Tipo: ${tipoInstala:-Desconhecido}"
+#4. Define Tipo de Balança (Nova variável solicitada)
+[ -f "$D/tipoBalancaToledo.conf" ]     && tipoBalanca="Toledo"
+[ -f "$D/tipoBalancaToledoDual.conf" ] && tipoBalanca="ToledoDual"
 
 # Grava os dados de inicialização do PDV
 curl -s -o /home/zanthus/atualizaSC$filial.sh https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/ScreenSaver/atualizaSC$filial.sh
