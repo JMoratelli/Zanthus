@@ -148,6 +148,14 @@ echo "$script_PDVTouch" > /Zanthus/Zeus/pdvJava/PDVTouch.sh
 
 chmod +x /Zanthus/Zeus/pdvJava/PDVTouch.sh
 
+#Verifica existência de balanças
+if [ "$tipoBalanca" = "Toledo" ]; then
+    # O sed usa o caractere "|" como delimitador para lidar com as barras do caminho sem erros
+    sed -i 's|#nohup /home/zanthus/PerifericosUSB.sh &|nohup /home/zanthus/PerifericosUSB.sh &|' /Zanthus/Zeus/pdvJava/PDVTouch.sh
+elif [ "$tipoBalanca" = "ToledoDual" ]; then
+    echo "Modelo não suportado"
+fi
+
 echo "Script finalizado, aguarde o fim do contador para que o PDV reinicie"
 echo "Script feito por @jjmoratelli, Jurandir Moratelli."
 sleep 5
