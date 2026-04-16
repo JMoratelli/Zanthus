@@ -78,6 +78,7 @@ xinput list --id-only "ILITEK ILITEK-TP" | xargs -I{} xinput disable {}
 if ! mountpoint -q /media/root/GERSAT3/; then
     mount /media/root/GERSAT3/
 fi
+#nohup /home/zanthus/PerifericosUSB.sh &
 sudo xhost +local:zanthus
 sudo -u zanthus xscreensaver -no-splash &
 chmod +x /home/zanthus/atualizaSC${filial}.sh && /home/zanthus/atualizaSC${filial}.sh
