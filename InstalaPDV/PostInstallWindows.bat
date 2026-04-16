@@ -87,7 +87,7 @@ REM ZMWS1201.CFG
 REM ZPDF00.CFG
 (
     echo windows.impressora=IMP-NFE
-    echo windows.executavel=C:\Zanthus\Zeus\SumatraPDF.exe
+    echo windows.executavel=C:\Program Files\SumatraPDF\SumatraPDF.exe
     echo windows.comando=-silent -print-to "IMP-NFE"
     echo windows.opcoes=32
 ) > "%CAMINHO%\ZPDF00.CFG"
@@ -212,7 +212,7 @@ curl -L -o "C:\Zanthus\Zeus\Interface\app\api\dinamico\pdvMouse\Buttons.js" "htt
 echo Aplicando permissoes na pasta de interface (Nota: No Windows as permissoes sao herdadas por padrao)
 
 echo Ajustando Parametro SumatraPDF
-ren "C:\Zanthus\Zeus\SumatraPDF*.exe" "SumatraPDF.exe"
+winget install --id SumatraPDF.SumatraPDF --scope machine --architecture x64 --silent --accept-package-agreements --accept-source-agreements
 
 echo Instalando impressora
 powershell -Command "Start-Process -FilePath 'C:\opt\Zanthus Plug n Play\setup\impressora\epson\tm-t20\install.bat' -Verb RunAs"
