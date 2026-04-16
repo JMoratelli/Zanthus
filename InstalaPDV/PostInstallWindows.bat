@@ -214,6 +214,9 @@ echo Aplicando permissoes na pasta de interface (Nota: No Windows as permissoes 
 echo Ajustando Parametro SumatraPDF
 winget install --id SumatraPDF.SumatraPDF --scope machine --architecture x64 --silent --accept-package-agreements --accept-source-agreements
 
+echo Instalando CTPipe
+taskkill /F /IM ctpipe.exe /T & taskkill /F /IM mmc.exe /T & sc stop CTPIPE & sc delete CTPIPE & timeout /t 5 /nobreak & sc create CTPIPE binPath= "C:\Zanthus\Zeus\ctpipe.exe" start= auto displayname= "Zanthus - CTPIPE" & sc start CTPIPE
+
 echo Instalando impressora
 powershell -Command "Start-Process -FilePath 'C:\opt\Zanthus Plug n Play\setup\impressora\epson\tm-t20\install.bat' -Verb RunAs"
 
