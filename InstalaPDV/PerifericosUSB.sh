@@ -1,20 +1,39 @@
 #!/bin/bash
-#Caminho de manipulação arquivos sinaleiros
+
 config_file="/Zanthus/Zeus/pdvJava/ZSINALIZ_LAURENTI_ARDUINO.CFG"
+arquivo_conf_self="/home/zanthus/tmp/Script/tipoConfSelf.conf"
 
-#Obtém os valores de ACMx para o link simbólico
-output=$(ls -l /dev/serial/by-id/* | grep 'usb-TOLEDO_CDC_DEVICE_')
+# ==========================================
+# 1. AUTOMAÇÃO DA BALANÇA
+# ==========================================
+output_balanca=$(ls -l /dev/serial/by-id/* 2>/dev/null | grep 'usb-TOLEDO_CDC_DEVICE_')
+Y=$(echo "$output_balanca" | grep -oP 'ttyACM\K\d')
 
-#Obtém valor númerico da porta do sinaleiro
-portaSin=$(ls -l /dev/serial/by-id/* | grep "usb-1a86" | grep -o "[0-9]$")
+mv -f /dev/ttyS4 /dev/ttyS104 2>/dev/null
+ln -sf /dev/ttyACM$Y /dev/ttyS4 2>/dev/null
 
-#Extrai a porta da balança e grava em "Y"
-Y=$(echo "$output" | grep -oP 'ttyACM\K\d')
+# ==========================================
+# 2. AUTOMAÇÃO DO LEITOR USB (CONDICIONAL)
+# ==========================================
+if [ -f "$arquivo_conf_self" ]; then
+    
+    # Busca pela string do leitor Datalogic
+    output_leitor=$(ls -l /dev/serial/by-id/* 2>/dev/null | grep 'usb-Datalogic')
+    Z=$(echo "$output_leitor" | grep -oP 'ttyACM\K\d')
+    
+    if [ -n "$Z" ]; then
+        mv -f /dev/ttyS0 /dev/ttyS100 2>/dev/null
+        ln -sf /dev/ttyACM$Z /dev/ttyS0 2>/dev/null
+    fi
+fi
 
-#Manipula portas e grava variáveis de forma fixa no sistema.
-mv -vf /dev/ttyS4 /dev/ttyS104
-ln -s /dev/ttyACM$Y /dev/ttyS4
+# ==========================================
+# 3. AUTOMAÇÃO DO SINALEIRO
+# ==========================================
+portaSin=$(ls -l /dev/serial/by-id/* 2>/dev/null | grep "usb-1a86" | grep -o "[0-9]$")
 
-# Substitui a linha de configuração do sinaleiro, de forma dinâmica, caso seja alterado, irá reconfigurar.
-sed -i "2s/.*/linux_device=\/dev\/ttyUSB$portaSin/" "$config_file"
+if [ -n "$portaSin" ]; then
+    sed -i "2s/.*/linux_device=\/dev\/ttyUSB$portaSin/" "$config_file" 2>/dev/null
+fi
+
 exit
