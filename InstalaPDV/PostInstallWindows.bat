@@ -217,6 +217,13 @@ winget install --id SumatraPDF.SumatraPDF --scope machine --architecture x64 --s
 echo Instalando CTPipe
 taskkill /F /IM ctpipe.exe /T & taskkill /F /IM mmc.exe /T & sc stop CTPIPE & sc delete CTPIPE & timeout /t 5 /nobreak & sc create CTPIPE binPath= "C:\Zanthus\Zeus\ctpipe.exe" start= auto displayname= "Zanthus - CTPIPE" & sc start CTPIPE
 
+echo Atalho PDV
+powershell -Command "$q=[char]34; $s=(New-Object -COM WScript.Shell).CreateShortcut('%USERPROFILE%\Desktop\Zeus Frente de Caixa.lnk'); $s.TargetPath='C:\Windows\System32\schtasks.exe'; $s.Arguments='/run /tn '+$q+'Zanthus\pdv\Zeus Frente de Caixa'+$q; $s.WorkingDirectory='C:\Windows\system32'; $s.WindowStyle=1; $s.Save()"
+powershell -Command "$q=[char]34; $path=[System.Environment]::GetFolderPath('Startup') + '\Zeus Frente de Caixa.lnk'; $s=(New-Object -COM WScript.Shell).CreateShortcut($path); $s.TargetPath='C:\Windows\System32\schtasks.exe'; $s.Arguments='/run /tn '+$q+'Zanthus\pdv\Zeus Frente de Caixa'+$q; $s.WorkingDirectory='C:\Windows\system32'; $s.WindowStyle=1; $s.Save()"
+
+echo Ajuste fuso horario
+Set-TimeZone -Id "Central Brazilian Standard Time"
+
 echo Instalando impressora
 powershell -Command "Start-Process -FilePath 'C:\opt\Zanthus Plug n Play\setup\impressora\epson\tm-t20\install.bat' -Verb RunAs"
 
