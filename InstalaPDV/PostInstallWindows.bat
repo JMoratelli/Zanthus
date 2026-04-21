@@ -221,8 +221,11 @@ echo Atalho PDV
 powershell -Command "$q=[char]34; $s=(New-Object -COM WScript.Shell).CreateShortcut('%USERPROFILE%\Desktop\Zeus Frente de Caixa.lnk'); $s.TargetPath='C:\Windows\System32\schtasks.exe'; $s.Arguments='/run /tn '+$q+'Zanthus\pdv\Zeus Frente de Caixa'+$q; $s.WorkingDirectory='C:\Windows\system32'; $s.WindowStyle=1; $s.Save()"
 powershell -Command "$q=[char]34; $path=[System.Environment]::GetFolderPath('Startup') + '\Zeus Frente de Caixa.lnk'; $s=(New-Object -COM WScript.Shell).CreateShortcut($path); $s.TargetPath='C:\Windows\System32\schtasks.exe'; $s.Arguments='/run /tn '+$q+'Zanthus\pdv\Zeus Frente de Caixa'+$q; $s.WorkingDirectory='C:\Windows\system32'; $s.WindowStyle=1; $s.Save()"
 
+echo Ajusta wpdv
+powershell -Command "$arquivo = 'C:\Zanthus\Zeus\pdvJava\w_pdv.cmd'; (Get-Content $arquivo) -replace ' --kiosk', '' | Set-Content $arquivo"
+
 echo Ajuste fuso horario
-Set-TimeZone -Id "Central Brazilian Standard Time"
+echo ,1,3,9,52,53,58, | find ",%FILIAL%," >nul && powershell -Command "Set-TimeZone -Id 'Central Brazilian Standard Time'"
 
 echo Instalando impressora
 powershell -Command "Start-Process -FilePath 'C:\opt\Zanthus Plug n Play\setup\impressora\epson\tm-t20\install.bat' -Verb RunAs"
