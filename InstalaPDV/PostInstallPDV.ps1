@@ -318,7 +318,7 @@ Get-Process -Name "*vnc*" -ErrorAction SilentlyContinue | Stop-Process -Force
 Start-Sleep -Seconds 5
 
 Write-Host "`nConfigurando UltraVNC..." 
-$CaminhoDestino = "C:\ProgramData\UltraVNC""
+$CaminhoDestino = "C:\ProgramData\UltraVNC"
 $NomeArquivo = "ultravnc.ini"
 $CaminhoCompleto = Join-Path -Path $CaminhoDestino -ChildPath $NomeArquivo
 
