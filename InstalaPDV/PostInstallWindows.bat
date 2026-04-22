@@ -230,6 +230,9 @@ echo ,1,3,9,52,53,58, | find ",%FILIAL%," >nul && powershell -Command "Set-TimeZ
 echo Instalando impressora
 powershell -Command "Start-Process -FilePath 'C:\opt\Zanthus Plug n Play\setup\impressora\epson\tm-t20\install.bat' -Verb RunAs"
 
+echo Abrindo PDV
+powershell -Command "$path=[System.Environment]::GetFolderPath('Startup') + '\Interface Zeus.lnk'; $s=(New-Object -COM WScript.Shell).CreateShortcut($path); $s.TargetPath='C:\Zanthus\Zeus\Interface\index.html'; $s.Save()"
+
 echo Concluido.
 pause
 endlocal
