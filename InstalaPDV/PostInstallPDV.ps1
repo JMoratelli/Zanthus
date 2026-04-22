@@ -256,6 +256,14 @@ $atalhoHTML = $wshell.CreateShortcut("$startupPublico\Interface Zeus.lnk")
 $atalhoHTML.TargetPath = "C:\Zanthus\Zeus\Interface\index.html"
 $atalhoHTML.Save()
 
+# Startup Zanthus Plug n Play (zpnp.exe)
+Write-Host "Adicionando Zanthus Plug n Play a inicializacao..." -ForegroundColor Cyan
+$atalhoZPNP = $wshell.CreateShortcut("$startupPublico\Zanthus Plug n Play.lnk")
+$atalhoZPNP.TargetPath = "C:\opt\Zanthus Plug n Play\zpnp.exe"
+$atalhoZPNP.WorkingDirectory = "C:\opt\Zanthus Plug n Play"
+$atalhoZPNP.WindowStyle = 1
+$atalhoZPNP.Save()
+
 Write-Host "Ajustando w_pdv.cmd..." -ForegroundColor Cyan
 $arquivoCmd = "C:\Zanthus\Zeus\pdvJava\w_pdv.cmd"
 if (Test-Path $arquivoCmd) {
