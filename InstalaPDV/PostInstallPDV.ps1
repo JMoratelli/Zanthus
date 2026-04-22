@@ -37,8 +37,8 @@ $mapaGateways = @{
 
 $configFiliais = @{
     1  = @{ numLoja = "01"; BaseCaixa = 100;  Servidor = "192.168.50.130" }
-    3  = @{ numLoja = "02"; BaseCaixa = 300;  Servidor = "192.168.50.2" }
-    9  = @{ numLoja = "03"; BaseCaixa = 900;  Servidor = "192.168.51.194" }
+    3  = @{ numLoja = "02"; BaseCaixa = 200;  Servidor = "192.168.50.2" }
+    9  = @{ numLoja = "03"; BaseCaixa = 300;  Servidor = "192.168.51.194" }
     52 = @{ numLoja = "06"; BaseCaixa = 5200; Servidor = "192.168.51.130" }
     53 = @{ numLoja = "05"; BaseCaixa = 5300; Servidor = "192.168.51.2" }
     57 = @{ numLoja = "07"; BaseCaixa = 5700; Servidor = "192.168.51.66" }
