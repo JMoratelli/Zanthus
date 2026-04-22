@@ -312,10 +312,13 @@ else {
     }
 }
 # --- AJUSTE ULTRA VNC EXPERIMENTAL---
-Write-Host "`nInstalando ou Atualizando UltraVNC..." -ForegroundColor Cyan
-winget install -e --id uvncbvba.UltraVNC --scope machine --silent --accept-package-agreements --accept-source-agreements
+Stop-Process -Name "winvnc" -Force -ErrorAction SilentlyContinue
+Stop-Service -Name "uvnc_service" -Force -ErrorAction SilentlyContinue
+Get-Process -Name "*vnc*" -ErrorAction SilentlyContinue | Stop-Process -Force
+Start-Sleep -Seconds 5
+
 Write-Host "`nConfigurando UltraVNC..." 
-$CaminhoDestino = "C:\Program Files\uvnc bvba\UltraVNC"
+$CaminhoDestino = "C:\ProgramData\UltraVNC""
 $NomeArquivo = "ultravnc.ini"
 $CaminhoCompleto = Join-Path -Path $CaminhoDestino -ChildPath $NomeArquivo
 
@@ -423,20 +426,12 @@ Write-Host "`nGravando permissoes binarias no registro (WinVNC3)..." -Foreground
 # Chama o executavel reg.exe diretamente, passando os exatos mesmos parametros do CMD
 & reg.exe add "HKEY_LOCAL_MACHINE\SOFTWARE\ORL\WinVNC3" /v "ACL" /t REG_BINARY /d "02002c0001000000000024000300000001050000000000051500000009d846e9fc8f6fb7b8cea7c30a0f0000" /f
 
-# 1. Chama o programa e manda ele se instalar como serviço
-& "C:\Program Files\uvnc bvba\UltraVNC\winvnc.exe" -install
-Start-Sleep -Seconds 2
-
-# 2. Configura para iniciar com o Windows e inicia o serviço
-Set-Service -Name "uvnc_service" -StartupType Automatic
-Start-Service -Name "uvnc_service"
-
-
 if ($LASTEXITCODE -eq 0) {
     Write-Host "Registro inserido com sucesso via CMD!" -ForegroundColor Green
 } else {
     Write-Host "[ERRO] Falha ao gravar o registro." -ForegroundColor Red
 }
+Start-Service -Name "uvnc_service"
 
 # --- INGRESSO NO DOMÍNIO (ACTIVE DIRECTORY) ---
 $dominio = "redemachado.local"
