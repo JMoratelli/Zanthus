@@ -9,7 +9,7 @@ curl -s https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/Ins
 ```
 **-------------------------------------------------------------------------------------------------------------------**
 
-Scrip para terminais Windows, execute no powershell.
+Script para terminais Windows, execute no powershell.
 ```
 Set-ExecutionPolicy Bypass -Scope Process -Force; irm "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/PostInstallPDV.ps1" | iex
 ```
