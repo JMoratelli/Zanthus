@@ -11,5 +11,5 @@ curl -s https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/Ins
 
 Scrip para terminais Windows, execute no powershell.
 ```
-ipconfig /flushdns; del "PostInstallWindows.bat" -ErrorAction SilentlyContinue; iwr -Uri "https://raw.githubusercontent.com/JMoratelli/Zanthus/main/InstalaPDV/PostInstallWindows.bat?v=$([guid]::NewGuid())" -OutFile "PostInstallWindows.bat" -Headers @{'If-Modified-Since'='Sat, 1 Jan 2000 00:00:00 GMT'}; Start-Process "PostInstallWindows.bat" -Verb RunAs
+Start-Process powershell -Verb RunAs -ArgumentList "-NoProfile -ExecutionPolicy Bypass -Command `"irm 'https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/PostInstallPDV.ps1' | iex`""
 ```
