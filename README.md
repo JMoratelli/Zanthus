@@ -11,5 +11,5 @@ curl -s https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/Ins
 
 Scrip para terminais Windows, execute no powershell.
 ```
-Start-Process powershell -Verb RunAs -ArgumentList "-NoProfile -ExecutionPolicy Bypass -Command `"irm 'https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/PostInstallPDV.ps1' | iex`""
+Set-ExecutionPolicy Bypass -Scope Process -Force; irm "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/PostInstallPDV.ps1" | iex
 ```
