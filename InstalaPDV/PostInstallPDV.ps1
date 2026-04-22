@@ -253,5 +253,60 @@ if (Test-Path $installImpressora) {
     Write-Host "Arquivo de instalacao da impressora nao encontrado!" -ForegroundColor Yellow
 }
 
-Write-Host "`nConcluido com sucesso!" -ForegroundColor Green
+# --- INGRESSO NO DOMÍNIO (ACTIVE DIRECTORY) ---
+$dominio = "redemachado.local"
+$dominioCurto = "redemachado"
+
+Write-Host "`nVerificando status do Active Directory..." -ForegroundColor Cyan
+
+# 1. Verifica se o computador JÁ ESTÁ no domínio
+$statusComputador = Get-CimInstance Win32_ComputerSystem
+if ($statusComputador.PartOfDomain -and $statusComputador.Domain -eq $dominio) {
+    Write-Host "O terminal ja esta ingressado no dominio $dominio! Pulando etapa." -ForegroundColor Green
+} 
+else {
+    Write-Host "O terminal NAO esta no dominio. Iniciando processo de ingresso..." -ForegroundColor Yellow
+
+    # 2. Inicia o Loop de tentativa
+    while ($true) {
+        try {
+            # Pede o nome do usuario na propria tela preta
+            $nomeUsuario = Read-Host "Digite o seu usuario do AD (apenas o nome, sem o '$dominioCurto\')"
+            
+            # Monta o padrao exigido pelo Windows (DOMINIO\Usuario)
+            $usuarioCompleto = "$dominioCurto\$nomeUsuario"
+            
+            Write-Host "Abrindo janela para digitar a senha do usuario: $usuarioCompleto..." -ForegroundColor Cyan
+            
+            # Chama a janela do Windows. O campo "Usuario" ja vem preenchido e travado!
+            $credenciais = Get-Credential -UserName $usuarioCompleto -Message "Digite a senha da rede para a maquina."
+
+            Write-Host "Ingressando no dominio, por favor aguarde..." -ForegroundColor Cyan
+            Add-Computer -DomainName $dominio -Credential $credenciais -Force -ErrorAction Stop
+            
+            Write-Host "Terminal adicionado ao dominio com sucesso!" -ForegroundColor Green
+            Write-Host "O computador sera reiniciado em 10 segundos..." -ForegroundColor Yellow
+            Write-Host "Créditos IG @jjmorateli" -ForegroundColor Green
+            Start-Sleep -Seconds 10
+            Restart-Computer -Force
+            
+            # Se deu tudo certo, o comando 'break' encerra o loop
+            break 
+        }
+        catch {
+            # Se der erro (senha errada, sem rede, etc), ele cai aqui
+            Write-Host "`n[ERRO] Falha ao ingressar no dominio: $($_.Exception.Message)" -ForegroundColor Red
+            
+            # 3. Pergunta se o usuario quer tentar novamente
+            $tentarNovamente = Read-Host "Deseja tentar novamente? (S/N)"
+            
+            if ($tentarNovamente -notmatch "^[Ss]$") {
+                Write-Host "Processo de ingresso no dominio cancelado. O script continuara sem adicionar ao AD." -ForegroundColor Yellow
+                break # Sai do loop se a pessoa digitar 'N'
+            }
+            Write-Host "Reiniciando tentativa..." -ForegroundColor Cyan
+        }
+    }
+}
+
 Pause
