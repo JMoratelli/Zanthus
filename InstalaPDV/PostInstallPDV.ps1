@@ -1,14 +1,4 @@
-# --- VERIFICACAO DE PRIVILEGIOS DE ADMINISTRADOR ---
-$isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
-
-if (-not $isAdmin) {
-    Write-Host "Solicitando privilegios de Administrador..." -ForegroundColor Yellow
-    # Roda novamente o PowerShell pedindo elevacao (UAC) para este mesmo arquivo
-    Start-Process powershell -Verb RunAs -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`""
-    
-    # Encerra a janela atual sem privilegios
-    exit
-}
+#Requires -RunAsAdministrator
 # ---------------------------------------------------
 # --- CONFIGURAÇÕES INICIAIS ---
 $caminhoPdv = "C:\Zanthus\Zeus\pdvJava"
