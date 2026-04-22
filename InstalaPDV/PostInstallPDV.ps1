@@ -226,21 +226,25 @@ Start-Sleep -Seconds 5
 New-Service -Name "CTPIPE" -BinaryPathName "C:\Zanthus\Zeus\ctpipe.exe" -StartupType Automatic -DisplayName "Zanthus - CTPIPE" | Out-Null
 Start-Service -Name "CTPIPE"
 
-# --- ATALHOS ---
-Write-Host "Criando Atalhos..." -ForegroundColor Cyan
+# --- ATALHOS PARA TODOS OS USUÁRIOS ---
+Write-Host "Criando Atalhos para Todos os Usuarios..." -ForegroundColor Cyan
 $wshell = New-Object -ComObject WScript.Shell
 
-# Desktop
-$atalhoDesktop = $wshell.CreateShortcut("$env:USERPROFILE\Desktop\Zeus Frente de Caixa.lnk")
+# Caminho da Area de Trabalho Publica (Todos os Usuarios)
+$desktopPublico = [Environment]::GetFolderPath('CommonDesktopDirectory')
+
+$atalhoDesktop = $wshell.CreateShortcut("$desktopPublico\Zeus Frente de Caixa.lnk")
 $atalhoDesktop.TargetPath = "C:\Windows\System32\schtasks.exe"
 $atalhoDesktop.Arguments = '/run /tn "Zanthus\pdv\Zeus Frente de Caixa"'
 $atalhoDesktop.WorkingDirectory = "C:\Windows\system32"
 $atalhoDesktop.WindowStyle = 1
 $atalhoDesktop.Save()
 
+# Caminho da Inicializacao Publica (Todos os Usuarios - ProgramData)
+$startupPublico = [Environment]::GetFolderPath('CommonStartup')
+
 # Startup Scheduled Task
-$startupPath = [Environment]::GetFolderPath('Startup')
-$atalhoStartup = $wshell.CreateShortcut("$startupPath\Zeus Frente de Caixa.lnk")
+$atalhoStartup = $wshell.CreateShortcut("$startupPublico\Zeus Frente de Caixa.lnk")
 $atalhoStartup.TargetPath = "C:\Windows\System32\schtasks.exe"
 $atalhoStartup.Arguments = '/run /tn "Zanthus\pdv\Zeus Frente de Caixa"'
 $atalhoStartup.WorkingDirectory = "C:\Windows\system32"
@@ -248,7 +252,7 @@ $atalhoStartup.WindowStyle = 1
 $atalhoStartup.Save()
 
 # Startup Interface HTML
-$atalhoHTML = $wshell.CreateShortcut("$startupPath\Interface Zeus.lnk")
+$atalhoHTML = $wshell.CreateShortcut("$startupPublico\Interface Zeus.lnk")
 $atalhoHTML.TargetPath = "C:\Zanthus\Zeus\Interface\index.html"
 $atalhoHTML.Save()
 
