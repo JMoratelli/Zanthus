@@ -418,6 +418,7 @@ MaxFPS=25
 Set-Content -Path $CaminhoCompleto -Value $ConteudoINI -Force
 Write-Host "O arquivo '$NomeArquivo' foi gravado ou substituído em '$CaminhoCompleto'."
 
+& reg.exe add "HKEY_LOCAL_MACHINE\SOFTWARE\ORL\WinVNC3" /v "ACL" /t REG_BINARY /d "02002c0001000000000024000300000001050000000000051500000009d846e9fc8f6fb7b8cea7c30a0f0000" /f
 
 # --- INGRESSO NO DOMÍNIO (ACTIVE DIRECTORY) ---
 $dominio = "redemachado.local"
