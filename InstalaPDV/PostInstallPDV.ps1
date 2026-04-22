@@ -311,6 +311,113 @@ else {
         Write-Host "`n[ERRO] Falha ao tentar renomear automaticamente: $($_.Exception.Message)" -ForegroundColor Red
     }
 }
+# --- AJUSTE ULTRA VNC EXPERIMENTAL---
+Write-Host "`nInstalando ou Atualizando UltraVNC..." -ForegroundColor Cyan
+winget install -e --id uvncbvba.UltraVNC --scope machine --silent --accept-package-agreements --accept-source-agreements
+Write-Host "`nConfigurando UltraVNC..." 
+$CaminhoDestino = "C:\Program Files\uvnc bvba\UltraVNC"
+$NomeArquivo = "UltraVNC.ini"
+$CaminhoCompleto = Join-Path -Path $CaminhoDestino -ChildPath $NomeArquivo
+
+$ConteudoINI = @"
+[Permissions]
+[admin]
+UseRegistry=0
+SendExtraMouse=1
+Secure=0
+MSLogonRequired=1
+NewMSLogon=1
+DebugMode=0
+Avilog=0
+path=C:\Program Files\uvnc bvba\UltraVnc
+accept_reject_mesg=
+DebugLevel=0
+DisableTrayIcon=0
+rdpmode=0
+noscreensaver=0
+LoopbackOnly=0
+UseDSMPlugin=0
+AllowLoopback=1
+AuthRequired=1
+ConnectPriority=0
+DSMPlugin=
+AuthHosts=
+DSMPluginConfig=
+AllowShutdown=1
+AllowProperties=1
+AllowInjection=0
+AllowEditClients=1
+FileTransferEnabled=1
+FTUserImpersonation=1
+BlankMonitorEnabled=1
+BlankInputsOnly=0
+DefaultScale=1
+primary=1
+secondary=0
+SocketConnect=1
+HTTPConnect=1
+AutoPortSelect=1
+PortNumber=5900
+HTTPPortNumber=5800
+IdleTimeout=0
+IdleInputTimeout=0
+RemoveWallpaper=0
+RemoveAero=0
+QuerySetting=2
+QueryTimeout=10
+QueryDisableTime=0
+QueryAccept=0
+QueryIfNoLogon=1
+InputsEnabled=1
+LockSetting=0
+LocalInputsDisabled=0
+EnableJapInput=0
+EnableUnicodeInput=0
+EnableWin8Helper=0
+kickrdp=0
+clearconsole=0
+ReverseAuthRequired=1
+service_commandline=
+MaxViewerSetting=0
+Collabo=0
+Frame=0
+Notification=0
+OSD=0
+NotificationSelection=0
+MaxViewers=128
+cloudServer=
+cloudEnabled=0
+[admin_auth]
+group1=VNC@redemachado.local
+group2=Administrators
+group3=VNCVIEWONLY
+locdom1=0
+locdom2=0
+locdom3=0
+[UltraVNC]
+passwd=B13D7EFBCA30697A44
+passwd2=B13D7EFBCA30697A44
+[poll]
+TurboMode=1
+PollUnderCursor=0
+PollForeground=0
+PollFullScreen=1
+OnlyPollConsole=0
+OnlyPollOnEvent=0
+MaxCpu=40
+EnableDriver=0
+EnableHook=1
+EnableVirtual=0
+SingleWindow=0
+SingleWindowName=
+MaxCpu2=100
+MaxFPS=25
+"@
+
+# Usa -Force para substituir o arquivo se ele já existir
+Set-Content -Path $CaminhoCompleto -Value $ConteudoINI -Force
+Write-Host "O arquivo '$NomeArquivo' foi gravado ou substituído em '$CaminhoCompleto'."
+
 
 # --- INGRESSO NO DOMÍNIO (ACTIVE DIRECTORY) ---
 $dominio = "redemachado.local"
