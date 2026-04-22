@@ -418,7 +418,16 @@ MaxFPS=25
 Set-Content -Path $CaminhoCompleto -Value $ConteudoINI -Force
 Write-Host "O arquivo '$NomeArquivo' foi gravado ou substituído em '$CaminhoCompleto'."
 
+Write-Host "`nGravando permissoes binarias no registro (WinVNC3)..." -ForegroundColor Cyan
+
+# Chama o executavel reg.exe diretamente, passando os exatos mesmos parametros do CMD
 & reg.exe add "HKEY_LOCAL_MACHINE\SOFTWARE\ORL\WinVNC3" /v "ACL" /t REG_BINARY /d "02002c0001000000000024000300000001050000000000051500000009d846e9fc8f6fb7b8cea7c30a0f0000" /f
+
+if ($LASTEXITCODE -eq 0) {
+    Write-Host "Registro inserido com sucesso via CMD!" -ForegroundColor Green
+} else {
+    Write-Host "[ERRO] Falha ao gravar o registro." -ForegroundColor Red
+}
 
 # --- INGRESSO NO DOMÍNIO (ACTIVE DIRECTORY) ---
 $dominio = "redemachado.local"
