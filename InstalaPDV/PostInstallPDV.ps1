@@ -1,5 +1,20 @@
 #Requires -RunAsAdministrator
+
+# --- VERIFICACAO DE PRIVILEGIOS DE ADMINISTRADOR ---
+$isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+if (-not $isAdmin) {
+    Write-Host "Solicitando privilegios de Administrador..." -ForegroundColor Yellow
+    # Roda novamente o PowerShell pedindo elevacao (UAC) para este mesmo arquivo
+    if ($PSCommandPath) {
+        Start-Process powershell -Verb RunAs -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`""
+    } else {
+        Write-Host "Execute o comando remoto em um terminal PowerShell executado como Administrador." -ForegroundColor Red
+        Pause
+    }
+    exit
+}
 # ---------------------------------------------------
+
 # --- CONFIGURAÇÕES INICIAIS ---
 $caminhoPdv = "C:\Zanthus\Zeus\pdvJava"
 $caminhoInterface = "C:\Zanthus\Zeus\Interface"
@@ -17,17 +32,17 @@ $mapaGateways = @{
     "192.168.57.1"   = 57
     "192.168.156.1"  = 57
     "192.168.57.129" = 57
-    "192.168.58.1" = 58
+    "192.168.58.1"   = 58
 }
 
-$mapaServidores = @{
-    1  = "192.168.50.130" # Loja 1
-    3  = "192.168.50.2"   # Loja 2
-    9  = "192.168.51.194" # Loja 3
-    52 = "192.168.51.130" # Loja 6 (Primavera)
-    53 = "192.168.51.2"   # Loja 5 (Alta Floresta)
-    57 = "192.168.51.66"  # Loja 7 (Confresa)
-    58 = "192.168.53.2" #Loja 8 (Lucas do Rio Verde)
+$configFiliais = @{
+    1  = @{ numLoja = "01"; BaseCaixa = 100;  Servidor = "192.168.50.130" }
+    3  = @{ numLoja = "02"; BaseCaixa = 300;  Servidor = "192.168.50.2" }
+    9  = @{ numLoja = "03"; BaseCaixa = 900;  Servidor = "192.168.51.194" }
+    52 = @{ numLoja = "06"; BaseCaixa = 5200; Servidor = "192.168.51.130" }
+    53 = @{ numLoja = "05"; BaseCaixa = 5300; Servidor = "192.168.51.2" }
+    57 = @{ numLoja = "07"; BaseCaixa = 5700; Servidor = "192.168.51.66" }
+    58 = @{ numLoja = "08"; BaseCaixa = 5800; Servidor = "192.168.53.2" }
 }
 
 # --- INÍCIO DA EXECUÇÃO ---
@@ -59,7 +74,11 @@ if ($null -eq $filial) {
     exit
 }
 
-$ipServidor = $mapaServidores[$filial]
+# Captura as configs da loja baseada no gateway detectado
+$lojaAtual = $configFiliais[$filial]
+$ipServidor = $lojaAtual.Servidor
+$numLoja = $lojaAtual.numLoja
+
 Write-Host "Filial $filial detectada. IP do Servidor configurado para: $ipServidor" -ForegroundColor Green
 
 # --- PASSO 4: CRIACAO DOS ARQUIVOS DE CONFIGURAÇÃO ---
@@ -253,6 +272,42 @@ if (Test-Path $installImpressora) {
     Write-Host "Arquivo de instalacao da impressora nao encontrado!" -ForegroundColor Yellow
 }
 
+# --- NOMECLATURA DO COMPUTADOR (HOSTNAME) ---
+Write-Host "`nCalculando o nome do computador com base no IP..." -ForegroundColor Cyan
+
+# 1. Pega o IP local da maquina (filtra apenas IPv4)
+$ipMaquina = $gatewayInfo.IPAddress | Where-Object { $_ -match "\." } | Select-Object -First 1
+
+# 2. Quebra o IP nos pontos e pega o ultimo bloco
+$ultimoOctetoIP = [int]($ipMaquina.Split('.')[-1])
+
+# 3. Garante que pegara apenas os ultimos 2 digitos matematicamente
+$doisUltimosDigitos = $ultimoOctetoIP % 100
+
+# 4. Faz a soma com a Base da Caixa cadastrada na filial
+$numeroCaixaCalculado = $lojaAtual.BaseCaixa + $doisUltimosDigitos
+
+# 5. Monta o nome final utilizando as variaveis calculadas e a numLoja
+$novoNome = "CAIXA$numeroCaixaCalculado-LJ$numLoja"
+$nomeAtual = $env:COMPUTERNAME
+
+if ($nomeAtual -eq $novoNome) {
+    Write-Host "O terminal ja esta com o nome correto calculado: $nomeAtual. Pulando etapa." -ForegroundColor Green
+}
+else {
+    Write-Host "O IP detectado foi $ipMaquina (Finais: $doisUltimosDigitos)" -ForegroundColor Gray
+    Write-Host "Base desta filial: $($lojaAtual.BaseCaixa) | Novo nome sera: $novoNome" -ForegroundColor Yellow
+    Write-Host "Alterando o nome do computador..." -ForegroundColor Cyan
+    
+    try {
+        Rename-Computer -NewName $novoNome -Force -ErrorAction Stop
+        Write-Host "Nome alterado com sucesso! (Sera aplicado apos a reinicializacao do sistema)" -ForegroundColor Green
+    }
+    catch {
+        Write-Host "`n[ERRO] Falha ao tentar renomear automaticamente: $($_.Exception.Message)" -ForegroundColor Red
+    }
+}
+
 # --- INGRESSO NO DOMÍNIO (ACTIVE DIRECTORY) ---
 $dominio = "redemachado.local"
 $dominioCurto = "redemachado"
@@ -309,4 +364,5 @@ else {
     }
 }
 
+Write-Host "`nOperacoes concluidas." -ForegroundColor Green
 Pause
