@@ -215,8 +215,6 @@ if (-not (Test-Path $caminhoAppDinamico)) { New-Item -ItemType Directory -Path $
 Invoke-WebRequest -Uri "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/PDV/Interface/Buttons.js" -OutFile "$caminhoAppDinamico\Buttons.js"
 
 # --- INSTALAÇÕES E AJUSTES DE SISTEMA ---
-Write-Host "`nAjustando Parametro SumatraPDF..." -ForegroundColor Cyan
-winget install --id SumatraPDF.SumatraPDF --scope machine --architecture x64 --silent --accept-package-agreements --accept-source-agreements
 
 Write-Host "Reinstalando servico CTPipe..." -ForegroundColor Cyan
 Stop-Process -Name "ctpipe", "mmc" -Force -ErrorAction SilentlyContinue
@@ -438,13 +436,16 @@ Start-Service -Name "uvnc_service"
 winget source update
 
 #Instala OnlyOffice
-winget install ONLYOFFICE.DesktopEditors --silent --locale pt-BR --scope machine --accept-package-agreements --accept-source-agreements
+winget install --id ONLYOFFICE.DesktopEditors --silent --locale pt-BR --scope machine --accept-package-agreements --accept-source-agreements
 
 #Instala Linphone
-winget install BelledonneCommunications.Linphone --silent --scope machine --accept-package-agreements --accept-source-agreements
+winget install --id BelledonneCommunications.Linphone --silent --scope machine --accept-package-agreements --accept-source-agreements
 
 #Instala Lighshot
-winget install Skillbrains.Lightshot --silent --locale pt-BR --scope machine --accept-package-agreements --accept-source-agreements
+winget install --id Skillbrains.Lightshot --silent --locale pt-BR --scope machine --accept-package-agreements --accept-source-agreements
+
+Write-Host "`nAjustando Parametro SumatraPDF..." -ForegroundColor Cyan
+winget install --id SumatraPDF.SumatraPDF --scope machine --architecture x64 --silent --accept-package-agreements --accept-source-agreements
 
 #Instala TMT20X II
 Write-Host "Instalando Impressora..." -ForegroundColor Cyan
