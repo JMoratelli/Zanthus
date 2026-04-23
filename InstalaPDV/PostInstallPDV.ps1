@@ -304,7 +304,6 @@ else {
     Write-Host "Alterando o nome do computador..." -ForegroundColor Cyan
     
     try {
-        Rename-Computer -NewName $novoNome -Force -ErrorAction Stop
         Write-Host "Nome alterado com sucesso! (Sera aplicado apos a reinicializacao do sistema)" -ForegroundColor Green
     }
     catch {
@@ -485,7 +484,7 @@ else {
             $credenciais = Get-Credential -UserName $usuarioCompleto -Message "Digite a senha da rede para a maquina."
 
             Write-Host "Ingressando no dominio, por favor aguarde..." -ForegroundColor Cyan
-            Add-Computer -DomainName $dominio -Credential $credenciais -Force -ErrorAction Stop
+            Add-Computer -DomainName $dominio -NewName $novoNome -Credential $credenciais -Force -ErrorAction Stop
             
             Write-Host "Terminal adicionado ao dominio com sucesso!" -ForegroundColor Green
             Write-Host "O computador sera reiniciado em 10 segundos..." -ForegroundColor Yellow
