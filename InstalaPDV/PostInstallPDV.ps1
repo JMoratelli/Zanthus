@@ -276,14 +276,6 @@ if ($filial -in 1, 3, 9, 52, 53, 58) {
     Set-TimeZone -Id "Central Brazilian Standard Time"
 }
 
-Write-Host "Instalando Impressora..." -ForegroundColor Cyan
-$installImpressora = "C:\opt\Zanthus Plug n Play\setup\impressora\epson\tm-t20\install.bat"
-if (Test-Path $installImpressora) {
-    Start-Process -FilePath $installImpressora -Verb RunAs -Wait
-} else {
-    Write-Host "Arquivo de instalacao da impressora nao encontrado!" -ForegroundColor Yellow
-}
-
 # --- NOMECLATURA DO COMPUTADOR (HOSTNAME) ---
 Write-Host "`nCalculando o nome do computador com base no IP..." -ForegroundColor Cyan
 
@@ -327,8 +319,10 @@ Start-Sleep -Seconds 5
 
 Write-Host "`nConfigurando UltraVNC..." 
 $CaminhoDestino = "C:\ProgramData\UltraVNC"
+$CaminhoDestinoAlt = "C:\Program Files\uvnc bvba\UltraVNC"
 $NomeArquivo = "ultravnc.ini"
 $CaminhoCompleto = Join-Path -Path $CaminhoDestino -ChildPath $NomeArquivo
+$CaminhoCompleto = Join-Path -Path $CaminhoDestinoAlt -ChildPath $NomeArquivo
 
 $ConteudoINI = @"
 [Permissions]
@@ -441,6 +435,9 @@ if ($LASTEXITCODE -eq 0) {
 }
 Start-Service -Name "uvnc_service"
 
+#Atualiza Winget Sources
+winget source update
+
 #Instala OnlyOffice
 winget install ONLYOFFICE.DesktopEditors --silent --locale pt-BR --scope machine --accept-package-agreements --accept-source-agreements
 
@@ -449,6 +446,15 @@ winget install BelledonneCommunications.Linphone --silent --scope machine --acce
 
 #Instala Lighshot
 winget install Skillbrains.Lightshot --silent --locale pt-BR --scope machine --accept-package-agreements --accept-source-agreements
+
+#Instala TMT20X II
+Write-Host "Instalando Impressora..." -ForegroundColor Cyan
+$installImpressora = "C:\opt\Zanthus Plug n Play\setup\impressora\epson\tm-t20\install.bat"
+if (Test-Path $installImpressora) {
+    Start-Process -FilePath $installImpressora -Verb RunAs -Wait
+} else {
+    Write-Host "Arquivo de instalacao da impressora nao encontrado!" -ForegroundColor Yellow
+}
 
 # --- INGRESSO NO DOMÍNIO (ACTIVE DIRECTORY) ---
 $dominio = "redemachado.local"
