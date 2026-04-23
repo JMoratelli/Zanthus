@@ -301,10 +301,10 @@ if ($nomeAtual -eq $novoNome) {
 else {
     Write-Host "O IP detectado foi $ipMaquina (Finais: $doisUltimosDigitos)" -ForegroundColor Gray
     Write-Host "Base desta filial: $($lojaAtual.BaseCaixa) | Novo nome sera: $novoNome" -ForegroundColor Yellow
-    Write-Host "Alterando o nome do computador..." -ForegroundColor Cyan
+    Write-Host "O nome do computador será alterado ao adicioná-lo ao AD..." -ForegroundColor Cyan
     
     try {
-        Write-Host "Nome alterado com sucesso! (Sera aplicado apos a reinicializacao do sistema)" -ForegroundColor Green
+        Write-Host "Aguarde adicionar ao AD para aplicar nome" -ForegroundColor Green
     }
     catch {
         Write-Host "`n[ERRO] Falha ao tentar renomear automaticamente: $($_.Exception.Message)" -ForegroundColor Red
