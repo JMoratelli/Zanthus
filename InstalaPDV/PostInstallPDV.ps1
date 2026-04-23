@@ -444,6 +444,9 @@ Start-Service -Name "uvnc_service"
 #Instala OnlyOffice
 winget install ONLYOFFICE.DesktopEditors --silent --locale pt-BR --scope machine --accept-package-agreements --accept-source-agreements
 
+#Instala Linphone
+winget install BelledonneCommunications.Linphone --silent --scope machine --accept-package-agreements --accept-source-agreements
+
 # --- INGRESSO NO DOMÍNIO (ACTIVE DIRECTORY) ---
 $dominio = "redemachado.local"
 $dominioCurto = "redemachado"
