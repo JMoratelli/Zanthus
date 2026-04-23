@@ -464,29 +464,24 @@ Write-Host "`nVerificando status do Active Directory..." -ForegroundColor Cyan
 
 # 1. Verifica se o computador JÁ ESTÁ no domínio
 $statusComputador = Get-CimInstance Win32_ComputerSystem
+$nomeAtualReal = $statusComputador.Name # Pega o nome real do hardware, não da variável de sessão
+
 if ($statusComputador.PartOfDomain -and $statusComputador.Domain -eq $dominio) {
     Write-Host "O terminal ja esta ingressado no dominio $dominio! Pulando etapa." -ForegroundColor Green
 } 
 else {
-    Write-Host "O terminal NAO esta no dominio. Iniciando processo de ingresso..." -ForegroundColor Yellow
+    Write-Host "O terminal NAO esta no dominio. Nome atual detectado: $nomeAtualReal" -ForegroundColor Yellow
 
-    # 2. Inicia o Loop de tentativa
     while ($true) {
         try {
-            # Pede o nome do usuario na propria tela preta
-            $nomeUsuario = Read-Host "Digite o seu usuario do AD (apenas o nome, sem o '$dominioCurto\')"
-            
-            # Monta o padrao exigido pelo Windows (DOMINIO\Usuario)
+            $nomeUsuario = Read-Host "Digite o seu usuario do AD (apenas o nome)"
             $usuarioCompleto = "$dominioCurto\$nomeUsuario"
             
-            Write-Host "Abrindo janela para digitar a senha do usuario: $usuarioCompleto..." -ForegroundColor Cyan
-            
-            # Chama a janela do Windows. O campo "Usuario" ja vem preenchido e travado!
-            $credenciais = Get-Credential -UserName $usuarioCompleto -Message "Digite a senha da rede para a maquina."
+            $credenciais = Get-Credential -UserName $usuarioCompleto -Message "Digite a senha para ingressar no domínio."
 
-            Write-Host "Ingressando no dominio, por favor aguarde..." -ForegroundColor Cyan
+            Write-Host "Ingressando no dominio e alterando nome de '$nomeAtualReal' para '$novoNome'..." -ForegroundColor Cyan
             
-            # --- AJUSTE: Cria os parametros base para o Add-Computer ---
+            # PARÂMETROS BINDADOS
             $parametros = @{
                 DomainName  = $dominio
                 Credential  = $credenciais
@@ -494,36 +489,30 @@ else {
                 ErrorAction = 'Stop'
             }
 
-            # Verifica se o nome atual e diferente do novo antes de adicionar a instrucao de renomear
-            if ($env:COMPUTERNAME -ne $novoNome) {
+            # LÓGICA REFORÇADA: 
+            # Se o nome atual for "localhost" OU for diferente do $novoNome, nós FORÇAMOS o NewName
+            if ($nomeAtualReal -eq "localhost" -or $nomeAtualReal -ne $novoNome) {
                 $parametros.Add('NewName', $novoNome)
             }
 
-            # Executa o comando com os parametros corretos
             Add-Computer @parametros
-            # -----------------------------------------------------------
             
-            Write-Host "Terminal adicionado ao dominio com sucesso!" -ForegroundColor Green
-            Write-Host "O computador sera reiniciado em 10 segundos..." -ForegroundColor Yellow
-            Write-Host "Créditos IG @jjmorateli" -ForegroundColor Green
+            Write-Host "Sucesso! O terminal agora faz parte do AD." -ForegroundColor Green
+            Write-Host "Reiniciando em 10 segundos para aplicar as mudancas..." -ForegroundColor Yellow
             Start-Sleep -Seconds 10
             Restart-Computer -Force
-            
-            # Se deu tudo certo, o comando 'break' encerra o loop
             break 
         }
         catch {
-            # Se der erro (senha errada, sem rede, etc), ele cai aqui
-            Write-Host "`n[ERRO] Falha ao ingressar no dominio: $($_.Exception.Message)" -ForegroundColor Red
+            Write-Host "`n[ERRO] Falha: $($_.Exception.Message)" -ForegroundColor Red
             
-            # 3. Pergunta se o usuario quer tentar novamente
-            $tentarNovamente = Read-Host "Deseja tentar novamente? (S/N)"
-            
-            if ($tentarNovamente -notmatch "^[Ss]$") {
-                Write-Host "Processo de ingresso no dominio cancelado. O script continuara sem adicionar ao AD." -ForegroundColor Yellow
-                break # Sai do loop se a pessoa digitar 'N'
+            # Dica extra para o erro de localhost:
+            if ($_.Exception.Message -match "local") {
+                Write-Host "DICA: O nome 'localhost' e reservado. O Windows pode estar bloqueando a operacao." -ForegroundColor Yellow
             }
-            Write-Host "Reiniciando tentativa..." -ForegroundColor Cyan
+
+            $tentarNovamente = Read-Host "Deseja tentar novamente? (S/N)"
+            if ($tentarNovamente -notmatch "^[Ss]$") { break }
         }
     }
 }
