@@ -447,6 +447,9 @@ winget install ONLYOFFICE.DesktopEditors --silent --locale pt-BR --scope machine
 #Instala Linphone
 winget install BelledonneCommunications.Linphone --silent --scope machine --accept-package-agreements --accept-source-agreements
 
+#Instala Lighshot
+winget install Skillbrains.Lightshot --silent --locale pt-BR --scope machine --accept-package-agreements --accept-source-agreements
+
 # --- INGRESSO NO DOMÍNIO (ACTIVE DIRECTORY) ---
 $dominio = "redemachado.local"
 $dominioCurto = "redemachado"
