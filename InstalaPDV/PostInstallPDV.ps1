@@ -484,7 +484,23 @@ else {
             $credenciais = Get-Credential -UserName $usuarioCompleto -Message "Digite a senha da rede para a maquina."
 
             Write-Host "Ingressando no dominio, por favor aguarde..." -ForegroundColor Cyan
-            Add-Computer -DomainName $dominio -NewName $novoNome -Credential $credenciais -Force -ErrorAction Stop
+            
+            # --- AJUSTE: Cria os parametros base para o Add-Computer ---
+            $parametros = @{
+                DomainName  = $dominio
+                Credential  = $credenciais
+                Force       = $true
+                ErrorAction = 'Stop'
+            }
+
+            # Verifica se o nome atual e diferente do novo antes de adicionar a instrucao de renomear
+            if ($env:COMPUTERNAME -ne $novoNome) {
+                $parametros.Add('NewName', $novoNome)
+            }
+
+            # Executa o comando com os parametros corretos
+            Add-Computer @parametros
+            # -----------------------------------------------------------
             
             Write-Host "Terminal adicionado ao dominio com sucesso!" -ForegroundColor Green
             Write-Host "O computador sera reiniciado em 10 segundos..." -ForegroundColor Yellow
@@ -510,6 +526,5 @@ else {
         }
     }
 }
-
 Write-Host "`nOperacoes concluidas." -ForegroundColor Green
 Pause
