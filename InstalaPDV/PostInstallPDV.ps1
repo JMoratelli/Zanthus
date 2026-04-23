@@ -467,6 +467,19 @@ Start-Sleep -Seconds 10
 $dominio = "redemachado.local"
 $dominioCurto = "redemachado"
 
+#0 - Desativa usuário PDV por segurança
+Disable-LocalUser -Name "PDV"
+# 1. Desativa a função de login automático do Windows
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Name "AutoAdminLogon" -Value "0"
+
+# 2. Apaga o "PDV" da memória de usuário padrão do login automático
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Name "DefaultUserName" -Value ""
+
+# 3. (Opcional) Remove a senha salva em texto claro no registro, se houver
+if (Test-Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -PathType Container) {
+    Remove-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Name "DefaultPassword" -ErrorAction SilentlyContinue
+}
+
 Write-Host "`nVerificando status do Active Directory..." -ForegroundColor Cyan
 
 # 1. Verifica se o computador JÁ ESTÁ no domínio 
