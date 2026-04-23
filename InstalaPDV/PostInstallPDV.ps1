@@ -436,14 +436,14 @@ Start-Service -Name "uvnc_service"
 #Atualiza Winget Sources
 winget source update
 
-#Instala OnlyOffice
-winget install --id ONLYOFFICE.DesktopEditors --silent --locale pt-BR --scope machine --accept-package-agreements --accept-source-agreements
+# Instala OnlyOffice
+winget install -e --id ONLYOFFICE.DesktopEditors --silent --scope machine --accept-package-agreements --accept-source-agreements
 
-#Instala Linphone
-winget install --id BelledonneCommunications.Linphone --silent --scope machine --accept-package-agreements --accept-source-agreements
+# Instala Linphone
+winget install -e --id BelledonneCommunications.Linphone --silent --scope machine --accept-package-agreements --accept-source-agreements
 
-#Instala Lighshot
-winget install --id Skillbrains.Lightshot --silent --locale pt-BR --scope machine --accept-package-agreements --accept-source-agreements
+# Instala Lightshot
+winget install -e --id Skillbrains.Lightshot --silent --scope machine --accept-package-agreements --accept-source-agreements
 
 Write-Host "`nAjustando Parametro SumatraPDF..." -ForegroundColor Cyan
 winget install --id SumatraPDF.SumatraPDF --scope machine --architecture x64 --silent --accept-package-agreements --accept-source-agreements
