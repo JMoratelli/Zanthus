@@ -457,7 +457,73 @@ if (Test-Path $installImpressora) {
     Write-Host "Arquivo de instalacao da impressora nao encontrado!" -ForegroundColor Yellow
 }
 
-#Experimental
+#Instala BitDefender copiando do Serv-Web
+# 1. Verificação se o software JÁ ESTÁ instalado
+$nomeDoSoftware = "epskit" 
+
+Write-Host "Verificando se o $nomeDoSoftware ja esta instalado..." -ForegroundColor Cyan
+# Vasculha o registro usando -cmatch (Case-Sensitive Match) para precisão exata
+$softwareInstalado = Get-ItemProperty HKLM:\Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*, HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\* -ErrorAction SilentlyContinue | Where-Object { $_.DisplayName -cmatch $nomeDoSoftware }
+if ($softwareInstalado) {
+    Write-Host "O software '$($softwareInstalado.DisplayName)' ja esta instalado no sistema! Pulando download e instalacao." -ForegroundColor Green
+}
+else {
+    Write-Host "Software nao detectado. Iniciando processo de download via HTTP..." -ForegroundColor Yellow
+    # 2. Configurações do Servidor HTTP
+    $baseUrl = "http://192.168.12.223/uploads/InstaladorWindows/"
+    $pastaTemp = $env:TEMP
+
+    Write-Host "Acessando o diretorio para localizar o instalador..." -ForegroundColor Cyan
+
+    try {
+        # Lê a página HTML gerada pelo servidor web
+        $paginaWeb = Invoke-WebRequest -Uri $baseUrl -UseBasicParsing -ErrorAction Stop
+        # Procura na página web qualquer texto que siga o padrão do nome do seu arquivo
+        $padraoRegex = "epskit_x64_[a-zA-Z0-9_\-\.]*\.zip"
+        $match = [regex]::Match($paginaWeb.Content, $padraoRegex)
+        if ($match.Success) {
+            $arquivoZipNome = $match.Value
+            Write-Host "Arquivo encontrado: $arquivoZipNome" -ForegroundColor Green
+        } else {
+            Write-Host "Nenhum arquivo correspondente a 'epskit_x64_*.zip' foi encontrado no servidor HTTP." -ForegroundColor Red
+            return
+        }
+    } 
+    catch {
+        Write-Host "Erro ao conectar no servidor HTTP. Verifique se a URL esta acessivel no navegador." -ForegroundColor Red
+        return
+    }
+    # 3. Download, Descompactação e Instalação
+    $urlDownload = "${baseUrl}${arquivoZipNome}"
+    $caminhoZipLocal = Join-Path $pastaTemp $arquivoZipNome
+    Write-Host "Baixando o instalador para a pasta temporaria..." -ForegroundColor Cyan
+    Invoke-WebRequest -Uri $urlDownload -OutFile $caminhoZipLocal -UseBasicParsing
+    $pastaDestino = Join-Path $pastaTemp "EpsKit_Instalacao"
+    if (Test-Path $pastaDestino) { Remove-Item -Path $pastaDestino -Recurse -Force }
+    Write-Host "Descompactando o arquivo..." -ForegroundColor Cyan
+    Expand-Archive -Path $caminhoZipLocal -DestinationPath $pastaDestino -Force
+    Write-Host "Procurando o instalador epskit_x64.exe..." -ForegroundColor Cyan
+    $instalador = Get-ChildItem -Path $pastaDestino -Filter "epskit_x64.exe" -Recurse | Select-Object -First 1
+
+    if ($instalador) {
+        Write-Host "Instalador encontrado! Iniciando instalacao..." -ForegroundColor Green
+        
+        # Inicia o instalador
+        Start-Process -FilePath $instalador.FullName -Wait -NoNewWindow
+        
+        Write-Host "Instalacao concluida!" -ForegroundColor Green
+    } else {
+        Write-Host "Erro: Arquivo 'epskit_x64.exe' nao encontrado dentro do ZIP." -ForegroundColor Red
+    }
+    # 4. Limpeza de rastro
+    Write-Host "Limpando arquivos baixados da memoria..." -ForegroundColor Yellow
+    Remove-Item -Path $caminhoZipLocal -Force
+    Remove-Item -Path $pastaDestino -Recurse -Force
+
+    Write-Host "Processo finalizado com sucesso!" -ForegroundColor Green
+}
+
+#Experimental Reinicia serviços para tentar "enganar" o Windows e atualizar o nome de host quando deveria
 Write-Host "Reiniciando serviços de rede para tentar forçar o novo nome, aguarde dez segundos" -ForegroundColor Cyan
 Restart-Service -Name "LanmanWorkstation" -Force
 Restart-Service -Name "netlogon" -Force
