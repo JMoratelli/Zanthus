@@ -32,5 +32,7 @@ curl -s https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/Ins
 <b>Comando para forçar aplicação de permissões dentro do docker</b>
 
 sudo docker exec -it mirage_manager_1_1 /bin/bash
+
 cd web
+
 chown -fR zanthus.root manager
