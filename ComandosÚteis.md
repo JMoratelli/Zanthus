@@ -29,4 +29,7 @@ rsync -avz --delete zanthus@192.168.8.121:/Zanthus/Zeus/pdvJava/GERAL/SINCRO/WEB
 ```
 curl -s https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/CorrigePHPPDV.sh https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/CorrigePHPPDV.sh | bash
 ```
-
+<b>Comando para forçar aplicação de permissões dentro do docker</b>
+sudo docker exec -it mirage_manager_1_1 /bin/bash
+cd web
+chown -fR zanthus.root manager
