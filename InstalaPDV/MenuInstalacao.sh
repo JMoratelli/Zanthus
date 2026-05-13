@@ -31,46 +31,55 @@ rm -f "$CONF_DIR"/*
 # 2. Inicialização de Variáveis para Display
 # Definimos valores padrão com traços para garantir visualização caso falhe
 DISPLAY_FILIAL="--"
-DISPLAY_CAIXA="--"
+DISPLAY_HOST="--"
+HOST_ALTERADO="--"
 ID_FILIAL=""
 NOME_ARQUIVO_FILIAL=""
+LOJA=""
 
 # 3. Detecta Gateway e Define Filial (SILENCIOSO)
 gateway=$(ip route show | grep default | awk '{print $3}')
 
 case $gateway in
     10.1.1.1)
-        DISPLAY_FILIAL="1"
+        LOJA="01"
+        DISPLAY_FILIAL="100"
         ID_FILIAL="1"
         NOME_ARQUIVO_FILIAL="filial1.conf"
         ;;
     192.168.11.253)
-        DISPLAY_FILIAL="3"
-        ID_FILIAL="2"
+        LOJA="02"
+        DISPLAY_FILIAL="200"
+        ID_FILIAL="3"
         NOME_ARQUIVO_FILIAL="filial3.conf"
         ;;
     192.168.5.253)
-        DISPLAY_FILIAL="9"
-        ID_FILIAL="3"
+        LOJA="03"
+        DISPLAY_FILIAL="300"
+        ID_FILIAL="9"
         NOME_ARQUIVO_FILIAL="filial9.conf"
         ;;
      192.168.7.253)
-        DISPLAY_FILIAL="53"  
+        LOJA="05"
+        DISPLAY_FILIAL="5300"  
         ID_FILIAL="53"
         NOME_ARQUIVO_FILIAL="filial53.conf"
         ;;
      192.168.9.253)
-        DISPLAY_FILIAL="52"
+        LOJA="06"
+        DISPLAY_FILIAL="5200"
         ID_FILIAL="52"
         NOME_ARQUIVO_FILIAL="filial52.conf"
         ;;
      192.168.57.193|192.168.57.1|192.168.156.1|192.168.57.129)
-        DISPLAY_FILIAL="57"
+        LOJA="07"
+        DISPLAY_FILIAL="5700"
         ID_FILIAL="57"
         NOME_ARQUIVO_FILIAL="filial57.conf"
         ;;
      192.168.58.1)
-        DISPLAY_FILIAL="58"
+        LOJA="08"
+        DISPLAY_FILIAL="5800"
         ID_FILIAL="58"
         NOME_ARQUIVO_FILIAL="filial58.conf"
         ;;
@@ -84,19 +93,49 @@ if [ -n "$NOME_ARQUIVO_FILIAL" ]; then
     touch "$CONF_DIR/$NOME_ARQUIVO_FILIAL"
 fi
 
-# 4. Detecta Caixa via IP (SILENCIOSO)
+# 4. Detecta Caixa via IP e Define Hostname (SILENCIOSO)
 if [ -n "$ID_FILIAL" ]; then
     MEU_IP=$(hostname -I | awk '{print $1}')
     ULTIMO_OCTETO=$(echo "$MEU_IP" | awk -F. '{print $4}')
     
     if [ -n "$ULTIMO_OCTETO" ]; then
-        SUFIXO_CAIXA=$(printf "%02d" $((ULTIMO_OCTETO % 100)))
-        NUMERO_FINAL="${ID_FILIAL}${SUFIXO_CAIXA}"
+        # Pega apenas os dois últimos dígitos do octeto final
+        SUFIXO_CAIXA=$((ULTIMO_OCTETO % 100))
         
-        DISPLAY_CAIXA="$NUMERO_FINAL"
+        # Soma o DISPLAY_FILIAL com os dois últimos dígitos do IP
+        NUMERO_FINAL=$((DISPLAY_FILIAL + SUFIXO_CAIXA))
+        
         touch "$CONF_DIR/caixa${NUMERO_FINAL}.conf"
+
+        # --- LÓGICA DE DEFINIÇÃO DE HOSTNAME ---
+        # Monta o novo hostname utilizando a variável LOJA (que já possui o zero à esquerda)
+        NOVO_HOSTNAME="CAIXA${NUMERO_FINAL}-LJ${LOJA}"
+        
+        # Atualiza a variável para exibição no menu
+        DISPLAY_HOST="$NOVO_HOSTNAME"
+        
+        # Pega o hostname atual do sistema
+        HOSTNAME_ATUAL=$(hostname)
+
+        # Só aplica as mudanças se o hostname atual for diferente do novo
+        if [ "$HOSTNAME_ATUAL" != "$NOVO_HOSTNAME" ]; then
+            # Altera o hostname via systemd
+            hostnamectl set-hostname "$NOVO_HOSTNAME"
+            
+            # Atualiza o /etc/hosts local para evitar lentidão
+            # Remove a linha antiga do hostname (se existir no ip 127.0.1.1)
+            sed -i "/127.0.1.1/d" /etc/hosts
+            # Adiciona a nova entrada
+            echo -e "127.0.1.1\t$NOVO_HOSTNAME" >> /etc/hosts
+            
+            HOST_ALTERADO="SIM"
+        else
+            HOST_ALTERADO="NAO"
+        fi
+        # ---------------------------------------
     fi
 fi
+
 # --- BALANÇA-----------------------------
 qtd_balancas=$(ls -l /dev/serial/by-id/* 2>/dev/null | grep -c 'usb-TOLEDO_CDC_DEVICE_')
 
@@ -121,20 +160,15 @@ show_header() {
     echo -e "${CYAN}#          ${WHITE}  DESENVOLVIDO POR @JJMORATELLI ${CYAN}                #${NC}"
     echo -e "${CYAN}#                                                          #${NC}"
     
-    # MATEMÁTICA DO ALINHAMENTO (Total 60 caracteres):
-    # "#  " (3)
-    # "Filial: " (8)
-    # Valor Filial (5 fixos)
-    # Espaço (3)
-    # "Caixa: " (7)
-    # Valor Caixa (5 fixos)
-    # Padding Final (28)
-    # "#" (1)
-    # Soma: 3+8+5+3+7+5+28+1 = 60
+    # MATEMÁTICA DO ALINHAMENTO LINHA 1 (Total 60 caracteres):
+    # "#  " (3) + "Filial: " (8) + %-5.5s (5) + "   " (3) + "Host: " (6) + %-15.15s (15) + Padding (19) + "#" (1) = 60
+    # Usando ${ID_FILIAL:---} para mostrar -- caso a filial não seja identificada
+    printf "${CYAN}#  ${WHITE}Filial: ${CYAN}%-5.5s   ${WHITE}Host: ${CYAN}%-15.15s%19s${CYAN}#${NC}\n" "${ID_FILIAL:---}" "$DISPLAY_HOST" ""
     
-    # %-5.5s garante que string tenha exatamente 5 chars (preenche ou corta)
-    printf "${CYAN}#  ${WHITE}Filial: ${CYAN}%-5.5s   ${WHITE}Caixa: ${CYAN}%-5.5s%28s${CYAN}#${NC}\n" "$DISPLAY_FILIAL" "$DISPLAY_CAIXA" ""
-    
+    # MATEMÁTICA DO ALINHAMENTO LINHA 2 (Total 60 caracteres):
+    # "#  " (3) + "Host Alterado: " (15) + %-3.3s (3) + Padding (38) + "#" (1) = 60
+    printf "${CYAN}#  ${WHITE}Host Alterado: ${CYAN}%-3.3s%38s${CYAN}#${NC}\n" "$HOST_ALTERADO" ""
+
     echo -e "${CYAN}#                                                          #${NC}"
     echo -e "${CYAN}############################################################${NC}"
     echo ""
