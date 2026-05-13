@@ -459,6 +459,11 @@ rm /opt/webadmin/extra/rules/Balanca/toledoDCPSC-var.sh
 curl -s -o /home/zanthus/PerifericosUSB.sh https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/PerifericosUSB.sh
 chmod +x /home/zanthus/PerifericosUSB.sh && /home/zanthus/PerifericosUSB.sh
 
+#Correção emergêncial
+if ! grep -A 1 "\[Atualizacao do lnx_receb.xz64 realizada com sucesso.\]" /Zanthus/Zeus/pdvJava/pdvJava2 | grep -qw "fi"; then
+    sed -i '/\[Atualizacao do lnx_receb.xz64 realizada com sucesso.\]/a fi' /Zanthus/Zeus/pdvJava/pdvJava2
+fi
+
 clear
 echo "Parâmetros ajustados com sucesso, será iniciado a instalação do ScreenSaver"
 echo "Script desenvolvido por @jjmoratelli, Jurandir Moratelli ;)."
