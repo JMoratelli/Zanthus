@@ -153,7 +153,7 @@ case $filial in
         ;;
      58)
         echo "Detectada impressora de Lucas do Rio Verde"
-		curl -o /usr/share/cups/model/Kyocera_ECOSYS_MA5500ifx_.ppd https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Drivers/Kyocera_ECOSYS_MA5500ifx_.ppd; lpadmin -p IMP-NFE -E -v socket://192.168.58.20 -i /usr/share/cups/model/Kyocera_ECOSYS_MA5500ifx_.ppd
+		curl -o /usr/share/cups/model/Kyocera_ECOSYS_MA5500ifx_.ppd https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Drivers/Kyocera_ECOSYS_MA5500ifx_.ppd; lpadmin -p IMP-NFE -E -v socket://192.168.58.160 -i /usr/share/cups/model/Kyocera_ECOSYS_MA5500ifx_.ppd
         ;;
     *)
         clear
