@@ -452,8 +452,8 @@ fi
 echo "Ajustando volume Master"
 amixer set Master 87
 
-#Remove Script Zanthus de Identificação de Balança
-rm /opt/webadmin/extra/rules/Balanca/toledoDCPSC-var.sh
+#Remove Script Zanthus de Identificação de Balança COMENTADO-TESTE-PROVISÓRIO
+#rm /opt/webadmin/extra/rules/Balanca/toledoDCPSC-var.sh
 
 #Faz Download e aplica permissão script PDVBalança
 curl -s -o /home/zanthus/PerifericosUSB.sh https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/PerifericosUSB.sh
