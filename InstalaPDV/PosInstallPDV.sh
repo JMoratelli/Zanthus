@@ -453,16 +453,16 @@ echo "Ajustando volume Master"
 amixer set Master 87
 
 #Remove Script Zanthus de Identificação de Balança COMENTADO-TESTE-PROVISÓRIO
-#rm /opt/webadmin/extra/rules/Balanca/toledoDCPSC-var.sh
+rm /opt/webadmin/extra/rules/Balanca/toledoDCPSC-var.sh
 
 #Faz Download e aplica permissão script PDVBalança
 curl -s -o /home/zanthus/PerifericosUSB.sh https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/PerifericosUSB.sh
 chmod +x /home/zanthus/PerifericosUSB.sh && /home/zanthus/PerifericosUSB.sh
 
-#Correção emergêncial
-if ! grep -A 1 "\[Atualizacao do lnx_receb.xz64 realizada com sucesso.\]" /Zanthus/Zeus/pdvJava/pdvJava2 | grep -qw "fi"; then
-    sed -i '/\[Atualizacao do lnx_receb.xz64 realizada com sucesso.\]/a fi' /Zanthus/Zeus/pdvJava/pdvJava2
-fi
+#Correção emergêncial v1.13
+#if ! grep -A 1 "\[Atualizacao do lnx_receb.xz64 realizada com sucesso.\]" /Zanthus/Zeus/pdvJava/pdvJava2 | grep -qw "fi"; then
+#    sed -i '/\[Atualizacao do lnx_receb.xz64 realizada com sucesso.\]/a fi' /Zanthus/Zeus/pdvJava/pdvJava2
+#fi
 
 clear
 echo "Parâmetros ajustados com sucesso, será iniciado a instalação do ScreenSaver"
