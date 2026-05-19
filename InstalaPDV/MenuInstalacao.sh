@@ -29,13 +29,14 @@ if [ ! -d "$CONF_DIR" ]; then mkdir -p "$CONF_DIR"; fi
 rm -f "$CONF_DIR"/*
 
 # 2. Inicialização de Variáveis para Display
-# Definimos valores padrão com traços para garantir visualização caso falhe
 DISPLAY_FILIAL="--"
 DISPLAY_HOST="--"
 HOST_ALTERADO="--"
 ID_FILIAL=""
 NOME_ARQUIVO_FILIAL=""
 LOJA=""
+NUMERO_FINAL=""
+SUFIXO_CAIXA=""
 
 # 3. Detecta Gateway e Define Filial (SILENCIOSO)
 gateway=$(ip route show | grep default | awk '{print $3}')
@@ -115,31 +116,19 @@ if [ -n "$ID_FILIAL" ]; then
         touch "$CONF_DIR/caixa${NUMERO_FINAL}.conf"
 
         # --- LÓGICA DE DEFINIÇÃO DE HOSTNAME ---
-        # Monta o novo hostname utilizando a variável LOJA (que já possui o zero à esquerda)
         NOVO_HOSTNAME="CAIXA${NUMERO_FINAL}-LJ${LOJA}"
         
-        # Atualiza a variável para exibição no menu
         DISPLAY_HOST="$NOVO_HOSTNAME"
-        
-        # Pega o hostname atual do sistema
         HOSTNAME_ATUAL=$(hostname)
 
-        # Só aplica as mudanças se o hostname atual for diferente do novo
         if [ "$HOSTNAME_ATUAL" != "$NOVO_HOSTNAME" ]; then
-            # Altera o hostname via systemd
             hostnamectl set-hostname "$NOVO_HOSTNAME"
-            
-            # Atualiza o /etc/hosts local para evitar lentidão
-            # Remove a linha antiga do hostname (se existir no ip 127.0.1.1)
             sed -i "/127.0.1.1/d" /etc/hosts
-            # Adiciona a nova entrada
             echo -e "127.0.1.1\t$NOVO_HOSTNAME" >> /etc/hosts
-            
             HOST_ALTERADO="SIM"
         else
             HOST_ALTERADO="NAO"
         fi
-        # ---------------------------------------
     fi
 fi
 
@@ -156,25 +145,96 @@ fi
 # -----------------------------------------
 
 # ==============================================================================
-# FUNÇÕES DE INTERFACE
+# FUNÇÕES DE INTERFACE E COMPARAÇÃO
 # ==============================================================================
 show_header() {
     clear
+    
+    # --- BLOCO DE COMPARAÇÃO DE ARQUIVOS (CLAZ e ECF9F) ---
+    local CLAZ_FILE="/Zanthus/Zeus/pdvJava/CLAZ.CFG"
+    local ECF_FILE="/Zanthus/Zeus/pdvJava/ECF9F.CFG"
+
+    local STATUS_FILIAL="N/A"
+    local STATUS_CNPJ="N/A"
+    local STATUS_CAIXA="N/A"
+
+    local COLOR_FILIAL=$YELLOW
+    local COLOR_CNPJ=$YELLOW
+    local COLOR_CAIXA=$YELLOW
+
+    # Validação do arquivo CLAZ.CFG
+    if [ -f "$CLAZ_FILE" ]; then
+        local FILE_LOJA=$(grep -i '^LOJA=' "$CLAZ_FILE" | cut -d= -f2 | tr -d '\r[:space:]')
+        local FILE_CNPJ=$(grep -i '^CNPJ=' "$CLAZ_FILE" | cut -d= -f2 | tr -d '\r[:space:]')
+
+        # Comparação numérica da Filial
+        if [ -n "$ID_FILIAL" ] && [ -n "$FILE_LOJA" ] && [ "$ID_FILIAL" -eq "$FILE_LOJA" ] 2>/dev/null; then
+            STATUS_FILIAL="OK"
+            COLOR_FILIAL=$GREEN
+        else
+            STATUS_FILIAL="DIVERGENTE"
+            COLOR_FILIAL=$RED
+        fi
+
+        # Comparação do CNPJ
+        if [ -n "$CNPJ" ] && [ "$CNPJ" = "$FILE_CNPJ" ]; then
+            STATUS_CNPJ="OK"
+            COLOR_CNPJ=$GREEN
+        else
+            STATUS_CNPJ="DIVERGENTE"
+            COLOR_CNPJ=$RED
+        fi
+    fi
+
+    # Validação do arquivo ECF9F.CFG
+    if [ -f "$ECF_FILE" ]; then
+        local FILE_CAIXA=$(grep -i '^NUMERACAIXA=' "$ECF_FILE" | cut -d= -f2 | tr -d '\r[:space:]')
+        local EXPECTED_CAIXA=""
+
+        # REGRA ATUALIZADA: Lojas 1, 2 e 3 comparam com NUMERO_FINAL. Demais lojas comparam com SUFIXO_CAIXA.
+        if [ "$LOJA" = "01" ] || [ "$LOJA" = "02" ] || [ "$LOJA" = "03" ]; then
+            EXPECTED_CAIXA="$NUMERO_FINAL"
+        else
+            EXPECTED_CAIXA="$SUFIXO_CAIXA"
+        fi
+
+        if [ -n "$EXPECTED_CAIXA" ] && [ -n "$FILE_CAIXA" ] && [ "$EXPECTED_CAIXA" -eq "$FILE_CAIXA" ] 2>/dev/null; then
+            STATUS_CAIXA="OK"
+            COLOR_CAIXA=$GREEN
+        else
+            STATUS_CAIXA="DIVERGENTE"
+            COLOR_CAIXA=$RED
+        fi
+    fi
+
+    # Formatação das variáveis para garantir tamanho de string fixo (10 caracteres)
+    local PAD_FILIAL PAD_CNPJ PAD_CAIXA
+    printf -v PAD_FILIAL "%-10.10s" "$STATUS_FILIAL"
+    printf -v PAD_CNPJ "%-10.10s" "$STATUS_CNPJ"
+    printf -v PAD_CAIXA "%-10.10s" "$STATUS_CAIXA"
+    # -----------------------------------------------------------
+
     echo -e "${CYAN}############################################################${NC}"
     echo -e "${CYAN}#                                                          #${NC}"
     echo -e "${CYAN}#                                                          #${NC}"
-    echo -e "${CYAN}#          ${WHITE}SCRIPT DE INSTALAÇÃO ZANTHUS PDV${CYAN}                #${NC}"
-    echo -e "${CYAN}#          ${WHITE}  DESENVOLVIDO POR @JJMORATELLI ${CYAN}                #${NC}"
+    
+    # MATEMÁTICA DAS LINHAS ESTÁTICAS (Total 60 caracteres)
+    echo -e "${CYAN}#             ${WHITE}SCRIPT DE INSTALAÇÃO ZANTHUS PDV${CYAN}             #${NC}"
+    echo -e "${CYAN}#              ${WHITE}DESENVOLVIDO POR @JJMORATELLI${CYAN}               #${NC}"
+    
     echo -e "${CYAN}#                                                          #${NC}"
     
-    # MATEMÁTICA DO ALINHAMENTO LINHA 1 (Total 60 caracteres):
-    # "#  " (3) + "Filial: " (8) + %-5.5s (5) + "   " (3) + "Host: " (6) + %-15.15s (15) + Padding (19) + "#" (1) = 60
-    # Usando ${ID_FILIAL:---} para mostrar -- caso a filial não seja identificada
+    # MATEMÁTICA DO ALINHAMENTO LINHA 1 (Total 60 caracteres)
     printf "${CYAN}#  ${WHITE}Filial: ${CYAN}%-5.5s   ${WHITE}Host: ${CYAN}%-15.15s%19s${CYAN}#${NC}\n" "${ID_FILIAL:---}" "$DISPLAY_HOST" ""
     
-    # MATEMÁTICA DO ALINHAMENTO LINHA 2 (Total 60 caracteres):
-    # "#  " (3) + "Host Alterado: " (15) + %-3.3s (3) + Padding (38) + "#" (1) = 60
+    # MATEMÁTICA DO ALINHAMENTO LINHA 2 (Total 60 caracteres)
     printf "${CYAN}#  ${WHITE}Host Alterado: ${CYAN}%-3.3s%38s${CYAN}#${NC}\n" "$HOST_ALTERADO" ""
+
+    # MATEMÁTICA DO ALINHAMENTO CLAZ.CFG (Total 60 caracteres)
+    printf "${CYAN}#  ${WHITE}Filial CFG: ${COLOR_FILIAL}%s${WHITE}  CNPJ CFG: ${COLOR_CNPJ}%s%12s${CYAN}#${NC}\n" "$PAD_FILIAL" "$PAD_CNPJ" ""
+
+    # MATEMÁTICA DO ALINHAMENTO ECF9F.CFG (Total 60 caracteres)
+    printf "${CYAN}#  ${WHITE}Caixa CFG:  ${COLOR_CAIXA}%s%34s${CYAN}#${NC}\n" "$PAD_CAIXA" ""
 
     echo -e "${CYAN}#                                                          #${NC}"
     echo -e "${CYAN}############################################################${NC}"
@@ -250,16 +310,12 @@ while true; do
             URL="https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/PosInstallPDV.sh"
             ;;
         2)
-            # Cria arquivo de configuração Self
             touch "$CONF_DIR/tipoConfSelf.conf"
-            
             NOME="Instalação PDV SelfCheckout"
             URL="https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/PosInstallPDV.sh"
             ;;
         3)
-            # Cria arquivo de configuração Lanchonete
             touch "$CONF_DIR/tipoConfLancho.conf"
-            
             NOME="Instalação PDV Lanchonete"
             URL="https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/PosInstallPDV.sh"
             ;;
@@ -296,7 +352,6 @@ while true; do
                 break 
                 ;;
             nao|não)
-                # Se cancelar, remove os arquivos de configuração criados neste loop
                 rm -f "$CONF_DIR/tipoConfComum.conf" "$CONF_DIR/tipoConfTouch.conf" "$CONF_DIR/tipoConfSelf.conf" "$CONF_DIR/tipoConfLancho.conf" 2>/dev/null
                 break
                 ;;
