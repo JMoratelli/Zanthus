@@ -46,42 +46,49 @@ case $gateway in
         DISPLAY_FILIAL="100"
         ID_FILIAL="1"
         NOME_ARQUIVO_FILIAL="filial1.conf"
+        CNPJ="03790904000156"
         ;;
     192.168.11.253)
         LOJA="02"
         DISPLAY_FILIAL="200"
         ID_FILIAL="3"
         NOME_ARQUIVO_FILIAL="filial3.conf"
+        CNPJ="03790904000318"
         ;;
     192.168.5.253)
         LOJA="03"
         DISPLAY_FILIAL="300"
         ID_FILIAL="9"
         NOME_ARQUIVO_FILIAL="filial9.conf"
+        CNPJ="03790904000407"
         ;;
      192.168.7.253)
         LOJA="05"
         DISPLAY_FILIAL="5300"  
         ID_FILIAL="53"
         NOME_ARQUIVO_FILIAL="filial53.conf"
+        CNPJ="13338712000248"
         ;;
      192.168.9.253)
         LOJA="06"
         DISPLAY_FILIAL="5200"
         ID_FILIAL="52"
         NOME_ARQUIVO_FILIAL="filial52.conf"
+        CNPJ="03790904000580"
         ;;
      192.168.57.193|192.168.57.1|192.168.156.1|192.168.57.129)
         LOJA="07"
         DISPLAY_FILIAL="5700"
         ID_FILIAL="57"
         NOME_ARQUIVO_FILIAL="filial57.conf"
+        CNPJ="13338712000400"
         ;;
      192.168.58.1)
         LOJA="08"
         DISPLAY_FILIAL="5800"
         ID_FILIAL="58"
         NOME_ARQUIVO_FILIAL="filial58.conf"
+        CNPJ="13338712000590"
         ;;
     *)
         # Mantém padrão "--"
