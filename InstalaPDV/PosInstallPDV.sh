@@ -120,7 +120,7 @@ clear
 # Configurações do CUPS para ajustes da impressão
 echo "Alterando parâmetros CUPS"
 sudo sed 's/^BrowseLocalProtocols.*$/BrowseLocalProtocols\ none/' -i /etc/cups/cupsd.conf
-cupsctl WebInterface=yes; service cups stop; service cups start
+cupsctl Web=yes; service cups stop; service cups start
 cupsctl --remote-admin --remote-any
 printf "linux.impressora=IMP-NFE\nlinux.opcoes=3\n" > /Zanthus/Zeus/pdvJava/ZPDF00.CFG
 
@@ -323,6 +323,10 @@ echo "Copiando Ícones"
 wget https://github.com/JMoratelli/Zanthus/raw/refs/heads/main/InstalaPDV/InterfaceUnificada/icones.7z -O /Zanthus/Zeus/Interface/resources/icones/icones.7z && cd /Zanthus/Zeus/Interface/resources/icones/ && 7z x -y icones.7z "*"
 echo "Copiando Zeus_V.gif"
 curl -o "/Zanthus/Zeus/Interface/resources/imagens/Zeus_V.gif" "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/PDV/Interface/Zeus_V.gif"
+echo "Download Descanso 1000.jpg"
+curl -o "/Zanthus/Zeus/Interface/resources/imagens/descanso1000.jpg" "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Self/Interface/descanso1000.jpg"
+echo "Download Codigo.gif"
+curl -o "/Zanthus/Zeus/Interface/resources/imagens/self/codigo.gif" "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Self/Interface/codigo.gif"
 echo "Copiando cancela_sel.png"
 curl -o "/Zanthus/Zeus/Interface/resources/imagens/cancela_sel.png" "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/InterfaceUnificada/cancela_sel.png"
 echo "Copiando cancela.png"
