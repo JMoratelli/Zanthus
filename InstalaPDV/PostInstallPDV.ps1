@@ -439,8 +439,8 @@ winget source update
 # Instala OnlyOffice
 winget install -e --id ONLYOFFICE.DesktopEditors --silent --scope machine --accept-package-agreements --accept-source-agreements
 
-# Instala Linphone
-winget install -e --id BelledonneCommunications.Linphone --silent --scope machine --accept-package-agreements --accept-source-agreements
+# Instala Microsip
+winget install --id MicroSIP.MicroSIP --silent --accept-source-agreements --accept-package-agreements
 
 # Instala Lightshot
 winget install -e --id Skillbrains.Lightshot --silent --scope machine --accept-package-agreements --accept-source-agreements
