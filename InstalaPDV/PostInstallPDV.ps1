@@ -309,7 +309,7 @@ else {
         Write-Host "`n[ERRO] Falha ao tentar renomear automaticamente: $($_.Exception.Message)" -ForegroundColor Red
     }
 }
-# --- AJUSTE ULTRA VNC EXPERIMENTAL---
+# --- AJUSTE ULTRA VNC---
 Stop-Process -Name "winvnc" -Force -ErrorAction SilentlyContinue
 Stop-Service -Name "uvnc_service" -Force -ErrorAction SilentlyContinue
 Get-Process -Name "*vnc*" -ErrorAction SilentlyContinue | Stop-Process -Force
@@ -512,12 +512,6 @@ else {
     Write-Host "Processo finalizado!" -ForegroundColor Green
 }
 
-#Experimental Reinicia serviços para tentar "enganar" o Windows e atualizar o nome de host quando deveria
-Write-Host "Reiniciando serviços de rede para tentar forçar o novo nome, aguarde dez segundos" -ForegroundColor Cyan
-Restart-Service -Name "LanmanWorkstation" -Force
-Restart-Service -Name "netlogon" -Force
-Start-Sleep -Seconds 10
-
 # --- INGRESSO NO DOMÍNIO (ACTIVE DIRECTORY) ---
 $dominio = "redemachado.local"
 $dominioCurto = "redemachado"
@@ -560,7 +554,7 @@ else {
             $credenciais = Get-Credential -UserName $usuarioCompleto -Message "Digite a senha da rede para a maquina." 
 
             Write-Host "Ingressando no dominio, por favor aguarde..." -ForegroundColor Cyan 
-            Add-Computer -DomainName $dominio -NewName $novoNome -Credential $credenciais -Force -ErrorAction Stop 
+            Add-Computer -DomainName $dominio -Credential $credenciais -Force -ErrorAction Stop
              
             Write-Host "Terminal adicionado ao dominio com sucesso!" -ForegroundColor Green 
             Write-Host "O computador sera reiniciado em 10 segundos..." -ForegroundColor Yellow 
