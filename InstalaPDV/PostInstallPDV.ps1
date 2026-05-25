@@ -244,11 +244,7 @@ $atalhoZlauncher.TargetPath = "C:\Zanthus\Zeus\zlauncher\zlauncher.exe"
 $atalhoZlauncher.Save()
 
 # Ajusta WPDV pra não subir em tela cheia
-Write-Host "Ajustando w_pdv.cmd..." -ForegroundColor Cyan
-$arquivoCmd = "C:\Zanthus\Zeus\pdvJava\w_pdv.cmd"
-if (Test-Path $arquivoCmd) {
-    (Get-Content $arquivoCmd) -replace ' --kiosk', '' | Set-Content $arquivoCmd
-}
+(Get-Content "C:\Zanthus\Zeus\pdvJava\w_pdv.cmd") -replace 'C:\\Zanthus\\Zeus\\zifaceloader\.exe --operador=unificada --zlauncher', 'C:\Zanthus\Zeus\Interface\index.html' | Set-Content "C:\Zanthus\Zeus\pdvJava\w_pdv.cmd"
 
 Write-Host "Ajustando Fuso Horario..." -ForegroundColor Cyan
 # O operador "-in" do PowerShell substitui o nosso truque do "find" do CMD
