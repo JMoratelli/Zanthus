@@ -231,37 +231,19 @@ $wshell = New-Object -ComObject WScript.Shell
 # Caminho da Area de Trabalho Publica (Todos os Usuarios)
 $desktopPublico = [Environment]::GetFolderPath('CommonDesktopDirectory')
 
-$atalhoDesktop = $wshell.CreateShortcut("$desktopPublico\Zeus Frente de Caixa.lnk")
-$atalhoDesktop.TargetPath = "C:\Windows\System32\schtasks.exe"
-$atalhoDesktop.Arguments = '/run /tn "Zanthus\pdv\Zeus Frente de Caixa"'
-$atalhoDesktop.WorkingDirectory = "C:\Windows\system32"
-$atalhoDesktop.WindowStyle = 1
-$atalhoDesktop.Save()
+$atalhoHTML = $wshell.CreateShortcut("$desktopPublico\Interface Zeus.lnk")
+$atalhoHTML.TargetPath = "C:\Zanthus\Zeus\Interface\index.html"
+$atalhoHTML.Save()
 
 # Caminho da Inicializacao Publica (Todos os Usuarios - ProgramData)
 $startupPublico = [Environment]::GetFolderPath('CommonStartup')
 
-# Startup Scheduled Task
-$atalhoStartup = $wshell.CreateShortcut("$startupPublico\Zeus Frente de Caixa.lnk")
-$atalhoStartup.TargetPath = "C:\Windows\System32\schtasks.exe"
-$atalhoStartup.Arguments = '/run /tn "Zanthus\pdv\Zeus Frente de Caixa"'
-$atalhoStartup.WorkingDirectory = "C:\Windows\system32"
-$atalhoStartup.WindowStyle = 1
-$atalhoStartup.Save()
-
 # Startup Interface HTML
-$atalhoHTML = $wshell.CreateShortcut("$startupPublico\Interface Zeus.lnk")
-$atalhoHTML.TargetPath = "C:\Zanthus\Zeus\Interface\index.html"
-$atalhoHTML.Save()
+$atalhoZlauncher = $wshell.CreateShortcut("$startupPublico\Zlauncher.lnk")
+$atalhoZlauncher.TargetPath = "C:\Zanthus\Zeus\zlauncher\zlauncher.exe"
+$atalhoZlauncher.Save()
 
-# Startup Zanthus Plug n Play (zpnp.exe) desativado por enquanto
-#Write-Host "Adicionando Zanthus Plug n Play a inicializacao..." -ForegroundColor Cyan
-#$atalhoZPNP = $wshell.CreateShortcut("$startupPublico\Zanthus Plug n Play.lnk")
-#$atalhoZPNP.TargetPath = "C:\opt\Zanthus Plug n Play\zpnp.exe"
-#$atalhoZPNP.WorkingDirectory = "C:\opt\Zanthus Plug n Play"
-#$atalhoZPNP.WindowStyle = 1
-#$atalhoZPNP.Save()
-
+# Ajusta WPDV pra não subir em tela cheia
 Write-Host "Ajustando w_pdv.cmd..." -ForegroundColor Cyan
 $arquivoCmd = "C:\Zanthus\Zeus\pdvJava\w_pdv.cmd"
 if (Test-Path $arquivoCmd) {
