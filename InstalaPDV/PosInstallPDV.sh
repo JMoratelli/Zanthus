@@ -53,8 +53,32 @@ cd ..
 
 #Removido NumLockX
 
-#Ajustes para melhoria na resposta de resolução de nomes no Linux
+#Ajustes para melhoria na resposta de resolução de nomes no Linux e otimizações na desativação do ipv6 e otimizações no ipv4
 sudo sed -i 's/^hosts:          files.*/hosts:          files dns/' /etc/nsswitch.conf
+
+#Ajusta parametros sysctl.conf para otimizar recepção e entregas
+sudo bash -c "cat << 'EOF' > /etc/sysctl.d/99-sysctl.conf
+#Desabilitar IPV6 no Sistema
+net.ipv6.conf.all.disable_ipv6 = 1
+net.ipv6.conf.default.disable_ipv6 = 1
+net.ipv6.conf.lo.disable_ipv6 = 1
+
+#Otimização de Buffer TCP (Kernel TCP Tuning)
+net.core.rmem_max = 16777216
+net.core.wmem_max = 16777216
+net.ipv4.tcp_rmem = 4096 87380 16777216
+net.ipv4.tcp_wmem = 4096 65536 16777216
+
+#Ativa o TCP Window Scaling
+net.ipv4.tcp_window_scaling = 1
+
+#MTU/MSS Probing (Mitigação para VPN/SD-WAN e TLS Fragmentado)
+net.ipv4.tcp_mtu_probing = 1
+EOF"
+
+#Aplica as configurações do sysctl imediatamente
+sudo sysctl --system
+
 #Ajusta Parâmetros de carga, para aumentar tempo de handshake
 grep -q '^conexao_timeout=10$' /Zanthus/Zeus/pdvJava/CARG0000.CFG || sed -i '/^opcoes=/a conexao_timeout=10' /Zanthus/Zeus/pdvJava/CARG0000.CFG
 grep -q '^conexao_timeout=10$' /Zanthus/Zeus/pdvJava/RESTG0000. || sed -i '/^opcoes=/a conexao_timeout=10' /Zanthus/Zeus/pdvJava/RESTG0000.
