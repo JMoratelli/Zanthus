@@ -51,7 +51,8 @@ sudo printf "[ids]\n*\n\n[main]\n\n[control]\ntab = noop\nw = noop\nt = noop\nh 
 sudo keyd reload
 cd ..
 
-#Removido NumLockX
+#Ajuste para garantir a correta gravação do endereço de ip do terminal no /etc/host
+sudo sed -i "s/^127\.0\.1\.1/$(ip -4 -brief addr show | awk '$1 != "lo" {print $3}' | cut -d/ -f1 | head -n 1)/" /etc/hosts
 
 #Ajustes para melhoria na resposta de resolução de nomes no Linux e otimizações na desativação do ipv6 e otimizações no ipv4
 sudo sed -i 's/^hosts:          files.*/hosts:          files dns/' /etc/nsswitch.conf
