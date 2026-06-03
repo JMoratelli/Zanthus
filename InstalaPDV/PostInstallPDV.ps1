@@ -249,7 +249,7 @@ $atalhoZlauncher.Save()
 Write-Host "Ajustando Fuso Horario..." -ForegroundColor Cyan
 # O operador "-in" do PowerShell substitui o nosso truque do "find" do CMD
 if ($filial -in 1, 3, 9, 52, 53, 58) {
-    Set-TimeZone -Id "Central Brazilian Standard Time"
+    New-Item C:\Scripts -ItemType Directory -Force | Out-Null; 'Start-Sleep 120;$s="a.ntp.br";$u=New-Object Net.Sockets.UdpClient;$u.Client.ReceiveTimeout=5000;$e=New-Object Net.IPEndPoint(([Net.Dns]::GetHostAddresses($s)[0]),123);$d=New-Object byte[] 48;$d[0]=27;[void]$u.Send($d,$d.Length,$e);$r=New-Object Net.IPEndPoint([Net.IPAddress]::Any,0);$p=$u.Receive([ref]$r);$sec=[BitConverter]::ToUInt32([byte[]]($p[43],$p[42],$p[41],$p[40]),0);$utc=([datetime]"1900-01-01").AddSeconds($sec);$cuiaba=$utc.AddHours(-4);Set-Date $cuiaba' | Set-Content C:\Scripts\HoraCuiaba.ps1; $A=New-ScheduledTaskAction -Execute powershell.exe -Argument '-ExecutionPolicy Bypass -File C:\Scripts\HoraCuiaba.ps1'; $T=New-ScheduledTaskTrigger -AtStartup; Register-ScheduledTask -TaskName HoraCuiaba -Action $A -Trigger $T -User SYSTEM -RunLevel Highest -Force
 }
 
 # --- NOMECLATURA DO COMPUTADOR (HOSTNAME) ---
