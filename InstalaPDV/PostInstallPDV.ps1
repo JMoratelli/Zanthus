@@ -369,72 +369,6 @@ else {
     Write-Host "Processo finalizado!" -ForegroundColor Green
 }
 
-# --- INGRESSO NO DOMÍNIO (ACTIVE DIRECTORY) ---
-$dominio = "redemachado.local"
-$dominioCurto = "redemachado"
-
-#0 - Desativa usuário PDV por segurança
-Disable-LocalUser -Name "PDV"
-# 1. Desativa a função de login automático do Windows
-Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Name "AutoAdminLogon" -Value "0"
-
-# 2. Apaga o "PDV" da memória de usuário padrão do login automático
-Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Name "DefaultUserName" -Value ""
-
-# 3. (Opcional) Remove a senha salva em texto claro no registro, se houver
-if (Test-Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -PathType Container) {
-    Remove-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Name "DefaultPassword" -ErrorAction SilentlyContinue
-}
-
-Write-Host "`nVerificando status do Active Directory..." -ForegroundColor Cyan
-
-# 1. Verifica se o computador JÁ ESTÁ no domínio 
-$statusComputador = Get-CimInstance Win32_ComputerSystem 
-if ($statusComputador.PartOfDomain -and $statusComputador.Domain -eq $dominio) { 
-    Write-Host "O terminal ja esta ingressado no dominio $dominio! Pulando etapa." -ForegroundColor Green 
-}  
-else { 
-    Write-Host "O terminal NAO esta no dominio. Iniciando processo de ingresso..." -ForegroundColor Yellow 
-
-    # 2. Inicia o Loop de tentativa 
-    while ($true) { 
-        try { 
-            # Pede o nome do usuario na propria tela preta 
-            $nomeUsuario = Read-Host "Digite o seu usuario do AD (apenas o nome, sem o '$dominioCurto\')" 
-             
-            # Monta o padrao exigido pelo Windows (DOMINIO\Usuario) 
-            $usuarioCompleto = "$dominioCurto\$nomeUsuario" 
-             
-            Write-Host "Abrindo janela para digitar a senha do usuario: $usuarioCompleto..." -ForegroundColor Cyan 
-             
-            # Chama a janela do Windows. O campo "Usuario" ja vem preenchido e travado! 
-            $credenciais = Get-Credential -UserName $usuarioCompleto -Message "Digite a senha da rede para a maquina." 
-
-            Write-Host "Ingressando no dominio, por favor aguarde..." -ForegroundColor Cyan 
-            Add-Computer -DomainName $dominio -Credential $credenciais -Force -ErrorAction Stop
-             
-            Write-Host "Terminal adicionado ao dominio com sucesso!" -ForegroundColor Green 
-            Write-Host "O computador sera reiniciado em 10 segundos..." -ForegroundColor Yellow 
-            Write-Host "Créditos IG @jjmorateli" -ForegroundColor Green 
-            Start-Sleep -Seconds 10 
-            break  
-        } 
-        catch { 
-            # Se der erro (senha errada, sem rede, etc), ele cai aqui 
-            Write-Host "`n[ERRO] Falha ao ingressar no dominio: $($_.Exception.Message)" -ForegroundColor Red 
-             
-            # 3. Pergunta se o usuario quer tentar novamente 
-            $tentarNovamente = Read-Host "Deseja tentar novamente? (S/N)" 
-             
-            if ($tentarNovamente -notmatch "^[Ss]$") { 
-                Write-Host "Processo de ingresso no dominio cancelado. O script continuara sem adicionar ao AD." -ForegroundColor Yellow 
-                break # Sai do loop se a pessoa digitar 'N' 
-            } 
-            Write-Host "Reiniciando tentativa..." -ForegroundColor Cyan 
-        } 
-    } 
-}
-
 #Adiciona impressora
 
 $IP = $lojaAtual.ipImpNFe
@@ -586,6 +520,72 @@ if (-not $ModeloCru) {
     }
 }
 #Fim Adiciona impressora
+
+# --- INGRESSO NO DOMÍNIO (ACTIVE DIRECTORY) ---
+$dominio = "redemachado.local"
+$dominioCurto = "redemachado"
+
+#0 - Desativa usuário PDV por segurança
+Disable-LocalUser -Name "PDV"
+# 1. Desativa a função de login automático do Windows
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Name "AutoAdminLogon" -Value "0"
+
+# 2. Apaga o "PDV" da memória de usuário padrão do login automático
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Name "DefaultUserName" -Value ""
+
+# 3. (Opcional) Remove a senha salva em texto claro no registro, se houver
+if (Test-Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -PathType Container) {
+    Remove-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Name "DefaultPassword" -ErrorAction SilentlyContinue
+}
+
+Write-Host "`nVerificando status do Active Directory..." -ForegroundColor Cyan
+
+# 1. Verifica se o computador JÁ ESTÁ no domínio 
+$statusComputador = Get-CimInstance Win32_ComputerSystem 
+if ($statusComputador.PartOfDomain -and $statusComputador.Domain -eq $dominio) { 
+    Write-Host "O terminal ja esta ingressado no dominio $dominio! Pulando etapa." -ForegroundColor Green 
+}  
+else { 
+    Write-Host "O terminal NAO esta no dominio. Iniciando processo de ingresso..." -ForegroundColor Yellow 
+
+    # 2. Inicia o Loop de tentativa 
+    while ($true) { 
+        try { 
+            # Pede o nome do usuario na propria tela preta 
+            $nomeUsuario = Read-Host "Digite o seu usuario do AD (apenas o nome, sem o '$dominioCurto\')" 
+             
+            # Monta o padrao exigido pelo Windows (DOMINIO\Usuario) 
+            $usuarioCompleto = "$dominioCurto\$nomeUsuario" 
+             
+            Write-Host "Abrindo janela para digitar a senha do usuario: $usuarioCompleto..." -ForegroundColor Cyan 
+             
+            # Chama a janela do Windows. O campo "Usuario" ja vem preenchido e travado! 
+            $credenciais = Get-Credential -UserName $usuarioCompleto -Message "Digite a senha da rede para a maquina." 
+
+            Write-Host "Ingressando no dominio, por favor aguarde..." -ForegroundColor Cyan 
+            Add-Computer -DomainName $dominio -Credential $credenciais -Force -ErrorAction Stop
+             
+            Write-Host "Terminal adicionado ao dominio com sucesso!" -ForegroundColor Green 
+            Write-Host "O computador sera reiniciado em 10 segundos..." -ForegroundColor Yellow 
+            Write-Host "Créditos IG @jjmorateli" -ForegroundColor Green 
+            Start-Sleep -Seconds 10 
+            break  
+        } 
+        catch { 
+            # Se der erro (senha errada, sem rede, etc), ele cai aqui 
+            Write-Host "`n[ERRO] Falha ao ingressar no dominio: $($_.Exception.Message)" -ForegroundColor Red 
+             
+            # 3. Pergunta se o usuario quer tentar novamente 
+            $tentarNovamente = Read-Host "Deseja tentar novamente? (S/N)" 
+             
+            if ($tentarNovamente -notmatch "^[Ss]$") { 
+                Write-Host "Processo de ingresso no dominio cancelado. O script continuara sem adicionar ao AD." -ForegroundColor Yellow 
+                break # Sai do loop se a pessoa digitar 'N' 
+            } 
+            Write-Host "Reiniciando tentativa..." -ForegroundColor Cyan 
+        } 
+    } 
+}
 
 Write-Host "`nOperacoes concluidas." -ForegroundColor Green
 Restart-Computer -Force 
