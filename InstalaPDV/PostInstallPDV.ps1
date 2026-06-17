@@ -330,11 +330,23 @@ winget install --id SumatraPDF.SumatraPDF --scope machine --architecture x64 --s
 
 #Instala TMT20X II
 Write-Host "Instalando Impressora..." -ForegroundColor Cyan
+
+$flag = "C:\ProgramData\Zanthus\impressora_instalada.flag"
 $installImpressora = "C:\opt\Zanthus Plug n Play\setup\impressora\epson\tm-t20\install.bat"
-if (Test-Path $installImpressora) {
-    Start-Process -FilePath $installImpressora -Verb RunAs -Wait
-} else {
-    Write-Host "Arquivo de instalacao da impressora nao encontrado!" -ForegroundColor Yellow
+
+if (-not (Test-Path $flag)) {
+    if (Test-Path $installImpressora) {
+        Start-Process -FilePath $installImpressora -Verb RunAs -Wait
+
+        New-Item -Path $flag -ItemType File -Force | Out-Null
+        Write-Host "Instalacao concluida." -ForegroundColor Green
+    }
+    else {
+        Write-Host "Arquivo de instalacao da impressora nao encontrado!" -ForegroundColor Yellow
+    }
+}
+else {
+    Write-Host "Impressora ja instalada. Pulando etapa." -ForegroundColor DarkGray
 }
 
 #Instala BitDefender
