@@ -251,6 +251,29 @@ Write-Host "Ajustando Fuso Horario..." -ForegroundColor Cyan
 if ($filial -in 1, 3, 9, 52, 53, 58) {
     New-Item C:\Scripts -ItemType Directory -Force | Out-Null; 'Start-Sleep 120;$s="a.ntp.br";$u=New-Object Net.Sockets.UdpClient;$u.Client.ReceiveTimeout=5000;$e=New-Object Net.IPEndPoint(([Net.Dns]::GetHostAddresses($s)[0]),123);$d=New-Object byte[] 48;$d[0]=27;[void]$u.Send($d,$d.Length,$e);$r=New-Object Net.IPEndPoint([Net.IPAddress]::Any,0);$p=$u.Receive([ref]$r);$sec=[BitConverter]::ToUInt32([byte[]]($p[43],$p[42],$p[41],$p[40]),0);$utc=([datetime]"1900-01-01").AddSeconds($sec);$cuiaba=$utc.AddHours(-4);Set-Date $cuiaba' | Set-Content C:\Scripts\HoraCuiaba.ps1; $A=New-ScheduledTaskAction -Execute powershell.exe -Argument '-ExecutionPolicy Bypass -File C:\Scripts\HoraCuiaba.ps1'; $T=New-ScheduledTaskTrigger -AtStartup; Register-ScheduledTask -TaskName HoraCuiaba -Action $A -Trigger $T -User SYSTEM -RunLevel Highest -Force
 }
+#Ajuste Barras de menu iniciar
+#Oculta icone pesquisa
+Set-ItemProperty `
+  -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" `
+  -Name "SearchboxTaskbarMode" `
+  -Type DWord `
+  -Value 0
+#Move barra de menu para a esquerda
+# Usuário atual
+New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Force | Out-Null
+Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "SearchboxTaskbarMode" -Type DWord -Value 0
+
+Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarAl" -Type DWord -Value 0
+
+Stop-Process -Name explorer -Force
+#PerfilPadrão
+reg load HKU\DefUser C:\Users\Default\NTUSER.DAT
+
+reg add "HKU\DefUser\Software\Microsoft\Windows\CurrentVersion\Search" /v SearchboxTaskbarMode /t REG_DWORD /d 0 /f
+
+reg add "HKU\DefUser\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v TaskbarAl /t REG_DWORD /d 0 /f
+
+reg unload HKU\DefUser
 
 # --- NOMECLATURA DO COMPUTADOR (HOSTNAME) ---
 Write-Host "`nCalculando o nome do computador com base no IP..." -ForegroundColor Cyan
@@ -291,7 +314,7 @@ else {
 #Removido Parâmetros do UltraVNC
 
 #Atualiza Winget Sources
-winget source update
+winget source reset --force
 
 # Instala OnlyOffice
 winget install -e --id ONLYOFFICE.DesktopEditors --silent --scope machine --accept-package-agreements --accept-source-agreements
