@@ -239,8 +239,8 @@ $atalhoHTML.Save()
 $startupPublico = [Environment]::GetFolderPath('CommonStartup')
 
 # Startup Interface HTML
-$atalhoZlauncher = $wshell.CreateShortcut("$startupPublico\Zlauncher.lnk")
-$atalhoZlauncher.TargetPath = "C:\Zanthus\Zeus\zlauncher\zlauncher.exe"
+$atalhoZlauncher = $wshell.CreateShortcut("$startupPublico\launcherHTML.lnk")
+$atalhoZlauncher.TargetPath = "C:\Zanthus\Zeus\Interface\index.html"
 $atalhoZlauncher.Save()
 
 # Ajusta WPDV pra não subir em tela cheia
