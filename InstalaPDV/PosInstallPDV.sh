@@ -192,6 +192,7 @@ esac
 
 echo "Ajustando fuso horário..."
 # Ajusta Fuso horário
+sed -i 's/^server 0\.br\.pool\.ntp\.org iburst/server ntp.redejcm.com.br iburst prefer/' /etc/ntp.conf && systemctl restart ntp
 case $filial in
   1 | 3 | 9 | 52 | 53 | 58)
     timedatectl set-timezone America/Cuiaba
