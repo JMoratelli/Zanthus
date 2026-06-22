@@ -192,36 +192,26 @@ esac
 
 echo "Ajustando fuso horário..."
 # Ajusta Fuso horário
+printf '[Time]\nNTP=192.168.12.17\nFallbackNTP=\n' > /etc/systemd/timesyncd.conf && systemctl restart systemd-timesyncd
 case $filial in
   1 | 3 | 9 | 52 | 53 | 58)
     timedatectl set-timezone America/Cuiaba
     hwclock -w
     sed -i 's/UTC/LOCAL/g' /etc/adjtime
-    hwclock -w
     hwclock --systohc
     hwclock --localtime
+	hwclock -w
     echo "Aguarde..."
-    sleep 5
-    timedatectl set-timezone America/Cuiaba
-    hwclock -w
-    sed -i 's/UTC/LOCAL/g' /etc/adjtime
-    hwclock -w
-    hwclock --systohc
-    hwclock --localtime
     echo "Fuso horário definido para Cuiabá e ajustado relógio de hardware."
     ;;
   57)
     timedatectl set-timezone America/Sao_Paulo
-    hwclock -w
+	hwclock -w
     sed -i 's/UTC/LOCAL/g' /etc/adjtime
-    hwclock -w
+    hwclock --systohc
+    hwclock --localtime
+	hwclock -w
     echo "Aguarde..."
-    sleep 5
-    hwclock -w
-    timedatectl set-timezone America/Sao_Paulo
-    hwclock -w
-    sed -i 's/UTC/LOCAL/g' /etc/adjtime
-    hwclock -w
     echo "Fuso horário definido para São Paulo e ajustado relógio de hardware."
     ;;
   *)
