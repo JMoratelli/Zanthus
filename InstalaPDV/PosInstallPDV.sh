@@ -136,7 +136,7 @@ fi
 
 echo "Ajustando opções no arquivo /etc/systemd/resolved.conf"
 # Configura servidor DNS e adiciona o parâmetro search para que resolva o DNS do AD. Alterado para system resolved
-printf "[Resolve]\nDNS=192.168.12.1 192.168.2.1\nFallbackDNS=192.168.12.99\nDomains=redemachado.local\n" | sudo tee /etc/systemd/resolved.conf
+printf "[Resolve]\nDNS=192.168.12.5 192.168.2.10\nFallbackDNS=192.168.12.99\nDomains=machadao.corp\n" | sudo tee /etc/systemd/resolved.conf
 echo "Ajustado opções no arquivo /etc/systemd/resolved.conf"
 
 #Acrescenta parâmetros para tratar de forma melhor os erros que possam ser causados por instabilidades da Sefaz (Recomendação da Zanthus adicionar essa linha em PDVs comuns).
