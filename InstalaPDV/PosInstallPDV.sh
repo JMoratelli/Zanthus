@@ -192,7 +192,6 @@ esac
 
 echo "Ajustando fuso horário..."
 # Ajusta Fuso horário
-printf '[Time]\nNTP=192.168.12.17\nFallbackNTP=\n' > /etc/systemd/timesyncd.conf && systemctl restart systemd-timesyncd
 case $filial in
   1 | 3 | 9 | 52 | 53 | 58)
     timedatectl set-timezone America/Cuiaba
