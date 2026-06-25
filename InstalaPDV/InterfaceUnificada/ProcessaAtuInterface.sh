@@ -1,8 +1,8 @@
 #!/bin/bash
 
 #Atenção! Para a execução do script, deve existir a pasta "/home/zanthus/ProcessaZip" O arquivo de interface vindo da Zanthus deverá estar dentro dessa pasta, ele será apagado após realizar o processamento, não altere o código!
-# Define o diretório base
-diretorio_base="/home/zanthus/ProcessaZip"
+# Define o diretório base (aonde está o script)
+diretorio_base="/home/jurandir/Documentos/ProcessaZipInterface"
 
 # Verifica se o diretório base existe
 if [ ! -d "$diretorio_base" ]; then
@@ -42,8 +42,12 @@ rm -f "$diretorio_base/pasta_temporaria/resources/imagens/descanso1000.jpg"
 rm -f "$diretorio_base/pasta_temporaria/resources/imagens/self/codigo.gif"
 rm -f "$diretorio_base/pasta_temporaria/resources/js/telas_touch.js"
 rm -f "$diretorio_base/pasta_temporaria/resources/js/teclas_touch.js"
+rm -f "$diretorio_base/pasta_temporaria/resources/css/style2.css"
+rm -f "$diretorio_base/pasta_temporaria/resources/css/style100.css"
+rm -f "$diretorio_base/pasta_temporaria/resources/css/stylemonitor_cliente.css"
 rm -f "$diretorio_base/pasta_temporaria/config/config.js"
 rm -f "$diretorio_base/pasta_temporaria/app/view/tela/2/TelaComanda.js"
+
 
 rm -rf "$diretorio_base/pasta_temporaria/resources/icones"
 rm -rf "$diretorio_base/pasta_temporaria/resources/audio"
@@ -58,3 +62,5 @@ rm -rf "$diretorio_base/pasta_temporaria"
 rm -f "$arquivo_zip"
 
 echo "Arquivo '$arquivo_zip' processado com sucesso. Arquivo 'interface.7z' criado em '$diretorio_base'."
+
+smbclient //servidor-ad/sysvol -U dominio.empresa\\USUARIOAQUI%DIGITEASENHAAQUI -c 'cd dominio.empresa/AtualizacaoZanthus; put interface.7z'
