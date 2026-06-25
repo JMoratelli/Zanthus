@@ -1,0 +1,836 @@
+/* =======================================================================
+   STYLE2.CSS - REFATORACAO FLAT / MATERIAL (neutro com acentos sutis)
+   ATENCAO: esta versao preserva 100% da estrutura do arquivo original
+   (mesmos seletores, mesma ordem, mesmo position/width/height/float/
+   display/margin/padding/font-size/line-height). Trocamos SOMENTE:
+   - gradientes (-webkit-gradient, -moz-linear-gradient, filter DX) -> cor solida
+   - box-shadow decorativo / inset 3D -> removido ou sombra Material sutil
+   - cores antigas -> paleta neutra com detalhes sutis em amarelo, laranja, azul e verde flat.
+======================================================================= */
+
+/* =======================================================================
+   TOKENS (paleta neutra Material + tons claros para dar vida à interface)
+======================================================================= */
+:root{
+    --bg-app: #FAFAFA;
+    --bg-surface: #F5F5F5;
+    --bg-card: #FFFFFF;
+    --bg-hover: #EEEEEE;
+    --bg-pressed: #E0E0E0;
+
+    --grey-900: #212121;
+    --grey-800: #424242;
+    --grey-700: #616161;
+    --grey-600: #757575;
+    --grey-500: #9E9E9E;
+    --grey-400: #BDBDBD;
+    --grey-300: #E0E0E0;
+    --grey-200: #EEEEEE;
+    --grey-100: #F5F5F5;
+
+    --accent-dark: #424242;
+    --accent-darker: #212121;
+
+    /* Cores de Ação e Alertas (Flat) */
+    --green-500: #4CAF50;
+    --green-600: #2E7D32;
+    --red-500: #E53935;
+    --red-600: #C62828;
+    
+    /* Tons Laranja para Menus Superiores e Limpar */
+    --orange-500: #FF9800;
+    --orange-600: #F57C00;
+
+    /* Tons Azul para botão Entrar */
+    --blue-600: #1E88E5;
+    --blue-700: #1976D2;
+
+    /* Tons claros adicionados para dar vida/detalhes sem poluir */
+    --yellow-flat-bg: #FFF9C4;      /* Amarelo claro suave */
+    --yellow-flat-active: #FFF59D;  /* Amarelo clique */
+    --red-flat-light: #FFEBEE;      /* Fundo de alerta/cancelado suave */
+    --red-flat-border: #FFCDD2;     /* Borda/Destaque sutil para vermelhos */
+    
+    --red-flat-lighter: #FFCDD2;    /* Vermelho bem claro para teclado numerico */
+    --red-flat-active: #EF9A9A;     /* Vermelho claro pressionado */
+    
+    --green-flat-lighter: #C8E6C9;  /* Verde bem claro para o botão Finalizar */
+    --green-flat-active: #A5D6A7;   /* Verde claro pressionado */
+
+    --shadow-sm: 0 1px 2px rgba(0,0,0,.10);
+    --shadow-md: 0 2px 6px rgba(0,0,0,.12);
+}
+
+.topo_pdv .x-panel-body-default{
+    background: transparent !important;
+}
+
+.topo_pdv {
+    background: var(--bg-card) !important;
+}
+
+.area-south{
+    background: var(--bg-card) !important;
+}
+
+.topo_pdv input[type=text]{
+    height: 30px !important;
+    font-size: 18px !important;
+}
+
+.x-grid-empty{
+    font-weight: bold !important;
+    color: var(--grey-700) !important;
+    font-size: 60px !important;
+    text-align: center !important;
+    height: 99% !important;
+    width:100% !important;
+    display: table !important;
+}
+
+.txt-estado{
+    vertical-align: middle !important;
+    display: table-cell !important;
+}
+
+input[type=text] {
+    -webkit-border-radius: 4px !important;
+    -moz-border-radius: 4px !important;
+    border-radius: 4px !important;
+    box-shadow: none;
+    border: 1px solid var(--grey-300) !important;   
+    font-weight: bold !important;
+    color: var(--grey-900) !important;
+    text-align: right;
+}
+
+/* Um detalhe sutil de cor: quando o input ganha foco, destaca em cinza escuro moderno */
+input[type=text]:focus {
+    border-color: var(--grey-600) !important;
+    outline: none;
+}
+
+.alinhar-texto-esq input[type=text] {
+    text-align: left !important;
+}
+
+.input-sub-total {
+    height: 50px !important;
+    font-size: 30px !important;
+    /*margin: 0 0 0 30px;*/
+    width: 100% !important;
+}
+
+.input-input {
+    font-size: 30px !important;
+}
+
+.input-tbar {
+    font-size: 24px !important;
+}
+
+input[readonly] {
+    background: var(--bg-surface) !important;
+}
+
+.pbar1{
+    width: 400px !important;
+    height: 20px;
+    line-height:20px;
+    border: 1px solid var(--grey-300);
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+    box-shadow: none;
+}
+
+.pbar1 .x-progress-bar {
+    height: 18px;
+    margin:1px;
+    line-height:20px;
+    border: none;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+    background: var(--accent-dark);
+}
+.area_pbar{
+    border: 1px solid var(--grey-700) !important;
+    -webkit-border-radius: 6px;
+    -moz-border-radius: 6px;
+    border-radius: 6px;
+    background: var(--accent-darker);
+    box-shadow: none;
+}
+
+.area_pbar label{
+    color: var(--grey-100) !important;
+    font-size: 14px !important;
+    margin: 0 2 0 2;
+}
+
+.area_pbar .x-form-display-field{
+    color: var(--grey-300) !important;
+    font-size: 12px !important;
+    width: 100% !important;
+    overflow: hidden !important;
+    margin: 0 2 0 2;
+}
+
+.itens_tne{
+    -webkit-border-radius: 6px;
+    -moz-border-radius: 6px;
+    border-radius: 6px;
+}
+
+.img_tne{
+    width:100px;height: 100px;
+}
+
+.texto_tne{
+    text-align: justify;
+    margin: 90px 20px 0 0;
+}
+
+.area-teclado{
+    border:none !important;
+    background: none !important;
+}
+
+.area-teclado .x-panel-body-default{
+    border: 1px solid var(--grey-300) !important;
+    background: var(--bg-surface);
+}
+
+.bt_menu,
+.bt_bbar,
+.bt_funcao,
+.bt_teclado,
+.bt_teclado_y,
+.bt_teclado_a,
+.bt_teclado_v,
+.bt_teclado_vd,
+.bt_teclado_c,
+.bt_numerico,
+.bt_teclado_l,
+.bt_teclado_menu,
+.bt_seletora,
+.bt_nav {   
+    border: none !important;
+    -webkit-border-radius: 6px !important;
+    -moz-border-radius: 6px !important;
+    border-radius: 6px !important;
+    box-shadow: none;
+}
+
+.bt_teclado span,
+.bt_teclado_y span,
+.bt_teclado_a span,
+.bt_teclado_v span,
+.bt_teclado_vd span,
+.bt_teclado_c span,
+.bt_numerico span,
+.bt_teclado_l span, 
+.bt_bbar span,
+.bt_seletora span,
+.bt_nav span {
+    font-size: 11px !important;
+    width: 70px;
+    height: 55px;
+    text-align: center;
+    color: var(--grey-900) !important;
+    font-family: Verdana !important;
+    font-weight: bold !important;
+    text-rendering: optimizeLegibility !important;
+}
+
+.bt_seletora span.x-btn-inner {
+    width: 40% !important;
+    height: auto !important;
+    float: right;
+    display: inline-block !important;
+    white-space: pre-line !important;
+    line-height: normal !important;
+    font-size: 10px !important;
+}
+
+.esconder-icone span.x-btn-inner {
+    width: 100% !important;
+}
+
+.bt_seletora span.esconder-icone ~ span {
+    width: 100% !important;
+    font-size: 10px !important;
+    background-color: transparent !important;
+}
+
+.bt_seletora,.bt_nav {
+    padding: 1px !important;
+}
+
+.bt_seletora span.x-btn-icon {
+    display: block !important;
+    background: transparent;
+    background-repeat: no-repeat !important;
+    background-position: center !important;
+    float: left;
+    background-size:  100%  100% !important;
+    width: 60% !important;
+    height: 100% !important;
+    border-radius: 6px 0 0 6px !important;
+}
+
+.bt_nav span.x-btn-icon {
+    display: block !important;
+    background: transparent;
+    background-repeat: no-repeat !important;
+    background-position: center !important;
+    float: left;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.bt_bbar span.x-btn-inner{
+    display: block !important;
+    width: 100% !important;
+    padding: 10px !important;
+    min-width: 70px !important;
+}
+
+.bt_bbar button {
+    width: auto !important;
+}
+
+.bt_bbar {
+    width: auto !important;
+    display: inline-block !important;
+    height: 100%;
+    min-width: 70px;
+    margin: 2px;
+}
+
+.bt_numerico span{
+    font-size: 40px !important;
+    font-weight: bold;
+    font-family:  Numerico !important;
+}
+
+.bt_teclado_menu span{
+    font-size: 11px !important;
+    font-weight: bold !important;
+    font-family:  Verdana !important;
+}
+
+/* Base neutra para a maioria dos botões */
+.bt_teclado, .bt_numerico, .bt_teclado_menu, .sub_total, .bt_bbar, .bt_seletora, .bt_nav {
+    background: var(--grey-200);
+}
+
+.bt_teclado:active:not(.x-btn-disabled), 
+.bt_numerico:active:not(.x-btn-disabled), 
+.bt_teclado_menu:active:not(.x-btn-disabled), 
+.bt_bbar:active:not(.x-btn-disabled),
+.bt_seletora:active:not(.x-btn-disabled),
+.bt_nav:active:not(.x-btn-disabled),
+.bt_teclado.x-pressed,
+.bt_numerico.x-pressed,
+.bt_bbar.x-pressed,
+.bt_seletora.x-pressed
+ {
+     background: var(--bg-pressed) !important;
+    box-shadow: none !important;
+}
+
+/* =======================================================================
+   GRUPO DE BOTÕES COLORIDOS
+======================================================================= */
+
+.bt_teclado_y{
+    background: var(--yellow-flat-bg) !important;
+}
+
+.bt_teclado_y:active:not(.x-btn-disabled),
+.bt_teclado_y .x-btn-pressed {
+    box-shadow: none;
+    background: var(--yellow-flat-active) !important;
+}
+
+/* Botão Entrar (agora Azul Flat) */
+.bt_teclado_a{
+    background: var(--blue-600) !important;
+}
+
+.bt_teclado_a:active:not(.x-btn-disabled),
+.bt_teclado_a .x-btn-pressed {
+    box-shadow: none;
+    background: var(--blue-700) !important;
+}
+
+/* Garante texto branco no botão entrar para dar contraste no Azul */
+.bt_teclado_a span {
+    color: #FFFFFF !important;
+}
+
+.bt_teclado_v{
+    background: var(--red-500);
+}
+
+.bt_teclado_v span{
+    color: #FFFFFF !important;
+}
+
+.bt_teclado_v:active:not(.x-btn-disabled),
+.bt_teclado_v .x-btn-pressed {
+    box-shadow: none;
+    background: var(--red-600);
+}
+
+.bt_teclado_vd{
+    background: var(--green-500);
+}
+
+.bt_teclado_vd span{
+    color: #FFFFFF !important;
+}
+
+.bt_teclado_vd:active:not(.x-btn-disabled),
+.bt_teclado_vd .x-btn-pressed {
+    box-shadow: none;
+    background: var(--green-600);
+}
+
+/* Teclas de Limpar/Voltar genéricas (agora Laranja) */
+.bt_teclado_c{
+    background: var(--orange-500) !important; 
+}
+
+.bt_teclado_c:active:not(.x-btn-disabled),
+.bt_teclado_c .x-btn-pressed {
+    box-shadow: none;
+    background: var(--orange-600) !important;
+}
+
+/* Garante texto branco no botão limpar para contraste com o Laranja */
+.bt_teclado_c span {
+    color: #FFFFFF !important;
+}
+
+/* EXCEÇÃO: Botão Finalizar específico mantendo o verde claro */
+#teclafinalizar-1077 {
+    background: var(--green-flat-lighter) !important;
+}
+#teclafinalizar-1077:active:not(.x-btn-disabled) {
+    background: var(--green-flat-active) !important;
+}
+/* Reverte o texto do finalizar para a cor padrão escura, pois verde claro + texto branco é ruim de ler */
+#teclafinalizar-1077 span {
+    color: var(--grey-900) !important;
+}
+
+.bt_teclado_l{
+    background: var(--green-500);
+}
+
+.bt_teclado_l span{
+    color: #FFFFFF !important;
+}
+
+.bt_teclado_l:active:not(.x-btn-disabled),
+.bt_teclado_l .x-btn-pressed {
+    box-shadow: none;
+    background: var(--green-600);
+}
+
+.bt_menu span, .bt_funcao span{
+    font-size: 15px !important;
+    width: 100px;
+    height: 70px;
+    text-align: center;
+    color: #FFF !important;
+    font-family: Verdana !important;
+}
+
+/* Menu Topo em tom laranja moderno */
+.bt_menu {
+    background: var(--orange-500) !important;
+}
+
+.bt_menu:active:not(.x-btn-disabled),
+.bt_menu .x-btn-pressed {
+    box-shadow: none;
+    background: var(--orange-600) !important;
+}
+
+/* Botão "Função" no topo em tom Preto Flat */
+.bt_funcao {
+    background: var(--grey-900) !important;
+}
+
+.bt_funcao:active:not(.x-btn-disabled),
+.bt_funcao .x-btn-pressed  {
+    box-shadow: none;
+    background: var(--grey-800) !important;
+}
+
+.tip-ajuda{
+    padding:5px;
+    min-width: 150px;
+}
+
+.label-text, .label-text-grande{
+    font-weight: bold !important;
+    color: var(--grey-900) !important;
+    font-family: Verdana !important;
+}
+
+.label-text-input{
+    /*font-size: 28px !important;*/
+    font-weight: bold !important;
+    color: var(--grey-900) !important;
+    font-family: Verdana !important;
+}
+
+.label-text-pagamento{
+    font-weight: bold !important;
+    color: var(--grey-900) !important;
+    font-family: Verdana !important;
+    font-size: 14px !important;
+}
+
+.label-text-grande {
+    font-size: 30px !important;
+    font-weight: bolder !important;
+    text-rendering: optimizeLegibility;
+}
+
+.label-text-display{
+    font-size: 10px !important;
+    color: var(--grey-900) !important;
+    font-family: Verdana !important;
+    font-weight: bold !important;
+}
+
+.label-text-display-funcao{
+    font-size: 12px !important;
+    color: var(--red-600) !important;
+    font-family: Verdana !important;
+    font-weight: bold !important;
+}
+
+.label-text-subtotal{
+    font-weight: bold !important;
+    font-size: 25px !important;
+    color: var(--grey-900) !important;
+    font-family: Verdana !important;
+    padding-top: 10px;
+}
+
+.sub-total{
+    padding: 5px;
+    margin: 5px 5px 5px 0;
+    background: var(--bg-surface);
+}
+
+.janela-menu{
+    background: var(--bg-surface);
+}
+
+.janela-seletor .x-window-header-text{
+    height: 40px !important;
+}
+
+.janela-menu .x-window-header-text{
+    height: 40px !important;
+}
+
+.janela-menu .x-window-body-default{
+    font-size: 24px !important;
+}
+
+.janela-msg .x-window-body-default{
+    font-size: 30px !important;
+}
+
+/* Grid */
+.pdv-grid-panel .x-grid-table, .pdv-grid-panel .x-grid-row .x-grid-cell {
+        background: none !important;
+        background-color: transparent;
+        border: 0px !important;
+        font-weight: bolder !important;
+        font-size: 9px !important;
+        text-overflow: ellipsis !important;
+        padding-right: 5px !important;
+}
+
+.pdv-grid-panel .x-grid-cell-first .x-grid-cell-inner {
+    -height: 42px !important;
+}
+    
+.pdv-grid-panel .x-grid {
+    border: none;
+}
+
+.pdv-grid-panel .x-grid-header-ct {
+    border: 0px !important;
+    background: none !important;
+    background-color: var(--accent-dark) !important;    
+}
+    
+.pdv-grid-panel .x-column-header, .pdv-grid-panel .x-column-header-over {
+    font-size: 12px !important;
+    font-weight: bold !important;
+    background: none !important;
+    border: 0px !important;
+    background-color: var(--accent-dark) !important;
+    color: #FFFFFF !important;
+}
+
+.pdv-grid-panel .x-grid-row {
+    height: 50px !important;
+    vertical-align: middle !important;    
+}
+
+/* Detalhes em vermelho sutil nos itens cancelados (reutilizando variáveis) */
+.pdv-grid-panel .item-cancelado {
+    height: 50px !important;
+    vertical-align: middle !important;    
+    background-color: var(--red-flat-border) !important;
+}
+
+.pdv-grid-panel .x-grid-row-alt .item-cancelado {
+    background-color: var(--red-flat-light) !important;
+}
+
+.pdv-grid-panel .item-cancelado .produto-descricao,
+.pdv-grid-panel .item-cancelado .produto-valor-unitario,
+.pdv-grid-panel .item-cancelado .produto-total,
+.pdv-grid-panel .item-cancelado .produto-quantidade {
+    -text-decoration: line-through;
+    color: var(--red-500);
+}
+
+.pdv-grid-panel .item-cancelado .zanthus-botao-cancela-item {
+    display: none !important;
+}
+    
+.pdv-grid-panel .x-grid-row-alt {
+    background-color: var(--bg-surface);    
+    -webkit-border-top-left-radius: 15px !important;
+    -webkit-border-bottom-left-radius: 15px !important;
+}
+    
+.pdv-grid-panel .x-grid-row-alt .x-grid-cell-last {
+    -webkit-border-top-right-radius: 15px !important;
+    -webkit-border-bottom-right-radius: 15px !important;
+}
+    
+.pdv-grid-panel .x-scroller-vertical, .pdv-grid-panel .x-scroller {
+    overflow: visible;
+    background-color: var(--bg-card);
+}
+    
+.pdv-grid-panel .x-scroller-vertical {
+    -webkit-border-top-right-radius: 8px;
+    -webkit-border-bottom-right-radius: 8px;
+    -moz-border-bottom-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+}
+    
+.pdv-grid-panel .x-scroller-ct {
+    width: 20px !important;
+    left: -8px !important;
+}
+
+.zanthus-botao-cancela-item {
+    background: var(--bg-surface);
+    -webkit-border-radius: 2em !important;
+    width: 40px !important;
+    height: 40px !important;
+    -webkit-box-shadow: none;
+    margin-left: 10px;
+}
+
+.x-grid-row-selected .zanthus-botao-cancela-item, .x-grid-cell-selected .zanthus-botao-cancela-item {
+    box-shadow: none;
+    background: var(--bg-pressed) !important;
+    border: none !important;
+}
+    
+/**
+* Fim Grid
+*/
+
+.texto-startupcon {
+    position: relative;
+    top: 23%;
+    margin: auto;
+    font-size: 16px;
+    color: white;
+    font-family: Verdana;
+    text-align: center;
+    margin-bottom: auto;
+}
+
+.bt_teste {
+    background: var(--accent-dark);
+    width: 200px;
+    left: 147px;
+    top: 27% !important;
+}
+
+.bt_teste span {
+    font-weight: bold !important;
+    color: white !important;
+    text-align: center !important;
+}
+
+.bt_teste:active:not(.x-btn-disabled){
+    box-shadow: none;
+    background: var(--accent-darker);
+}
+
+.cod-produto-no-cupom {
+    color: var(--green-600);
+    font-weight: normal !important;
+    text-decoration: none !important;
+}
+
+.tooltip-no-cupom {
+    background: var(--bg-card);
+    border: 1px solid var(--grey-300) !important;
+}
+
+.tooltip-no-cupom .x-tool {
+    display: none !important;   
+}
+
+.tooltip-no-cupom .x-tip-anchor {
+    border-width: 12px !important;
+}
+
+/*
+Correcao 4.1
+*/
+
+.x-field-label-cell {
+    vertical-align: middle;
+}
+
+.x-grid-cell-inner, .x-column-header-text {
+    white-space: pre-wrap !important;
+    font-family: courier, verdana !important;
+    font-size: 13px !important;
+}
+
+.funcaoExecucaoLateral {
+    display: flex; 
+    flex-direction: column; 
+    justify-content: center;
+    align-items: center; 
+    text-align: center;
+}
+
+/* =======================================================================
+   CORREÇÃO DE JANELAS (MODAIS/EXTJS) PARA PADRÃO MATERIAL/FLAT
+======================================================================= */
+
+.x-css-shadow {
+    box-shadow: var(--shadow-md) !important; 
+    background-color: transparent !important;
+}
+
+.x-window-default {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--grey-300) !important;
+    -webkit-border-radius: 4px !important;
+    -moz-border-radius: 4px !important;
+    border-radius: 4px !important;
+    box-shadow: var(--shadow-md) !important;
+}
+
+.x-window-header-default-top,
+.x-window-header-default {
+    background: var(--bg-surface) !important;
+    background-image: none !important;
+    border: none !important;
+    border-bottom: 1px solid var(--grey-300) !important;
+    box-shadow: none !important;
+}
+
+.x-window-header-text-default {
+    color: var(--grey-900) !important;
+    font-weight: bold !important;
+    text-shadow: none !important;
+}
+
+.x-window-body-default {
+    background: var(--bg-card) !important;
+    border: none !important;
+}
+
+.x-mask {
+    background: var(--grey-900) !important;
+    opacity: 0.5 !important;
+}
+
+/* =======================================================================
+   CORREÇÃO DE TOOLBARS E BOTÕES NATIVOS (EXTJS) PARA PADRÃO MATERIAL/FLAT
+======================================================================= */
+
+.x-toolbar-default,
+.x-toolbar-docked-bottom,
+.x-toolbar-docked-top {
+    background-color: var(--bg-surface) !important;
+    background-image: none !important;
+    border-color: var(--grey-300) !important;
+    box-shadow: none !important;
+}
+
+.x-btn-default-toolbar-small,
+.x-btn-default-toolbar-small-icon,
+.x-btn-default-toolbar-small-noicon {
+    background-image: none !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+}
+
+/* =======================================================================
+   CORREÇÃO DE CABEÇALHOS DE PAINÉIS LEGADOS (Ex: "Pagamentos realizados")
+======================================================================= */
+
+.x-panel-header-default,
+.x-panel-header-default-horizontal,
+.x-panel-header-default-top {
+    background-color: var(--bg-surface) !important;
+    background-image: none !important; 
+    border: none !important;
+    border-bottom: 2px solid var(--grey-300) !important; 
+    box-shadow: none !important;
+}
+
+.x-panel-header-body-default {
+    background: transparent !important;
+}
+
+.x-panel-header-text-default {
+    color: var(--grey-800) !important;
+    font-weight: bold !important;
+    font-family: Verdana, sans-serif !important;
+    text-shadow: none !important;
+    font-size: 13px !important;
+}
+
+/* =======================================================================
+   CORREÇÃO DE FUNDOS LEGADOS DO EXTJS
+======================================================================= */
+.x-panel-default,
+.x-panel-default-framed {
+    background-color: var(--bg-app) !important;
+    background-image: none !important;
+    border: none !important;
+}
+
+.x-panel-body-default-framed {
+    background: transparent !important;
+    border: none !important;
+}
