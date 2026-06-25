@@ -36,6 +36,7 @@ unzip "$arquivo_zip" -d "$diretorio_base/pasta_temporaria"
 # Remove arquivos e diretórios específicos
 rm -f "$diretorio_base/pasta_temporaria/app/api/dinamico/pdvMouse/Buttons.js"
 rm -f "$diretorio_base/pasta_temporaria/resources/imagens/Zeus_V.gif"
+rm -f "$diretorio_base/pasta_temporaria/resources/imagens/logo.png"
 rm -f "$diretorio_base/pasta_temporaria/resources/imagens/cancela_sel.png"
 rm -f "$diretorio_base/pasta_temporaria/resources/imagens/cancela.png"
 rm -f "$diretorio_base/pasta_temporaria/resources/imagens/descanso1000.jpg"
