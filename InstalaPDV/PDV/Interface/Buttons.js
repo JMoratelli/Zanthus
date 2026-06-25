@@ -139,6 +139,16 @@ Ext.define("Pdv.api.dinamico.pdvMouse.Buttons", {
                 }
             }]
         }
+    },
+                 {
+        xtype: "teclafuncional",
+        itemId: "teclaF7",
+        pdvfn: 12801,
+        atalho: !0,
+        text: "F7 - Nome Produto",
+        icon: _resources_icon_4,
+        iconAlign: "top",
+        cls: "bt_atalho"
     }, {
         xtype: "teclagatilho",
         itemId: "teclaF8",
