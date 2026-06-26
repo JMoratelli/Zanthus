@@ -37,9 +37,9 @@
     /* CORES DA LOGO MACHADÃO */
     --red-logo: #E53935; 
     --red-logo-dark: #C62828; 
-    
-    --orange-logo: #F57C00; 
-    --yellow-logo: #FFD54F; 
+    --grid-produto-div: #F00000;
+    --orange-logo: #FFD700; 
+    --yellow-logo: #FBE216; 
 
     --blue-600: #1E88E5;
     --blue-700: #1976D2;
@@ -51,7 +51,7 @@
     --menu-tamanho-texto: 11px;
     
     /* IDENTIFICADOR ÚNICO PARA AS BARRAS (TOPO E RODAPÉ) */
-    --div-topo-cores: #D3D3D3;
+    --div-topo-cores: #F1F2F2;
 }
 
 body {
@@ -403,7 +403,7 @@ input[readonly] {
 .bt_teclado_a:active:not(.x-btn-disabled),
 .bt_teclado_a .x-btn-pressed {
     box-shadow: none !important;
-    background: var(--accent-dark) !important;
+    background: var(--orange-logo) !important;
 }
 
 .bt_teclado_a2 {
@@ -609,7 +609,7 @@ input[readonly] {
     font-weight: bold !important;
     background: none !important;
     border: 0px !important;
-    background-color: var(--accent-dark) !important;
+    background-color: var(--grid-produto-div) !important;
     color: #FFF !important;
 }
 
