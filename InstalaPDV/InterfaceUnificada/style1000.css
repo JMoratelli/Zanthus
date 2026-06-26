@@ -37,9 +37,9 @@
     /* CORES DA LOGO MACHADÃO */
     --red-logo: #E53935; 
     --red-logo-dark: #C62828; 
-    --grid-produto-div: #F00000;
-    --orange-logo: #FFD700; 
-    --yellow-logo: #FBE216; 
+    
+    --orange-logo: #F57C00; 
+    --yellow-logo: #FFD54F; 
 
     --blue-600: #1E88E5;
     --blue-700: #1976D2;
@@ -51,7 +51,10 @@
     --menu-tamanho-texto: 11px;
     
     /* IDENTIFICADOR ÚNICO PARA AS BARRAS (TOPO E RODAPÉ) */
-    --div-topo-cores: #F1F2F2;
+    --div-topo-cores: #D3D3D3;
+
+    /* COR CONTAINER PAGAMENTO INFERIOR */
+    --cor-container-pagamento-inferior: #C3C3C3;
 }
 
 body {
@@ -403,7 +406,7 @@ input[readonly] {
 .bt_teclado_a:active:not(.x-btn-disabled),
 .bt_teclado_a .x-btn-pressed {
     box-shadow: none !important;
-    background: var(--orange-logo) !important;
+    background: var(--accent-dark) !important;
 }
 
 .bt_teclado_a2 {
@@ -609,7 +612,7 @@ input[readonly] {
     font-weight: bold !important;
     background: none !important;
     border: 0px !important;
-    background-color: var(--grid-produto-div) !important;
+    background-color: var(--accent-dark) !important;
     color: #FFF !important;
 }
 
@@ -1175,4 +1178,49 @@ td {
     align-items: center;
     justify-content: center;
     width: 1280px !important;
+}
+
+/* =======================================================================
+   NOVA SECAO: AJUSTES ESPECÍFICOS DE BOTOES / CASAMENTOS DE TELAS
+======================================================================= */
+
+/* Estilos de bordas e cor de fundo da janela de pagamento */
+#formaspagamentocard-1112-body {
+    background: whitesmoke !important;
+    border-color: transparent !important;
+}
+
+/* Borda superior da grid limpa */
+.x-panel-body.x-grid-body.x-panel-body-default.x-layout-fit {
+    border-top-color: transparent !important;
+}
+
+/* Cor de fundo do container inferior de pagamentos */
+#container-1075 {
+    background-color: var(--cor-container-pagamento-inferior) !important;
+}
+
+/* Ajuste de cor estrita para o fundo do contêiner interno solicitado */
+#container-1109-innerCt {
+    background: var(--bg-surface) !important;
+}
+
+/* Forçando cor preta no texto do cabeçalho de pagamentos */
+#pagamentosaceitos-1077_header_hd-textEl {
+    color: #000000 !important;
+}
+
+/* Removendo a borda do corpo de pagamentos aceitos */
+#pagamentosaceitos-1077-body {
+    border-color: transparent !important;
+}
+
+/* Borda preta no corpo do cupom */
+#cupom-1054-body {
+    border-color: #000000 !important;
+}
+
+/* Fundo específico da toolbar */
+#toolbar-1063, #container-1070 {
+    background-color: #FAFAFA !important;
 }
