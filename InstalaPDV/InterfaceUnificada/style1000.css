@@ -751,7 +751,6 @@ input[readonly] {
 }
 
 .x-toolbar-default,
-.x-toolbar-docked-bottom,
 .x-toolbar-docked-top {
     background-color: var(--bg-card) !important; 
     background-image: none !important;
@@ -1179,48 +1178,65 @@ td {
     justify-content: center;
     width: 1280px !important;
 }
-
 /* =======================================================================
-   NOVA SECAO: AJUSTES ESPECÍFICOS DE BOTOES / CASAMENTOS DE TELAS
+   AJUSTES SOLICITADOS (FUNDO #FAFAFA E BORDA TRANSPARENTE)
 ======================================================================= */
 
-/* Estilos de bordas e cor de fundo da janela de pagamento */
-#formaspagamentocard-1112-body {
-    background: whitesmoke !important;
+/* Elemento 1: Fundo da toolbar de navegação (area-nav) */
+.x-toolbar.area-nav {
+    background-color: #FAFAFA !important; /* Corresponde à sua var(--bg-app) */
     border-color: transparent !important;
 }
 
-/* Borda superior da grid limpa */
-.x-panel-body.x-grid-body.x-panel-body-default.x-layout-fit {
-    border-top-color: transparent !important;
+/* Elemento 2: Fundo dos blocos de pagamento e remoção da borda */
+/* Usamos o seletor [id^="..."] para pegar o ID mesmo que o número final mude */
+div[id^="formaspagamentocard-"],
+div[id^="formaspagamentocard-"] > .x-panel-body,
+.area-teclado {
+    background-color: #FAFAFA !important;
+    border-color: transparent !important;
+    border-width: 0 !important;
 }
-
-/* Cor de fundo do container inferior de pagamentos */
-#container-1075 {
+/* =======================================================================
+   FUNDO DO CONTAINER DE PAGAMENTO INFERIOR
+======================================================================= */
+.area-south {
     background-color: var(--cor-container-pagamento-inferior) !important;
 }
+/* =======================================================================
+   AJUSTES DO PAINEL "PAGAMENTOS REALIZADOS"
+======================================================================= */
 
-/* Ajuste de cor estrita para o fundo do contêiner interno solicitado */
-#container-1109-innerCt {
-    background: var(--bg-surface) !important;
-}
-
-/* Forçando cor preta no texto do cabeçalho de pagamentos */
-#pagamentosaceitos-1077_header_hd-textEl {
+/* 1. Deixa o texto "Pagamentos realizados" na cor preta */
+div[id^="pagamentosaceitos-"] .x-panel-header-text {
     color: #000000 !important;
 }
 
-/* Removendo a borda do corpo de pagamentos aceitos */
-#pagamentosaceitos-1077-body {
+/* 2. Remove a borda azul (deixa transparente) do painel e do cabeçalho */
+div[id^="pagamentosaceitos-"],
+div[id^="pagamentosaceitos-"] > .x-panel-header {
     border-color: transparent !important;
+    border-width: 0 !important; /* Zera a largura da borda por segurança */
+    box-shadow: none !important; /* Remove qualquer sombra residual */
 }
+/* =======================================================================
+   AJUSTES DA TELA PRINCIPAL (CUPOM E PAINÉIS LATERAIS/INFERIORES)
+======================================================================= */
 
-/* Borda preta no corpo do cupom */
-#cupom-1054-body {
+/* 1. Muda apenas a cor da borda do grid principal (cupom) para preto */
+div[id^="cupom-"] {
     border-color: #000000 !important;
 }
 
-/* Fundo específico da toolbar */
-#toolbar-1063, #container-1070 {
+/* 2. Fundo #FAFAFA APENAS para a toolbar inferior (setas de navegação) */
+div[id^="toolbar-"].x-toolbar-docked-bottom,
+div[id^="toolbar-"].x-toolbar-docked-bottom > div.x-box-inner {
+    background-color: #FAFAFA !important;
+}
+
+/* 3. Fundo #FAFAFA estritamente no bloco lateral (onde fica a imagem do código).
+   Removemos o seletor global x-layout-fit para NÃO vazar no botão de Finalizar Compra */
+.bg-image,
+.bg-image > div.x-box-inner {
     background-color: #FAFAFA !important;
 }
