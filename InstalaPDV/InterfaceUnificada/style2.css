@@ -929,3 +929,20 @@ img[class*="processando"] {
     100% { transform: rotate(360deg); }
 }% { transform: rotate(360deg); }
 }
+/* =======================================================================
+   FUNDO DA TELA PRINCIPAL (PDVMAIN)
+======================================================================= */
+:root {
+    --cor-fundo-pdv: #9E9E9E; /* Cinza meio tom */
+}
+
+div[id^="pdvmain-"][id$="-body"],
+div[id^="pdvmain-"] {
+    background-color: var(--cor-fundo-pdv) !important;
+}
+/* =======================================================================
+   AJUSTE DE BORDA - CAIXA DO CUPOM
+======================================================================= */
+div[id^="cupom-"][id$="-body"] {
+    border-color: #000000 !important;
+}
