@@ -488,7 +488,8 @@ amixer set Master 87
 
 #Remove Script Zanthus de Identificação de Balança COMENTADO-TESTE-PROVISÓRIO
 rm /opt/webadmin/extra/rules/Balanca/toledoDCPSC-var.sh
-
+#Remove gif antigo de carregamento
+rm -f /Zanthus/Zeus/Interface/resources/imagens/processando.gif 
 #Faz Download e aplica permissão script PDVBalança
 curl -s -o /home/zanthus/PerifericosUSB.sh https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/PerifericosUSB.sh
 chmod +x /home/zanthus/PerifericosUSB.sh && /home/zanthus/PerifericosUSB.sh
