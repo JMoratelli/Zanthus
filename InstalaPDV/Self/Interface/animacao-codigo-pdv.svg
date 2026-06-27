@@ -1,0 +1,128 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 864 864" width="864" height="864">
+  <style>
+    /* ANIMAÇÃO FLUIDA DO PRODUTO (Mantida nas proporções perfeitas originais) */
+    .product-x { animation: moveX 6s infinite cubic-bezier(0.4, 0, 0.2, 1); }
+    .product-y { animation: moveY 6s infinite cubic-bezier(0.4, 0, 0.2, 1); }
+
+    @keyframes moveX {
+        0%, 10%   { transform: translateX(180px); }
+        35%, 50%  { transform: translateX(400px); }
+        70%, 90%  { transform: translateX(620px); }
+        100%      { transform: translateX(180px); }
+    }
+
+    @keyframes moveY {
+        0%, 10%   { transform: translateY(270px); opacity: 0; }
+        15%       { transform: translateY(270px); opacity: 1; } 
+        22%       { transform: translateY(150px); } 
+        35%, 50%  { transform: translateY(250px); } 
+        60%       { transform: translateY(160px); } 
+        70%       { transform: translateY(260px); opacity: 1; } 
+        85%       { transform: translateY(260px); opacity: 1; }
+        90%, 100% { transform: translateY(260px); opacity: 0; } 
+    }
+
+    /* MENSAGEM NA TELA (MOCKUP DE LINHAS) */
+    .screen-text-anim {
+        animation: textFade 6s infinite ease-in-out;
+    }
+
+    @keyframes textFade {
+        0%, 33%   { opacity: 0; transform: translateY(5px); }
+        36%, 67%  { opacity: 1; transform: translateY(0); } 
+        70%, 100% { opacity: 0; transform: translateY(-5px); } 
+    }
+
+    /* LUZ DO LEITOR */
+    .bip-anim { animation: bipFlash 6s infinite; }
+
+    @keyframes bipFlash {
+        0%, 34%   { opacity: 0; }
+        36%, 42%  { opacity: 1; } 
+        46%, 100% { opacity: 0; }
+    }
+  </style>
+  
+  <g transform="translate(432, 432) scale(1.4) translate(-405, -167.5)">
+  
+    <g transform="translate(180, 260)">
+      <line x1="-30" y1="-45" x2="-12" y2="-100" stroke="#0B2053" stroke-width="8" stroke-linecap="round"/>
+      <line x1="30" y1="-45" x2="12" y2="-100" stroke="#0B2053" stroke-width="8" stroke-linecap="round"/>
+      <polygon points="-55,-40 55,-40 45,35 -45,35" fill="#C25A12"/>
+    </g>
+
+    <g transform="translate(400, 110)">
+      <rect x="-25" y="80" width="50" height="70" fill="#555555"/>
+      <rect x="-60" y="150" width="120" height="15" fill="#333333" rx="4"/>
+      
+      <rect x="-160" y="-70" width="320" height="190" fill="#4A4A4A" rx="8"/>
+      <rect x="-150" y="-60" width="300" height="170" fill="#F4F4F4" rx="4"/>
+      <rect x="-150" y="-60" width="300" height="25" fill="#FAD048"/> 
+      <rect x="-140" y="-53" width="40" height="10" fill="#333333" rx="2"/> 
+      
+      <rect x="-130" y="-15" width="100" height="6" fill="#CCCCCC" rx="3"/>
+      <rect x="-130" y="5" width="70" height="6" fill="#CCCCCC" rx="3"/>
+      <rect x="-130" y="25" width="90" height="6" fill="#CCCCCC" rx="3"/>
+      <rect x="-130" y="80" width="260" height="20" fill="#E0E0E0" rx="4"/>
+
+      <g class="screen-text-anim">
+          <rect x="-80" y="10" width="160" height="12" fill="#555555" rx="6"/>
+          <rect x="-50" y="30" width="100" height="12" fill="#555555" rx="6"/>
+      </g>
+
+      <rect x="160" y="30" width="30" height="15" fill="#333333"/>
+      <rect x="180" y="-15" width="60" height="110" fill="#4A4A4A" rx="6"/>
+      <rect x="188" y="-5" width="44" height="40" fill="#B3D4C8" rx="2"/> 
+      <rect x="188" y="45" width="44" height="45" fill="#333333" rx="2"/> 
+      <circle cx="196" cy="55" r="4" fill="#999999"/>
+      <circle cx="210" cy="55" r="4" fill="#999999"/>
+      <circle cx="224" cy="55" r="4" fill="#999999"/>
+      <circle cx="196" cy="68" r="4" fill="#999999"/>
+      <circle cx="210" cy="68" r="4" fill="#999999"/>
+      <circle cx="224" cy="68" r="4" fill="#999999"/>
+      <circle cx="196" cy="81" r="4" fill="#E63946"/> 
+      <circle cx="210" cy="81" r="4" fill="#FAD048"/> 
+      <circle cx="224" cy="81" r="4" fill="#5CB85C"/> 
+    </g>
+
+    <g transform="translate(400, 260)">
+      <rect x="-80" y="-15" width="160" height="20" fill="#333333" rx="4"/>
+      <rect x="-70" y="-13" width="140" height="10" fill="#1A1A1A" rx="2"/> 
+    </g>
+
+    <g class="product-x">
+      <g class="product-y">
+        <path d="M -18,0 L 18,0 L 18,-50 Q 18,-60 9,-65 L 9,-75 L -9,-75 L -9,-65 Q -18,-60 -18,-50 Z" fill="#E63946" stroke="#B71C1C" stroke-width="2"/>
+        <rect x="-11" y="-80" width="22" height="6" fill="#DDDDDD" rx="2" stroke="#999999" stroke-width="1"/>
+        <rect x="-17" y="-40" width="34" height="20" fill="#FFFFFF"/>
+        <rect x="-17" y="-36" width="34" height="4" fill="#FAD048"/>
+      </g>
+    </g>
+
+    <g transform="translate(180, 260)">
+      <polygon points="-55,-40 55,-40 45,35 -45,35" fill="#FF7824"/>
+      <line x1="-30" y1="-10" x2="-22" y2="20" stroke="#0B2053" stroke-width="6" stroke-linecap="round"/>
+      <line x1="0" y1="-10" x2="0" y2="20" stroke="#0B2053" stroke-width="6" stroke-linecap="round"/>
+      <line x1="30" y1="-10" x2="22" y2="20" stroke="#0B2053" stroke-width="6" stroke-linecap="round"/>
+      <rect x="-70" y="-60" width="140" height="30" fill="#E82C2A" rx="10"/>
+      <line x1="-45" y1="-45" x2="45" y2="-45" stroke="#0B2053" stroke-width="6" stroke-linecap="round"/>
+    </g>
+
+    <g transform="translate(400, 260)">
+      <rect x="-80" y="5" width="160" height="15" fill="#4A4A4A" rx="2"/>
+      <rect x="-75" y="8" width="150" height="4" fill="#666666" rx="1"/>
+    </g>
+
+    <g transform="translate(620, 260)">
+      <rect x="-70" y="0" width="140" height="25" fill="#777777" rx="4"/>
+      <rect x="-80" y="-10" width="160" height="10" fill="#E0E0E0" stroke="#CCCCCC" stroke-width="2" rx="3"/>
+    </g>
+
+    <g transform="translate(400, 250)" class="bip-anim">
+      <rect x="-70" y="-20" width="140" height="3" fill="#5CB85C"/>
+      <rect x="0" y="-50" width="3" height="60" fill="#5CB85C"/>
+      <circle cx="0" cy="-20" r="30" fill="#5CB85C" opacity="0.2"/>
+    </g>
+
+  </g>
+</svg>
