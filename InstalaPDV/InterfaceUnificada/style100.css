@@ -1263,7 +1263,7 @@ div[id^="messagebox-"] .x-progress-text {
     }
 }
 /* =======================================================================
-   NOVA TELA DE CARREGAMENTO (SPINNER CIRCULAR EM VEZ DE GIF)
+   NOVA TELA DE CARREGAMENTO (SPINNER CIRCULAR EM VEZ DE GIF) - CORRIGIDO
 ======================================================================= */
 
 /* Remove o fundo azul gradiente antigo da janelinha */
@@ -1272,17 +1272,24 @@ div[id^="messagebox-"] .x-progress-text {
     background-color: var(--bg-card) !important; 
 }
 
-/* Esconde o GIF antigo injetado pelo sistema */
-.processando-gif {
-    display: none !important;
+/* Força o GIF antigo a ficar invisível e sem tamanho, anulando o bloqueio do ExtJS */
+.processando-gif, 
+img[class*="processando"] {
+    opacity: 0 !important;
+    width: 0 !important;
+    height: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    content: none !important;
+    visibility: hidden !important;
 }
 
-/* Cria o spinner circular moderno via CSS */
+/* Cria o spinner circular moderno via CSS e garante o seu posicionamento */
 .container-processando::after {
     content: "";
     position: absolute;
-    top: 45px;
-    left: calc(50% - 24px); /* Calcula o centro exato (50% - metade da largura total) */
+    top: 50px;
+    left: calc(50% - 20px); /* Centraliza o círculo de 40px exatamente no meio */
     width: 40px;
     height: 40px;
     box-sizing: border-box;
@@ -1290,6 +1297,7 @@ div[id^="messagebox-"] .x-progress-text {
     border-top: 4px solid var(--red-logo); /* Borda de progresso (Cores da logo) */
     border-radius: 50%;
     animation: spinner-circular 1s linear infinite !important;
+    display: block !important;
 }
 
 /* Motor do giro circular */
