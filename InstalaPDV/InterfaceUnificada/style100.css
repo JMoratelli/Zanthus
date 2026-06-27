@@ -1211,3 +1211,89 @@ Correcao 4.1
 .pdv-grid-panel .row-desab{
     background: #FFCDD2 !important;
 }
+/* =======================================================================
+   ANIMAÇÃO MODERNA DA BARRA DE CARREGAMENTO (MESSAGEBOX)
+======================================================================= */
+
+/* 1. Container da barra: remove as bordas antigas e deixa arredondado/suave */
+div[id^="messagebox-"] .x-progress {
+    background-color: #EEEEEE !important; /* Cor de fundo suave */
+    border: none !important;
+    border-radius: 8px !important;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.1) !important;
+    overflow: hidden !important;
+    height: 14px !important; /* Deixa a barra um pouco mais fina e elegante */
+}
+
+/* 2. A barra em si: cor sólida, listras animadas e bordas arredondadas */
+div[id^="messagebox-"] .x-progress-bar {
+    background-color: #E53935 !important; /* Cor principal da logo */
+    background-image: linear-gradient(
+        45deg, 
+        rgba(255, 255, 255, 0.15) 25%, 
+        transparent 25%, 
+        transparent 50%, 
+        rgba(255, 255, 255, 0.15) 50%, 
+        rgba(255, 255, 255, 0.15) 75%, 
+        transparent 75%, 
+        transparent
+    ) !important;
+    background-size: 20px 20px !important; /* Tamanho das listras */
+    border: none !important;
+    border-radius: 8px !important;
+    box-shadow: none !important;
+    
+    /* Ativa a animação contínua e a transição suave de largura */
+    transition: width 0.3s ease !important;
+    animation: progress-stripes 1s linear infinite !important;
+}
+
+/* 3. Oculta o texto feio de porcentagem/carregando de cima da barra (opcional, visual mais limpo) */
+div[id^="messagebox-"] .x-progress-text {
+    display: none !important; 
+}
+
+/* 4. O motor da animação: move o background para criar o efeito de fluxo */
+@keyframes progress-stripes {
+    from {
+        background-position: 20px 0;
+    }
+    to {
+        background-position: 0 0;
+    }
+}
+/* =======================================================================
+   NOVA TELA DE CARREGAMENTO (SPINNER CIRCULAR EM VEZ DE GIF)
+======================================================================= */
+
+/* Remove o fundo azul gradiente antigo da janelinha */
+.window-spinner,
+.window-spinner .x-window-body {
+    background-color: var(--bg-card) !important; 
+}
+
+/* Esconde o GIF antigo injetado pelo sistema */
+.processando-gif {
+    display: none !important;
+}
+
+/* Cria o spinner circular moderno via CSS */
+.container-processando::after {
+    content: "";
+    position: absolute;
+    top: 45px;
+    left: calc(50% - 24px); /* Calcula o centro exato (50% - metade da largura total) */
+    width: 40px;
+    height: 40px;
+    box-sizing: border-box;
+    border: 4px solid var(--grey-300); /* Borda de trilha (cinza claro) */
+    border-top: 4px solid var(--red-logo); /* Borda de progresso (Cores da logo) */
+    border-radius: 50%;
+    animation: spinner-circular 1s linear infinite !important;
+}
+
+/* Motor do giro circular */
+@keyframes spinner-circular {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
