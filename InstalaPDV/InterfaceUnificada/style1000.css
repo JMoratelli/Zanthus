@@ -1240,3 +1240,9 @@ div[id^="toolbar-"].x-toolbar-docked-bottom > div.x-box-inner {
 .bg-image > div.x-box-inner {
     background-color: #FAFAFA !important;
 }
+/* =======================================================================
+   ESTILO GERAL PARA ITEM CANCELADO (Independente de foco)
+======================================================================= */
+.pdv-grid-panel .x-grid-row.item-cancelado {
+    background-color: #FFCDD2 !important;
+}
