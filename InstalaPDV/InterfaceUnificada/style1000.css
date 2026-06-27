@@ -1297,3 +1297,38 @@ div[id^="messagebox-"] .x-progress-text {
         background-position: 0 0;
     }
 }
+/* =======================================================================
+   NOVA TELA DE CARREGAMENTO (SPINNER CIRCULAR EM VEZ DE GIF)
+======================================================================= */
+
+/* Remove o fundo azul gradiente antigo da janelinha */
+.window-spinner,
+.window-spinner .x-window-body {
+    background-color: var(--bg-card) !important; 
+}
+
+/* Esconde o GIF antigo injetado pelo sistema */
+.processando-gif {
+    display: none !important;
+}
+
+/* Cria o spinner circular moderno via CSS */
+.container-processando::after {
+    content: "";
+    position: absolute;
+    top: 45px;
+    left: calc(50% - 24px); /* Calcula o centro exato (50% - metade da largura total) */
+    width: 40px;
+    height: 40px;
+    box-sizing: border-box;
+    border: 4px solid var(--grey-300); /* Borda de trilha (cinza claro) */
+    border-top: 4px solid var(--red-logo); /* Borda de progresso (Cores da logo) */
+    border-radius: 50%;
+    animation: spinner-circular 1s linear infinite !important;
+}
+
+/* Motor do giro circular */
+@keyframes spinner-circular {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
