@@ -1305,3 +1305,9 @@ img[class*="processando"] {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
+/* =======================================================================
+   BORDA PRETA NA CAIXA DE FORMAS DE PAGAMENTO
+======================================================================= */
+div[id^="formaspagamentocard-"][id$="-body"] {
+    border: 1px solid #000000 !important;
+}
