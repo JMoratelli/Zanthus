@@ -600,6 +600,13 @@ input[readonly] {
 .pdv-grid-panel .x-grid-row-alt .item-cancelado {
     background-color: var(--red-flat-light) !important;
 }
+.pdv-grid-panel .item-cancelado .produto-descricao,
+.pdv-grid-panel .item-cancelado .produto-quantidade,
+.pdv-grid-panel .item-cancelado .produto-valor-unitario,
+.pdv-grid-panel .item-cancelado .produto-total
+{
+    text-decoration: line-through !important;
+}
 
 .pdv-grid-panel .item-cancelado .produto-descricao,
 .pdv-grid-panel .item-cancelado .produto-valor-unitario,
