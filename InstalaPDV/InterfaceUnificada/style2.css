@@ -40,7 +40,9 @@
     /* Tons Laranja para Menus Superiores e Limpar */
     --orange-500: #FF9800;
     --orange-600: #F57C00;
-
+    /* CORES DA LOGO MACHADÃO */
+    --red-logo: #E53935; 
+    --red-logo-dark: #C62828; 
     /* Tons Azul para botão Entrar */
     --blue-600: #1E88E5;
     --blue-700: #1976D2;
@@ -924,7 +926,7 @@ img[class*="processando"] {
     height: 40px;
     box-sizing: border-box;
     border: 4px solid var(--grey-300); /* Borda de trilha (cinza claro) */
-    border-top: 4px solid var(--red-logo); /* Borda de progresso (Cores da logo) */
+    border-top: 4px solid var(); /* Borda de progresso (Cores da logo) */
     border-radius: 50%;
     animation: spinner-circular 1s linear infinite !important;
     display: block !important;
