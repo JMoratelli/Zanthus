@@ -1346,3 +1346,32 @@ img[class*="processando"] {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
+/*Animação Self*/
+.img-self.bt_image_codigo {
+    /* 1. Troca o GIF pelo SVG nativamente com o caminho absoluto correto */
+    content: url("/Zanthus/Zeus/Interface/resources/imagens/animacao-codigo-pdv.svg") !important;
+    
+    /* 2. Garante que nunca vai vazar do bloco pai dinâmico, mas sem fixar medidas */
+    max-width: 100% !important;
+    max-height: 100% !important;
+    
+    /* 3. Faz o SVG se adaptar ao bloco preservando as proporções */
+    object-fit: contain !important;
+    
+    /* 4. O TRUQUE: Empurra apenas o desenho para baixo dentro da área que o ExtJS liberou */
+    object-position: center 75% !important; 
+}
+/* Substitui o GIF de pagamento pelo SVG animado do Checkout */
+/* 1. Aplica o SVG animado na DIV PAI, aproveitando o tamanho dinâmico do ExtJS */
+.x-container.bg-image2 {
+    background-image: url("/Zanthus/Zeus/Interface/resources/imagens/animacao-pagamento-pdv.svg") !important;
+    background-size: contain !important;
+    background-position: center center !important;
+    background-repeat: no-repeat !important;
+}
+
+/* 2. Deixa o GIF original 100% invisível.
+   Ele continua lá fisicamente para o ExtJS não quebrar o layout, mas ninguém vê. */
+.img-self2.bt_image_pagamento {
+    opacity: 0 !important;
+}
