@@ -35,7 +35,9 @@
     --green-600: #2E7D32;
     --red-500: #E53935;
     --red-600: #C62828;
-
+    /* CORES DA LOGO MACHADÃO */
+    --red-logo: #E53935; 
+    --red-logo-dark: #C62828; 
     --shadow-sm: 0 1px 2px rgba(0,0,0,.10);
     --shadow-md: 0 2px 6px rgba(0,0,0,.12);
 
