@@ -1,0 +1,131 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400" width="800" height="400">
+  <style>
+    /* ========================================================
+       ANIMAÇÕES DE FLUTUAÇÃO SUAVE
+       ======================================================== */
+    .float-1 { animation: floatUp 5s ease-in-out infinite; }
+    .float-2 { animation: floatDown 6s ease-in-out infinite; }
+    .float-3 { animation: floatUp 4.5s ease-in-out infinite; }
+    .float-4 { animation: floatDown 5.5s ease-in-out infinite; }
+    .float-5 { animation: floatSide 5.2s ease-in-out infinite; }
+
+    @keyframes floatUp {
+        0%, 100% { transform: translateY(0px); }
+        50%      { transform: translateY(-12px); }
+    }
+    @keyframes floatDown {
+        0%, 100% { transform: translateY(0px); }
+        50%      { transform: translateY(10px); }
+    }
+    @keyframes floatSide {
+        0%, 100% { transform: translate(0px, 0px); }
+        50%      { transform: translate(-4px, -8px); }
+    }
+
+    /* ONDAS DE CONEXÃO OVAIS (Ajustadas para o centro em 800x400) */
+    .pulse-wave {
+        animation: ovalPulse 3s infinite ease-out;
+        transform-origin: 400px 200px; /* Novo centro */
+    }
+    .pulse-wave:nth-child(2) { animation-delay: 1s; }
+    .pulse-wave:nth-child(3) { animation-delay: 2s; }
+
+    @keyframes ovalPulse {
+        0%   { transform: scale(0.3); opacity: 1; }
+        100% { transform: scale(1.8); opacity: 0; }
+    }
+
+    /* FUNDO RESPIRANDO */
+    .bg-pulse { animation: bgBreath 6s infinite ease-in-out; transform-origin: 400px 200px; }
+    @keyframes bgBreath {
+        0%, 100% { transform: scale(1); }
+        50%      { transform: scale(1.015); }
+    }
+  </style>
+
+  <rect x="10" y="10" width="780" height="380" rx="50" fill="#F8F8F8" class="bg-pulse"/>
+  <rect x="25" y="25" width="750" height="350" rx="38" fill="none" stroke="#EEEEEE" stroke-width="2" stroke-dasharray="8 8" class="bg-pulse"/>
+
+  <g>
+    <rect x="280" y="140" width="240" height="120" rx="60" fill="none" stroke="#FAD048" stroke-width="3" class="pulse-wave"/>
+    <rect x="280" y="140" width="240" height="120" rx="60" fill="none" stroke="#FAD048" stroke-width="3" class="pulse-wave"/>
+    <rect x="280" y="140" width="240" height="120" rx="60" fill="none" stroke="#FAD048" stroke-width="3" class="pulse-wave"/>
+  </g>
+
+  <g transform="translate(80, 80) rotate(-15)">
+      <g class="float-1">
+          <rect x="20" y="-20" width="40" height="120" rx="5" fill="#333333"/>
+          <rect x="5" y="15" width="70" height="75" rx="16" fill="#1A1A1A"/>
+          <rect x="12" y="22" width="56" height="61" rx="10" fill="#4A4A4A"/>
+          <circle cx="40" cy="52" r="16" fill="#FAD048"/>
+          <path d="M 33,52 L 37,56 L 48,45" fill="none" stroke="#333333" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <rect x="74" y="36" width="4" height="16" rx="2" fill="#666666"/>
+      </g>
+  </g>
+
+  <g transform="translate(60, 225) rotate(-14)">
+      <g class="float-5">
+          <rect x="0" y="0" width="150" height="95" rx="8" fill="#2A2A2A"/>
+          <rect x="0" y="15" width="150" height="15" fill="#111111"/>
+          <rect x="20" y="48" width="24" height="18" rx="3" fill="#FAD048"/>
+          <rect x="20" y="72" width="65" height="5" rx="2.5" fill="#555555"/>
+          <rect x="20" y="81" width="35" height="4" rx="2" fill="#555555"/>
+      </g>
+  </g>
+
+  <g transform="translate(95, 245) rotate(-6)">
+      <g class="float-3">
+          <rect x="0" y="0" width="150" height="95" rx="8" fill="#FAD048"/>
+          <rect x="20" y="28" width="24" height="18" rx="3" fill="#FFFFFF"/>
+          <line x1="20" y1="37" x2="44" y2="37" stroke="#E0E0E0" stroke-width="1.5"/>
+          <path d="M 28,28 L 28,46 M 36,28 L 36,46" stroke="#E0E0E0" stroke-width="1.5"/>
+          <rect x="20" y="62" width="85" height="6" rx="3" fill="#FFFFFF" opacity="0.9"/>
+          <rect x="20" y="74" width="50" height="6" rx="3" fill="#FFFFFF" opacity="0.9"/>
+          <g transform="translate(115, 22) scale(0.48)">
+              <path d="M 0,0 A 8,8 0 0,1 12,0" fill="none" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round"/>
+              <path d="M -8,-10 A 20,20 0 0,1 20,-10" fill="none" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round"/>
+              <path d="M -16,-20 A 32,32 0 0,1 28,-20" fill="none" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round"/>
+          </g>
+      </g>
+  </g>
+
+  <g transform="translate(620, 65) rotate(8)">
+      <g class="float-2">
+          <rect x="0" y="0" width="90" height="175" rx="14" fill="#4A4A4A"/>
+          <rect x="5" y="5" width="80" height="165" rx="10" fill="#F4F4F4"/>
+          <rect x="10" y="15" width="70" height="65" rx="8" fill="#FAD048"/>
+          <circle cx="45" cy="48" r="16" fill="#FFFFFF"/>
+          <path d="M 37,48 L 42,53 L 53,39" fill="none" stroke="#FAD048" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <rect x="10" y="92" width="55" height="6" rx="3" fill="#CCCCCC"/>
+          <rect x="10" y="105" width="38" height="6" rx="3" fill="#CCCCCC"/>
+          <rect x="10" y="130" width="70" height="24" rx="6" fill="#333333"/>
+      </g>
+  </g>
+
+  <g transform="translate(600, 240) rotate(5)">
+      <g class="float-4">
+          <rect x="0" y="0" width="85" height="85" rx="10" fill="#FFFFFF" stroke="#CCCCCC" stroke-width="2"/>
+          
+          <rect x="12" y="12" width="22" height="22" rx="3" fill="#333333"/>
+          <rect x="16" y="16" width="14" height="14" rx="1" fill="#FFFFFF"/>
+          <rect x="19" y="19" width="8" height="8" fill="#333333"/>
+
+          <rect x="51" y="12" width="22" height="22" rx="3" fill="#333333"/>
+          <rect x="55" y="16" width="14" height="14" rx="1" fill="#FFFFFF"/>
+          <rect x="58" y="19" width="8" height="8" fill="#333333"/>
+
+          <rect x="12" y="51" width="22" height="22" rx="3" fill="#333333"/>
+          <rect x="16" y="55" width="14" height="14" rx="1" fill="#FFFFFF"/>
+          <rect x="19" y="59" width="8" height="8" fill="#333333"/>
+
+          <rect x="51" y="51" width="10" height="10" rx="1" fill="#333333"/>
+          <rect x="63" y="51" width="10" height="10" rx="1" fill="#FAD048"/>
+          <rect x="51" y="63" width="10" height="10" rx="1" fill="#FAD048"/>
+          <rect x="63" y="63" width="10" height="10" rx="1" fill="#333333"/>
+          <rect x="39" y="39" width="10" height="10" rx="1" fill="#333333"/>
+          <rect x="39" y="27" width="6" height="6" rx="1" fill="#333333"/>
+          <rect x="27" y="39" width="6" height="6" rx="1" fill="#FAD048"/>
+      </g>
+  </g>
+
+</svg>
