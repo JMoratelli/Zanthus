@@ -293,6 +293,10 @@ sleep 6
 if [ "$tipoInstala" == "SelfCheckout" ]; then
     echo "Copiando telas_touch.js PDV Lanchonete"
     curl -s -o "/Zanthus/Zeus/Interface/resources/js/telas_touch.js" "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Self/Interface/telas_touch.js"
+	echo "Copiando animação Self Codigo"
+    curl -s -o "/Zanthus/Zeus/Interface/resources/imagens/animacao-codigo-pdv.svg" "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Self/Interface/animacao-codigo-pdv.svg"
+	echo "Copiando animação Self Pagto"
+    curl -s -o "/Zanthus/Zeus/Interface/resources/imagens/animacao-pagamento-pdv.svg" "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Self/Interface/animacao-pagamento-pdv.svg"
     echo "Copiando teclas_touch.js PDV Lanchonete"
     curl -s -o "/Zanthus/Zeus/Interface/resources/js/teclas_touch.js" "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Self/Interface/teclas_touch.js"
     echo "Copiando TelaComanda.js PDV Lanchonete"
