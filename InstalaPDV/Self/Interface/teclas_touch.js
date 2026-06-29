@@ -30,13 +30,15 @@ var __teclas_templates = {
                     autoColeta: true,
                     monetario: null,
                     value: null,
-                    autoLabel: 'Informe a quantidade'},
-		   {"text":"Cancelar<br />Item","pdvfn":"1146","xtype":"teclafuncional","cls":"bt_teclado_y","lin":6,"col":3,"teclado":"1"},
-		   {"text":"Cancelar<br />Cupom","pdvfn":"1148","xtype":"teclafuncional","cls":"bt_teclado_y","lin":6,"col":4,"teclado":"1"},
-		   {"text":"Pesquisa<br />Embalagem","pdvfn":"1123","xtype":"teclafuncional","cls":"bt_teclado_y","lin":6,"col":5,"teclado":"1"}
-
-]
-        }],
+                    autoLabel: 'Informe a quantidade'
+                },
+                {"text":"Cancelar<br />Item","pdvfn":"1146","xtype":"teclafuncional","cls":"bt_teclado_y","lin":6,"col":3,"teclado":"1"},
+                {"text":"Cancelar<br />Cupom","pdvfn":"1148","xtype":"teclafuncional","cls":"bt_teclado_y","lin":6,"col":4,"teclado":"1"},
+                {"text":"Pesquisa<br />Embalagem","pdvfn":"1123","xtype":"teclafuncional","cls":"bt_teclado_y","lin":6,"col":5,"teclado":"1"},
+                {"text":"Consulta<br />Produto","pdvfn":"11126","xtype":"teclafuncional","cls":"bt_teclado_y","lin":6,"col":6,"teclado":"1"}
+            ]
+        }
+    ],
     "caedu":[{
         opcoes: [
             {
@@ -122,4 +124,4 @@ var __teclas_templates = {
             }
         ]
     }]
-}
+};
