@@ -1375,3 +1375,67 @@ img[class*="processando"] {
 .img-self2.bt_image_pagamento {
     opacity: 0 !important;
 }
+/* =======================================================================
+   BOTÃO DE SELEÇÃO (VISTO/CHECK) - CSS PURO (Sem Imagens)
+======================================================================= */
+
+/* 1. ANIQUILA a imagem do ExtJS em todos os estados da Grid */
+.x-grid-row .zanthus-botao-cancela-item,
+.x-grid-cell .zanthus-botao-cancela-item,
+.x-grid-row-selected .zanthus-botao-cancela-item,
+.x-grid-cell-selected .zanthus-botao-cancela-item {
+    background-image: none !important;
+}
+
+/* Oculta o span interno da imagem antiga para ele não ocupar espaço */
+.zanthus-botao-cancela-item .imagem-cancelar {
+    display: none !important;
+    background-image: none !important;
+}
+
+/* 2. Base do botão (Anel com fundo transparente, AGORA MAIS ESCURO) */
+.x-grid-row .zanthus-botao-cancela-item,
+.x-grid-cell .zanthus-botao-cancela-item {
+    position: relative !important;
+    display: inline-block !important;
+    width: 40px !important;
+    height: 40px !important;
+    border-radius: 50% !important;
+    border: 2px solid var(--grey-700) !important; /* Deixei a borda bem mais escura */
+    background-color: transparent !important;
+    cursor: pointer !important;
+    box-sizing: border-box !important;
+    transition: all 0.2s ease !important;
+    box-shadow: none !important;
+    margin: 0 auto !important;
+}
+
+/* 3. Desenha o "Visto" usando bordas no ::before (AGORA MAIS ESCURO) */
+.zanthus-botao-cancela-item::before {
+    content: "" !important;
+    position: absolute !important;
+    width: 8px !important;
+    height: 16px !important;
+    /* O visto base (L) acompanha o cinza escuro */
+    border-bottom: 3px solid var(--grey-700) !important;
+    border-right: 3px solid var(--grey-700) !important;
+    top: 45% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) rotate(45deg) !important;
+    transition: border-color 0.2s ease !important;
+}
+
+/* 4. Estado Selecionado / Clicado (Fundo verde) */
+.x-grid-row-selected .zanthus-botao-cancela-item,
+.x-grid-cell-selected .zanthus-botao-cancela-item {
+    background-color: var(--green-500) !important;
+    border-color: var(--green-500) !important;
+    transform: scale(1.05) !important;
+}
+
+/* 5. Muda a cor do "Visto" para branco quando o fundo ficar verde */
+.x-grid-row-selected .zanthus-botao-cancela-item::before,
+.x-grid-cell-selected .zanthus-botao-cancela-item::before {
+    border-bottom-color: #FFFFFF !important;
+    border-right-color: #FFFFFF !important;
+}
