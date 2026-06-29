@@ -650,7 +650,7 @@ input[readonly] {
 .pdv-grid-panel .item-cancelado .produto-total,
 .pdv-grid-panel .item-cancelado .produto-quantidade {
     -text-decoration: line-through;
-    color: var(--red-500);
+    color: var(--red-logo-dark) !important;
 }
 
 .pdv-grid-panel .item-cancelado .zanthus-botao-cancela-item {
