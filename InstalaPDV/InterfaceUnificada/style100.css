@@ -25,7 +25,7 @@
     --grey-500: #9E9E9E;
     --grey-400: #BDBDBD;
     --grey-300: #E0E0E0;
-    --grey-200: #EEEEEE;
+    --grey-200: #BABABA;
     --grey-100: #F5F5F5;
 
     --accent-dark: #424242;
@@ -1312,4 +1312,16 @@ img[class*="processando"] {
 ======================================================================= */
 div[id^="formaspagamentocard-"][id$="-body"] {
     border: 1px solid #000000 !important;
+}
+/* =======================================================================
+   PAINÉIS "FRAMED" (Ex: Formulário de Conexão IP/Porta)
+   Remove os fundos e gradientes antigos dos painéis encapsulados do ExtJS
+======================================================================= */
+.x-panel-default-framed,
+.x-panel-body-default-framed {
+    background: var(--bg-surface) !important;
+    background-color: var(--bg-surface) !important;
+    background-image: none !important;
+    border-color: var(--grey-300) !important; /* Deixa a borda neutra caso exista */
+    box-shadow: none !important;
 }
