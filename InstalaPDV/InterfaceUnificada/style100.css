@@ -1325,3 +1325,12 @@ div[id^="formaspagamentocard-"][id$="-body"] {
     border-color: var(--grey-300) !important; /* Deixa a borda neutra caso exista */
     box-shadow: none !important;
 }
+/* =======================================================================
+   CONTAINER DO MENU DE BOTÕES DE ATALHO (F1, F2, F3...)
+======================================================================= */
+div[id^="menubotoes-"] {
+    background: var(--grey-100) !important;
+    background-color: var(--grey-100) !important;
+    background-image: none !important; /* Remove qualquer gradiente ou imagem padrão do ExtJS */
+    border: none !important; 
+}
