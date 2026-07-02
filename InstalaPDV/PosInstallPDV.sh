@@ -351,12 +351,12 @@ echo "Copiando logo Machadao"
 curl -o "/Zanthus/Zeus/Interface/resources/imagens/logo_self.png" "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Self/Interface/logo_self.png"
 echo "Download Descanso 1000.jpg"
 curl -o "/Zanthus/Zeus/Interface/resources/imagens/descanso1000.jpg" "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Self/Interface/descanso1000.jpg"
-echo "Download Codigo.gif"
-curl -o "/Zanthus/Zeus/Interface/resources/imagens/self/codigo.gif" "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Self/Interface/codigo.gif"
-echo "Copiando cancela_sel.png"
-curl -o "/Zanthus/Zeus/Interface/resources/imagens/cancela_sel.png" "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/InterfaceUnificada/cancela_sel.png"
-echo "Copiando cancela.png"
-curl -o "/Zanthus/Zeus/Interface/resources/imagens/cancela.png" "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/InterfaceUnificada/cancela.png"
+echo "Apagando Codigo.gif" #Substituido por animação em SVG
+rm -f /Zanthus/Zeus/Interface/resources/imagens/self/codigo.gif
+echo "Apagando cancela_sel.png" #Não é mais baixado o png, é utilizado o CSS
+rm -f /Zanthus/Zeus/Interface/resources/imagens/cancela_sel.png
+echo "Copiando cancela.png" #Não é mais baixado o png, é utilizado o CSS
+rm -f /Zanthus/Zeus/Interface/resources/imagens/cancela.png
 echo "Copiando folha de estilo PDV Mouse Modern"
 curl -o "/Zanthus/Zeus/Interface/resources/css/style100.css" "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/InterfaceUnificada/style100.css"
 echo "Copiando folha de estilo PDV Self Modern"
