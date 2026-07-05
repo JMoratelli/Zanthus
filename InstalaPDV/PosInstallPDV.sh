@@ -90,6 +90,9 @@ printf "timeout=5\n" > /Zanthus/Zeus/pdvJava/RESTG4650.CFG && printf "timeout=5\
 #Ajuste CARG000 para aumentar timeout.
 sed -i 's/^timeout=30$/timeout=60/' /Zanthus/Zeus/pdvJava/CARG0000.CFG
 
+#Ajusta CARG000 para direcionar ao servidor mirage
+sed -i '/^endereco=/c endereco=192.168.12.42' /Zanthus/Zeus/pdvJava/CARG0000.CFG
+
 #Ajuste de endereço de mirage manager - depreciado
 #sed -i '/^endereco=/c endereco=serv-manager-balance:81' /Zanthus/Zeus/pdvJava/CARG0000.CFG /Zanthus/Zeus/pdvJava/RESTG0000.CFG /Zanthus/Zeus/pdvJava/ZMWS0000.CFG /Zanthus/Zeus/pdvJava/ZMWS1200.CFG
 #sed -i "s#\(^var __urlManager = \).*#\1'http://serv-manager-balance:81/manager/';#" /Zanthus/Zeus/Interface/config/manager.js
