@@ -498,47 +498,175 @@ else
 fi
 
 #===============================================================================
-# 19. Duplicação de telas (PDVs com dois monitores)
+# 19. Configuração de monitores (PDVs com dois monitores)
 #===============================================================================
 if [[ "$tipoInstala" == "PDVComum" || "$tipoInstala" == "PDVTouch" || "$tipoInstala" == "Lanchonete" ]]; then
-  log_step "Configurando duplicação de monitores"
+  log_step "Configurando monitores"
+
+  # --- melhor modo disponível na saída, mais próximo de 1024x768 ---
+  get_best_mode() {
+    local saida="$1"
+    xrandr | awk -v out="$saida" '
+      $1==out {found=1; next}
+      /^[A-Za-z]/ && found {exit}
+      found && /^[[:space:]]+[0-9]+x[0-9]+/ {print $1}
+    ' | awk -F'x' '{
+      diff = (($1-1024)^2 + ($2-768)^2)
+      if (best=="" || diff<bestdiff) {best=$0; bestdiff=diff}
+    } END {print best}'
+  }
+
+  # --- resolução máxima (maior área) disponível na saída ---
+  get_max_mode() {
+    local saida="$1"
+    xrandr | awk -v out="$saida" '
+      $1==out {found=1; next}
+      /^[A-Za-z]/ && found {exit}
+      found && /^[[:space:]]+[0-9]+x[0-9]+/ {print $1}
+    ' | awk -F'x' '{
+      area = $1*$2
+      if (best=="" || area>bestarea) {best=$0; bestarea=area}
+    } END {print best}'
+  }
+
   monCon=$(xrandr | grep " connected" | wc -l)
-  saida1=$(xrandr | grep " connected" | cut -d' ' -f1 | head -n 1)
-  saida2=$(xrandr | grep " connected" | cut -d' ' -f1 | head -n 2 | tail -n 1)
+  mapfile -t saidas < <(xrandr | grep " connected" | cut -d' ' -f1)
+  log_info "$monCon monitor(es) conectados: ${saidas[*]}"
 
-  log_info "$monCon monitor(es) conectados"
-  sleep 5
+  declare -A modo_escolhido
+  declare -A modo_maximo
+  for saida in "${saidas[@]}"; do
+    modo=$(get_best_mode "$saida")
+    if [ -z "$modo" ]; then
+      log_info "Nenhum modo encontrado para $saida, pulando"
+      continue
+    fi
+    modo_escolhido["$saida"]="$modo"
+    modo_maximo["$saida"]=$(get_max_mode "$saida")
+  done
 
-  xrandr --output $saida1  --mode 1024x768
-  xrandr --output $saida2  --mode 1024x768
+  # --- aplica tudo de uma vez: desfaz clone, seta resolução e estende lado a lado ---
+  cmd_xrandr=(xrandr)
+  anterior=""
+  for saida in "${saidas[@]}"; do
+    [ -z "${modo_escolhido[$saida]}" ] && continue
+    cmd_xrandr+=(--output "$saida" --mode "${modo_escolhido[$saida]}")
+    if [ -z "$anterior" ]; then
+      cmd_xrandr+=(--pos 0x0)
+    else
+      cmd_xrandr+=(--right-of "$anterior")
+    fi
+    anterior="$saida"
+  done
+  "${cmd_xrandr[@]}"
+  log_ok "Resolução aplicada e duplicação removida instantaneamente"
 
-  script_content=$(cat << EOF
-#!/bin/bash
-#Arquivo Gerado por script de inicialização
-#@jjmoratelli
-xrandr > /tmp/displays
-xinput list --id-only > /tmp/xdevices-id
-xinput list --name-only > /tmp/xdevices-name
-DEFAULT=$(xrandr|grep -v eDP|awk 'BEGIN {} /^.*connected/{printf("%s;", $1)} END {}' | cut -d ";" -f 1 )
-xrandr --output "$saida1" --mode 1024x768
-xrandr --output "$saida2" --mode 1024x768
-EOF
-)
+  operador=""
+  if [ "$monCon" -ge 2 ]; then
+    # --- identificação visual via xmessage, numerada igual ao menu do terminal ---
+    monitores_geom=$(xrandr --listactivemonitors | tail -n +2)
+    i=1
+    for saida in "${saidas[@]}"; do
+      geom=$(echo "$monitores_geom" | grep -w "$saida" | awk '{print $3}')
+      coord=$(echo "$geom" | grep -o '+.*')
+      xmessage -geometry "300x100$coord" -timeout 20 " SOU A TELA $i " &
+      i=$((i+1))
+    done
 
-  echo "$script_content" > /usr/local/bin/xrandr.set
-  chmod +x /usr/local/bin/xrandr.set
-  sleep 5
+    echo ""
+    echo "=========================================================="
+    echo " A tela definida como PRINCIPAL será a tela do OPERADOR."
+    echo " A outra tela é a tela que o CLIENTE verá."
+    echo ""
+    echo " Verifique qual a tela do operador fisicamente em caso de dúvidas."
+    echo "=========================================================="
+    echo ""
+    echo "Selecione a tela principal:"
+    i=1
+    for saida in "${saidas[@]}"; do
+      echo "$i - $saida - Resolução Máxima: ${modo_maximo[$saida]}"
+      i=$((i+1))
+    done
+    # ============================================================
+    # [PROVISÓRIO] Opção de duplicação de telas — REMOVER quando o
+    # PDV não precisar mais oferecer o modo espelhado (--same-as).
+    # Basta apagar o bloco entre os marcadores "PROVISÓRIO" abaixo
+    # (aqui e mais adiante, onde trata a escolha) pra tirar de vez.
+    opcao_duplicar=$((${#saidas[@]}+1))
+    echo "$opcao_duplicar - Duplicar telas (não definir principal)"
+    # ============================================================
+    echo ""
 
-  tela1=$(xrandr | grep ' connected' | awk '{print $1}' | head -n 1)
-  tela2=$(xrandr | grep ' connected' | awk '{print $1}' | tail -n 1)
-  linha="xrandr --output $tela1 --same-as $tela2"
+    escolha=""
+    max_opcao=${#saidas[@]}
+    max_opcao_total=$((max_opcao+1))
+    while true; do
+      read -rp "Opção (1-$max_opcao_total): " escolha
+      if [[ "$escolha" =~ ^[0-9]+$ ]] && [ "$escolha" -ge 1 ] && [ "$escolha" -le "$max_opcao_total" ]; then
+        break
+      fi
+      echo "Opção inválida, tente novamente."
+    done
 
-  if [ -e /usr/local/bin/xrandr.set ]; then
-    echo >> /usr/local/bin/xrandr.set
+    # ============================================================
+    # [PROVISÓRIO] Ramo de duplicação — REMOVER este "if" (mantendo
+    # só o conteúdo do "else") quando a opção deixar de ser necessária.
+    if [ "$escolha" -eq "$opcao_duplicar" ]; then
+      duplicado=true
+      operador="${saidas[0]}"
+      xrandr --output "${saidas[0]}" --same-as "${saidas[1]}"
+      log_ok "Telas duplicadas (modo provisório): ${saidas[0]} = ${saidas[1]}"
+    else
+      duplicado=false
+      operador="${saidas[$((escolha-1))]}"
+    fi
+    # ============================================================
+  else
+    duplicado=false
+    operador="${saidas[0]}"
   fi
-  echo "$linha" | sudo tee -a /usr/local/bin/xrandr.set >>"$LOGFILE" 2>&1
 
-  log_ok "Duplicação de monitores configurada ($tela1 = $tela2)"
+  if [ "$duplicado" != "true" ]; then
+    xrandr --output "$operador" --primary
+    log_ok "Tela do operador definida: $operador (${modo_escolhido[$operador]})"
+  fi
+
+  # --- script de inicialização persistente ---
+  {
+    echo '#!/bin/bash'
+    echo '#Arquivo Gerado por script de inicialização'
+    echo '#@jjmoratelli'
+    echo 'xrandr > /tmp/displays'
+    echo 'xinput list --id-only > /tmp/xdevices-id'
+    echo 'xinput list --name-only > /tmp/xdevices-name'
+    # ============================================================
+    # [PROVISÓRIO] Ramo que persiste a duplicação — REMOVER este
+    # "if" (mantendo só o conteúdo do "else") junto com o restante
+    # do código marcado como PROVISÓRIO neste arquivo.
+    if [ "$duplicado" = "true" ]; then
+      for saida in "${saidas[@]}"; do
+        [ -z "${modo_escolhido[$saida]}" ] && continue
+        echo "xrandr --output $saida --mode ${modo_escolhido[$saida]}"
+      done
+      echo "xrandr --output ${saidas[0]} --same-as ${saidas[1]}"
+    else
+      anterior=""
+      for saida in "${saidas[@]}"; do
+        [ -z "${modo_escolhido[$saida]}" ] && continue
+        if [ -z "$anterior" ]; then
+          echo "xrandr --output $saida --mode ${modo_escolhido[$saida]} --pos 0x0"
+        else
+          echo "xrandr --output $saida --mode ${modo_escolhido[$saida]} --right-of $anterior"
+        fi
+        anterior="$saida"
+      done
+      echo "xrandr --output $operador --primary"
+    fi
+    # ============================================================
+  } > /usr/local/bin/xrandr.set
+  chmod +x /usr/local/bin/xrandr.set
+
+  log_ok "Monitores configurados; /usr/local/bin/xrandr.set atualizado"
 fi
 
 #===============================================================================
