@@ -311,10 +311,11 @@ if [ "\$HABILITAR_TELA_CLIENTE" = "true" ]; then
 fi
 
 # ==========================================
-# MANTER O SCRIPT VIVO E A JANELA ABERTA
+# MANTER O SCRIPT VIVO AMARRADO AO PDV
 # ==========================================
-# Impede que o script termine e dispare o gatilho que reabre o Chrome
-tail -f /dev/null
+PID_PDV=$(pgrep -f "lnx_receb.xz64" | head -n 1) #captura PID para watchdog
+# Fica aguardando silenciosamente, e encerra o script quando o PDV fechar
+tail --pid="$PID_PDV" -f /dev/null
 EOF
 )
 
