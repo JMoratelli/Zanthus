@@ -2,7 +2,8 @@
 #===============================================================================
 # Script de instalação/configuração PDV - Zanthus
 # Autor original: @jjmoratelli, Jurandir Moratelli
-# Refatorado: logging limpo, downloads seguros (com retry) e idempotência.
+# Refatorado: logging limpo, downloads seguros (com retry), idempotência
+# e centralização de configurações por filial.
 #===============================================================================
 clear
 LOGFILE="/tmp/instala_pdv_$(date +%Y%m%d_%H%M%S).log"
@@ -36,8 +37,7 @@ run_silent() {
 }
 
 # ---------------------------------------------------------------------------
-# Download seguro com retries e validação de arquivo vazio/corrompido
-# safe_download <url> <destino> [tentativas]
+# Download seguro
 # ---------------------------------------------------------------------------
 safe_download() {
   local url="$1" dest="$2" tentativas="${3:-3}" tentativa=1
@@ -122,7 +122,84 @@ caixa=$(basename "$D"/caixa*.conf .conf 2>/dev/null | tr -dc '0-9')
 log_info "Filial: ${filial:-ND} | Caixa: ${caixa:-ND} | Tipo: ${tipoInstala:-Desconhecido}"
 
 #===============================================================================
-# 4. Desativação de atalhos de teclado (keyd) - self checkout não é afetado
+# 3.1 SETOR DE CONFIGURAÇÕES (Central de Variáveis por Filial)
+#===============================================================================
+# Variáveis Globais de Configuração
+CONF_FUSO_HORARIO="America/Cuiaba"     # Valor Padrão
+CONF_HORA_DOMINGO=21                   # Valor Padrão
+CONF_EASYCASH_IP=""
+CONF_IMPRESSORA_IP=""
+CONF_IMPRESSORA_PPD=""
+CONF_IMPRESSORA_URL=""
+NOME_LOJA=""
+
+carregar_config_filial() {
+  local id_filial="$1"
+  local base_ppd_url="https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Drivers"
+
+  case $id_filial in
+    1)
+      NOME_LOJA="Centro"
+      CONF_EASYCASH_IP="192.168.50.130"
+      CONF_IMPRESSORA_IP="10.1.1.139"
+      CONF_IMPRESSORA_PPD="Kyocera_ECOSYS_M3655idn.ppd"
+      CONF_HORA_DOMINGO=18
+      ;;
+    3)
+      NOME_LOJA="Bairro"
+      CONF_EASYCASH_IP="192.168.50.2"
+      CONF_IMPRESSORA_IP="192.168.11.94"
+      CONF_IMPRESSORA_PPD="Kyocera_ECOSYS_MA5500ifx_.ppd"
+      CONF_HORA_DOMINGO=18
+      ;;
+    9)
+      NOME_LOJA="Matupá"
+      CONF_EASYCASH_IP="192.168.51.194"
+      CONF_IMPRESSORA_IP="192.168.4.24"
+      CONF_IMPRESSORA_PPD="Kyocera_ECOSYS_M3655idn.ppd"
+      CONF_HORA_DOMINGO=18
+      ;;
+    52)
+      NOME_LOJA="Primavera do Leste"
+      CONF_EASYCASH_IP="192.168.51.130"
+      CONF_IMPRESSORA_IP="192.168.8.27"
+      CONF_IMPRESSORA_PPD="Kyocera_ECOSYS_M3655idn.ppd"
+      ;;
+    53)
+      NOME_LOJA="Alta Floresta"
+      CONF_EASYCASH_IP="192.168.51.2"
+      CONF_IMPRESSORA_IP="192.168.6.14"
+      CONF_IMPRESSORA_PPD="Kyocera_ECOSYS_M3655idn.ppd"
+      ;;
+    57)
+      NOME_LOJA="Confresa"
+      CONF_EASYCASH_IP="192.168.51.66"
+      CONF_IMPRESSORA_IP="192.168.57.125"
+      CONF_IMPRESSORA_PPD="Kyocera_ECOSYS_MA5500ifx_.ppd"
+      CONF_FUSO_HORARIO="America/Sao_Paulo" # Sobrescreve o padrão
+      ;;
+    58)
+      NOME_LOJA="Lucas do Rio Verde"
+      CONF_EASYCASH_IP="192.168.53.2"
+      CONF_IMPRESSORA_IP="192.168.58.160"
+      CONF_IMPRESSORA_PPD="Kyocera_ECOSYS_MA5500ifx_.ppd"
+      ;;
+    *)
+      log_fail "Valor de filial não mapeado nas configurações - contate o responsável pelo script (Jurandir): $id_filial"
+      exit 1
+      ;;
+  esac
+
+  # Monta a URL completa do PPD com base na escolha
+  CONF_IMPRESSORA_URL="${base_ppd_url}/${CONF_IMPRESSORA_PPD}"
+  log_ok "Configurações da loja $NOME_LOJA carregadas com sucesso!"
+}
+
+# Inicializa as variáveis com a filial lida
+carregar_config_filial "$filial"
+
+#===============================================================================
+# 4. Desativação de atalhos de teclado (keyd)
 #===============================================================================
 log_step "Configurando bloqueio de atalhos de teclado (keyd)"
 if command -v keyd >/dev/null 2>&1; then
@@ -171,24 +248,14 @@ run_silent "Aplicando parâmetros sysctl" sudo sysctl --system
 # 6. Ajustes de parâmetros de carga / timeout
 #===============================================================================
 log_step "Ajustando timeouts de conexão (CARG0000, RESTG0000, ZMWS0000)"
-if grep -q '^conexao_timeout=10$' /Zanthus/Zeus/pdvJava/CARG0000.CFG; then
-  log_skip "conexao_timeout já definido em CARG0000.CFG"
-else
-  sed -i '/^opcoes=/a conexao_timeout=10' /Zanthus/Zeus/pdvJava/CARG0000.CFG
-  log_ok "conexao_timeout adicionado em CARG0000.CFG"
-fi
-if grep -q '^conexao_timeout=10$' /Zanthus/Zeus/pdvJava/RESTG0000.CFG; then
-  log_skip "conexao_timeout já definido em RESTG0000.CFG"
-else
-  sed -i '/^opcoes=/a conexao_timeout=10' /Zanthus/Zeus/pdvJava/RESTG0000.CFG
-  log_ok "conexao_timeout adicionado em RESTG0000.CFG"
-fi
-if grep -q '^conexao_timeout=10$' /Zanthus/Zeus/pdvJava/ZMWS0000.CFG; then
-  log_skip "conexao_timeout já definido em ZMWS0000.CFG"
-else
-  sed -i '/^opcoes=/a conexao_timeout=10' /Zanthus/Zeus/pdvJava/ZMWS0000.CFG
-  log_ok "conexao_timeout adicionado em ZMWS0000.CFG"
-fi
+for ARQ in CARG0000 RESTG0000 ZMWS0000; do
+  if ! grep -q '^conexao_timeout=10$' /Zanthus/Zeus/pdvJava/${ARQ}.CFG; then
+    sed -i '/^opcoes=/a conexao_timeout=10' /Zanthus/Zeus/pdvJava/${ARQ}.CFG
+    log_ok "conexao_timeout adicionado em ${ARQ}.CFG"
+  else
+    log_skip "conexao_timeout já definido em ${ARQ}.CFG"
+  fi
+done
 
 printf "timeout=5\n" > /Zanthus/Zeus/pdvJava/RESTG4650.CFG
 printf "timeout=5\n" > /Zanthus/Zeus/pdvJava/RESTG4651.CFG
@@ -203,21 +270,18 @@ chmod 777 /Zanthus/Zeus/pdvJava/RECRGOP0.CFG
 log_ok "Operadoras de recarga configuradas (RECRGOP0.CFG)"
 
 #===============================================================================
-# 7. journald - limitar uso de disco com logs
+# 7. journald - limitar uso de disco
 #===============================================================================
 log_step "Ajustando parâmetros de journald.conf"
 if grep -q '^Storage=none' /etc/systemd/journald.conf; then
   log_skip "journald.conf já ajustado"
 else
-  sudo sed -i 's/#Storage=auto/Storage=none/g' /etc/systemd/journald.conf
-  sudo sed -i 's/#SystemKeepFree=/SystemKeepFree=60G/g' /etc/systemd/journald.conf
-  sudo sed -i 's/#SystemMaxUse=/SystemMaxUse=1G/g' /etc/systemd/journald.conf
-  sudo sed -i 's/#SystemMaxFileSize=/SystemMaxFileSize=1G/g' /etc/systemd/journald.conf
+  sudo sed -i 's/#Storage=auto/Storage=none/g; s/#SystemKeepFree=/SystemKeepFree=60G/g; s/#SystemMaxUse=/SystemMaxUse=1G/g; s/#SystemMaxFileSize=/SystemMaxFileSize=1G/g' /etc/systemd/journald.conf
   log_ok "journald.conf ajustado"
 fi
 
 #===============================================================================
-# 8. GRUB - parâmetros para máquinas legado (BIOS anterior a 2018)
+# 8. GRUB - parâmetros para máquinas legado
 #===============================================================================
 log_step "Verificando parâmetros do GRUB"
 cutoff_year=2018
@@ -225,20 +289,16 @@ bios_year=$(dmidecode -t 0 | grep "Release Date" | awk -F: '{ print $2 }' | sed 
 
 if grep -q 'GRUB_CMDLINE_LINUX_DEFAULT="quiet splash \(pci=nommconf\|pcie_aspm=off\|pci=noaer\)' /etc/default/grub; then
   log_skip "Ajustes de GRUB já aplicados"
+elif [[ "$bios_year" -lt "$cutoff_year" ]]; then
+  log_info "BIOS anterior a 2018 detectada - aplicando ajustes legados"
+  run_silent "Reinstalando GRUB" sudo grub-install
+  sudo sed -i '/GRUB_CMDLINE_LINUX_DEFAULT="quiet splash \(pci=nommconf\|pcie_aspm=off\|pci=noaer\)/! s/\(GRUB_CMDLINE_LINUX_DEFAULT="quiet splash\)/\1 pci=nommconf pcie_aspm=off pci=noaer/' /etc/default/grub
+  run_silent "Atualizando GRUB" sudo update-grub
+  log_info "A máquina será reiniciada. Reinicie o script após o boot para continuar."
+  sleep 5
+  reboot
 else
-  if [[ "$bios_year" -lt "$cutoff_year" ]]; then
-    log_info "BIOS anterior a 2018 detectada - aplicando ajustes legados"
-    run_silent "Reinstalando GRUB" sudo grub-install
-    sudo sed -i '/GRUB_CMDLINE_LINUX_DEFAULT="quiet splash \(pci=nommconf\|pcie_aspm=off\|pci=noaer\)/! s/\(GRUB_CMDLINE_LINUX_DEFAULT="quiet splash\)/\1 pci=nommconf pcie_aspm=off pci=noaer/' /etc/default/grub
-    sleep 5
-    run_silent "Atualizando GRUB" sudo update-grub
-    log_info "A máquina será reiniciada. Reinicie o script após o boot para continuar."
-    sleep 5
-    reboot
-  else
-    log_ok "BIOS posterior a 2018 - sem ajustes legados necessários"
-    sleep 5
-  fi
+  log_ok "BIOS posterior a 2018 - sem ajustes legados necessários"
 fi
 
 #===============================================================================
@@ -254,148 +314,78 @@ else
 fi
 
 #===============================================================================
-# 10. Timeout Sefaz (recomendação Zanthus)
+# 10. Timeout Sefaz
 #===============================================================================
 sudo printf "timeout=60\n" > /Zanthus/Zeus/pdvJava/ZMWS1201.CFG
 log_ok "ZMWS1201.CFG ajustado (timeout Sefaz)"
 
 #===============================================================================
-# 11. CUPS - configuração de impressão
+# 11. CUPS - configuração global
 #===============================================================================
 log_step "Ajustando CUPS"
 sudo sed 's/^BrowseLocalProtocols.*$/BrowseLocalProtocols\ none/' -i /etc/cups/cupsd.conf
 run_silent "Reiniciando serviço CUPS" bash -c "cupsctl Web=yes; service cups stop; service cups start"
-run_silent "Habilitando administração remota do CUPS" cupsctl --remote-admin --remote-any
+run_silent "Habilitando administração remota" cupsctl --remote-admin --remote-any
 printf "linux.impressora=IMP-NFE\nlinux.opcoes=3\n" > /Zanthus/Zeus/pdvJava/ZPDF00.CFG
 log_ok "CUPS configurado"
 
 #===============================================================================
-# 12. Instalação de impressora (por filial)
+# 12. Instalação de impressora (Via Variáveis Globais)
 #===============================================================================
-log_step "Configurando impressora fiscal"
+log_step "Configurando impressora fiscal - Loja $NOME_LOJA"
 if lpstat -p IMP-NFE >/dev/null 2>&1; then
   log_skip "Impressora IMP-NFE já cadastrada no CUPS"
 else
-  case $filial in
-      1)
-          log_info "Detectada impressora da Loja Centro"
-          safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Drivers/Kyocera_ECOSYS_M3655idn.ppd" "/usr/share/cups/model/Kyocera_ECOSYS_M3655idn.ppd"
-          run_silent "Cadastrando impressora IMP-NFE" lpadmin -p IMP-NFE -E -v socket://10.1.1.139 -i /usr/share/cups/model/Kyocera_ECOSYS_M3655idn.ppd
-          ;;
-      3)
-          log_info "Detectada impressora da Loja Bairro"
-          safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Drivers/Kyocera_ECOSYS_MA5500ifx_.ppd" "/usr/share/cups/model/Kyocera_ECOSYS_MA5500ifx_.ppd"
-          run_silent "Cadastrando impressora IMP-NFE" lpadmin -p IMP-NFE -E -v socket://192.168.11.94 -i /usr/share/cups/model/Kyocera_ECOSYS_MA5500ifx_.ppd
-          ;;
-      9)
-          log_info "Detectada impressora de Matupá"
-          safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Drivers/Kyocera_ECOSYS_M3655idn.ppd" "/usr/share/cups/model/Kyocera_ECOSYS_M3655idn.ppd"
-          run_silent "Cadastrando impressora IMP-NFE" lpadmin -p IMP-NFE -E -v socket://192.168.4.24 -i /usr/share/cups/model/Kyocera_ECOSYS_M3655idn.ppd
-          ;;
-       53)
-          log_info "Detectada impressora de Alta Floresta"
-          safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Drivers/Kyocera_ECOSYS_M3655idn.ppd" "/usr/share/cups/model/Kyocera_ECOSYS_M3655idn.ppd"
-          run_silent "Cadastrando impressora IMP-NFE" lpadmin -p IMP-NFE -E -v socket://192.168.6.14 -i /usr/share/cups/model/Kyocera_ECOSYS_M3655idn.ppd
-          ;;
-       52)
-          log_info "Detectada impressora de Primavera do Leste"
-          safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Drivers/Kyocera_ECOSYS_M3655idn.ppd" "/usr/share/cups/model/Kyocera_ECOSYS_M3655idn.ppd"
-          run_silent "Cadastrando impressora IMP-NFE" lpadmin -p IMP-NFE -E -v socket://192.168.8.27 -i /usr/share/cups/model/Kyocera_ECOSYS_M3655idn.ppd
-          ;;
-       57)
-          log_info "Detectada impressora de Confresa"
-          safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Drivers/Kyocera_ECOSYS_MA5500ifx_.ppd" "/usr/share/cups/model/Kyocera_ECOSYS_MA5500ifx_.ppd"
-          run_silent "Cadastrando impressora IMP-NFE" lpadmin -p IMP-NFE -E -v socket://192.168.57.125 -i /usr/share/cups/model/Kyocera_ECOSYS_MA5500ifx_.ppd
-          ;;
-       58)
-          log_info "Detectada impressora de Lucas do Rio Verde"
-          safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Drivers/Kyocera_ECOSYS_MA5500ifx_.ppd" "/usr/share/cups/model/Kyocera_ECOSYS_MA5500ifx_.ppd"
-          run_silent "Cadastrando impressora IMP-NFE" lpadmin -p IMP-NFE -E -v socket://192.168.58.160 -i /usr/share/cups/model/Kyocera_ECOSYS_MA5500ifx_.ppd
-          ;;
-      *)
-          log_fail "Valor de filial não mapeado - contate o responsável pelo script (Jurandir): $filial"
-          exit
-          ;;
-  esac
+  log_info "Baixando driver: $CONF_IMPRESSORA_PPD"
+  safe_download "$CONF_IMPRESSORA_URL" "/usr/share/cups/model/$CONF_IMPRESSORA_PPD"
+  run_silent "Cadastrando impressora IMP-NFE ($CONF_IMPRESSORA_IP)" lpadmin -p IMP-NFE -E -v socket://$CONF_IMPRESSORA_IP -i /usr/share/cups/model/$CONF_IMPRESSORA_PPD
 fi
 
-# 13. Fuso horário
+#===============================================================================
+# 13. Fuso horário (Via Variáveis Globais)
+#===============================================================================
 log_step "Ajustando fuso horário e NTP"
 sed -i 's/^server 0\.br\.pool\.ntp\.org iburst/server ntp.redejcm.com.br iburst prefer/' /etc/ntp.conf
 run_silent "Reiniciando serviço NTP" systemctl restart ntp
 
-case $filial in
-  1 | 3 | 9 | 52 | 53 | 58)
-    fuso_alvo="America/Cuiaba"
-    ;;
-  57)
-    fuso_alvo="America/Sao_Paulo"
-    ;;
-  *)
-    log_fail "Valor inválido para a variável 'filial'."
-    exit 1
-    ;;
-esac
-
 fuso_atual=$(timedatectl show --property=Timezone --value 2>/dev/null)
-if [ "$fuso_atual" == "$fuso_alvo" ]; then
-  log_skip "Fuso horário já definido para $fuso_alvo"
+if [ "$fuso_atual" == "$CONF_FUSO_HORARIO" ]; then
+  log_skip "Fuso horário já definido para $CONF_FUSO_HORARIO"
 else
-  timedatectl set-timezone "$fuso_alvo"
-  hwclock -w
-  sed -i 's/UTC/LOCAL/g' /etc/adjtime
-  hwclock --systohc
-  hwclock --localtime
-  hwclock -w
-  log_ok "Fuso horário definido para $fuso_alvo e relógio de hardware ajustado"
+  timedatectl set-timezone "$CONF_FUSO_HORARIO"
+  log_ok "Fuso horário definido para $CONF_FUSO_HORARIO"
 fi
 
-#===============================================================================
-# 14. Agendamento de desligamento (cron)
-#===============================================================================
-case $filial in
-  1 | 3 | 9)
-    hora_domingo=18
-    ;;
-  52 | 53 | 57 | 58)
-    hora_domingo=21
-    ;;
-  *)
-    log_fail "Valor inválido para a variável 'filial'."
-    exit 1
-    ;;
-esac
+# Sincronização de hardware clock (Roda sempre para evitar perda de sincronia da BIOS)
+hwclock -w
+sed -i 's/UTC/LOCAL/g' /etc/adjtime
+hwclock --systohc
+hwclock --localtime
+hwclock -w
+log_ok "Relógio de hardware ajustado e sincronizado com o sistema"
 
+#===============================================================================
+# 14. Agendamento de desligamento e EasyCash (Via Variáveis Globais)
+#===============================================================================
 log_step "Configurando servidor EasyCash"
-case $filial in
-  1)  log_info "Servidor EasyCash configurado para Loja 1"; ipEasyCash=192.168.50.130 ;;
-  3)  log_info "Servidor EasyCash configurado para Loja 2"; ipEasyCash=192.168.50.2 ;;
-  9)  log_info "Servidor EasyCash configurado para Loja 3"; ipEasyCash=192.168.51.194 ;;
-  52) log_info "Servidor EasyCash configurado para Loja 6 - Primavera do Leste"; ipEasyCash=192.168.51.130 ;;
-  53) log_info "Servidor EasyCash configurado para Loja 5 - Alta Floresta"; ipEasyCash=192.168.51.2 ;;
-  57) log_info "Servidor EasyCash configurado para Loja 7 - Confresa"; ipEasyCash=192.168.51.66 ;;
-  58) log_info "Servidor EasyCash configurado para Loja 8 - Lucas do Rio Verde"; ipEasyCash=192.168.53.2 ;;
-  *)  log_fail "Não existe parâmetro de servidor EasyCash para essa loja." ;;
-esac
-
-printf "ENDERECO=$ipEasyCash\nPORTA=23454\n" > /Zanthus/Zeus/pdvJava/ZPPERD01.CFG
+printf "ENDERECO=$CONF_EASYCASH_IP\nPORTA=23454\n" > /Zanthus/Zeus/pdvJava/ZPPERD01.CFG
 printf "TIPO01=1\nOPCOESLOG=255\n" > /Zanthus/Zeus/pdvJava/ZPPERD00.CFG
-log_ok "Arquivos EasyCash gravados"
+log_ok "Arquivos EasyCash gravados (IP: $CONF_EASYCASH_IP)"
 
 log_step "Agendando desligamento automático (cron)"
 linha_semana="00 23 * * * /sbin/shutdown -h now"
-linha_domingo="00 $hora_domingo * * SUN /sbin/shutdown -h now"
+linha_domingo="00 $CONF_HORA_DOMINGO * * SUN /sbin/shutdown -h now"
 
 cron_atual=$(crontab -l 2>/dev/null)
 if echo "$cron_atual" | grep -qF "$linha_semana" && echo "$cron_atual" | grep -qF "$linha_domingo"; then
   log_skip "Agendamento de desligamento já configurado"
 else
   (echo "$linha_semana"; echo "$linha_domingo") | crontab -
-  log_ok "Desligamento agendado: semana às 23h | domingo às ${hora_domingo}h"
+  log_ok "Desligamento agendado: semana às 23h | domingo às ${CONF_HORA_DOMINGO}h"
 fi
 
 #===============================================================================
-# 15. Cópia de arquivos de interface (conforme tipo de instalação)
+# 15. Cópia de arquivos de interface
 #===============================================================================
 log_step "Copiando arquivos de interface para tipo: $tipoInstala"
 
@@ -451,19 +441,22 @@ log_ok "Permissões aplicadas em /Zanthus/Zeus/Interface/"
 #===============================================================================
 # 16. Áudios do PDV
 #===============================================================================
-log_step "Baixando arquivos de áudio (0-24)"
-base_url="https://github.com/JMoratelli/Zanthus/raw/refs/heads/main/InstalaPDV/Self/Interface/audio/"
-destino="/Zanthus/Zeus/Interface/resources/audio/"
-audio_ok=0; audio_falha=0
-for i in {0..24}; do
-  url="${base_url}${i}.mp3"
-  if wget -q -N -P "$destino" "$url" >>"$LOGFILE" 2>&1 && [ -s "${destino}${i}.mp3" ]; then
-    audio_ok=$((audio_ok + 1))
-  else
-    audio_falha=$((audio_falha + 1))
-  fi
-done
-log_ok "Áudios: $audio_ok baixados/atualizados, $audio_falha falharam"
+log_step "Baixando arquivos de áudio"
+if [ "$tipoInstala" == "SelfCheckout" ]; then
+  base_url="https://github.com/JMoratelli/Zanthus/raw/refs/heads/main/InstalaPDV/Self/Interface/audio/"
+  destino="/Zanthus/Zeus/Interface/resources/audio/"
+  audio_ok=0; audio_falha=0
+  for i in {0..24}; do
+    if wget -q -N -P "$destino" "${base_url}${i}.mp3" >>"$LOGFILE" 2>&1 && [ -s "${destino}${i}.mp3" ]; then
+      audio_ok=$((audio_ok + 1))
+    else
+      audio_falha=$((audio_falha + 1))
+    fi
+  done
+  log_ok "$audio_ok baixados, $audio_falha falharam"
+else
+  log_skip "Terminal não self, pulando download de arquivos"
+fi
 
 #===============================================================================
 # 17. CliSiTef
@@ -471,9 +464,7 @@ log_ok "Áudios: $audio_ok baixados/atualizados, $audio_falha falharam"
 log_step "Configurando CliSiTef"
 if [ "$tipoInstala" == "SelfCheckout" ]; then
     safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Self/CliSiTef.ini" "/Zanthus/Zeus/pdvJava/CliSiTef.ini"
-fi
-
-if [[ "$tipoInstala" == "PDVComum" || "$tipoInstala" == "PDVTouch" || "$tipoInstala" == "Lanchonete" ]]; then
+else
     safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/PDV/CliSiTef.ini" "/Zanthus/Zeus/pdvJava/CliSiTef.ini"
 fi
 
@@ -490,11 +481,11 @@ user_ip="10.220.0.1"
 config_data="{ \"bip\": \"$user_ip/16\", \"mtu\": 1500 }"
 
 if [ -f /etc/docker/daemon.json ] && grep -q "$user_ip" /etc/docker/daemon.json 2>/dev/null; then
-  log_skip "Rede Docker já configurada para $user_ip"
+  log_skip "Rede Docker já configurada"
 else
   echo "$config_data" | sudo tee /etc/docker/daemon.json > /dev/null
-  run_silent "Reiniciando serviço Docker" sudo systemctl restart docker
-  log_ok "Rede Docker alterada com sucesso para o endereço IP: $user_ip"
+  run_silent "Reiniciando Docker" sudo systemctl restart docker
+  log_ok "Rede Docker alterada para $user_ip"
 fi
 
 #===============================================================================
@@ -503,7 +494,6 @@ fi
 if [[ "$tipoInstala" == "PDVComum" || "$tipoInstala" == "PDVTouch" || "$tipoInstala" == "Lanchonete" ]]; then
   log_step "Configurando monitores"
 
-  # --- melhor modo disponível na saída, mais próximo de 1024x768 ---
   get_best_mode() {
     local saida="$1"
     xrandr | awk -v out="$saida" '
@@ -516,7 +506,6 @@ if [[ "$tipoInstala" == "PDVComum" || "$tipoInstala" == "PDVTouch" || "$tipoInst
     } END {print best}'
   }
 
-  # --- resolução máxima (maior área) disponível na saída ---
   get_max_mode() {
     local saida="$1"
     xrandr | awk -v out="$saida" '
@@ -545,7 +534,6 @@ if [[ "$tipoInstala" == "PDVComum" || "$tipoInstala" == "PDVTouch" || "$tipoInst
     modo_maximo["$saida"]=$(get_max_mode "$saida")
   done
 
-  # --- aplica tudo de uma vez: desfaz clone, seta resolução e estende lado a lado ---
   cmd_xrandr=(xrandr)
   anterior=""
   for saida in "${saidas[@]}"; do
@@ -559,11 +547,10 @@ if [[ "$tipoInstala" == "PDVComum" || "$tipoInstala" == "PDVTouch" || "$tipoInst
     anterior="$saida"
   done
   "${cmd_xrandr[@]}"
-  log_ok "Resolução aplicada e duplicação removida instantaneamente"
+  log_ok "Resolução aplicada"
 
   operador=""
   if [ "$monCon" -ge 2 ]; then
-    # --- identificação visual via xmessage, numerada igual ao menu do terminal ---
     monitores_geom=$(xrandr --listactivemonitors | tail -n +2)
     i=1
     for saida in "${saidas[@]}"; do
@@ -577,50 +564,35 @@ if [[ "$tipoInstala" == "PDVComum" || "$tipoInstala" == "PDVTouch" || "$tipoInst
     echo "=========================================================="
     echo " A tela definida como PRINCIPAL será a tela do OPERADOR."
     echo " A outra tela é a tela que o CLIENTE verá."
-    echo ""
-    echo " Verifique qual a tela do operador fisicamente em caso de dúvidas."
     echo "=========================================================="
-    echo ""
     echo "Selecione a tela principal:"
     i=1
     for saida in "${saidas[@]}"; do
       echo "$i - $saida - Resolução Máxima: ${modo_maximo[$saida]}"
       i=$((i+1))
     done
-    # ============================================================
-    # [PROVISÓRIO] Opção de duplicação de telas — REMOVER quando o
-    # PDV não precisar mais oferecer o modo espelhado (--same-as).
-    # Basta apagar o bloco entre os marcadores "PROVISÓRIO" abaixo
-    # (aqui e mais adiante, onde trata a escolha) pra tirar de vez.
     opcao_duplicar=$((${#saidas[@]}+1))
-    echo "$opcao_duplicar - Duplicar telas (não definir principal)"
-    # ============================================================
-    echo ""
+    echo "$opcao_duplicar - Duplicar telas"
 
     escolha=""
-    max_opcao=${#saidas[@]}
-    max_opcao_total=$((max_opcao+1))
+    max_opcao_total=$(( ${#saidas[@]} + 1 ))
     while true; do
       read -rp "Opção (1-$max_opcao_total): " escolha
       if [[ "$escolha" =~ ^[0-9]+$ ]] && [ "$escolha" -ge 1 ] && [ "$escolha" -le "$max_opcao_total" ]; then
         break
       fi
-      echo "Opção inválida, tente novamente."
+      echo "Opção inválida."
     done
 
-    # ============================================================
-    # [PROVISÓRIO] Ramo de duplicação — REMOVER este "if" (mantendo
-    # só o conteúdo do "else") quando a opção deixar de ser necessária.
     if [ "$escolha" -eq "$opcao_duplicar" ]; then
       duplicado=true
       operador="${saidas[0]}"
       xrandr --output "${saidas[0]}" --same-as "${saidas[1]}"
-      log_ok "Telas duplicadas (modo provisório): ${saidas[0]} = ${saidas[1]}"
+      log_ok "Telas duplicadas: ${saidas[0]} = ${saidas[1]}"
     else
       duplicado=false
       operador="${saidas[$((escolha-1))]}"
     fi
-    # ============================================================
   else
     duplicado=false
     operador="${saidas[0]}"
@@ -628,10 +600,9 @@ if [[ "$tipoInstala" == "PDVComum" || "$tipoInstala" == "PDVTouch" || "$tipoInst
 
   if [ "$duplicado" != "true" ]; then
     xrandr --output "$operador" --primary
-    log_ok "Tela do operador definida: $operador (${modo_escolhido[$operador]})"
+    log_ok "Tela do operador definida: $operador"
   fi
 
-  # --- script de inicialização persistente ---
   {
     echo '#!/bin/bash'
     echo '#Arquivo Gerado por script de inicialização'
@@ -639,10 +610,6 @@ if [[ "$tipoInstala" == "PDVComum" || "$tipoInstala" == "PDVTouch" || "$tipoInst
     echo 'xrandr > /tmp/displays'
     echo 'xinput list --id-only > /tmp/xdevices-id'
     echo 'xinput list --name-only > /tmp/xdevices-name'
-    # ============================================================
-    # [PROVISÓRIO] Ramo que persiste a duplicação — REMOVER este
-    # "if" (mantendo só o conteúdo do "else") junto com o restante
-    # do código marcado como PROVISÓRIO neste arquivo.
     if [ "$duplicado" = "true" ]; then
       for saida in "${saidas[@]}"; do
         [ -z "${modo_escolhido[$saida]}" ] && continue
@@ -662,17 +629,16 @@ if [[ "$tipoInstala" == "PDVComum" || "$tipoInstala" == "PDVTouch" || "$tipoInst
       done
       echo "xrandr --output $operador --primary"
     fi
-    # ============================================================
   } > /usr/local/bin/xrandr.set
   chmod +x /usr/local/bin/xrandr.set
 
-  log_ok "Monitores configurados; /usr/local/bin/xrandr.set atualizado"
+  log_ok "Monitores configurados"
 fi
 
 #===============================================================================
 # 20. Sinaleiro (torre x lâmpada única)
 #===============================================================================
-log_step "Configurando tipo de sinaleiro"
+log_step "Configurando sinaleiro"
 ips_permitidos=("192.168.8.133" "192.168.8.134" "192.168.8.135" "192.168.8.136")
 if [[ " ${ips_permitidos[@]} " =~ " ${ip} " ]]; then
   printf "modelo=0\n#Reserva\n" > /Zanthus/Zeus/pdvJava/ZSINALIZ_LAURENTI_ARDUINO.CFG
@@ -685,10 +651,8 @@ fi
 #===============================================================================
 # 21. Volume e limpeza de arquivos legados
 #===============================================================================
-log_step "Ajustando volume e limpando arquivos legados"
+log_step "Limpando arquivos legados"
 amixer set Master 87 >>"$LOGFILE" 2>&1
-log_ok "Volume Master ajustado para 87%"
-
 rm -f /opt/webadmin/extra/rules/Balanca/toledoDCPSC-var.sh
 rm -f /Zanthus/Zeus/Interface/resources/imagens/processando.gif
 log_ok "Arquivos legados removidos"
@@ -707,6 +671,5 @@ run_silent "Executando PerifericosUSB.sh" /home/zanthus/PerifericosUSB.sh
 log_step "Iniciando Instalação Passo 2/2"
 echo -e "\n${C_GREEN}${C_BOLD}✔ Instalação/configuração concluída.${C_RESET}"
 echo -e "Log completo em: ${C_CYAN}$LOGFILE${C_RESET}"
-echo -e "Script desenvolvido por @jjmoratelli, Jurandir Moratelli ;)"
-sleep 10
+sleep 5
 curl -s https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/ScreenSaver/InstalaSC.sh | bash
