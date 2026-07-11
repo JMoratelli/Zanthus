@@ -329,6 +329,29 @@ winget install -e --id Skillbrains.Lightshot --silent --scope machine --accept-p
 Write-Host "`nAjustando Parametro SumatraPDF..." -ForegroundColor Cyan
 winget install --id SumatraPDF.SumatraPDF --scope machine --architecture x64 --silent --accept-package-agreements --accept-source-agreements
 
+#Instala Pacote Completo do Ninite
+Write-Host "--- Instalando Ninite ---" -ForegroundColor Cyan
+
+$url = "http://192.168.12.223/uploads/InstaladorWindows/ninite.exe"
+$destino = "$env:TEMP\ninite.exe"
+
+try {
+    Write-Host "Baixando o Ninite..."
+    Invoke-WebRequest -Uri $url -OutFile $destino -UseBasicParsing
+    
+    Write-Host "Executando..."
+    Start-Process -FilePath $destino -Wait -NoNewWindow
+    
+    Write-Host "Limpando arquivo temporario..."
+    Remove-Item -Path $destino -Force
+    
+    Write-Host "Ninite instalado com sucesso!" -ForegroundColor Green
+} 
+catch {
+    Write-Host "Erro durante o processo do Ninite: $($_.Exception.Message)" -ForegroundColor Red
+}
+#FimInstala Ninite
+
 #Instala TMT20X II
 Write-Host "Instalando Impressora..." -ForegroundColor Cyan
 
