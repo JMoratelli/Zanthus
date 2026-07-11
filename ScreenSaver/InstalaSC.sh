@@ -313,9 +313,8 @@ fi
 # ==========================================
 # MANTER O SCRIPT VIVO AMARRADO AO PDV
 # ==========================================
-PID_PDV=$(pgrep -f "lnx_receb.xz64" | head -n 1) #captura PID para watchdog
-# Fica aguardando silenciosamente, e encerra o script quando o PDV fechar
-tail --pid="$PID_PDV" -f /dev/null
+tail --pid=$(pgrep -f "lnx_receb.xz64" | head -n 1) -f /dev/null
+
 EOF
 )
 
