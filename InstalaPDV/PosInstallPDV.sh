@@ -305,14 +305,16 @@ fi
 # 9. DNS (systemd-resolved)
 #===============================================================================
 log_step "Ajustando /etc/systemd/resolved.conf"
-RESOLVED_CONTENT="[Resolve]\nDNS=192.168.12.5 192.168.2.10\nFallbackDNS=192.168.12.99\nDomains=machadao.corp\n"
+# Captura o gateway padrão IPv4 da máquina (pega a primeira linha caso haja mais de um)
+DEFAULT_GW=$(ip -4 route show default | awk '{print $3}' | head -n 1)
+# Monta o conteúdo usando a variável $DEFAULT_GW no lugar do IP fixo
+RESOLVED_CONTENT="[Resolve]\nDNS=192.168.12.5 192.168.2.10\nFallbackDNS=${DEFAULT_GW}\nDomains=machadao.corp\n"
 if [ -f /etc/systemd/resolved.conf ] && [ "$(cat /etc/systemd/resolved.conf)" == "$(printf "$RESOLVED_CONTENT")" ]; then
   log_skip "resolved.conf já ajustado"
 else
   printf "$RESOLVED_CONTENT" | sudo tee /etc/systemd/resolved.conf >>"$LOGFILE"
-  log_ok "resolved.conf ajustado"
+  log_ok "resolved.conf ajustado (FallbackDNS=${DEFAULT_GW})"
 fi
-
 #===============================================================================
 # 10. Timeout Sefaz
 #===============================================================================
