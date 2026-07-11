@@ -313,7 +313,7 @@ fi
 # ==========================================
 # MANTER O SCRIPT VIVO AMARRADO AO PDV
 # ==========================================
-tail --pid=$(pgrep -f "lnx_receb.xz64" | head -n 1) -f /dev/null
+tail --pid=\$(pgrep -f "lnx_receb.xz64" | head -n 1) -f /dev/null
 
 EOF
 )
