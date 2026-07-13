@@ -609,8 +609,8 @@ else {
     }
 }
 # --- INGRESSO NO DOMÍNIO (ACTIVE DIRECTORY) ---
-$dominio = "redemachado.local"
-$dominioCurto = "redemachado"
+$dominio = "machadao.corp"
+$dominioCurto = "machadao"
 
 #0 - Desativa usuário PDV por segurança
 Disable-LocalUser -Name "PDV"
