@@ -579,7 +579,7 @@ if [[ "$tipoInstala" == "PDVComum" || "$tipoInstala" == "PDVTouch" || "$tipoInst
     escolha=""
     max_opcao_total=$(( ${#saidas[@]} + 1 ))
     while true; do
-      read -rp "Opção (1-$max_opcao_total): " escolha
+      read -rp "Opção (1-$max_opcao_total): " escolha < /dev/tty
       if [[ "$escolha" =~ ^[0-9]+$ ]] && [ "$escolha" -ge 1 ] && [ "$escolha" -le "$max_opcao_total" ]; then
         break
       fi
