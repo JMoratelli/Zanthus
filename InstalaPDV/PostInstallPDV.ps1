@@ -26,6 +26,7 @@ $mapaGateways = @{
     "10.1.1.1"       = 1
     "192.168.11.253" = 3
     "192.168.5.253"  = 9
+    "192.168.205.1"  = 21
     "192.168.7.253"  = 53
     "192.168.9.253"  = 52
     "192.168.57.193" = 57
@@ -39,6 +40,7 @@ $configFiliais = @{
     1  = @{ numLoja = "01"; BaseCaixa = 100;  Servidor = "192.168.50.130"; ipImpNFe = "10.1.1.139" }
     3  = @{ numLoja = "02"; BaseCaixa = 200;  Servidor = "192.168.50.2";   ipImpNFe = "192.168.11.94" }
     9  = @{ numLoja = "03"; BaseCaixa = 300;  Servidor = "192.168.51.194"; ipImpNFe = "192.168.4.26" }
+    21 = @{ numLoja = "21"; BaseCaixa = 2100;  Servidor = "192.168.205.1"; ipImpNFe = "127.0.0.1" }
     52 = @{ numLoja = "06"; BaseCaixa = 5200; Servidor = "192.168.51.130"; ipImpNFe = "192.168.8.29" }
     53 = @{ numLoja = "05"; BaseCaixa = 5300; Servidor = "192.168.51.2";   ipImpNFe = "192.168.6.39" }
     57 = @{ numLoja = "07"; BaseCaixa = 5700; Servidor = "192.168.51.66";  ipImpNFe = "192.168.57.126" }
