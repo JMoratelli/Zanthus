@@ -251,11 +251,69 @@ $atalhoZlauncher.Save()
 # Ajusta WPDV pra não subir em tela cheia
 (Get-Content "C:\Zanthus\Zeus\pdvJava\w_pdv.cmd") -replace 'C:\\Zanthus\\Zeus\\zifaceloader\.exe --operador=unificada --zlauncher', 'C:\Zanthus\Zeus\Interface\index.html' | Set-Content "C:\Zanthus\Zeus\pdvJava\w_pdv.cmd"
 
+#IniciaGambiarraHora
 Write-Host "Ajustando Fuso Horario..." -ForegroundColor Cyan
-# O operador "-in" do PowerShell substitui o nosso truque do "find" do CMD
 if ($filial -in 1, 3, 9, 52, 53, 58) {
-    New-Item C:\Scripts -ItemType Directory -Force | Out-Null; 'Start-Sleep 120;$s="a.ntp.br";$u=New-Object Net.Sockets.UdpClient;$u.Client.ReceiveTimeout=5000;$e=New-Object Net.IPEndPoint(([Net.Dns]::GetHostAddresses($s)[0]),123);$d=New-Object byte[] 48;$d[0]=27;[void]$u.Send($d,$d.Length,$e);$r=New-Object Net.IPEndPoint([Net.IPAddress]::Any,0);$p=$u.Receive([ref]$r);$sec=[BitConverter]::ToUInt32([byte[]]($p[43],$p[42],$p[41],$p[40]),0);$utc=([datetime]"1900-01-01").AddSeconds($sec);$cuiaba=$utc.AddHours(-4);Set-Date $cuiaba' | Set-Content C:\Scripts\HoraCuiaba.ps1; $A=New-ScheduledTaskAction -Execute powershell.exe -Argument '-ExecutionPolicy Bypass -File C:\Scripts\HoraCuiaba.ps1'; $T=New-ScheduledTaskTrigger -AtStartup; Register-ScheduledTask -TaskName HoraCuiaba -Action $A -Trigger $T -User SYSTEM -RunLevel Highest -Force
+
+    # --- 1. Cria pasta e o script de correção ---
+    New-Item C:\Scripts -ItemType Directory -Force | Out-Null
+
+    $scriptContent = @'
+Start-Sleep 10
+$s = "a.ntp.br"
+$u = New-Object Net.Sockets.UdpClient
+$u.Client.ReceiveTimeout = 5000
+$e = New-Object Net.IPEndPoint(([Net.Dns]::GetHostAddresses($s)[0]), 123)
+$d = New-Object byte[] 48
+$d[0] = 27
+[void]$u.Send($d, $d.Length, $e)
+$r = New-Object Net.IPEndPoint([Net.IPAddress]::Any, 0)
+$p = $u.Receive([ref]$r)
+$sec = [BitConverter]::ToUInt32([byte[]]($p[43], $p[42], $p[41], $p[40]), 0)
+$utc = ([datetime]"1900-01-01").AddSeconds($sec)
+$cuiaba = $utc.AddHours(-4)
+Set-Date $cuiaba
+'@
+
+    Set-Content -Path C:\Scripts\HoraCuiaba.ps1 -Value $scriptContent -Encoding UTF8
+
+    # --- 2. Remove tarefa antiga, se existir ---
+    Unregister-ScheduledTask -TaskName "HoraCuiaba" -Confirm:$false -ErrorAction SilentlyContinue
+
+    # --- 3. Ação da tarefa ---
+    $A = New-ScheduledTaskAction -Execute "powershell.exe" `
+        -Argument '-WindowStyle Hidden -ExecutionPolicy Bypass -File C:\Scripts\HoraCuiaba.ps1'
+
+    # --- 4. Gatilhos: Startup e Logon ---
+    $TriggerStartup = New-ScheduledTaskTrigger -AtStartup
+    $TriggerLogon   = New-ScheduledTaskTrigger -AtLogon
+
+    # --- 5. Gatilho de evento (mudança de hora - Event ID 1, Kernel-General) ---
+    $Query = @'
+<QueryList>
+  <Query Id="0" Path="System">
+    <Select Path="System">*[System[Provider[@Name='Microsoft-Windows-Kernel-General'] and (EventID=1)]]</Select>
+  </Query>
+</QueryList>
+'@
+
+    $CimTriggerClass = Get-CimClass -ClassName MSFT_TaskEventTrigger -Namespace Root/Microsoft/Windows/TaskScheduler
+    $TriggerEvento = New-CimInstance -CimClass $CimTriggerClass -ClientOnly
+    $TriggerEvento.Subscription = $Query
+    $TriggerEvento.Enabled = $true
+
+    # --- 6. Registra a tarefa com os 3 gatilhos ---
+    $Principal = New-ScheduledTaskPrincipal -UserId "SYSTEM" -LogonType ServiceAccount -RunLevel Highest
+    $Settings  = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -StartWhenAvailable
+
+    Register-ScheduledTask -TaskName "HoraCuiaba" `
+        -Action $A `
+        -Trigger @($TriggerStartup, $TriggerLogon, $TriggerEvento) `
+        -Principal $Principal `
+        -Settings $Settings `
+        -Force
 }
+#FimGambiarra hora
 #Ajuste Barras de menu iniciar
 #Oculta icone pesquisa
 Set-ItemProperty `
