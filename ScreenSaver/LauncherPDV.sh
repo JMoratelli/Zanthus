@@ -172,15 +172,30 @@ log_step "Preparando AtualizaInterface.sh"
 safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/AtualizaInterface.sh" "/home/zanthus/AtualizaInterface.sh"
 chmod +x /home/zanthus/AtualizaInterface.sh
 #===============================================================================
-# 4.6 Download do launcher (uma única vez)
+# 4.1 Download do launcher (só se o tamanho mudou)
 #===============================================================================
+# O launcher já existe (versão antiga). Só rebaixa se o tamanho do arquivo
+# remoto for diferente do local - evita baixar ~17MB a cada execução.
+# OBS: o GitHub raw responde em HTTP/2, então o header vem MINÚSCULO
+# (content-length) - por isso o grep é case-insensitive (-i), diferente do
+# atualizaSC que fala com o serv-web.
 LAUNCHER_URL="https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/PDV/PDVTouch.sh"
 LAUNCHER_PATH="/Zanthus/Zeus/pdvJava/PDVTouch.sh"
 
-log_step "Baixando launcher (PDVTouch.sh)"
-if [ -s "$LAUNCHER_PATH" ]; then
-    log_skip "Launcher já presente em $LAUNCHER_PATH"
+log_step "Verificando launcher (PDVTouch.sh)"
+tam_remoto=$(curl -sIL "$LAUNCHER_URL" | grep -ioP 'content-length:\s*\K[0-9]+' | tail -n1)
+tam_local=$(stat -c%s "$LAUNCHER_PATH" 2>/dev/null)
+
+# Garante valor numérico (remove não-dígitos; vazio -> 0)
+tam_remoto=${tam_remoto//[^0-9]/}; tam_remoto=${tam_remoto:-0}
+tam_local=${tam_local//[^0-9]/};   tam_local=${tam_local:-0}
+
+if [ "$tam_remoto" -eq 0 ]; then
+    log_fail "Não consegui obter o tamanho remoto do launcher - mantendo o atual"
+elif [ "$tam_local" -eq "$tam_remoto" ]; then
+    log_skip "Launcher já atualizado (${tam_local} bytes)"
 else
+    log_info "Tamanho difere (local: ${tam_local}B | remoto: ${tam_remoto}B) - baixando"
     safe_download "$LAUNCHER_URL" "$LAUNCHER_PATH"
     chmod +x "$LAUNCHER_PATH"
 fi
