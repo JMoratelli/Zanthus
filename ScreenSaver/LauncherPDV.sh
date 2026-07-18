@@ -78,7 +78,7 @@ CONF_JANELA_POS="0,0"
 CONF_JANELA_TAM="1024,768"
 CONF_JANELA_POS_CLIENTE="1024,0"
 CONF_JANELA_TAM_CLIENTE="1024,768"
-CONF_DAEMONIZE="false"
+CONF_DAEMONIZE="true"
 
 log_step "Instalação do ScreenSaver / launcher.conf"
 log_info "Não encerre o processo enquanto ele estiver rodando"
