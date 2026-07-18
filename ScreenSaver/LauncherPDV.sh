@@ -72,12 +72,6 @@ CONF_PATH="/Zanthus/Zeus/pdvJava/launcher.conf"
 CONF_TELA_CLIENTE="false"
 CONF_MIRAGE_IP="192.168.12.42"
 CONF_BALANCE_IP="192.168.12.44"
-CONF_GATEWAY_IP=""                     # vazio = launcher detecta o gateway
-CONF_JANELA="kiosk"                    # kiosk (tela cheia, padrão) | janela
-CONF_JANELA_POS="0,0"
-CONF_JANELA_TAM="1024,768"
-CONF_JANELA_POS_CLIENTE="1024,0"
-CONF_JANELA_TAM_CLIENTE="1024,768"
 CONF_DAEMONIZE="true"
 
 log_step "Instalação do ScreenSaver / launcher.conf"
@@ -177,56 +171,45 @@ run_silent "atualizaSC${filial}.sh" "$ATUALIZASC_PATH"
 log_step "Preparando AtualizaInterface.sh"
 safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/AtualizaInterface.sh" "/home/zanthus/AtualizaInterface.sh"
 chmod +x /home/zanthus/AtualizaInterface.sh
+#===============================================================================
+# 4.6 Download do launcher (uma única vez)
+#===============================================================================
+LAUNCHER_URL="https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/PDV/PDVTouch.sh"
+LAUNCHER_PATH="/Zanthus/Zeus/pdvJava/PDVTouch.sh"
 
+log_step "Baixando launcher (PDVTouch.sh)"
+if [ -s "$LAUNCHER_PATH" ]; then
+    log_skip "Launcher já presente em $LAUNCHER_PATH"
+else
+    safe_download "$LAUNCHER_URL" "$LAUNCHER_PATH"
+    chmod +x "$LAUNCHER_PATH"
+fi
 #===============================================================================
 # 5. Geração do launcher.conf
-#    Antes este bloco montava o PDVTouch.sh (com variantes por tipo/balança).
-#    Agora o launcher (binário Go) lê o launcher.conf e faz toda a orquestração
-#    (chromium, xinput, periféricos, xscreensaver, atualizaSC). Aqui só gravamos
-#    os campos que variam por caixa; os fixos vêm das constantes CONF_* do topo.
+#    O launcher (binário Go) lê este .conf e faz toda a orquestração no boot
+#    (chromium, xinput, periféricos, xscreensaver, atualizaSC, resolução via
+#    xrandr, gateway e caminhos - tudo automático). Aqui só gravamos os campos
+#    que variam por caixa; os fixos vêm das constantes CONF_* do topo.
+#    O .conf é gravado SEM comentários.
 #===============================================================================
 log_step "Gerando launcher.conf para o tipo: ${tipoInstala:-Desconhecido}"
 
 # Normaliza a balança para o vocabulário do launcher (vazio -> Nenhuma)
 balancaConf="${tipoBalanca:-Nenhuma}"
-geradoEm="$(date '+%Y-%m-%d %H:%M:%S')"
 
 if [ -z "$tipoInstala" ]; then
     log_fail "Tipo de instalação desconhecido (${tipoInstala:-vazio}) - launcher.conf não será gerado"
 else
     mkdir -p "$(dirname "$CONF_PATH")"
     cat << EOF > "$CONF_PATH"
-# launcher.conf — Machadão Launcher Zanthus (${tipoInstala})
-#
-# Gerado automaticamente pelo instalador em ${geradoEm}.
-# NÃO editar à mão: rode o instalador de novo para regenerar.
-#
-# COMO ADICIONAR UMA FLAG NOVA:
-#   escreva CHAVE=VALOR aqui e leia no código com
-#   cfg.Str("CHAVE") / cfg.Bool("CHAVE") / cfg.Int("CHAVE", default).
 FILIAL=${filial}
 CAIXA=${caixa}
-TIPO=${tipoInstala}          # PDVComum | PDVTouch | SelfCheckout | Lanchonete
-BALANCA=${balancaConf}        # Toledo | ToledoDual | Nenhuma  (só afeta PDVTouch)
+TIPO=${tipoInstala}
+BALANCA=${balancaConf}
 TELA_CLIENTE=${CONF_TELA_CLIENTE}
-# --- Rede / connection manager (bolinhas verde/vermelho no cabeçalho) ---
 MIRAGE_IP=${CONF_MIRAGE_IP}
 BALANCE_IP=${CONF_BALANCE_IP}
-GATEWAY_IP=${CONF_GATEWAY_IP}            # vazio = detecta o gateway automaticamente
-# --- Janela do chromium do PDV ---
-JANELA=${CONF_JANELA}               # kiosk (tela cheia, padrão) | janela
-JANELA_POS=${CONF_JANELA_POS}
-JANELA_TAM=${CONF_JANELA_TAM}
-JANELA_POS_CLIENTE=${CONF_JANELA_POS_CLIENTE}
-JANELA_TAM_CLIENTE=${CONF_JANELA_TAM_CLIENTE}
-# --- Esconder o terminal que abre o launcher ---
-# true = relança destacado e encerra a instância do terminal. Só resolve se o
-# terminal fechar ao fim do comando (xterm -e, .desktop Terminal=true).
 DAEMONIZE=${CONF_DAEMONIZE}
-# --- Caminhos (default; descomente só se mudar) ---
-# PDV_PATH=/Zanthus/Zeus/pdvJava
-# INTERFACE_PATH=/Zanthus/Zeus/Interface
-# HOME_ZANTHUS=/home/zanthus
 EOF
     chmod 644 "$CONF_PATH"
     log_ok "launcher.conf gerado em $CONF_PATH"
