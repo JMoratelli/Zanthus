@@ -193,6 +193,7 @@ elif [ "$tam_local" -eq "$tam_remoto" ]; then
     log_skip "Launcher já atualizado (${tam_local} bytes)"
 else
     log_info "Tamanho difere (local: ${tam_local}B | remoto: ${tam_remoto}B) - baixando"
+    rm -f /Zanthus/Zeus/pdvJava/PDVTouch.sh
     safe_download "$LAUNCHER_URL" "$LAUNCHER_PATH"
     chmod +x "$LAUNCHER_PATH"
 fi
