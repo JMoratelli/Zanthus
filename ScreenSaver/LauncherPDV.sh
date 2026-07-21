@@ -168,9 +168,6 @@ log_ok "atualizaSC${filial}.sh gerado em $ATUALIZASC_PATH"
 log_info "Executando atualizaSC${filial}.sh pela primeira vez"
 run_silent "atualizaSC${filial}.sh" "$ATUALIZASC_PATH"
 
-log_step "Preparando AtualizaInterface.sh"
-safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/AtualizaInterface.sh" "/home/zanthus/AtualizaInterface.sh"
-chmod +x /home/zanthus/AtualizaInterface.sh
 #===============================================================================
 # 4.1 Download do launcher (só se o tamanho mudou)
 #===============================================================================
