@@ -245,7 +245,7 @@ EOF"
 run_silent "Aplicando parâmetros sysctl" sudo sysctl --system
 
 #===============================================================================
-# 6. Ajustes de parâmetros de carga / timeout
+# 6. Ajustes de parâmetros de carga / timeout / REST
 #===============================================================================
 log_step "Ajustando timeouts de conexão (CARG0000, RESTG0000, ZMWS0000)"
 for ARQ in CARG0000 RESTG0000 ZMWS0000; do
@@ -261,9 +261,10 @@ printf "timeout=5\n" > /Zanthus/Zeus/pdvJava/RESTG4650.CFG
 printf "timeout=5\n" > /Zanthus/Zeus/pdvJava/RESTG4651.CFG
 log_ok "Timeout do MercaFacil ajustado (RESTG4650/4651)"
 
+printf "endereco=192.168.12.42\n" > /Zanthus/Zeus/pdvJava/RESTG0200.CFG
 sed -i 's/^timeout=30$/timeout=60/' /Zanthus/Zeus/pdvJava/CARG0000.CFG
 sed -i '/^endereco=/c endereco=192.168.12.42' /Zanthus/Zeus/pdvJava/CARG0000.CFG
-log_ok "CARG0000.CFG: timeout e endereço (mirage) ajustados"
+log_ok "CARG0000.CFG e REST0200 (atualizacao): timeout e endereço (mirage) ajustados"
 
 printf "Vivo=22\nClaro=12000000\nOi=35000000\nTim=74000000\nBrasil Telecom=11\nCTBC-Celular=12201\nCTBC-Fixo=12299\nEmbratel=14000000\nSercomtel-Celular=12301\nSercomtel-Fixo=12399\nL Economica=97100\nNextel=75000000\n" > /Zanthus/Zeus/pdvJava/RECRGOP0.CFG
 chmod 777 /Zanthus/Zeus/pdvJava/RECRGOP0.CFG
