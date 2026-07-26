@@ -248,6 +248,7 @@ $atalhoZlauncher.Save()
 
 #Ajusta Servidor mirage
 (Get-Content "C:\Zanthus\Zeus\pdvJava\CARG0000.CFG") -replace '^endereco=.*', 'endereco=192.168.12.42' | Set-Content "C:\Zanthus\Zeus\pdvJava\CARG0000.CFG"
+Set-Content -Path "C:\Zanthus\Zeus\pdvJava\RESTG0200.CFG" -Value "endereco=192.168.12.42"
 # Ajusta WPDV pra não subir em tela cheia
 (Get-Content "C:\Zanthus\Zeus\pdvJava\w_pdv.cmd") -replace 'C:\\Zanthus\\Zeus\\zifaceloader\.exe --operador=unificada --zlauncher', 'C:\Zanthus\Zeus\Interface\index.html' | Set-Content "C:\Zanthus\Zeus\pdvJava\w_pdv.cmd"
 
