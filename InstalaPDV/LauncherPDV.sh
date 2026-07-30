@@ -115,9 +115,8 @@ fi
 log_ok "Script sendo executado como usuário root"
 
 # Alerta visual para o operador
-export DISPLAY=:0
-zenity --progress --title="AVISO DO SISTEMA" --text="<span foreground='red' size='44pt'><b>    ATUALIZANDO PDV\n    AGUARDE REINÍCIO\n        NÃO DESLIGUE\n       O COMPUTADOR</b></span>" --pulsate --no-cancel --width=800 --height=300 &
-
+DISPLAY=:0 python3 -c "import gi;gi.require_version('Gtk','3.0');from gi.repository import Gtk,Gdk,GLib;p=Gtk.CssProvider();p.load_from_data(b'window{background:#0b0f14}#tag{color:#7a8a9a;font-size:16px;letter-spacing:8px}#tit{color:#e8eef5;font-size:64px;font-weight:bold}#warn{color:#ff4d4d;font-size:38px;font-weight:bold}#sub{color:#93a3b3;font-size:20px}#cred{color:#3d4b59;font-size:14px}progressbar trough{min-height:12px;background:#1b2530;border:0}progressbar progress{min-height:12px;background:#0a84ff;border:0}');Gtk.StyleContext.add_provider_for_screen(Gdk.Screen.get_default(),p,600);w=Gtk.Window();w.set_decorated(False);w.fullscreen();w.set_keep_above(True);w.connect('delete-event',lambda *a:True);o=Gtk.Overlay();b=Gtk.Box(orientation=Gtk.Orientation.VERTICAL,spacing=28);b.set_halign(Gtk.Align.CENTER);b.set_valign(Gtk.Align.CENTER);L=lambda t,n:(lambda l:(l.set_name(n),b.add(l)))(Gtk.Label(label=t));L('SISTEMA PDV','tag');L('ATUALIZANDO O SISTEMA','tit');pb=Gtk.ProgressBar();pb.set_size_request(700,-1);b.add(pb);L('NÃO DESLIGUE O COMPUTADOR','warn');L('O terminal reiniciará automaticamente ao final.','sub');o.add(b);c=Gtk.Label(label='Desenvolvido por @JJMoratelli');c.set_name('cred');c.set_halign(Gtk.Align.END);c.set_valign(Gtk.Align.END);c.set_margin_end(24);c.set_margin_bottom(18);o.add_overlay(c);w.add(o);w.show_all();w.get_window().set_cursor(Gdk.Cursor(Gdk.CursorType.BLANK_CURSOR));GLib.timeout_add(60,lambda:(pb.pulse(),True)[1]);Gtk.main()" &
+AVISO_PID=$!
 #===============================================================================
 # 3. Leitura de variáveis em disco (Filial, Caixa, Tipo de Instalação, Balança)
 #    (unificada - antes existia duplicada no passo1 e no passo2)
@@ -806,6 +805,6 @@ for i in {1..10}; do
   echo -e "  ${C_YELLOW}Contagem regressiva: $((10 - i))${C_RESET}"
   sleep 1
 done
-
+kill $AVISO_PID 2>/dev/null
 log_step "Reiniciando"
 sudo reboot
