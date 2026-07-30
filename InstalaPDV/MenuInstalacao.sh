@@ -307,17 +307,17 @@ while true; do
                     ;;
             esac
             
-            URL="https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/PosInstallPDV.sh"
+            URL="https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/LauncherPDV.sh"
             ;;
         2)
             touch "$CONF_DIR/tipoConfSelf.conf"
             NOME="Instalação PDV SelfCheckout"
-            URL="https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/PosInstallPDV.sh"
+            URL="https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/LauncherPDV.sh"
             ;;
         3)
             touch "$CONF_DIR/tipoConfLancho.conf"
             NOME="Instalação PDV Lanchonete"
-            URL="https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/PosInstallPDV.sh"
+            URL="https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/LauncherPDV.sh"
             ;;
         0)
             echo -e "${GREEN}Saindo...${NC}"
