@@ -4,27 +4,32 @@
 # Autor original: @jjmoratelli, Jurandir Moratelli
 #
 # VERSÃO MESCLADA (passo1 + passo2 em um único script):
-#   - Este arquivo une o antigo "instala_pdv.sh" (passo 1) e o antigo
-#     "instala_screensaver.sh" (passo 2, que gerava o launcher.conf).
-#   - A leitura de variáveis em disco (Filial/Caixa/Tipo/Balança), que existia
-#     duplicada nos dois scripts, agora é feita uma única vez.
-#   - A geração do "atualizaSC<filial>.sh" (antiga seção 4 do passo2) FOI
-#     REMOVIDA daqui: essa lógica agora está embutida no Machadão Launcher
-#     Zanthus (Rust), que faz o update da interface e o atualizaSC via
-#     HTTP por socket puro (httpmin.rs), sem depender deste script.
-#   - O restante (comandos, ajustes em arquivos, downloads, etc.) permanece
-#     exatamente como nos scripts originais.
+# ALERTA VISUAL (GTK):
 #===============================================================================
 clear
 LOGFILE="/tmp/instala_pdv_$(date +%Y%m%d_%H%M%S).log"
 touch "$LOGFILE"
+
+AVISO_DIR="/tmp/aviso"
+AVISO_PID=""
+AVISO_TOTAL=26                     # total de seções (usado na barra de progresso)
+mkdir -p "$AVISO_DIR"
+: > "$AVISO_DIR/status"; echo AVISO > "$AVISO_DIR/modo"; rm -f "$AVISO_DIR/escolha"
 
 # ---------------------------------------------------------------------------
 # Funções de log/UI
 # ---------------------------------------------------------------------------
 C_RESET="\e[0m"; C_GREEN="\e[32m"; C_YELLOW="\e[33m"; C_RED="\e[31m"; C_CYAN="\e[36m"; C_BOLD="\e[1m"
 
-log_step()  { echo -e "\n${C_CYAN}${C_BOLD}▶ $1${C_RESET}"; }
+# log_step [N] "Descrição"
+#   Com número: alimenta a barra de progresso da janela (N de $AVISO_TOTAL).
+#   Sem número: a barra volta a pulsar, só o texto é atualizado.
+log_step() {
+  local n=""
+  if [[ "$1" =~ ^[0-9]+$ ]]; then n="$1"; shift; fi
+  echo -e "\n${C_CYAN}${C_BOLD}▶ $*${C_RESET}"
+  printf '%s|%s|%s\n' "${n:-0}" "$AVISO_TOTAL" "$*" > "$AVISO_DIR/status" 2>/dev/null
+}
 log_ok()    { echo -e "  ${C_GREEN}✔${C_RESET} $1"; }
 log_skip()  { echo -e "  ${C_YELLOW}↷${C_RESET} $1 ${C_YELLOW}(já aplicado, pulando)${C_RESET}"; }
 log_fail()  { echo -e "  ${C_RED}✘${C_RESET} $1"; }
@@ -88,9 +93,257 @@ safe_wget() {
 pkg_instalado() { dpkg -s "$1" >/dev/null 2>&1; }
 
 #===============================================================================
+# ALERTA VISUAL - código da janela GTK (pode pular esta função na leitura)
+#===============================================================================
+aviso_interface() {
+cat << 'PYEOF' > "$AVISO_DIR/aviso.py"
+import os, gi
+gi.require_version('Gtk','3.0')
+from gi.repository import Gtk, Gdk, GLib
+D='/tmp/aviso'
+def rd(f,d=''):
+    try: return open(os.path.join(D,f)).read().strip()
+    except Exception: return d
+
+class Aviso:
+    def __init__(self):
+        self.dpy=Gdk.Display.get_default()
+        self.prov=Gtk.CssProvider()
+        Gtk.StyleContext.add_provider_for_screen(Gdk.Screen.get_default(),self.prov,600)
+        self.wins=[]; self.geoms=[]; self.modo=None; self.frac=None
+        self.build()
+        GLib.timeout_add(60,self.anim)
+        GLib.timeout_add(300,self.tick)
+
+    def gl(self): return [self.dpy.get_monitor(i).get_geometry() for i in range(self.dpy.get_n_monitors())]
+
+    def outs(self):
+        # (x,y) -> (nome_da_saida, ordinal)  - ordinal = ordem do xrandr
+        m={}
+        for ln in rd('saidas').splitlines():
+            p=ln.split()
+            if len(p)>=6: m[(int(p[1]),int(p[2]))]=(p[0],int(p[5]))
+            elif len(p)>=3: m[(int(p[1]),int(p[2]))]=(p[0],0)
+        return m
+
+    def lbl(self,box,t,n):
+        l=Gtk.Label(label=t); l.set_name(n)
+        l.set_justify(Gtk.Justification.CENTER); l.set_line_wrap(True)
+        box.add(l); return l
+
+    def mk(self,i,g):
+        win=Gtk.Window(type=Gtk.WindowType.POPUP); ov=Gtk.Overlay()
+        root=Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        root.set_halign(Gtk.Align.CENTER); root.set_valign(Gtk.Align.CENTER)
+        sp=max(8,int(g.height*0.024))
+
+        # --- painel de andamento ---
+        a=Gtk.Box(orientation=Gtk.Orientation.VERTICAL,spacing=sp); a.set_halign(Gtk.Align.CENTER)
+        self.lbl(a,'SISTEMA PDV','tag%d'%i)
+        self.lbl(a,'ATUALIZANDO O SISTEMA','tit%d'%i)
+        pb=Gtk.ProgressBar(); pb.set_name('pb%d'%i)
+        pb.set_size_request(int(g.width*0.55),-1); a.add(pb)
+        cnt=self.lbl(a,'','cnt%d'%i)
+        step=self.lbl(a,'Iniciando...','step%d'%i); step.set_max_width_chars(46)
+        self.lbl(a,'NÃO DESLIGUE O COMPUTADOR','warn%d'%i)
+        self.lbl(a,'O terminal reiniciará automaticamente ao final.','sub%d'%i)
+
+        # --- painel de escolha de tela ---
+        e=Gtk.Box(orientation=Gtk.Orientation.VERTICAL,spacing=sp); e.set_halign(Gtk.Align.CENTER)
+        self.lbl(e,'CONFIGURAÇÃO DE MONITORES','tag%d'%i)
+        tit=self.lbl(e,'SOU A TELA %d'%(i+1),'tit%d'%i)
+        info=self.lbl(e,'','sub%d'%i)
+        self.lbl(e,'Esta é a tela do OPERADOR?','step%d'%i)
+        b1=Gtk.Button(label='SIM, USAR ESTA TELA'); b1.set_name('b%d'%i)
+        b1.connect('clicked',self.pick,i); e.add(b1)
+        b2=Gtk.Button(label='DUPLICAR AS TELAS'); b2.set_name('b%d'%i)
+        b2.connect('clicked',lambda *_: self.write('DUPLICAR')); e.add(b2)
+        self.lbl(e,'A outra tela será a do cliente.','sub%d'%i)
+
+        root.add(a); root.add(e); ov.add(root)
+        c=Gtk.Label(label='Desenvolvido por @JJMoratelli'); c.set_name('cred%d'%i)
+        c.set_halign(Gtk.Align.END); c.set_valign(Gtk.Align.END)
+        c.set_margin_end(24); c.set_margin_bottom(18); ov.add_overlay(c)
+        win.add(ov); win.show_all(); e.hide()
+        win.move(g.x,g.y); win.resize(g.width,g.height)
+        return {'win':win,'pb':pb,'step':step,'cnt':cnt,'a':a,'e':e,'info':info,'tit':tit,'i':i}
+
+    def build(self):
+        for w in self.wins: w['win'].destroy()
+        self.geoms=self.gl()
+        self.wins=[self.mk(i,g) for i,g in enumerate(self.geoms)]
+        self.style(); self.modo=None
+        for w in self.wins:
+            gw=w['win'].get_window()
+            if gw: gw.set_cursor(Gdk.Cursor(Gdk.CursorType.BLANK_CURSOR))
+
+    def style(self):
+        p=['window{background:#0b0f14}']
+        for i,g in enumerate(self.geoms):
+            s=max(0.42,min(1.7,g.height/1080.0))
+            f=lambda v,mn=10:max(mn,int(v*s))
+            p.append('#tag%d{color:#7a8a9a;font-size:%dpx;letter-spacing:%dpx}'%(i,f(17,10),f(8,3)))
+            p.append('#tit%d{color:#e8eef5;font-size:%dpx;font-weight:bold}'%(i,f(64,22)))
+            p.append('#cnt%d{color:#5c6b7a;font-size:%dpx;letter-spacing:%dpx}'%(i,f(15,9),f(3,1)))
+            p.append('#step%d{color:#7ac4ff;font-size:%dpx}'%(i,f(24,12)))
+            p.append('#warn%d{color:#ff4d4d;font-size:%dpx;font-weight:bold}'%(i,f(38,16)))
+            p.append('#sub%d{color:#93a3b3;font-size:%dpx}'%(i,f(20,11)))
+            p.append('#cred%d{color:#3d4b59;font-size:%dpx}'%(i,f(14,9)))
+            p.append('#pb%d trough{background:#1b2530;border:0;min-height:%dpx}'%(i,f(12,5)))
+            p.append('#pb%d progress{background:#0a84ff;border:0;min-height:%dpx}'%(i,f(12,5)))
+            p.append('#b%d{background-image:none;background-color:#12324f;color:#e8eef5;border:2px solid #2b6cb0;border-radius:%dpx;font-size:%dpx;font-weight:bold;padding:%dpx %dpx}'%(i,f(12,6),f(26,13),f(18,8),f(40,16)))
+            p.append('#b%d:hover{background-color:#1a4a72}'%i)
+            p.append('#b%d:active{background-color:#0a84ff}'%i)
+        self.prov.load_from_data(''.join(p).encode())
+
+    def anim(self):
+        for w in self.wins:
+            pb=w['pb']
+            if self.frac is None: pb.pulse()
+            else:
+                c=pb.get_fraction(); d=self.frac-c
+                pb.set_fraction(self.frac if abs(d)<0.003 else c+d*0.18)
+        return True
+
+    def pick(self,_b,i):
+        g=self.geoms[i]
+        self.write(self.outs().get((g.x,g.y),('',0))[0] or 'TELA%d'%(i+1))
+
+    def write(self,v):
+        try: open(os.path.join(D,'escolha'),'w').write(v+'\n')
+        except Exception: pass
+
+    def tick(self):
+        g=self.gl()
+        if len(g)!=len(self.geoms):
+            self.build(); return True
+        if any((x.x,x.y,x.width,x.height)!=(y.x,y.y,y.width,y.height) for x,y in zip(g,self.geoms)):
+            self.geoms=g
+            for w in self.wins:
+                gg=g[w['i']]
+                w['win'].move(gg.x,gg.y); w['win'].resize(gg.width,gg.height)
+                w['pb'].set_size_request(int(gg.width*0.55),-1)
+            self.style()
+
+        modo=rd('modo','AVISO') or 'AVISO'
+        if modo!=self.modo:
+            self.modo=modo; esc=(modo=='ESCOLHA'); om=self.outs()
+            for w in self.wins:
+                gg=self.geoms[w['i']]
+                if esc:
+                    nm,ordn=om.get((gg.x,gg.y),('?',0))
+                    w['tit'].set_text('SOU A TELA %d'%(ordn or (w['i']+1)))
+                    w['info'].set_text('%s   %dx%d'%(nm,gg.width,gg.height))
+                    w['a'].hide(); w['e'].show_all()
+                else:
+                    w['e'].hide(); w['a'].show_all()
+                gw=w['win'].get_window()
+                if gw: gw.set_cursor(None if esc else Gdk.Cursor(Gdk.CursorType.BLANK_CURSOR))
+
+        if self.modo!='ESCOLHA':
+            n,tot,txt=0,0,''
+            raw=rd('status')
+            if raw:
+                p=raw.split('|',2)
+                if len(p)==3:
+                    try: n,tot=int(p[0]),int(p[1])
+                    except ValueError: n,tot=0,0
+                    txt=p[2]
+                else: txt=raw
+            txt=txt or 'Preparando ambiente...'
+            self.frac=(max(0.0,min(1.0,float(n)/tot)) if (n>0 and tot>0) else None)
+            c=('ETAPA %d DE %d'%(n,tot)) if (n>0 and tot>0) else ''
+            for w in self.wins:
+                if w['step'].get_text()!=txt: w['step'].set_text(txt)
+                if w['cnt'].get_text()!=c: w['cnt'].set_text(c)
+        return True
+
+os.makedirs(D,exist_ok=True); Aviso(); Gtk.main()
+PYEOF
+}
+
+# --- controle do alerta -----------------------------------------------------
+aviso_abre()  { DISPLAY=:0 python3 "$AVISO_DIR/aviso.py" >>"$LOGFILE" 2>&1 & AVISO_PID=$!; sleep 1; }
+aviso_fecha() { [ -n "$AVISO_PID" ] && kill "$AVISO_PID" 2>/dev/null; AVISO_PID=""; }
+aviso_vivo()  { [ -n "$AVISO_PID" ] && kill -0 "$AVISO_PID" 2>/dev/null; }
+
+# Pergunta a tela do operador em DOIS canais ao mesmo tempo:
+#   - na própria janela GTK (toque na tela desejada);
+#   - no terminal (útil via SSH - localmente a janela cobre o console).
+# Quem responder primeiro vence; o outro canal é encerrado.
+# SEM timeout: só sai quando alguém responder.
+# Requer as variáveis globais 'saidas' e 'modo_maximo' (seção 19).
+# Ecoa o nome da saída (ex.: HDMI-1) ou a palavra DUPLICAR.
+aviso_escolha_tela() {
+  local total=$(( ${#saidas[@]} + 1 )) i rpid xmpids=() p
+  rm -f "$AVISO_DIR/escolha"
+
+  # Geometria + ordinal de cada saída, na MESMA ordem usada pelo menu abaixo
+  xrandr --listactivemonitors | tail -n +2 | \
+    awk '{g=$3; sub(/\/[0-9]+/,"",g); sub(/\/[0-9]+/,"",g); split(g,a,/[x+]/); print $NF, a[3], a[4], a[1], a[2], NR}' \
+    > "$AVISO_DIR/saidas"
+
+  if aviso_vivo; then
+    echo ESCOLHA > "$AVISO_DIR/modo"
+  else
+    # Sem interface: identifica as telas com xmessage (sem timeout)
+    while read -r _n _x _y _w _h _o; do
+      xmessage -geometry "300x100+${_x}+${_y}" " SOU A TELA ${_o} " &
+      xmpids+=($!)
+    done < "$AVISO_DIR/saidas"
+  fi
+
+  # Menu vai para stderr: o stdout desta função é o RESULTADO da escolha
+  {
+    echo ""
+    echo "=========================================================="
+    echo " Toque na TELA DO OPERADOR ou responda aqui pelo terminal."
+    echo " A outra tela é a que o CLIENTE verá."
+    echo "=========================================================="
+    i=1
+    for p in "${saidas[@]}"; do
+      echo "  $i - $p - Resolução Máxima: ${modo_maximo[$p]}"
+      i=$((i+1))
+    done
+    echo "  $total - Duplicar telas"
+  } >&2
+
+  # Leitor do terminal em paralelo
+  (
+    op=""
+    while read -rp "Opção (1-$total): " op < /dev/tty; do
+      [ -s "$AVISO_DIR/escolha" ] && break
+      if [[ "$op" =~ ^[0-9]+$ ]] && [ "$op" -ge 1 ] && [ "$op" -le "$total" ]; then
+        if [ "$op" -eq "$total" ]; then
+          echo DUPLICAR > "$AVISO_DIR/escolha"
+        else
+          echo "${saidas[$((op-1))]}" > "$AVISO_DIR/escolha"
+        fi
+        break
+      fi
+      echo "  Opção inválida." >&2
+    done
+  ) &
+  rpid=$!
+
+  # Espera qualquer um dos dois canais
+  while [ ! -s "$AVISO_DIR/escolha" ]; do
+    aviso_vivo || kill -0 "$rpid" 2>/dev/null || break
+    sleep 1
+  done
+
+  kill "$rpid" 2>/dev/null; wait "$rpid" 2>/dev/null
+  for p in "${xmpids[@]}"; do kill "$p" 2>/dev/null; done
+  echo AVISO > "$AVISO_DIR/modo"
+  head -n1 "$AVISO_DIR/escolha" 2>/dev/null
+}
+
+trap 'aviso_fecha' EXIT
+
+#===============================================================================
 # 1. Encerramento seguro dos processos PDV
 #===============================================================================
-log_step "Encerrando processos PDV com segurança"
+log_step 1 "Encerrando processos PDV com segurança"
 pkill -9 pdvJava2 ; pkill -9 jav ; pkill -9 lnx
 log_info "Aguardando encerramento do sistema PDV..."
 sleep 10
@@ -102,7 +355,7 @@ log_ok "Processos encerrados"
 #===============================================================================
 # 2. Validação de execução como root
 #===============================================================================
-log_step "Validações iniciais"
+log_step 2 "Validações iniciais"
 if [[ "$EUID" -ne 0 ]]; then
   log_fail "Este script precisa ser executado como root. Tentando reexecutar via su..."
   su root -c "$0 $@"
@@ -115,13 +368,19 @@ fi
 log_ok "Script sendo executado como usuário root"
 
 # Alerta visual para o operador
-DISPLAY=:0 python3 -c "import gi;gi.require_version('Gtk','3.0');from gi.repository import Gtk,Gdk,GLib;p=Gtk.CssProvider();p.load_from_data(b'window{background:#0b0f14}#tag{color:#7a8a9a;font-size:16px;letter-spacing:8px}#tit{color:#e8eef5;font-size:64px;font-weight:bold}#warn{color:#ff4d4d;font-size:38px;font-weight:bold}#sub{color:#93a3b3;font-size:20px}#cred{color:#3d4b59;font-size:14px}progressbar trough{min-height:12px;background:#1b2530;border:0}progressbar progress{min-height:12px;background:#0a84ff;border:0}');Gtk.StyleContext.add_provider_for_screen(Gdk.Screen.get_default(),p,600);d=Gdk.Display.get_default();A=lambda b,t,n:(lambda l:(l.set_name(n),b.add(l)))(Gtk.Label(label=t));mk=lambda g:(lambda w,o,b,pb,c:(b.set_halign(Gtk.Align.CENTER),b.set_valign(Gtk.Align.CENTER),A(b,'SISTEMA PDV','tag'),A(b,'ATUALIZANDO O SISTEMA','tit'),pb.set_size_request(min(700,g.width-80),-1),b.add(pb),A(b,'NÃO DESLIGUE O COMPUTADOR','warn'),A(b,'O terminal reiniciará automaticamente ao final.','sub'),o.add(b),c.set_name('cred'),c.set_halign(Gtk.Align.END),c.set_valign(Gtk.Align.END),c.set_margin_end(24),c.set_margin_bottom(18),o.add_overlay(c),w.add(o),w.set_size_request(g.width,g.height),w.show_all(),w.move(g.x,g.y),w.resize(g.width,g.height),w.get_window().set_cursor(Gdk.Cursor(Gdk.CursorType.BLANK_CURSOR)),GLib.timeout_add(60,lambda:(pb.pulse(),True)[1])))(Gtk.Window(type=Gtk.WindowType.POPUP),Gtk.Overlay(),Gtk.Box(orientation=Gtk.Orientation.VERTICAL,spacing=28),Gtk.ProgressBar(),Gtk.Label(label='Desenvolvido por @JJMoratelli'));[mk(d.get_monitor(i).get_geometry()) for i in range(d.get_n_monitors())];Gtk.main()" &
-AVISO_PID=$!
+if DISPLAY=:0 python3 -c "import gi" >/dev/null 2>&1; then
+  aviso_interface
+  aviso_abre
+  log_ok "Alerta visual em tela cheia iniciado"
+else
+  log_fail "python3-gi ausente - seguindo sem alerta visual"
+fi
+
 #===============================================================================
 # 3. Leitura de variáveis em disco (Filial, Caixa, Tipo de Instalação, Balança)
 #    (unificada - antes existia duplicada no passo1 e no passo2)
 #===============================================================================
-log_step "Lendo configuração local"
+log_step 3 "Lendo configuração local"
 D="/home/zanthus/tmp/Script"
 filial=$(basename "$D"/filial*.conf .conf 2>/dev/null | tr -dc '0-9')
 caixa=$(basename "$D"/caixa*.conf .conf 2>/dev/null | tr -dc '0-9')
@@ -234,7 +493,7 @@ CONF_DAEMONIZE="true"
 #===============================================================================
 # 4. Desativação de atalhos de teclado (keyd)
 #===============================================================================
-log_step "Configurando bloqueio de atalhos de teclado (keyd)"
+log_step 4 "Configurando bloqueio de atalhos de teclado (keyd)"
 if command -v keyd >/dev/null 2>&1; then
   log_skip "keyd já instalado"
 else
@@ -250,11 +509,11 @@ log_ok "Configuração de atalhos aplicada"
 #===============================================================================
 # 5. Ajustes de rede: /etc/hosts, nsswitch, sysctl
 #===============================================================================
-log_step "Ajustando /etc/hosts com o IP local do terminal"
+log_step 5 "Ajustando /etc/hosts com o IP local do terminal"
 sudo sed -i "s/^127\.0\.1\.1/$(ip -4 -brief addr show | awk '$1 != "lo" {print $3}' | cut -d/ -f1 | head -n 1)/" /etc/hosts
 log_ok "/etc/hosts ajustado"
 
-log_step "Otimizando resolução de nomes e parâmetros de rede"
+log_step 5 "Otimizando resolução de nomes e parâmetros de rede"
 sudo sed -i 's/^hosts:          files.*/hosts:          files dns/' /etc/nsswitch.conf
 
 sudo bash -c "cat << 'EOF' > /etc/sysctl.d/99-sysctl.conf
@@ -280,7 +539,7 @@ run_silent "Aplicando parâmetros sysctl" sudo sysctl --system
 #===============================================================================
 # 6. Ajustes de parâmetros de carga / timeout
 #===============================================================================
-log_step "Ajustando timeouts de conexão (CARG0000, RESTG0000, ZMWS0000)"
+log_step 6 "Ajustando timeouts de conexão (CARG0000, RESTG0000, ZMWS0000)"
 for ARQ in CARG0000 RESTG0000 ZMWS0000; do
   if ! grep -q '^conexao_timeout=10$' /Zanthus/Zeus/pdvJava/${ARQ}.CFG; then
     sed -i '/^opcoes=/a conexao_timeout=10' /Zanthus/Zeus/pdvJava/${ARQ}.CFG
@@ -306,7 +565,7 @@ log_ok "Operadoras de recarga configuradas (RECRGOP0.CFG)"
 #===============================================================================
 # 7. journald - limitar uso de disco
 #===============================================================================
-log_step "Ajustando parâmetros de journald.conf"
+log_step 7 "Ajustando parâmetros de journald.conf"
 if grep -q '^Storage=none' /etc/systemd/journald.conf; then
   log_skip "journald.conf já ajustado"
 else
@@ -317,7 +576,7 @@ fi
 #===============================================================================
 # 8. GRUB - parâmetros para máquinas legado
 #===============================================================================
-log_step "Verificando parâmetros do GRUB"
+log_step 8 "Verificando parâmetros do GRUB"
 cutoff_year=2018
 bios_year=$(dmidecode -t 0 | grep "Release Date" | awk -F: '{ print $2 }' | sed 's/^[ \t]*//;s/[ \t]*$//' | awk -F'/' '{ print $3 }')
 
@@ -338,7 +597,7 @@ fi
 #===============================================================================
 # 9. DNS (systemd-resolved)
 #===============================================================================
-log_step "Ajustando /etc/systemd/resolved.conf"
+log_step 9 "Ajustando /etc/systemd/resolved.conf"
 # Captura o gateway padrão IPv4 da máquina (pega a primeira linha caso haja mais de um)
 DEFAULT_GW=$(ip -4 route show default | awk '{print $3}' | head -n 1)
 # Monta o conteúdo usando a variável $DEFAULT_GW no lugar do IP fixo
@@ -349,16 +608,18 @@ else
   printf "$RESOLVED_CONTENT" | sudo tee /etc/systemd/resolved.conf >>"$LOGFILE"
   log_ok "resolved.conf ajustado (FallbackDNS=${DEFAULT_GW})"
 fi
+
 #===============================================================================
 # 10. Timeout Sefaz
 #===============================================================================
+log_step 10 "Ajustando timeout da Sefaz"
 sudo printf "timeout=60\n" > /Zanthus/Zeus/pdvJava/ZMWS1201.CFG
 log_ok "ZMWS1201.CFG ajustado (timeout Sefaz)"
 
 #===============================================================================
 # 11. CUPS - configuração global
 #===============================================================================
-log_step "Ajustando CUPS"
+log_step 11 "Ajustando CUPS"
 sudo sed 's/^BrowseLocalProtocols.*$/BrowseLocalProtocols\ none/' -i /etc/cups/cupsd.conf
 run_silent "Reiniciando serviço CUPS" bash -c "cupsctl Web=yes; service cups stop; service cups start"
 run_silent "Habilitando administração remota" cupsctl --remote-admin --remote-any
@@ -368,7 +629,7 @@ log_ok "CUPS configurado"
 #===============================================================================
 # 12. Instalação de impressora (Via Variáveis Globais)
 #===============================================================================
-log_step "Configurando impressora fiscal - Loja $NOME_LOJA"
+log_step 12 "Configurando impressora fiscal - Loja $NOME_LOJA"
 if lpstat -p IMP-NFE >/dev/null 2>&1; then
   log_skip "Impressora IMP-NFE já cadastrada no CUPS"
 else
@@ -380,7 +641,7 @@ fi
 #===============================================================================
 # 13. Fuso horário (Via Variáveis Globais)
 #===============================================================================
-log_step "Ajustando fuso horário e NTP"
+log_step 13 "Ajustando fuso horário e NTP"
 sed -i 's/^server 0\.br\.pool\.ntp\.org iburst/server ntp.redejcm.com.br iburst prefer/' /etc/ntp.conf
 run_silent "Reiniciando serviço NTP" systemctl restart ntp
 
@@ -403,12 +664,12 @@ log_ok "Relógio de hardware ajustado e sincronizado com o sistema"
 #===============================================================================
 # 14. Agendamento de desligamento e EasyCash (Via Variáveis Globais)
 #===============================================================================
-log_step "Configurando servidor EasyCash"
+log_step 14 "Configurando servidor EasyCash"
 printf "ENDERECO=$CONF_EASYCASH_IP\nPORTA=23454\n" > /Zanthus/Zeus/pdvJava/ZPPERD01.CFG
 printf "TIPO01=1\nOPCOESLOG=255\n" > /Zanthus/Zeus/pdvJava/ZPPERD00.CFG
 log_ok "Arquivos EasyCash gravados (IP: $CONF_EASYCASH_IP)"
 
-log_step "Agendando desligamento automático (cron)"
+log_step 14 "Agendando desligamento automático (cron)"
 linha_semana="00 23 * * * /sbin/shutdown -h now"
 linha_domingo="00 $CONF_HORA_DOMINGO * * SUN /sbin/shutdown -h now"
 
@@ -423,7 +684,7 @@ fi
 #===============================================================================
 # 15. Cópia de arquivos de interface
 #===============================================================================
-log_step "Copiando arquivos de interface para tipo: $tipoInstala"
+log_step 15 "Copiando arquivos de interface para tipo: $tipoInstala"
 
 if [ "$tipoInstala" == "SelfCheckout" ]; then
     safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Self/Interface/telas_touch.js" "/Zanthus/Zeus/Interface/resources/js/telas_touch.js"
@@ -451,7 +712,7 @@ if [ "$tipoInstala" == "PDVComum" ]; then
     safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/PDV/Interface/config.js" "/Zanthus/Zeus/Interface/config/config.js"
 fi
 
-log_step "Copiando arquivos gerais de interface"
+log_step 15 "Copiando arquivos gerais de interface"
 safe_wget "https://github.com/JMoratelli/Zanthus/raw/refs/heads/main/InstalaPDV/InterfaceUnificada/icones.7z" "/Zanthus/Zeus/Interface/resources/icones/icones.7z"
 run_silent "Extraindo ícones" bash -c "cd /Zanthus/Zeus/Interface/resources/icones/ && 7z x -y icones.7z '*'"
 
@@ -477,7 +738,7 @@ log_ok "Permissões aplicadas em /Zanthus/Zeus/Interface/"
 #===============================================================================
 # 16. Áudios do PDV
 #===============================================================================
-log_step "Baixando arquivos de áudio"
+log_step 16 "Baixando arquivos de áudio"
 if [ "$tipoInstala" == "SelfCheckout" ]; then
   base_url="https://github.com/JMoratelli/Zanthus/raw/refs/heads/main/InstalaPDV/Self/Interface/audio/"
   destino="/Zanthus/Zeus/Interface/resources/audio/"
@@ -497,7 +758,7 @@ fi
 #===============================================================================
 # 17. CliSiTef
 #===============================================================================
-log_step "Configurando CliSiTef"
+log_step 17 "Configurando CliSiTef"
 if [ "$tipoInstala" == "SelfCheckout" ]; then
     safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Self/CliSiTef.ini" "/Zanthus/Zeus/pdvJava/CliSiTef.ini"
 else
@@ -511,7 +772,7 @@ run_silent "Extraindo libCliSiTef" 7z x -o/Zanthus/Zeus/pdvJava/ -y /Zanthus/Zeu
 #===============================================================================
 # 18. Rede Docker
 #===============================================================================
-log_step "Ajustando rede Docker"
+log_step 18 "Ajustando rede Docker"
 export DISPLAY=:0
 user_ip="10.220.0.1"
 config_data="{ \"bip\": \"$user_ip/16\", \"mtu\": 1500 }"
@@ -528,7 +789,7 @@ fi
 # 19. Configuração de monitores (PDVs com dois monitores)
 #===============================================================================
 if [[ "$tipoInstala" == "PDVComum" || "$tipoInstala" == "PDVTouch" || "$tipoInstala" == "Lanchonete" ]]; then
-  log_step "Configurando monitores"
+  log_step 19 "Configurando monitores"
 
   get_best_mode() {
     local saida="$1"
@@ -587,47 +848,23 @@ if [[ "$tipoInstala" == "PDVComum" || "$tipoInstala" == "PDVTouch" || "$tipoInst
 
   operador=""
   if [ "$monCon" -ge 2 ]; then
-    monitores_geom=$(xrandr --listactivemonitors | tail -n +2)
-    i=1
-    for saida in "${saidas[@]}"; do
-      geom=$(echo "$monitores_geom" | grep -w "$saida" | awk '{print $3}')
-      coord=$(echo "$geom" | grep -o '+.*')
-      xmessage -geometry "300x100$coord" -timeout 20 " SOU A TELA $i " &
-      i=$((i+1))
-    done
+    # Pergunta na INTERFACE e no TERMINAL ao mesmo tempo (quem responder
+    # primeiro vence). Sem timeout. Ver aviso_escolha_tela() no topo.
+    resp=$(aviso_escolha_tela)
 
-    echo ""
-    echo "=========================================================="
-    echo " A tela definida como PRINCIPAL será a tela do OPERADOR."
-    echo " A outra tela é a tela que o CLIENTE verá."
-    echo "=========================================================="
-    echo "Selecione a tela principal:"
-    i=1
-    for saida in "${saidas[@]}"; do
-      echo "$i - $saida - Resolução Máxima: ${modo_maximo[$saida]}"
-      i=$((i+1))
-    done
-    opcao_duplicar=$((${#saidas[@]}+1))
-    echo "$opcao_duplicar - Duplicar telas"
-
-    escolha=""
-    max_opcao_total=$(( ${#saidas[@]} + 1 ))
-    while true; do
-      read -rp "Opção (1-$max_opcao_total): " escolha < /dev/tty
-      if [[ "$escolha" =~ ^[0-9]+$ ]] && [ "$escolha" -ge 1 ] && [ "$escolha" -le "$max_opcao_total" ]; then
-        break
-      fi
-      echo "Opção inválida."
-    done
-
-    if [ "$escolha" -eq "$opcao_duplicar" ]; then
+    if [ "$resp" == "DUPLICAR" ]; then
       duplicado=true
       operador="${saidas[0]}"
       xrandr --output "${saidas[0]}" --same-as "${saidas[1]}"
       log_ok "Telas duplicadas: ${saidas[0]} = ${saidas[1]}"
+    elif [ -n "$resp" ]; then
+      duplicado=false
+      operador="$resp"
+      log_ok "Tela do operador definida pelo técnico: $operador"
     else
       duplicado=false
-      operador="${saidas[$((escolha-1))]}"
+      operador="${saidas[0]}"
+      log_fail "Nenhuma resposta recebida - assumindo ${saidas[0]} como tela do operador"
     fi
   else
     duplicado=false
@@ -674,7 +911,9 @@ fi
 #===============================================================================
 # 20. Sinaleiro (torre x lâmpada única)
 #===============================================================================
-log_step "Configurando sinaleiro"
+log_step 20 "Configurando sinaleiro"
+# ATENÇÃO: bug pré-existente - a variável $ip nunca é definida neste script,
+# então a comparação abaixo sempre cai no else (lâmpada única).
 ips_permitidos=("192.168.8.133" "192.168.8.134" "192.168.8.135" "192.168.8.136")
 if [[ " ${ips_permitidos[@]} " =~ " ${ip} " ]]; then
   printf "modelo=0\n#Reserva\n" > /Zanthus/Zeus/pdvJava/ZSINALIZ_LAURENTI_ARDUINO.CFG
@@ -687,7 +926,7 @@ fi
 #===============================================================================
 # 21. Volume e limpeza de arquivos legados
 #===============================================================================
-log_step "Limpando arquivos legados"
+log_step 21 "Limpando arquivos legados"
 amixer set Master 87 >>"$LOGFILE" 2>&1
 rm -f /opt/webadmin/extra/rules/Balanca/toledoDCPSC-var.sh
 rm -f /Zanthus/Zeus/Interface/resources/imagens/processando.gif
@@ -696,7 +935,7 @@ log_ok "Arquivos legados removidos"
 #===============================================================================
 # 22. Periféricos USB (balança, etc.)
 #===============================================================================
-log_step "Instalando script de periféricos USB"
+log_step 22 "Instalando script de periféricos USB"
 safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/PerifericosUSB.sh" "/home/zanthus/PerifericosUSB.sh"
 chmod +x /home/zanthus/PerifericosUSB.sh
 run_silent "Executando PerifericosUSB.sh" /home/zanthus/PerifericosUSB.sh
@@ -708,10 +947,10 @@ run_silent "Executando PerifericosUSB.sh" /home/zanthus/PerifericosUSB.sh
 #    removida daqui - essa lógica hoje está embutida no Machadão Launcher
 #    Zanthus (Rust).
 #===============================================================================
-log_step "Atualizando lista de pacotes"
+log_step 23 "Atualizando lista de pacotes"
 run_silent "apt-get update" sudo apt-get update -y
 
-log_step "Instalando dependências (xscreensaver, restricted-extras, mpv)"
+log_step 23 "Instalando dependências (xscreensaver, restricted-extras, mpv)"
 for pkg in xscreensaver ubuntu-restricted-extras mpv; do
   if pkg_instalado "$pkg"; then
     log_skip "Pacote $pkg"
@@ -720,7 +959,7 @@ for pkg in xscreensaver ubuntu-restricted-extras mpv; do
   fi
 done
 
-log_step "Aplicando configurações do xscreensaver"
+log_step 23 "Aplicando configurações do xscreensaver"
 safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/ScreenSaver/.xscreensaver" "/home/zanthus/.xscreensaver"
 
 if ! grep -Fxq "export DISPLAY=:0" /etc/profile; then
@@ -742,7 +981,7 @@ fi
 LAUNCHER_URL="https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/PDV/PDVTouch.sh"
 LAUNCHER_PATH="/Zanthus/Zeus/pdvJava/PDVTouch.sh"
 
-log_step "Verificando launcher (PDVTouch.sh)"
+log_step 24 "Verificando launcher (PDVTouch.sh)"
 tam_remoto=$(curl -sIL "$LAUNCHER_URL" | grep -ioP 'content-length:\s*\K[0-9]+' | tail -n1)
 tam_local=$(stat -c%s "$LAUNCHER_PATH" 2>/dev/null)
 
@@ -769,7 +1008,7 @@ fi
 #    variam por caixa; os fixos vêm das constantes CONF_* da seção 3.2.
 #    O .conf é gravado SEM comentários.
 #===============================================================================
-log_step "Gerando launcher.conf para o tipo: ${tipoInstala:-Desconhecido}"
+log_step 25 "Gerando launcher.conf para o tipo: ${tipoInstala:-Desconhecido}"
 
 # Normaliza a balança para o vocabulário do launcher (vazio -> Nenhuma)
 balancaConf="${tipoBalanca:-Nenhuma}"
@@ -796,7 +1035,7 @@ fi
 #===============================================================================
 # 26. Finalização e reboot
 #===============================================================================
-log_step "Concluindo"
+log_step 26 "Concluindo"
 echo -e "\n${C_GREEN}${C_BOLD}✔ Instalação/configuração concluída.${C_RESET}"
 echo -e "Log completo em: ${C_CYAN}$LOGFILE${C_RESET}"
 log_info "Script feito por @jjmoratelli, Jurandir Moratelli"
@@ -805,6 +1044,7 @@ for i in {1..10}; do
   echo -e "  ${C_YELLOW}Contagem regressiva: $((10 - i))${C_RESET}"
   sleep 1
 done
-kill $AVISO_PID 2>/dev/null
-log_step "Reiniciando"
+log_step 26 "Reiniciando o terminal..."
+sleep 2
+aviso_fecha
 sudo reboot
