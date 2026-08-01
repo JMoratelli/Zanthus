@@ -1,3 +1,63 @@
+#!/bin/bash
+# ==============================================================================
+# MenuGraficoInst.sh - Menu grafico de instalacao do PDV Zanthus
+# Desenvolvido por @JJMoratelli
+#
+# Uso:  curl -sL https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/MenuGraficoInst.sh | bash
+#
+# O corpo em Python fica embutido neste mesmo arquivo e e gravado em disco
+# antes de rodar, porque a interface precisa se reinvocar (splash de
+# transicao) e isso nao funciona com o script vindo de um pipe.
+# ==============================================================================
+
+set -u
+
+RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'; NC='\033[0m'
+
+# ------------------------------------------------------------------ root ----
+if [ "$(id -u)" -ne 0 ]; then
+    echo -e "${RED}ERRO: execute como root.${NC}"
+    exit 1
+fi
+
+# --------------------------------------------------------------- display ----
+export DISPLAY="${DISPLAY:-:0}"
+
+if [ -z "${XAUTHORITY:-}" ]; then
+    for _u in $(who 2>/dev/null | awk '{print $1}' | sort -u) zanthus; do
+        if [ -f "/home/${_u}/.Xauthority" ]; then
+            export XAUTHORITY="/home/${_u}/.Xauthority"
+            break
+        fi
+    done
+fi
+
+if ! timeout 5 xset q >/dev/null 2>&1; then
+    echo -e "${YELLOW}Aviso: nao foi possivel falar com o servidor X em ${DISPLAY}.${NC}"
+    echo -e "${YELLOW}Tentando liberar acesso local...${NC}"
+    xhost +local: >/dev/null 2>&1 || true
+fi
+
+# ---------------------------------------------------------- dependencias ----
+FALTANDO=""
+python3 -c "import gi" >/dev/null 2>&1 || FALTANDO="python3-gi"
+python3 -c "import gi; gi.require_version('Gtk','3.0')" >/dev/null 2>&1 \
+    || FALTANDO="$FALTANDO gir1.2-gtk-3.0"
+
+if [ -n "$(echo "$FALTANDO" | tr -d ' ')" ]; then
+    echo -e "${YELLOW}Instalando dependencias:${FALTANDO}${NC}"
+    apt-get update -qq >/dev/null 2>&1
+    # shellcheck disable=SC2086
+    apt-get install -y $FALTANDO >/dev/null 2>&1 || {
+        echo -e "${RED}ERRO: falha ao instalar${FALTANDO}${NC}"; exit 1; }
+fi
+
+# ------------------------------------------------- grava a interface em disco
+DESTINO="/usr/local/lib/zanthus"
+ALVO="${DESTINO}/menu_grafico_pdv.py"
+mkdir -p "$DESTINO"
+
+cat > "$ALVO" <<'FIM_PY_ZANTHUS'
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
@@ -32,6 +92,10 @@ CLAZ_FILE = "/Zanthus/Zeus/pdvJava/CLAZ.CFG"
 ECF_FILE = "/Zanthus/Zeus/pdvJava/ECF9F.CFG"
 URL_LAUNCHER = ("https://raw.githubusercontent.com/JMoratelli/Zanthus/"
                 "refs/heads/main/InstalaPDV/LauncherPDV.sh")
+
+# Caminho real deste arquivo. Fica None se o script for executado via stdin
+# (`python3 - < arquivo` ou `curl | python3`), caso em que a splash e pulada.
+CAMINHO_SCRIPT = os.path.abspath(__file__) if "__file__" in globals() else None
 
 ESPERA_CONFIRMACAO = 3  # segundos de travamento no botao da confirmacao final
 
@@ -1164,9 +1228,11 @@ class Janela(Gtk.Window):
 
     @staticmethod
     def abrir_splash():
+        if not CAMINHO_SCRIPT:
+            return None          # rodando via stdin: sem arquivo para respawnar
         try:
             proc = subprocess.Popen(
-                [sys.executable, os.path.abspath(__file__), "--splash"],
+                [sys.executable, CAMINHO_SCRIPT, "--splash"],
                 start_new_session=True,
                 stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             return proc.pid
@@ -1193,3 +1259,9 @@ def main():
 
 if __name__ == "__main__":
     main()
+FIM_PY_ZANTHUS
+
+chmod 0755 "$ALVO"
+
+echo -e "${GREEN}Abrindo o menu grafico...${NC}"
+exec python3 "$ALVO"
