@@ -416,25 +416,191 @@ catch {
 #FimInstala Ninite
 
 #Instala TMT20X II
-Write-Host "Instalando Impressora..." -ForegroundColor Cyan
+[CmdletBinding()]
+param(
+    [switch]$Forcar,
 
-$flag = "C:\ProgramData\Zanthus\impressora_instalada.flag"
-$installImpressora = "C:\opt\Zanthus Plug n Play\setup\impressora\epson\tm-t20\install.bat"
+    [ValidateSet('91','92')]
+    [string]$ImpressoraTipo = '91'
+)
 
-if (-not (Test-Path $flag)) {
-    if (Test-Path $installImpressora) {
-        Start-Process -FilePath $installImpressora -Verb RunAs -Wait
+$BASE      = 'C:\opt\Zanthus Plug n Play\setup\impressora\epson\tm-t20X-ii'
+$DIR_DLL   = 'C:\Zanthus\Zeus\Dll'
+$LOG       = Join-Path $BASE 'instalacao.log'
 
-        New-Item -Path $flag -ItemType File -Force | Out-Null
-        Write-Host "Instalacao concluida." -ForegroundColor Green
-    }
-    else {
-        Write-Host "Arquivo de instalacao da impressora nao encontrado!" -ForegroundColor Yellow
-    }
+$EXE_UTIL   = Join-Path $BASE 'TM-T20X-IIUtility100.exe'
+$ISS        = Join-Path $BASE 'setup.iss'
+$ISS_LOG    = Join-Path $BASE 'setup_utilitario.log'
+$DLL_ORIGEM = Join-Path $BASE 'InterfaceEpsonNF.dll'
+
+$PORTCONN = 'C:\Program Files\EPSON\portcommunicationservice\PortConnectorBranch100.dll'
+
+$VID      = 'VID_04B8'
+$PID_CTRL = 'PID_0202'
+
+function Write-Log {
+    param([string]$Msg, [string]$Nivel = 'INFO')
+    $linha = '{0} [{1}] {2}' -f (Get-Date -Format 'yyyy-MM-dd HH:mm:ss'), $Nivel, $Msg
+    Write-Host $linha
+    Add-Content -LiteralPath $LOG -Value $linha -Encoding UTF8
+}
+
+function Test-Admin {
+    $id = [Security.Principal.WindowsIdentity]::GetCurrent()
+    (New-Object Security.Principal.WindowsPrincipal $id).IsInRole(
+        [Security.Principal.WindowsBuiltInRole]::Administrator)
+}
+
+function Test-PortConnector { Test-Path -LiteralPath $PORTCONN }
+
+function Get-DispositivoEpson {
+    Get-PnpDevice -ErrorAction SilentlyContinue |
+        Where-Object { $_.InstanceId -like "USB\$VID&$PID_CTRL\*" } |
+        Select-Object -First 1
+}
+
+function Test-DllCopiada {
+    $destino = Join-Path $DIR_DLL 'InterfaceEpsonNF.dll'
+    if (-not (Test-Path -LiteralPath $destino))    { return $false }
+    if (-not (Test-Path -LiteralPath $DLL_ORIGEM)) { return $true }
+    $h1 = (Get-FileHash -LiteralPath $destino    -Algorithm SHA256).Hash
+    $h2 = (Get-FileHash -LiteralPath $DLL_ORIGEM -Algorithm SHA256).Hash
+    ($h1 -eq $h2)
+}
+
+if (-not (Test-Admin))                   { Write-Log 'Execute como Administrador.' 'ERRO'; return }
+if (-not (Test-Path -LiteralPath $BASE)) { Write-Log "Pasta base nao encontrada: $BASE" 'ERRO'; return }
+
+Write-Log '=== INICIO - Epson TM-T20X-II ==='
+
+$stPortConn = Test-PortConnector
+$stDll      = Test-DllCopiada
+$dev        = Get-DispositivoEpson
+
+Write-Log '--- Estado atual ---'
+Write-Log ("  PortConnectorBranch100 .. {0}" -f $(if ($stPortConn) { 'OK' } else { 'PENDENTE' }))
+Write-Log ("  InterfaceEpsonNF.dll .... {0}" -f $(if ($stDll)      { 'OK' } else { 'PENDENTE' }))
+Write-Log ("  USB Controller (0202) ... {0}" -f $(if ($dev) { "OK ($($dev.InstanceId))" } else { 'NAO DETECTADO' }))
+
+$modelo = Get-PnpDevice -ErrorAction SilentlyContinue |
+          Where-Object { $_.InstanceId -like "*$VID*PID_0E27*" }
+if ($modelo) {
+    Write-Log '  ATENCAO: PID_0E27 presente. A impressora pode nao estar em' 'AVISO'
+    Write-Log '  Vendor Class, ou ha resquicio do APD. Rode Limpa-Epson-APD.ps1.' 'AVISO'
+}
+if (Get-PrinterPort -ErrorAction SilentlyContinue | Where-Object Name -like 'TMUSB*') {
+    Write-Log '  ATENCAO: porta TMUSB presente - nao existe no PDV de referencia.' 'AVISO'
+}
+
+if ($stPortConn -and $stDll -and -not $Forcar) {
+    Write-Log ''
+    Write-Log 'Software ja instalado. Reaplicando apenas o zconf...'
+}
+
+Write-Log '--- Etapa 1/3: utilitario Epson ---'
+
+if ($stPortConn -and -not $Forcar) {
+    Write-Log 'PortConnectorBranch100.dll ja presente - ignorado.'
+}
+elseif (-not (Test-Path -LiteralPath $EXE_UTIL)) {
+    Write-Log "Instalador nao encontrado: $EXE_UTIL" 'ERRO'
+}
+elseif (-not (Test-Path -LiteralPath $ISS)) {
+    Write-Log 'setup.iss ausente - instalacao silenciosa indisponivel.' 'ERRO'
+    Write-Log 'Grave o response file UMA vez (vale para todos os PDVs):' 'ERRO'
+    Write-Log "  `"$EXE_UTIL`" /r /f1`"$ISS`"" 'ERRO'
+    Write-Log 'Percorra o wizard normalmente ate o Finish.' 'ERRO'
 }
 else {
-    Write-Host "Impressora ja instalada. Pulando etapa." -ForegroundColor DarkGray
+    Write-Log 'Instalando utilitario em modo silencioso...'
+    $p = Start-Process -FilePath $EXE_UTIL `
+         -ArgumentList "/s /f1`"$ISS`" /f2`"$ISS_LOG`"" -PassThru
+
+    if (-not $p.WaitForExit(180000)) {
+        Write-Log 'TIMEOUT (180s) - abriu janela interativa? Encerrando.' 'AVISO'
+        try { $p.Kill() } catch { }
+    } else {
+        Write-Log "ExitCode = $($p.ExitCode)"
+    }
+
+    Start-Sleep -Seconds 3
+    if (Test-PortConnector) {
+        Write-Log 'PortConnectorBranch100.dll instalado.'
+    } else {
+        Write-Log 'PortConnectorBranch100.dll NAO apareceu.' 'ERRO'
+        if (Test-Path -LiteralPath $ISS_LOG) {
+            Get-Content -LiteralPath $ISS_LOG -EA 0 | ForEach-Object { Write-Log "  iss: $_" 'ERRO' }
+        }
+    }
 }
+
+Write-Log '--- Etapa 2/3: InterfaceEpsonNF.dll ---'
+if ($stDll -and -not $Forcar) {
+    Write-Log 'Ja atualizada - ignorada.'
+} else {
+    if (-not (Test-Path -LiteralPath $DIR_DLL)) {
+        New-Item -ItemType Directory -Path $DIR_DLL -Force | Out-Null
+    }
+    if (Test-Path -LiteralPath $DLL_ORIGEM) {
+        Copy-Item -LiteralPath $DLL_ORIGEM -Destination $DIR_DLL -Force
+        Write-Log "Copiada para $DIR_DLL"
+    } else {
+        Write-Log "InterfaceEpsonNF.dll nao encontrada em $BASE" 'ERRO'
+    }
+}
+
+Write-Log '--- Etapa 3/3: zconf ---'
+
+$ZCONF_CANDIDATOS = @(
+    (Join-Path $BASE 'zconf.exe'),
+    (Join-Path $BASE 'zconf'),
+    'C:\Zanthus\Zeus\zconf.exe'
+)
+$zconf = $null
+foreach ($c in $ZCONF_CANDIDATOS) { if (Test-Path -LiteralPath $c) { $zconf = $c; break } }
+if (-not $zconf) {
+    $cmd = Get-Command 'zconf' -ErrorAction SilentlyContinue
+    if ($cmd) { $zconf = $cmd.Source }
+}
+
+if ($zconf) {
+    Write-Log "zconf: $zconf"
+    Write-Log "IMPRESSORA_TIPO = $ImpressoraTipo (izrcb_R$ImpressoraTipo.dll)"
+    $cwdAnterior = Get-Location
+    Set-Location -LiteralPath $BASE
+    try {
+        & $zconf '-EMUL.INI' '-c' 'FW_PORTA_COMUNIC' '-v' 'USB'
+        Write-Log "  EMUL.INI     -> ExitCode $LASTEXITCODE"
+        & $zconf '-ECFRECEB.CFG' '-c' 'biblioteca' '-v' "izrcb_R$ImpressoraTipo"
+        Write-Log "  ECFRECEB.CFG -> ExitCode $LASTEXITCODE"
+    }
+    finally { Set-Location -LiteralPath $cwdAnterior }
+
+    $cfg = 'C:\Zanthus\Zeus\pdvJava\ECFRECEB.CFG'
+    $emu = 'C:\Zanthus\Zeus\pdvJava\EMUL.INI'
+    foreach ($f in @($emu, $cfg)) {
+        if (Test-Path -LiteralPath $f) {
+            Select-String -Path $f -Pattern 'FW_PORTA_COMUNIC|biblioteca' -EA 0 |
+                ForEach-Object { Write-Log "  $(Split-Path $f -Leaf): $($_.Line.Trim())" }
+        } else {
+            Write-Log "  $f nao encontrado - zconf gravou em outro lugar?" 'AVISO'
+        }
+    }
+} else {
+    Write-Log 'zconf nao encontrado. Procurado em:' 'ERRO'
+    $ZCONF_CANDIDATOS | ForEach-Object { Write-Log "    $_" 'ERRO' }
+}
+
+Write-Log ''
+Write-Log '--- Estado final ---'
+Write-Log ("  PortConnectorBranch100 .. {0}" -f $(if (Test-PortConnector) { 'OK' } else { 'FALHOU' }))
+Write-Log ("  InterfaceEpsonNF.dll .... {0}" -f $(if (Test-DllCopiada)    { 'OK' } else { 'FALHOU' }))
+Write-Log ("  USB Controller (0202) ... {0}" -f $(if (Get-DispositivoEpson) { 'OK' } else { 'NAO DETECTADO' }))
+Write-Log ''
+Write-Log 'LEMBRETE: "USB Device Class" -> "Vendor Class" e gravado na NVRAM'
+Write-Log 'da impressora pelo utilitario. Nao ha CLI para isso.'
+Write-Log '=== FIM ==='
+#Fim Instala TMT20II (processo fixo, silencioso e sem interação)
 
 #Adiciona impressora
 $IP = $lojaAtual.ipImpNFe
