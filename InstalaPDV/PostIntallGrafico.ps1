@@ -70,7 +70,7 @@ $configFiliais = @{
 }
 
 # Impressora fiscal: '91' ou '92' (izrcb_R<tipo>.dll)
-$impressoraTipo = '91'
+$impressoraTipo = '92'
 $forcarEpson    = $false
 
 # ============================================================
@@ -310,7 +310,10 @@ $script:sync = [hashtable]::Synchronized(@{
     Falhou         = $false
     PedirCred      = $false
     CredPronta     = $false
-    Cred           = $null
+    CredUser       = $null
+    CredSenha      = $null
+    CredDominio    = "machadao.corp"
+    CredPulou      = $false
     Gateway        = $gateway
     IpMaquina      = $ipMaquina
     Filial         = $filial
@@ -345,6 +348,32 @@ $trabalho = {
     $ipServidor       = $sync.IpServidor
     $filial           = $sync.Filial
     $numLoja          = $sync.NumLoja
+
+    # ---------- inventario de software ----------
+    # $Inv e mutado pelas etapas (hashtable = referencia, sobrevive ao escopo filho do '&')
+    $Inv = @{ Nomes = @(); Presentes = @{} }
+
+    function Ler-Instalados {
+        $chaves = @(
+            'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*',
+            'HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*',
+            'HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*'
+        )
+        @(Get-ItemProperty $chaves -EA 0 |
+            Where-Object { $_.DisplayName } |
+            Select-Object -ExpandProperty DisplayName) | Sort-Object -Unique
+    }
+    function Test-Nome ($Padrao) { [bool](@($Inv.Nomes) -like $Padrao) }
+    function Test-Chrome {
+        (Test-Nome "Google Chrome*") -or
+        (Test-Path "C:\Program Files\Google\Chrome\Application\chrome.exe") -or
+        (Test-Path "C:\Program Files (x86)\Google\Chrome\Application\chrome.exe")
+    }
+    function Marcar-Presente ($id, $rotulo) {
+        $Inv.Presentes[$id] = $true
+        Log ("  {0,-14} ja instalado" -f $rotulo) $CorOk
+    }
+    function Falta ($id) { -not $Inv.Presentes[$id] }
 
     function Criar-Arquivo ($NomeArquivo, $Conteudo) {
         $Conteudo | Set-Content -Path (Join-Path $caminhoPdv $NomeArquivo) -Encoding Default
@@ -562,97 +591,335 @@ Set-Date $utc.AddHours(-4)
         }
     }}
 
-    @{ Nome = "Winget: OnlyOffice, MicroSIP, Lightshot, Sumatra"; Acao = {
-        winget source reset --force | Out-Null
-        $pacotes = 'ONLYOFFICE.DesktopEditors','MicroSIP.MicroSIP','Skillbrains.Lightshot','SumatraPDF.SumatraPDF'
-        foreach ($p in $pacotes) {
-            Log "  instalando $p ..."
-            winget install -e --id $p --silent --scope machine --accept-package-agreements --accept-source-agreements | Out-Null
+    @{ Nome = "Inventario de software"; Acao = {
+        $Inv.Nomes = Ler-Instalados
+        $Inv.Presentes.Clear()
+        Log "  $($Inv.Nomes.Count) programas registrados na maquina"
+
+        if ((Get-Process -Name "EPSecurityConsole" -EA 0) -or
+            (Test-Nome "*Bitdefender*") -or
+            (Test-Path "C:\Program Files\Bitdefender\Endpoint Security")) { Marcar-Presente 'bitdefender' 'BitDefender' }
+
+        # UltraVNC: so detecta, NUNCA instala
+        if (Test-Path "C:\Program Files\uvnc bvba\UltraVNC\winvnc.exe") { Marcar-Presente 'uvnc' 'UltraVNC' }
+        else { Log ("  {0,-14} ausente (instalacao manual, fora do escopo)" -f 'UltraVNC') $CorAviso }
+
+        if (Test-Nome "7-Zip*")             { Marcar-Presente '7zip'       '7-Zip' }
+        if (Test-Chrome)                    { Marcar-Presente 'chrome'     'Chrome' }
+        if (Test-Nome "Amazon Corretto*8*") { Marcar-Presente 'corretto'   'Corretto 8' }
+        if (Test-Nome "*ONLYOFFICE*")       { Marcar-Presente 'onlyoffice' 'ONLYOFFICE' }
+        if (Test-Nome "*Lightshot*")        { Marcar-Presente 'lightshot'  'Lightshot' }
+        if (Test-Nome "Notepad++*")         { Marcar-Presente 'notepadpp'  'Notepad++' }
+        if (Test-Nome "*Sumatra*")          { Marcar-Presente 'sumatra'    'SumatraPDF' }
+        if (Test-Nome "VLC media player*")  { Marcar-Presente 'vlc'        'VLC' }
+        if (Test-Nome "*MicroSIP*")         { Marcar-Presente 'microsip'   'MicroSIP' }
+        if (Test-Nome "*GOnnect*")          { Marcar-Presente 'gonnect'    'GOnnect' }
+
+        $qtdVc = @($Inv.Nomes | Where-Object { $_ -like "Microsoft Visual C++*Redistributable*" }).Count
+        if     ($qtdVc -ge 12) { Marcar-Presente 'vcredist' 'VC++ Redist' }
+        elseif ($qtdVc -gt 0)  { Log ("  {0,-14} {1} de 12 - sera completado" -f 'VC++ Redist', $qtdVc) $CorAviso }
+
+        $temNet6 = Test-Nome "Microsoft Windows Desktop Runtime - 6.*x64*"
+        $temNet8 = Test-Nome "Microsoft Windows Desktop Runtime - 8.*x64*"
+        if ($temNet6 -and $temNet8) { Marcar-Presente 'dotnet' '.NET 6/8' }
+        elseif ($temNet6 -or $temNet8) { Log ("  {0,-14} parcial - sera completado" -f '.NET 6/8') $CorAviso }
+
+        if (-not (Get-Command winget -EA 0)) {
+            Log "  AVISO: winget nao encontrado nesta maquina." $CorAviso
+            Log "  Instale o App Installer pela Microsoft Store antes de continuar." $CorAviso
         }
-        Log "  pacotes winget processados" $CorOk
     }}
 
-    @{ Nome = "Pacote Ninite"; Acao = {
-        $url = "http://192.168.12.223/uploads/InstaladorWindows/ninite.exe"
-        $destino = "$env:TEMP\ninite.exe"
-        Invoke-WebRequest -Uri $url -OutFile $destino -UseBasicParsing
-        Start-Process -FilePath $destino -Wait -WindowStyle Hidden
-        Remove-Item -Path $destino -Force -ErrorAction SilentlyContinue
-        Log "  Ninite concluido" $CorOk
+    @{ Nome = "Instalacao dos pacotes faltantes"; Acao = {
+        if (-not (Get-Command winget -EA 0)) { Log "  winget indisponivel - etapa ignorada" $CorErro; return }
+        winget source reset --force | Out-Null
+
+        function Winget-Instala ($id, $rotulo, $extra = @()) {
+            Log "  instalando $rotulo ($id)..."
+            $arg = @('install','-e','--id',$id,'--silent','--accept-package-agreements','--accept-source-agreements') + $extra
+            $saida = & winget @arg 2>&1
+            if ($LASTEXITCODE -eq 0) { Log "    $rotulo OK" $CorOk }
+            else {
+                Log "    $rotulo terminou com codigo $LASTEXITCODE" $CorAviso
+                @($saida)[-1..-3] | Where-Object { $_ } | ForEach-Object { Log "      $_" $CorAviso }
+            }
+        }
+
+        $fila = @(
+            @{ id='7zip'       ; wid='7zip.7zip'                  ; rot='7-Zip'      ; ex=@('--scope','machine') }
+            @{ id='chrome'     ; wid='Google.Chrome'              ; rot='Chrome'     ; ex=@('--scope','machine') }
+            @{ id='corretto'   ; wid='Amazon.Corretto.8.JDK'      ; rot='Corretto 8' ; ex=@('--scope','machine') }
+            @{ id='onlyoffice' ; wid='ONLYOFFICE.DesktopEditors'  ; rot='ONLYOFFICE' ; ex=@('--scope','machine') }
+            @{ id='notepadpp'  ; wid='Notepad++.Notepad++'        ; rot='Notepad++'  ; ex=@('--scope','machine') }
+            @{ id='sumatra'    ; wid='SumatraPDF.SumatraPDF'      ; rot='SumatraPDF' ; ex=@('--scope','machine','--architecture','x64') }
+            @{ id='vlc'        ; wid='VideoLAN.VLC'               ; rot='VLC'        ; ex=@('--scope','machine') }
+            @{ id='lightshot'  ; wid='Skillbrains.Lightshot'      ; rot='Lightshot'  ; ex=@() }
+            @{ id='microsip'   ; wid='MicroSIP.MicroSIP'          ; rot='MicroSIP'   ; ex=@() }
+        )
+        foreach ($p in $fila) {
+            if (Falta $p.id) { Winget-Instala $p.wid $p.rot $p.ex }
+        }
+
+        if (Falta 'vcredist') {
+            foreach ($v in 'Microsoft.VCRedist.2005.x86','Microsoft.VCRedist.2008.x86','Microsoft.VCRedist.2008.x64',
+                           'Microsoft.VCRedist.2010.x86','Microsoft.VCRedist.2010.x64','Microsoft.VCRedist.2012.x86',
+                           'Microsoft.VCRedist.2012.x64','Microsoft.VCRedist.2013.x86','Microsoft.VCRedist.2013.x64',
+                           'Microsoft.VCRedist.2015+.x86','Microsoft.VCRedist.2015+.x64') {
+                $rot = ($v -replace '^Microsoft\.VCRedist\.', 'VC++ ')
+                Winget-Instala $v $rot @('--scope','machine')
+            }
+        }
+        if (Falta 'dotnet') {
+            Winget-Instala 'Microsoft.DotNet.DesktopRuntime.6' '.NET 6 Desktop' @('--scope','machine','--architecture','x64')
+            Winget-Instala 'Microsoft.DotNet.DesktopRuntime.8' '.NET 8 Desktop' @('--scope','machine','--architecture','x64')
+        }
+        if (Falta 'gonnect') { Log "  GOnnect nao esta no winget - use o Configura-Ramal.ps1" $CorAviso }
+
+        Log "  fila de pacotes concluida" $CorOk
     }}
 
-    @{ Nome = "Epson TM-T20X-II"; Acao = {
-        $BASE       = 'C:\opt\Zanthus Plug n Play\setup\impressora\epson\tm-t20X-ii'
-        $DIR_DLL    = 'C:\Zanthus\Zeus\Dll'
-        $EXE_UTIL   = Join-Path $BASE 'TM-T20X-IIUtility100.exe'
+    @{ Nome = "Epson TM-T20X"; Acao = {
+        # ------------------------------------------------------------------
+        # Conteudo do script original, verbatim. Unica adaptacao: o param()
+        # virou variaveis (param() so vale no topo de um arquivo) e o
+        # Write-Log espelha no painel alem de gravar no instalacao.log.
+        # ------------------------------------------------------------------
+        $Forcar         = $sync.ForcarEpson
+        $ImpressoraTipo = $sync.ImpressoraTipo
+
+        $BASE      = 'C:\opt\Zanthus Plug n Play\setup\impressora\epson\tm-t88v'
+        $DIR_DLL   = 'C:\Zanthus\Zeus\Dll'
+        $LOG       = Join-Path $BASE 'instalacao.log'
+
+        $EXE_UTIL   = Join-Path $BASE 'TM-T88VUtility170.exe'
         $ISS        = Join-Path $BASE 'setup.iss'
         $ISS_LOG    = Join-Path $BASE 'setup_utilitario.log'
         $DLL_ORIGEM = Join-Path $BASE 'InterfaceEpsonNF.dll'
-        $PORTCONN   = 'C:\Program Files\EPSON\portcommunicationservice\PortConnectorBranch100.dll'
-        $tipo       = $sync.ImpressoraTipo
-        $forcar     = $sync.ForcarEpson
 
-        if (-not (Test-Path -LiteralPath $BASE)) { Log "  pasta base ausente: $BASE" $CorAviso; return }
+        $PORTCONN = 'C:\Program Files\EPSON\portcommunicationservice\PortConnectorBranch100.dll'
 
-        $stPortConn = Test-Path -LiteralPath $PORTCONN
-        $stDll = $false
-        $destDll = Join-Path $DIR_DLL 'InterfaceEpsonNF.dll'
-        if (Test-Path -LiteralPath $destDll) {
-            $stDll = -not (Test-Path -LiteralPath $DLL_ORIGEM) -or
-                     ((Get-FileHash $destDll).Hash -eq (Get-FileHash $DLL_ORIGEM).Hash)
-        }
-        $dev = Get-PnpDevice -ErrorAction SilentlyContinue |
-               Where-Object { $_.InstanceId -like "USB\VID_04B8&PID_0202\*" } | Select-Object -First 1
-        Log ("  PortConnector: {0} | DLL: {1} | USB 0202: {2}" -f
-             $(if($stPortConn){'OK'}else{'PENDENTE'}), $(if($stDll){'OK'}else{'PENDENTE'}), $(if($dev){'OK'}else{'NAO DETECTADO'}))
+        $VID      = 'VID_04B8'
+        $PID_CTRL = 'PID_0202'
 
-        if (Get-PnpDevice -EA 0 | Where-Object { $_.InstanceId -like "*VID_04B8*PID_0E27*" }) {
-            Log "  ATENCAO: PID_0E27 presente - impressora fora de Vendor Class ou resquicio do APD" $CorAviso
-        }
-        if (Get-PrinterPort -EA 0 | Where-Object Name -like 'TMUSB*') {
-            Log "  ATENCAO: porta TMUSB presente - nao existe no PDV de referencia" $CorAviso
+        function Write-Log {
+            param([string]$Msg, [string]$Nivel = 'INFO')
+            $linha = '{0} [{1}] {2}' -f (Get-Date -Format 'yyyy-MM-dd HH:mm:ss'), $Nivel, $Msg
+            $cor = switch ($Nivel) { 'ERRO' { '#F87171' } 'AVISO' { '#F59E0B' } default { '#CBD5E1' } }
+            Log ("    " + $Msg) $cor
+            Add-Content -LiteralPath $LOG -Value $linha -Encoding UTF8 -EA 0
         }
 
-        if ($stPortConn -and -not $forcar) { Log "  utilitario ja instalado - ignorado" }
-        elseif (-not (Test-Path -LiteralPath $EXE_UTIL)) { Log "  instalador ausente: $EXE_UTIL" $CorAviso }
-        elseif (-not (Test-Path -LiteralPath $ISS)) {
-            Log "  setup.iss ausente - grave o response file uma vez:" $CorAviso
-            Log "    `"$EXE_UTIL`" /r /f1`"$ISS`"" $CorAviso
-        } else {
-            $p = Start-Process -FilePath $EXE_UTIL -ArgumentList "/s /f1`"$ISS`" /f2`"$ISS_LOG`"" -PassThru -WindowStyle Hidden
-            if (-not $p.WaitForExit(180000)) { Log "  TIMEOUT 180s - encerrando instalador" $CorAviso; try { $p.Kill() } catch {} }
-            else { Log "  ExitCode = $($p.ExitCode)" }
+        function Test-Admin {
+            $id = [Security.Principal.WindowsIdentity]::GetCurrent()
+            (New-Object Security.Principal.WindowsPrincipal $id).IsInRole(
+                [Security.Principal.WindowsBuiltInRole]::Administrator)
+        }
+
+        function Test-PortConnector { Test-Path -LiteralPath $PORTCONN }
+
+        function New-SetupIss {
+            $conteudo = @'
+[InstallShield Silent]
+Version=v7.00
+File=Response File
+[File Transfer]
+OverwrittenReadOnly=NoToAll
+[{DDA36F98-A44D-46F2-88A9-9CDDB8A9625D}-DlgOrder]
+Dlg0={DDA36F98-A44D-46F2-88A9-9CDDB8A9625D}-SdWelcome-0
+Count=5
+Dlg1={DDA36F98-A44D-46F2-88A9-9CDDB8A9625D}-SdLicense2-0
+Dlg2={DDA36F98-A44D-46F2-88A9-9CDDB8A9625D}-AskOptions-0
+Dlg3={DDA36F98-A44D-46F2-88A9-9CDDB8A9625D}-SdStartCopy2-0
+Dlg4={DDA36F98-A44D-46F2-88A9-9CDDB8A9625D}-SdFinish-0
+[{DDA36F98-A44D-46F2-88A9-9CDDB8A9625D}-SdWelcome-0]
+Result=1
+[{DDA36F98-A44D-46F2-88A9-9CDDB8A9625D}-SdLicense2-0]
+Result=1
+[{DDA36F98-A44D-46F2-88A9-9CDDB8A9625D}-AskOptions-0]
+Result=1
+Sel-0=1
+[{DDA36F98-A44D-46F2-88A9-9CDDB8A9625D}-SdStartCopy2-0]
+Result=1
+[Application]
+Name=EPSON TM-T88V Utility Ver.1.70
+Version=1.7.5.1
+Company=Seiko Epson Corporation
+Lang=0816
+[{DDA36F98-A44D-46F2-88A9-9CDDB8A9625D}-SdFinish-0]
+Result=1
+bOpt1=0
+bOpt2=0
+'@
+            try {
+                [System.IO.File]::WriteAllText($ISS, $conteudo, [System.Text.Encoding]::ASCII)
+                Write-Log "setup.iss gerado em $ISS"
+                return $true
+            } catch {
+                Write-Log "Falha ao gerar setup.iss: $($_.Exception.Message)" 'ERRO'
+                return $false
+            }
+        }
+
+        function Get-DispositivoEpson {
+            Get-PnpDevice -ErrorAction SilentlyContinue |
+                Where-Object { $_.InstanceId -like "USB\$VID&$PID_CTRL\*" } |
+                Select-Object -First 1
+        }
+
+        function Test-DllCopiada {
+            $destino = Join-Path $DIR_DLL 'InterfaceEpsonNF.dll'
+            if (-not (Test-Path -LiteralPath $destino))    { return $false }
+            if (-not (Test-Path -LiteralPath $DLL_ORIGEM)) { return $true }
+            $h1 = (Get-FileHash -LiteralPath $destino    -Algorithm SHA256).Hash
+            $h2 = (Get-FileHash -LiteralPath $DLL_ORIGEM -Algorithm SHA256).Hash
+            ($h1 -eq $h2)
+        }
+
+        if (-not (Test-Admin))                   { Write-Log 'Execute como Administrador.' 'ERRO'; return }
+        if (-not (Test-Path -LiteralPath $BASE)) { Write-Log "Pasta base nao encontrada: $BASE" 'ERRO'; return }
+
+        Write-Log '=== INICIO - Epson TM-T20X-II ==='
+
+        $stPortConn = Test-PortConnector
+        $stDll      = Test-DllCopiada
+        $dev        = Get-DispositivoEpson
+
+        Write-Log '--- Estado atual ---'
+        Write-Log ("  PortConnectorBranch100 .. {0}" -f $(if ($stPortConn) { 'OK' } else { 'PENDENTE' }))
+        Write-Log ("  InterfaceEpsonNF.dll .... {0}" -f $(if ($stDll)      { 'OK' } else { 'PENDENTE' }))
+        Write-Log ("  USB Controller (0202) ... {0}" -f $(if ($dev) { "OK ($($dev.InstanceId))" } else { 'NAO DETECTADO' }))
+
+        $modelo = Get-PnpDevice -ErrorAction SilentlyContinue |
+                  Where-Object { $_.InstanceId -like "*$VID*PID_0E27*" }
+        if ($modelo) {
+            Write-Log '  ATENCAO: PID_0E27 presente. A impressora pode nao estar em' 'AVISO'
+            Write-Log '  Vendor Class, ou ha resquicio do APD. Rode Limpa-Epson-APD.ps1.' 'AVISO'
+        }
+        if (Get-PrinterPort -ErrorAction SilentlyContinue | Where-Object Name -like 'TMUSB*') {
+            Write-Log '  ATENCAO: porta TMUSB presente - nao existe no PDV de referencia.' 'AVISO'
+        }
+
+        if ($stPortConn -and $stDll -and -not $Forcar) {
+            Write-Log ''
+            Write-Log 'Software ja instalado. Reaplicando apenas o zconf...'
+        }
+
+        Write-Log '--- Etapa 1/3: utilitario Epson ---'
+
+        if ($stPortConn -and -not $Forcar) {
+            Write-Log 'PortConnectorBranch100.dll ja presente - ignorado.'
+        }
+        elseif (-not (Test-Path -LiteralPath $EXE_UTIL)) {
+            Write-Log "Instalador nao encontrado: $EXE_UTIL" 'ERRO'
+        }
+        else {
+            if (-not (Test-Path -LiteralPath $ISS)) {
+                Write-Log 'setup.iss ausente - gerando...'
+                New-SetupIss | Out-Null
+            } else {
+                Write-Log 'setup.iss ja presente na pasta.'
+            }
+
+            Write-Log 'Instalando utilitario em modo silencioso...'
+            $p = Start-Process -FilePath $EXE_UTIL `
+                 -ArgumentList "/s /f1`"$ISS`" /f2`"$ISS_LOG`"" -PassThru
+
+            if (-not $p.WaitForExit(180000)) {
+                Write-Log 'TIMEOUT (180s) - abriu janela interativa? Encerrando.' 'AVISO'
+                try { $p.Kill() } catch { }
+            } else {
+                Write-Log "ExitCode = $($p.ExitCode)"
+            }
+
             Start-Sleep -Seconds 3
-            if (Test-Path -LiteralPath $PORTCONN) { Log "  PortConnectorBranch100.dll instalado" $CorOk }
-            else { Log "  PortConnectorBranch100.dll NAO apareceu" $CorErro }
+
+            if (Test-Path -LiteralPath $ISS_LOG) {
+                $rcIss = (Select-String -Path $ISS_LOG -Pattern 'ResultCode=(-?\d+)' -EA 0 |
+                          Select-Object -First 1).Matches.Groups[1].Value
+                switch ($rcIss) {
+                    '0'  { Write-Log '  ResultCode=0 (sucesso)' }
+                    '-5' { Write-Log '  ResultCode=-5: response file nao encontrado.' 'ERRO' }
+                    '-3' { Write-Log '  ResultCode=-3: response file invalido/corrompido.' 'ERRO' }
+                    default { Write-Log "  ResultCode=$rcIss - consulte $ISS_LOG" 'AVISO' }
+                }
+            }
+
+            if (Test-PortConnector) {
+                Write-Log 'PortConnectorBranch100.dll instalado.'
+            } else {
+                Write-Log 'PortConnectorBranch100.dll NAO apareceu.' 'ERRO'
+                if (Test-Path -LiteralPath $ISS_LOG) {
+                    Get-Content -LiteralPath $ISS_LOG -EA 0 | ForEach-Object { Write-Log "  iss: $_" 'ERRO' }
+                }
+            }
         }
 
-        if ($stDll -and -not $forcar) { Log "  InterfaceEpsonNF.dll ja atualizada" }
-        elseif (Test-Path -LiteralPath $DLL_ORIGEM) {
-            if (-not (Test-Path $DIR_DLL)) { New-Item -ItemType Directory -Path $DIR_DLL -Force | Out-Null }
-            Copy-Item -LiteralPath $DLL_ORIGEM -Destination $DIR_DLL -Force
-            Log "  InterfaceEpsonNF.dll copiada" $CorOk
-        } else { Log "  InterfaceEpsonNF.dll nao encontrada em $BASE" $CorErro }
+        Write-Log '--- Etapa 2/3: InterfaceEpsonNF.dll ---'
+        if ($stDll -and -not $Forcar) {
+            Write-Log 'Ja atualizada - ignorada.'
+        } else {
+            if (-not (Test-Path -LiteralPath $DIR_DLL)) {
+                New-Item -ItemType Directory -Path $DIR_DLL -Force | Out-Null
+            }
+            if (Test-Path -LiteralPath $DLL_ORIGEM) {
+                Copy-Item -LiteralPath $DLL_ORIGEM -Destination $DIR_DLL -Force
+                Write-Log "Copiada para $DIR_DLL"
+            } else {
+                Write-Log "InterfaceEpsonNF.dll nao encontrada em $BASE" 'ERRO'
+            }
+        }
 
-        $zconf = @((Join-Path $BASE 'zconf.exe'), (Join-Path $BASE 'zconf'), 'C:\Zanthus\Zeus\zconf.exe') |
-                 Where-Object { Test-Path -LiteralPath $_ } | Select-Object -First 1
-        if (-not $zconf) { $zconf = (Get-Command 'zconf' -EA 0).Source }
+        Write-Log '--- Etapa 3/3: zconf ---'
+
+        $ZCONF_CANDIDATOS = @(
+            (Join-Path $BASE 'zconf.exe'),
+            (Join-Path $BASE 'zconf'),
+            'C:\Zanthus\Zeus\zconf.exe'
+        )
+        $zconf = $null
+        foreach ($c in $ZCONF_CANDIDATOS) { if (Test-Path -LiteralPath $c) { $zconf = $c; break } }
+        if (-not $zconf) {
+            $cmd = Get-Command 'zconf' -ErrorAction SilentlyContinue
+            if ($cmd) { $zconf = $cmd.Source }
+        }
+
         if ($zconf) {
-            $cwd = Get-Location
+            Write-Log "zconf: $zconf"
+            Write-Log "IMPRESSORA_TIPO = $ImpressoraTipo (izrcb_R$ImpressoraTipo.dll)"
+            $cwdAnterior = Get-Location
             Set-Location -LiteralPath $BASE
             try {
                 & $zconf '-EMUL.INI' '-c' 'FW_PORTA_COMUNIC' '-v' 'USB'
-                & $zconf '-ECFRECEB.CFG' '-c' 'biblioteca' '-v' "izrcb_R$tipo"
-                Log "  zconf aplicado (izrcb_R$tipo)" $CorOk
-            } finally { Set-Location -LiteralPath $cwd }
-            foreach ($f in @("$caminhoPdv\EMUL.INI", "$caminhoPdv\ECFRECEB.CFG")) {
+                Write-Log "  EMUL.INI     -> ExitCode $LASTEXITCODE"
+                & $zconf '-ECFRECEB.CFG' '-c' 'biblioteca' '-v' "izrcb_R$ImpressoraTipo"
+                Write-Log "  ECFRECEB.CFG -> ExitCode $LASTEXITCODE"
+            }
+            finally { Set-Location -LiteralPath $cwdAnterior }
+
+            $cfg = 'C:\Zanthus\Zeus\pdvJava\ECFRECEB.CFG'
+            $emu = 'C:\Zanthus\Zeus\pdvJava\EMUL.INI'
+            foreach ($f in @($emu, $cfg)) {
                 if (Test-Path -LiteralPath $f) {
                     Select-String -Path $f -Pattern 'FW_PORTA_COMUNIC|biblioteca' -EA 0 |
-                        ForEach-Object { Log "    $(Split-Path $f -Leaf): $($_.Line.Trim())" }
-                } else { Log "    $f nao encontrado" $CorAviso }
+                        ForEach-Object { Write-Log "  $(Split-Path $f -Leaf): $($_.Line.Trim())" }
+                } else {
+                    Write-Log "  $f nao encontrado - zconf gravou em outro lugar?" 'AVISO'
+                }
             }
-        } else { Log "  zconf nao encontrado" $CorErro }
-        Log "  LEMBRETE: 'USB Device Class -> Vendor Class' e gravado na NVRAM pelo utilitario, nao ha CLI" $CorAviso
+        } else {
+            Write-Log 'zconf nao encontrado. Procurado em:' 'ERRO'
+            $ZCONF_CANDIDATOS | ForEach-Object { Write-Log "    $_" 'ERRO' }
+        }
+
+        Write-Log ''
+        Write-Log '--- Estado final ---'
+        Write-Log ("  PortConnectorBranch100 .. {0}" -f $(if (Test-PortConnector) { 'OK' } else { 'FALHOU' }))
+        Write-Log ("  InterfaceEpsonNF.dll .... {0}" -f $(if (Test-DllCopiada)    { 'OK' } else { 'FALHOU' }))
+        Write-Log ("  USB Controller (0202) ... {0}" -f $(if (Get-DispositivoEpson) { 'OK' } else { 'NAO DETECTADO' }))
+        Write-Log ''
+        Write-Log 'LEMBRETE: "USB Device Class" -> "Vendor Class" e gravado na NVRAM'
+        Write-Log 'da impressora pelo utilitario. Nao ha CLI para isso.'
+        Write-Log '=== FIM ==='
     }}
 
     @{ Nome = "Impressora IMP-NFE (Kyocera)"; Acao = {
@@ -736,11 +1003,13 @@ Set-Date $utc.AddHours(-4)
         Log "  IMP-NFE instalada (duplex, cassete, papel comum)" $CorOk
     }}
 
-    @{ Nome = "BitDefender Endpoint"; Acao = {
-        if (Get-Process -Name "EPSecurityConsole" -EA 0) { Log "  ja instalado e em execucao" $CorOk; return }
+    @{ Nome = "BitDefender Endpoint (interativo)"; Acao = {
+        if (-not (Falta 'bitdefender')) { Log "  ja instalado - etapa ignorada" $CorOk; return }
+
         $baseUrl = "http://192.168.12.223/uploads/InstaladorWindows/"
         $pastaDestino = Join-Path $env:USERPROFILE "Downloads"
         if (-not (Test-Path -LiteralPath $pastaDestino)) { New-Item -ItemType Directory -Path $pastaDestino -Force | Out-Null }
+
         $pagina = Invoke-WebRequest -Uri $baseUrl -UseBasicParsing -ErrorAction Stop
         $arquivo = ($pagina.Content -split '["''<>\s]') | Where-Object { $_ -like "setupdownloader_*.exe" } | Select-Object -First 1
         if (-not $arquivo) { Log "  nenhum instalador encontrado no servidor" $CorErro; return }
@@ -748,12 +1017,32 @@ Set-Date $utc.AddHours(-4)
         $local = Join-Path $pastaDestino $nomeLimpo
         (New-Object System.Net.WebClient).DownloadFile("$baseUrl$arquivo", $local)
         Log "  baixado: $nomeLimpo"
+
+        # O setupdownloader do BitDefender NAO tem modo silencioso util:
+        # sem janela visivel ele encerra sem instalar nada. Roda visivel e espera.
+        Log "  ATENCAO: a janela do BitDefender vai abrir - conclua o assistente." $CorAviso
         $cwd = Get-Location
         Set-Location -LiteralPath $pastaDestino
-        try { Start-Process -FilePath "cmd.exe" -ArgumentList "/c `"`"$nomeLimpo`"`"" -Wait -WindowStyle Hidden }
+        try {
+            $p = Start-Process -FilePath "cmd.exe" -ArgumentList "/c `"`"$nomeLimpo`"`"" -PassThru -WindowStyle Normal
+            if (-not $p.WaitForExit(900000)) { Log "  TIMEOUT de 15 min aguardando o assistente" $CorAviso; try { $p.Kill() } catch {} }
+        }
         finally { Set-Location -LiteralPath $cwd }
+
+        # o downloader sai antes do agente terminar: espera o servico aparecer
+        $limite = (Get-Date).AddMinutes(10)
+        while ((Get-Date) -lt $limite) {
+            if ((Get-Process -Name "EPSecurityConsole" -EA 0) -or
+                (Test-Path "C:\Program Files\Bitdefender\Endpoint Security")) { break }
+            Start-Sleep -Seconds 10
+        }
+        if ((Get-Process -Name "EPSecurityConsole" -EA 0) -or
+            (Test-Path "C:\Program Files\Bitdefender\Endpoint Security")) {
+            Log "  BitDefender instalado" $CorOk
+        } else {
+            Log "  BitDefender NAO foi detectado apos a instalacao" $CorErro
+        }
         Remove-Item -LiteralPath $local -Force -EA 0
-        Log "  BitDefender instalado" $CorOk
     }}
 
     @{ Nome = "Bloqueio do usuario PDV e logon automatico"; Acao = {
@@ -765,21 +1054,34 @@ Set-Date $utc.AddHours(-4)
         Log "  logon automatico desativado, usuario PDV desabilitado" $CorOk
     }}
 
-    @{ Nome = "Ingresso no dominio machadao.corp"; Acao = {
-        $dominio = "machadao.corp"
+    @{ Nome = "Ingresso no dominio"; Acao = {
         $st = Get-CimInstance Win32_ComputerSystem
-        if ($st.PartOfDomain -and $st.Domain -eq $dominio) { Log "  ja ingressado - ignorado" $CorOk; return }
+        if ($st.PartOfDomain) { Log "  ja ingressado em $($st.Domain) - ignorado" $CorOk; return }
 
         while ($true) {
             $sync.CredPronta = $false
-            $sync.Cred       = $null
+            $sync.CredUser   = $null
+            $sync.CredSenha  = $null
+            $sync.CredPulou  = $false
             $sync.PedirCred  = $true
             while (-not $sync.CredPronta) { Start-Sleep -Milliseconds 200 }
-            $cred = $sync.Cred
-            if (-not $cred) { Log "  ingresso cancelado pelo tecnico" $CorAviso; return }
+
+            if ($sync.CredPulou) { Log "  ingresso cancelado pelo tecnico" $CorAviso; return }
+
+            $usuario = $sync.CredUser
+            $senha   = $sync.CredSenha
+            $dominio = $sync.CredDominio
+            if ([string]::IsNullOrWhiteSpace($usuario) -or $null -eq $senha -or $senha.Length -eq 0) {
+                Log "  usuario ou senha vazios - tente de novo" $CorErro
+                continue
+            }
+
+            # PSCredential montado aqui dentro: SecureString atravessa runspace, objeto composto nao
+            $cred = New-Object System.Management.Automation.PSCredential($usuario, $senha)
+            Log "  ingressando $dominio como $usuario ..."
             try {
                 Add-Computer -DomainName $dominio -Credential $cred -Force -ErrorAction Stop
-                Log "  terminal ingressado no dominio" $CorOk
+                Log "  terminal ingressado em $dominio" $CorOk
                 return
             } catch {
                 Log "  falha: $($_.Exception.Message)" $CorErro
@@ -824,33 +1126,53 @@ function PedirCredencial {
     [xml]$xamlCred = @"
 <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Dominio" Height="330" Width="600" WindowStartupLocation="CenterScreen"
+        Title="Dominio" Height="410" Width="620" WindowStartupLocation="CenterScreen"
         ResizeMode="NoResize" WindowStyle="None" Topmost="True" Background="#EDEFF2">
   <Grid>
     <Grid.RowDefinitions><RowDefinition Height="92"/><RowDefinition Height="*"/></Grid.RowDefinitions>
     <Border Grid.Row="0" Background="#12161C">
-      <StackPanel VerticalAlignment="Center" Margin="36,0,36,0">
-        <TextBlock Text="M A C H A D A O   C O R P" FontFamily="Consolas" FontSize="9" Foreground="#7C93AE"/>
-        <TextBlock Text="Ingresso no dominio machadao.corp" FontFamily="Segoe UI" FontSize="19" Foreground="White" Margin="0,4,0,0"/>
-      </StackPanel>
+      <Grid Margin="36,0,36,0">
+        <StackPanel VerticalAlignment="Center">
+          <TextBlock Text="M A C H A D A O   C O R P" FontFamily="Consolas" FontSize="9" Foreground="#7C93AE"/>
+          <TextBlock Text="Ingresso no dominio" FontFamily="Segoe UI" FontSize="19" Foreground="White" Margin="0,4,0,0"/>
+        </StackPanel>
+        <TextBlock x:Name="CxMaquina" FontFamily="Consolas" FontSize="13" Foreground="#B4BCC5"
+                   VerticalAlignment="Center" HorizontalAlignment="Right"/>
+      </Grid>
     </Border>
+
     <Grid Grid.Row="1" Margin="36,22,36,20">
       <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+
       <StackPanel Grid.Row="0">
+
+        <TextBlock Text="Dominio" FontFamily="Segoe UI" FontSize="10" Foreground="#5B6672"/>
         <Grid>
+          <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="12"/><ColumnDefinition Width="120"/></Grid.ColumnDefinitions>
+          <TextBox x:Name="CxDominio" Grid.Column="0" FontFamily="Consolas" FontSize="14" Padding="6,4"
+                   BorderBrush="#DDE1E6" IsReadOnly="True" Background="#EDEFF2" Foreground="#5B6672"/>
+          <Button x:Name="CxEditar" Grid.Column="2" Content="Editar" Height="30"
+                  FontFamily="Segoe UI" FontSize="11" FontWeight="Bold"
+                  Background="#5B6672" Foreground="White" BorderThickness="0"/>
+        </Grid>
+        <TextBlock x:Name="CxDicaDom" Text="valor padrao da rede Machadao" FontFamily="Segoe UI" FontSize="9" Foreground="#9AA4AF"/>
+
+        <Grid Margin="0,16,0,0">
           <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="16"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
           <StackPanel Grid.Column="0">
             <TextBlock Text="Usuario do AD" FontFamily="Segoe UI" FontSize="10" Foreground="#5B6672"/>
             <TextBox x:Name="CxUser" FontFamily="Consolas" FontSize="14" Padding="6,4" BorderBrush="#DDE1E6"/>
-            <TextBlock Text="sem o prefixo machadao\" FontFamily="Segoe UI" FontSize="9" Foreground="#9AA4AF"/>
+            <TextBlock x:Name="CxDicaUser" FontFamily="Segoe UI" FontSize="9" Foreground="#9AA4AF"/>
           </StackPanel>
           <StackPanel Grid.Column="2">
             <TextBlock Text="Senha" FontFamily="Segoe UI" FontSize="10" Foreground="#5B6672"/>
             <PasswordBox x:Name="CxSenha" FontFamily="Consolas" FontSize="14" Padding="6,4" BorderBrush="#DDE1E6"/>
           </StackPanel>
         </Grid>
+
         <TextBlock x:Name="CxMsg" FontFamily="Segoe UI" FontSize="11" Foreground="#C01C28" Margin="2,14,0,0" TextWrapping="Wrap"/>
       </StackPanel>
+
       <Grid Grid.Row="2">
         <TextBlock Text="Creditos: @JJMoratelli" FontFamily="Segoe UI" FontSize="10" Foreground="#B4BCC5"
                    VerticalAlignment="Bottom" HorizontalAlignment="Left"/>
@@ -866,29 +1188,72 @@ function PedirCredencial {
 </Window>
 "@
     $w = [Windows.Markup.XamlReader]::Load((New-Object System.Xml.XmlNodeReader $xamlCred))
-    $cU = $w.FindName('CxUser'); $cS = $w.FindName('CxSenha'); $cM = $w.FindName('CxMsg')
-    $bO = $w.FindName('CxOk');   $bP = $w.FindName('CxPular')
+    $cD  = $w.FindName('CxDominio'); $cU = $w.FindName('CxUser'); $cS = $w.FindName('CxSenha')
+    $cM  = $w.FindName('CxMsg');     $bO = $w.FindName('CxOk');   $bP = $w.FindName('CxPular')
+    $bE  = $w.FindName('CxEditar');  $cDD = $w.FindName('CxDicaDom'); $cDU = $w.FindName('CxDicaUser')
+    $w.FindName('CxMaquina').Text = $script:sync.NovoNome
 
-    $script:credResultado = $null
+    $cD.Text  = $script:sync.CredDominio
+    $cDU.Text = "sem o prefixo $(($script:sync.CredDominio -split '\.')[0])\"
+
+    $bE.Add_Click({
+        if ($cD.IsReadOnly) {
+            $cD.IsReadOnly  = $false
+            $cD.Background  = 'White'
+            $cD.Foreground  = '#12161C'
+            $bE.Content     = "Travar"
+            $bE.Background  = '#1A5FB4'
+            $cDD.Text       = "FQDN do dominio, ex.: machadao.corp"
+            $cD.Focus(); $cD.SelectAll()
+        } else {
+            if ([string]::IsNullOrWhiteSpace($cD.Text)) { $cM.Text = "O dominio nao pode ficar vazio."; return }
+            $cD.Text        = $cD.Text.Trim()
+            $cD.IsReadOnly  = $true
+            $cD.Background  = '#EDEFF2'
+            $cD.Foreground  = '#5B6672'
+            $bE.Content     = "Editar"
+            $bE.Background  = '#5B6672'
+            $cDD.Text       = "valor padrao da rede Machadao"
+            $cDU.Text       = "sem o prefixo $(($cD.Text -split '\.')[0])\"
+            $cM.Text        = ""
+        }
+    })
+
     $script:credFechar = $false
     $w.Add_Closing({ if (-not $script:credFechar) { $_.Cancel = $true } })
 
     $bO.Add_Click({
+        if ([string]::IsNullOrWhiteSpace($cD.Text)) { $cM.Text = "Informe o dominio."; return }
         if ([string]::IsNullOrWhiteSpace($cU.Text)) { $cM.Text = "Informe o usuario do AD."; return }
         if ($cS.SecurePassword.Length -eq 0)        { $cM.Text = "Informe a senha."; return }
-        $script:credResultado = New-Object System.Management.Automation.PSCredential(
-            "machadao\$($cU.Text.Trim())", $cS.SecurePassword)
+
+        $dom    = $cD.Text.Trim()
+        $curto  = ($dom -split '\.')[0]
+        $nome   = $cU.Text.Trim()
+        # aceita "usuario", "machadao\usuario" ou "usuario@machadao.corp" sem duplicar prefixo
+        if ($nome -notmatch '[\\@]') { $nome = "$curto\$nome" }
+
+        $senha = $cS.SecurePassword
+        $senha.MakeReadOnly()
+
+        $script:sync.CredDominio = $dom
+        $script:sync.CredUser    = $nome
+        $script:sync.CredSenha   = $senha
+        $script:sync.CredPulou   = $false
         $script:credFechar = $true
         $w.Close()
     })
+
     $bP.Add_Click({
-        $script:credResultado = $null
+        $script:sync.CredUser  = $null
+        $script:sync.CredSenha = $null
+        $script:sync.CredPulou = $true
         $script:credFechar = $true
         $w.Close()
     })
+
     $cU.Focus()
     [void]$w.ShowDialog()
-    return $script:credResultado
 }
 
 # ============================================================
@@ -946,8 +1311,7 @@ $bomba.Add_Tick({
     if ($script:sync.PedirCred -and -not $script:credAberta) {
         $script:credAberta = $true
         $script:sync.PedirCred = $false
-        $cred = PedirCredencial
-        $script:sync.Cred = $cred
+        PedirCredencial
         $script:sync.CredPronta = $true
         $script:credAberta = $false
     }
