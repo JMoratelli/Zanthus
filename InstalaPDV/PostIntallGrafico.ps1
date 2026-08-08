@@ -108,7 +108,7 @@ elseif (-not $filial){ $erroDeteccao = "Gateway [$gateway] nao esta mapeado para
       <RowDefinition Height="*"/>
     </Grid.RowDefinitions>
 
-    <Border Grid.Row="0" Background="#12161C">
+    <Border x:Name="Cabecalho" Grid.Row="0" Background="#12161C">
       <Grid Margin="36,0,36,0">
         <StackPanel VerticalAlignment="Center">
           <TextBlock Text="M A C H A D A O   C O R P" FontFamily="Consolas" FontSize="9" Foreground="#7C93AE"/>
@@ -175,6 +175,14 @@ elseif (-not $filial){ $erroDeteccao = "Gateway [$gateway] nao esta mapeado para
 </Window>
 "@
 
+function Habilitar-Arrasto ($Janela) {
+    $cab = $Janela.FindName('Cabecalho')
+    if ($cab) {
+        $cab.Cursor = 'SizeAll'
+        $cab.Add_MouseLeftButtonDown({ try { $Janela.DragMove() } catch { } }.GetNewClosure())
+    }
+}
+
 $splash = [Windows.Markup.XamlReader]::Load((New-Object System.Xml.XmlNodeReader $xamlSplash))
 $el = @{}
 'TxtMaquina','TxtIp','TxtFilial','TxtLoja','TxtGw','TxtServidor','TxtImp','TxtAviso','TxtValida','BtnSair','BtnIniciar' |
@@ -199,6 +207,7 @@ if ($erroDeteccao) {
     $el.TxtAviso.Text = "A maquina sera renomeada para $novoNome, ingressada no dominio machadao.corp e reiniciada ao final. Confira a filial antes de iniciar."
 }
 
+Habilitar-Arrasto $splash
 $el.BtnIniciar.Add_Click({ $script:iniciar = $true; $splash.Close() })
 $el.BtnSair.Add_Click({ $script:iniciar = $false; $splash.Close() })
 [void]$splash.ShowDialog()
@@ -224,7 +233,7 @@ $ipImpNFe   = $lojaAtual.ipImpNFe
       <RowDefinition Height="*"/>
     </Grid.RowDefinitions>
 
-    <Border Grid.Row="0" Background="#12161C">
+    <Border x:Name="Cabecalho" Grid.Row="0" Background="#12161C">
       <Grid Margin="36,0,36,0">
         <StackPanel VerticalAlignment="Center">
           <TextBlock Text="M A C H A D A O   C O R P" FontFamily="Consolas" FontSize="9" Foreground="#7C93AE"/>
@@ -291,6 +300,7 @@ $ui = @{}
 'HdMaquina','HdFilial','TxtEtapa','TxtContador','Barra','TxtNota','Log','Rolagem','BtnFinal' |
     ForEach-Object { $ui[$_] = $win.FindName($_) }
 
+Habilitar-Arrasto $win
 $ui.HdMaquina.Text = $env:COMPUTERNAME
 $ui.HdFilial.Text  = "filial $filial - loja $numLoja"
 $linhasLog = New-Object System.Collections.ObjectModel.ObservableCollection[object]
@@ -308,6 +318,7 @@ $script:sync = [hashtable]::Synchronized(@{
     Total          = 0
     Concluido      = $false
     Falhou         = $false
+    Interativo     = $false
     PedirCred      = $false
     CredPronta     = $false
     CredUser       = $null
@@ -821,15 +832,19 @@ bOpt2=0
             }
 
             Write-Log 'Instalando utilitario em modo silencioso...'
-            $p = Start-Process -FilePath $EXE_UTIL `
-                 -ArgumentList "/s /f1`"$ISS`" /f2`"$ISS_LOG`"" -PassThru
+            $sync.Interativo = $true
+            try {
+                $p = Start-Process -FilePath $EXE_UTIL `
+                     -ArgumentList "/s /f1`"$ISS`" /f2`"$ISS_LOG`"" -PassThru
 
-            if (-not $p.WaitForExit(180000)) {
-                Write-Log 'TIMEOUT (180s) - abriu janela interativa? Encerrando.' 'AVISO'
-                try { $p.Kill() } catch { }
-            } else {
-                Write-Log "ExitCode = $($p.ExitCode)"
+                if (-not $p.WaitForExit(180000)) {
+                    Write-Log 'TIMEOUT (180s) - abriu janela interativa? Encerrando.' 'AVISO'
+                    try { $p.Kill() } catch { }
+                } else {
+                    Write-Log "ExitCode = $($p.ExitCode)"
+                }
             }
+            finally { $sync.Interativo = $false }
 
             Start-Sleep -Seconds 3
 
@@ -1023,11 +1038,12 @@ bOpt2=0
         Log "  ATENCAO: a janela do BitDefender vai abrir - conclua o assistente." $CorAviso
         $cwd = Get-Location
         Set-Location -LiteralPath $pastaDestino
+        $sync.Interativo = $true
         try {
             $p = Start-Process -FilePath "cmd.exe" -ArgumentList "/c `"`"$nomeLimpo`"`"" -PassThru -WindowStyle Normal
             if (-not $p.WaitForExit(900000)) { Log "  TIMEOUT de 15 min aguardando o assistente" $CorAviso; try { $p.Kill() } catch {} }
         }
-        finally { Set-Location -LiteralPath $cwd }
+        finally { Set-Location -LiteralPath $cwd; $sync.Interativo = $false }
 
         # o downloader sai antes do agente terminar: espera o servico aparecer
         $limite = (Get-Date).AddMinutes(10)
@@ -1130,7 +1146,7 @@ function PedirCredencial {
         ResizeMode="NoResize" WindowStyle="None" Topmost="True" Background="#EDEFF2">
   <Grid>
     <Grid.RowDefinitions><RowDefinition Height="92"/><RowDefinition Height="*"/></Grid.RowDefinitions>
-    <Border Grid.Row="0" Background="#12161C">
+    <Border x:Name="Cabecalho" Grid.Row="0" Background="#12161C">
       <Grid Margin="36,0,36,0">
         <StackPanel VerticalAlignment="Center">
           <TextBlock Text="M A C H A D A O   C O R P" FontFamily="Consolas" FontSize="9" Foreground="#7C93AE"/>
@@ -1191,6 +1207,7 @@ function PedirCredencial {
     $cD  = $w.FindName('CxDominio'); $cU = $w.FindName('CxUser'); $cS = $w.FindName('CxSenha')
     $cM  = $w.FindName('CxMsg');     $bO = $w.FindName('CxOk');   $bP = $w.FindName('CxPular')
     $bE  = $w.FindName('CxEditar');  $cDD = $w.FindName('CxDicaDom'); $cDU = $w.FindName('CxDicaUser')
+    Habilitar-Arrasto $w
     $w.FindName('CxMaquina').Text = $script:sync.NovoNome
 
     $cD.Text  = $script:sync.CredDominio
@@ -1272,6 +1289,7 @@ $handle = $ps.BeginInvoke()
 
 $script:podeFechar = $false
 $script:credAberta = $false
+$script:topoAtual  = $false
 $script:restam     = 15
 $script:t2         = $null
 
@@ -1297,6 +1315,18 @@ $bomba.Add_Tick({
         $ui.TxtContador.Text  = "$($script:sync.Indice)/$($script:sync.Total)"
     }
     $ui.TxtEtapa.Text = $script:sync.Etapa
+
+    # 2b. durante instalador interativo, sai da frente e libera o arrasto
+    if ($script:sync.Interativo -ne $script:topoAtual) {
+        $script:topoAtual = $script:sync.Interativo
+        $win.Topmost = -not $script:sync.Interativo
+        if ($script:sync.Interativo) {
+            $ui.TxtNota.Text = "Assistente externo aberto - conclua a janela do instalador. Arraste esta tela pelo cabecalho se ela atrapalhar."
+        } else {
+            $ui.TxtNota.Text = "Nao desligue o terminal. A maquina reinicia sozinha ao final."
+            $win.Activate()
+        }
+    }
 
     # 3. erros nao tratados do runspace
     if ($ps.Streams.Error.Count -gt 0) {
