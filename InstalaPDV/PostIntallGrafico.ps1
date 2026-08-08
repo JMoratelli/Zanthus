@@ -300,15 +300,17 @@ $ui.Log.ItemsSource = $linhasLog
 $script:podeFechar = $false
 $win.Add_Closing({ if (-not $script:podeFechar) { $_.Cancel = $true } })
 
-# Estado compartilhado com o runspace
+# Estado compartilhado com o runspace (sem scriptblock cruzando runspace!)
 $script:sync = [hashtable]::Synchronized(@{
-    Win            = $win
-    Linhas         = $linhasLog
-    Barra          = $ui.Barra
-    TxtEtapa       = $ui.TxtEtapa
-    TxtContador    = $ui.TxtContador
+    Fila           = [System.Collections.Queue]::Synchronized((New-Object System.Collections.Queue))
+    Etapa          = "Preparando..."
+    Indice         = 0
+    Total          = 0
     Concluido      = $false
     Falhou         = $false
+    PedirCred      = $false
+    CredPronta     = $false
+    Cred           = $null
     Gateway        = $gateway
     IpMaquina      = $ipMaquina
     Filial         = $filial
@@ -328,19 +330,12 @@ $trabalho = {
     $CorInfo = '#CBD5E1'; $CorOk = '#22C55E'; $CorAviso = '#F59E0B'; $CorErro = '#F87171'; $CorTitulo = '#60A5FA'
 
     function Log {
-        param([string]$Texto, [string]$Cor = $CorInfo)
-        $sync.Win.Dispatcher.Invoke([action] {
-            $sync.Linhas.Add([pscustomobject]@{ Texto = $Texto; Cor = $Cor })
-            while ($sync.Linhas.Count -gt 400) { $sync.Linhas.RemoveAt(0) }
-        })
+        param([string]$Texto, [string]$Cor = '#CBD5E1')
+        $sync.Fila.Enqueue([pscustomobject]@{ Texto = $Texto; Cor = $Cor })
     }
     function Progresso {
         param([int]$Indice, [int]$Total, [string]$Nome)
-        $sync.Win.Dispatcher.Invoke([action] {
-            $sync.Barra.Value    = [math]::Round(($Indice / $Total) * 100)
-            $sync.TxtEtapa.Text  = $Nome
-            $sync.TxtContador.Text = "$Indice/$Total"
-        })
+        $sync.Indice = $Indice; $sync.Total = $Total; $sync.Etapa = $Nome
     }
 
     $caminhoPdv       = "C:\Zanthus\Zeus\pdvJava"
@@ -776,7 +771,11 @@ Set-Date $utc.AddHours(-4)
         if ($st.PartOfDomain -and $st.Domain -eq $dominio) { Log "  ja ingressado - ignorado" $CorOk; return }
 
         while ($true) {
-            $cred = $sync.Win.Dispatcher.Invoke([func[object]] { PedirCredencial })
+            $sync.CredPronta = $false
+            $sync.Cred       = $null
+            $sync.PedirCred  = $true
+            while (-not $sync.CredPronta) { Start-Sleep -Milliseconds 200 }
+            $cred = $sync.Cred
             if (-not $cred) { Log "  ingresso cancelado pelo tecnico" $CorAviso; return }
             try {
                 Add-Computer -DomainName $dominio -Credential $cred -Force -ErrorAction Stop
@@ -790,25 +789,32 @@ Set-Date $utc.AddHours(-4)
     )
 
     # ---------- execucao ----------
-    $total = $etapas.Count
-    $i = 0
-    foreach ($etapa in $etapas) {
-        $i++
-        Progresso $i $total $etapa.Nome
-        Log ""
-        Log ("[{0:d2}/{1:d2}] {2}" -f $i, $total, $etapa.Nome) $CorTitulo
-        try { & $etapa.Acao }
-        catch {
-            $sync.Falhou = $true
-            Log "  ERRO: $($_.Exception.Message)" $CorErro
+    try {
+        $total = $etapas.Count
+        $sync.Total = $total
+        $i = 0
+        foreach ($etapa in $etapas) {
+            $i++
+            Progresso $i $total $etapa.Nome
+            Log ""
+            Log ("[{0:d2}/{1:d2}] {2}" -f $i, $total, $etapa.Nome) $CorTitulo
+            try { & $etapa.Acao }
+            catch {
+                $sync.Falhou = $true
+                Log "  ERRO: $($_.Exception.Message)" $CorErro
+            }
         }
+        $sync.Etapa = if ($sync.Falhou) { "Concluido com pendencias - confira o log" } else { "Instalacao concluida" }
     }
-
-    $sync.Win.Dispatcher.Invoke([action] {
-        $sync.Barra.Value = 100
-        $sync.TxtEtapa.Text = if ($sync.Falhou) { "Concluido com pendencias - confira o log" } else { "Instalacao concluida" }
-    })
-    $sync.Concluido = $true
+    catch {
+        $sync.Falhou = $true
+        $sync.Etapa  = "Falha geral"
+        $sync.Fila.Enqueue([pscustomobject]@{ Texto = "FALHA GERAL: $($_.Exception.Message)"; Cor = '#F87171' })
+    }
+    finally {
+        $sync.Indice = $sync.Total
+        $sync.Concluido = $true
+    }
 }
 
 # ============================================================
@@ -886,59 +892,93 @@ function PedirCredencial {
 }
 
 # ============================================================
-#  8. DISPARA O RUNSPACE E MOSTRA A JANELA
+#  8. DISPARA O RUNSPACE E BOMBEIA A FILA NA THREAD DA UI
 # ============================================================
 $rs = [runspacefactory]::CreateRunspace()
 $rs.ApartmentState = 'STA'
 $rs.ThreadOptions  = 'ReuseThread'
 $rs.Open()
 $rs.SessionStateProxy.SetVariable('sync', $script:sync)
-$rs.SessionStateProxy.SetVariable('funcPedirCredencial', ${function:PedirCredencial})
 
 $ps = [powershell]::Create()
 $ps.Runspace = $rs
-[void]$ps.AddScript('Set-Item function:PedirCredencial $funcPedirCredencial').AddStatement().AddScript($trabalho)
+[void]$ps.AddScript($trabalho.ToString())
 $handle = $ps.BeginInvoke()
 
-# Botao final: so libera quando terminar
-$script:tarefaFinal = $null
-$ui.BtnFinal.Add_Click({
-    $script:podeFechar = $true
-    $win.Close()
-})
+$script:podeFechar = $false
+$script:credAberta = $false
+$script:restam     = 15
+$script:t2         = $null
 
-$timer = New-Object System.Windows.Threading.DispatcherTimer
-$timer.Interval = [TimeSpan]::FromMilliseconds(400)
-$timer.Add_Tick({
-    $ui.Rolagem.ScrollToEnd()
-    if ($script:sync.Concluido) {
-        $timer.Stop()
-        $ui.BtnFinal.IsEnabled = $true
+$ui.BtnFinal.Add_Click({ $script:podeFechar = $true; $win.Close() })
+
+$bomba = New-Object System.Windows.Threading.DispatcherTimer
+$bomba.Interval = [TimeSpan]::FromMilliseconds(150)
+$bomba.Add_Tick({
+
+    # 1. drena o log
+    $novas = $false
+    while ($script:sync.Fila.Count -gt 0) {
+        $item = $script:sync.Fila.Dequeue()
+        $linhasLog.Add($item)
+        $novas = $true
+    }
+    while ($linhasLog.Count -gt 500) { $linhasLog.RemoveAt(0) }
+    if ($novas) { $ui.Rolagem.ScrollToEnd() }
+
+    # 2. progresso
+    if ($script:sync.Total -gt 0) {
+        $ui.Barra.Value       = [math]::Round(($script:sync.Indice / $script:sync.Total) * 100)
+        $ui.TxtContador.Text  = "$($script:sync.Indice)/$($script:sync.Total)"
+    }
+    $ui.TxtEtapa.Text = $script:sync.Etapa
+
+    # 3. erros nao tratados do runspace
+    if ($ps.Streams.Error.Count -gt 0) {
+        foreach ($e in @($ps.Streams.Error)) {
+            $linhasLog.Add([pscustomobject]@{ Texto = "RUNSPACE: $e"; Cor = '#F87171' })
+        }
+        $ps.Streams.Error.Clear()
+        $script:sync.Falhou = $true
+    }
+
+    # 4. o worker pediu a credencial do dominio
+    if ($script:sync.PedirCred -and -not $script:credAberta) {
+        $script:credAberta = $true
+        $script:sync.PedirCred = $false
+        $cred = PedirCredencial
+        $script:sync.Cred = $cred
+        $script:sync.CredPronta = $true
+        $script:credAberta = $false
+    }
+
+    # 5. fim
+    if ($script:sync.Concluido -and $script:sync.Fila.Count -eq 0 -and -not $script:t2) {
+        $bomba.Stop()
+        $ui.Barra.Value = 100
+        $ui.BtnFinal.IsEnabled  = $true
         $ui.BtnFinal.Content    = "Reiniciar agora"
         $ui.BtnFinal.Background = if ($script:sync.Falhou) { '#8A5A00' } else { '#0A6F66' }
-        $ui.TxtNota.Text = "Reinicio automatico em 15 segundos."
-        # contagem regressiva antes do reboot automatico
-        $script:restam = 15
-        $t2 = New-Object System.Windows.Threading.DispatcherTimer
-        $t2.Interval = [TimeSpan]::FromSeconds(1)
-        $t2.Add_Tick({
+        $script:t2 = New-Object System.Windows.Threading.DispatcherTimer
+        $script:t2.Interval = [TimeSpan]::FromSeconds(1)
+        $script:t2.Add_Tick({
             $script:restam--
             $ui.TxtNota.Text = "Reinicio automatico em $($script:restam) segundos."
             if ($script:restam -le 0) {
-                $t2.Stop()
+                $script:t2.Stop()
                 $script:podeFechar = $true
                 $win.Close()
             }
         })
-        $t2.Start()
-        $script:tarefaFinal = $t2
+        $ui.TxtNota.Text = "Reinicio automatico em $($script:restam) segundos."
+        $script:t2.Start()
     }
 })
-$timer.Start()
 
+$win.Add_ContentRendered({ $bomba.Start() })
 [void]$win.ShowDialog()
 
-$ps.EndInvoke($handle) | Out-Null
+try { $ps.EndInvoke($handle) | Out-Null } catch { }
 $ps.Dispose(); $rs.Close(); $rs.Dispose()
 
 Restart-Computer -Force
