@@ -205,9 +205,9 @@ Set-Location -Path $PSScriptRoot # Retorna ao diretorio original
 
 Write-Host "Baixando arquivos de Interface..."
 Invoke-WebRequest -Uri "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/PDV/Interface/Zeus_V.gif" -OutFile "$caminhoImagens\Zeus_V.gif"
-Invoke-WebRequest -Uri "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/InterfaceUnificada/style100.css" -OutFile "C:\Zanthus\Zeus\Interface\resources\css\style2.css"
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/InterfaceUnificada/style2.css" -OutFile "C:\Zanthus\Zeus\Interface\resources\css\style2.css"
 Invoke-WebRequest -Uri "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/InterfaceUnificada/style100.css" -OutFile "C:\Zanthus\Zeus\Interface\resources\css\style100.css"
-Invoke-WebRequest -Uri "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/InterfaceUnificada/style100.css" -OutFile "C:\Zanthus\Zeus\Interface\resources\css\style1000.css"
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/InterfaceUnificada/style1000.css" -OutFile "C:\Zanthus\Zeus\Interface\resources\css\style1000.css"
 
 $caminhoConfigInterface = "$caminhoInterface\config"
 if (-not (Test-Path $caminhoConfigInterface)) { New-Item -ItemType Directory -Path $caminhoConfigInterface | Out-Null }
