@@ -494,10 +494,10 @@ ConfiguracaoEnderecoIP=tls-prod.fiservapp.com
         } else { Log "  7-Zip nao encontrado - icones NAO extraidos" $CorAviso }
 
         Invoke-WebRequest -UseBasicParsing -Uri "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/PDV/Interface/Zeus_V.gif" -OutFile "$caminhoImagens\Zeus_V.gif"
-        $css = "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/InterfaceUnificada/style100.css"
-        foreach ($nome in 'style2.css','style100.css','style1000.css') {
-            Invoke-WebRequest -UseBasicParsing -Uri $css -OutFile "$caminhoInterface\resources\css\$nome"
-        }
+        Invoke-WebRequest -Uri "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Self/Interface/logo_self.png" -OutFile "C:\Zanthus\Zeus\Interface\resources\imagens\logo_self.png"
+        Invoke-WebRequest -Uri "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/InterfaceUnificada/style2.css" -OutFile "C:\Zanthus\Zeus\Interface\resources\css\style2.css"
+        Invoke-WebRequest -Uri "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/InterfaceUnificada/style100.css" -OutFile "C:\Zanthus\Zeus\Interface\resources\css\style100.css"
+        Invoke-WebRequest -Uri "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/InterfaceUnificada/style1000.css" -OutFile "C:\Zanthus\Zeus\Interface\resources\css\style1000.css"
         Invoke-WebRequest -UseBasicParsing -Uri "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/PDV/Interface/config.js" -OutFile "$caminhoInterface\config\config.js"
         Invoke-WebRequest -UseBasicParsing -Uri "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/PDV/Interface/Buttons.js" -OutFile "$caminhoInterface\app\api\dinamico\pdvMouse\Buttons.js"
         Log "  interface atualizada" $CorOk
