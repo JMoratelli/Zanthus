@@ -1,100 +1,407 @@
 /* =======================================================================
-   STYLE1000.CSS - REFATORACAO FLAT / MATERIAL (Foco em Cores / Logo)
-   ATENCAO: esta versao preserva 100% da estrutura do arquivo original
-   (mesmos seletores, mesma ordem, mesmo position/width/height/float/
-   display/margin/padding/font-size/line-height). Trocamos SOMENTE:
-   - gradientes (-webkit-gradient, -moz-linear-gradient, filter DX) -> cor solida
-   - box-shadow decorativo / inset 3D -> removido ou sombra Material sutil
-   - cores azul/cinza antigas -> paleta neutra + Cores da Logo (Machadão)
+   STYLE1000.CSS  -  Zanthus Zeus / PDV Touch Self-Checkout - Machadão
+   Desenvolvido por @JJMoratelli
+
+   ARQUITETURA DE TOKENS EM 2 CAMADAS
+   ----------------------------------
+   Camada 1 (PRIMITIVAS): paleta bruta. NUNCA usar direto nas regras.
+   Camada 2 (SEMANTICAS): nomeadas pela FUNCAO/COMPONENTE, nao pela cor.
+                          É o que as regras consomem. Trocar a cor de um
+                          botão = editar 1 linha aqui, nada mais.
+
+   CONVENCAO DE NOME:  --<componente>-<parte>-<estado>
+   Exemplos: --btn-confirmar-fundo / --btn-confirmar-fundo-ativo
+             --cupom-linha-cancelada-fundo
+
+   REGRA DE OURO (NAO QUEBRAR)
+   ---------------------------
+   O ExtJS 4.1 (ext-all.js) recalcula e reposiciona tudo em runtime.
+   Este arquivo NAO altera: position, top/left/right/bottom, width,
+   height, float, display, margin, padding, line-height, font-size.
+   Só mexemos em: cor, fundo, borda, raio, sombra, transicao, animacao.
+   Onde essas propriedades já existiam no original, foram preservadas
+   IDENTICAS - não é liberdade para adicionar novas.
+
+   INDICE
+   ------
+   01. Tokens - primitivas
+   02. Tokens - semanticas
+   03. Base / tipografia
+   04. Estrutura (topo, rodape, areas, layout)
+   05. Campos de entrada
+   06. Barras de progresso e visores
+   07. Teclado e botoes
+   08. Rotulos (labels)
+   09. Grid do cupom
+   10. Botao seletor de item (check)
+   11. Janelas, modais e toolbars
+   12. Tela self-checkout e imagens
+   13. Formas de pagamento (credito / debito / pix)
+   14. NPS
+   15. Carregamento (barra e spinner)
+   16. Animacoes / keyframes
+   17. Botoes de dialogo por funcao (escopado por tipo de janela)
+   18. Pop-ups / dialogos (visual)
+   19. Animacoes adicionais
+   20. Splash de inicializacao (pdvstartup)
+   21. Animacoes da splash
+   23. O azul inline (#8D9DB3)
+   24. Janelas coletoras (coletor-* e coletadadoscon-*)
 ======================================================================= */
+
 
 /* =======================================================================
-   TOKENS (Paleta Neutra Material + Cores extraídas da Logo)
+   01. TOKENS - PRIMITIVAS  (paleta bruta, uso interno)
 ======================================================================= */
 :root{
-    --bg-app: #FAFAFA;
-    --bg-surface: #F5F5F5;
-    --bg-card: #FFFFFF;
-    --bg-hover: #EEEEEE;
-    --bg-pressed: #E0E0E0;
+    /* Neutros */
+    --p-branco:      #FFFFFF;
+    --p-preto:       #000000;
+    --p-cinza-900:   #212121;
+    --p-cinza-800:   #424242;
+    --p-cinza-700:   #616161;
+    --p-cinza-600:   #757575;
+    --p-cinza-500:   #9E9E9E;
+    --p-cinza-400:   #BDBDBD;
+    --p-cinza-300:   #E0E0E0;
+    --p-cinza-200:   #EEEEEE;
+    --p-cinza-100:   #F5F5F5;
+    --p-cinza-050:   #FAFAFA;
+    --p-cinza-barra: #D3D3D3;
+    --p-cinza-sul:   #C3C3C3;
 
-    --grey-900: #212121;
-    --grey-800: #424242;
-    --grey-700: #616161;
-    --grey-600: #757575;
-    --grey-500: #9E9E9E;
-    --grey-400: #BDBDBD;
-    --grey-300: #E0E0E0;
-    --grey-200: #EEEEEE;
-    --grey-100: #F5F5F5;
+    /* Marca Machadão (identidade - NAO usar para alerta/erro) */
+    --p-marca-vermelho:        #E53935;
+    --p-marca-vermelho-escuro: #C62828;
+    --p-marca-laranja:         #F57C00;
+    --p-marca-laranja-escuro:  #E65100;
+    --p-marca-amarelo:         #FFD54F;
 
-    --accent-dark: #424242;
-    --accent-darker: #212121;
+    /* Semaforo funcional (perigo/sucesso - NAO é a marca) */
+    --p-perigo:         #D32F2F;
+    --p-perigo-escuro:  #B71C1C;
+    --p-perigo-claro:   #FFCDD2;
+    --p-perigo-claro-2: #FFEBEE;
+    --p-sucesso:        #4CAF50;
+    --p-sucesso-escuro: #2E7D32;
 
-    --green-500: #4CAF50;
-    --green-600: #2E7D32;
-    
-    /* CORES DA LOGO MACHADÃO */
-    --red-logo: #E53935; 
-    --red-logo-dark: #C62828; 
-    
-    --orange-logo: #F57C00; 
-    --yellow-logo: #FFD54F; 
-
-    --blue-600: #1E88E5;
-    --blue-700: #1976D2;
-
-    --shadow-sm: 0 1px 2px rgba(0,0,0,.10);
-    --shadow-md: 0 2px 6px rgba(0,0,0,.12);
-
-    --menu-tamanho-icone: auto;
-    --menu-tamanho-texto: 11px;
-    
-    /* IDENTIFICADOR ÚNICO PARA AS BARRAS (TOPO E RODAPÉ) */
-    --div-topo-cores: #D3D3D3;
-
-    /* COR CONTAINER PAGAMENTO INFERIOR */
-    --cor-container-pagamento-inferior: #C3C3C3;
+    /* Pagamento */
+    --p-azul:        #1E88E5;
+    --p-azul-escuro: #1565C0;
+    --p-roxo:        #5E35B1;
+    --p-roxo-escuro: #4527A0;
+    --p-teal:        #00897B;
+    --p-teal-escuro: #00695C;
 }
 
+
+/* =======================================================================
+   02. TOKENS - SEMANTICAS  (o que as regras usam de fato)
+======================================================================= */
+:root{
+    /* --- Superficies --- */
+    --sup-app:        var(--p-cinza-050);
+    --sup-painel:     var(--p-cinza-100);
+    --sup-cartao:     var(--p-branco);
+    --sup-hover:      var(--p-cinza-200);
+    --sup-pressionado:var(--p-cinza-300);
+
+    /* --- Texto --- */
+    --texto-principal:   var(--p-cinza-900);
+    --texto-secundario:  var(--p-cinza-800);
+    --texto-terciario:   var(--p-cinza-700);
+    --texto-invertido:   var(--p-branco);
+    --texto-alerta:      var(--p-perigo);
+
+    /* --- Bordas / divisorias --- */
+    --borda-sutil:  var(--p-cinza-300);
+    --borda-forte:  var(--p-cinza-700);
+    --borda-cupom:  var(--p-preto);
+    --borda-caixa:  var(--p-preto);   /* molduras de grid/painel */
+    --foco-cor:     var(--p-cinza-700);
+
+    /* Campo: branco com borda cinza. No foco a borda apenas ESCURECE
+       um tom - sem halo, sem sombra, sem cor. Vermelho e reservado
+       para ALERTA; um campo focado nao e um campo com erro. */
+    --campo-fundo:      var(--p-branco);
+    --campo-borda:      var(--p-cinza-300);
+    --campo-foco-borda: var(--p-cinza-600);
+    --campo-texto:      var(--texto-principal);
+
+    /* --- Barras estruturais --- */
+    --barra-topo-fundo:    var(--p-cinza-barra);
+    --barra-rodape-fundo:  var(--p-cinza-barra);
+    --barra-menu-fundo:    var(--p-cinza-barra);
+    --barra-sul-fundo:     var(--p-cinza-sul);
+    --barra-nav-fundo:     var(--p-cinza-050);
+
+    /* --- Sombras --- */
+    --sombra-sutil: 0 1px 2px rgba(0,0,0,.10);
+    --sombra-media: 0 2px 6px rgba(0,0,0,.12);
+    --sombra-alta:  0 8px 24px rgba(0,0,0,.18);
+
+    /* --- Movimento (nunca valor magico solto) --- */
+    --dur-rapida: 90ms;
+    --dur-media:  180ms;
+    --dur-lenta:  320ms;
+    --curva:      cubic-bezier(.4, 0, .2, 1);
+    --curva-saida:cubic-bezier(.2, .8, .2, 1);
+
+    /* --- BOTOES DO TECLADO: nome pela FUNCAO, nao pela cor --- */
+    /* bt_teclado / bt_numerico / bt_teclado_menu / bt_bbar / bt_seletora / bt_nav / bt_menu */
+    --btn-neutro-fundo:        var(--p-cinza-200);
+    --btn-neutro-fundo-ativo:  var(--sup-pressionado);
+    --btn-neutro-texto:        var(--texto-principal);
+
+    /* bt_teclado_w - botao claro (fundo branco) */
+    --btn-claro-fundo:         var(--p-branco);
+    --btn-claro-fundo-ativo:   var(--sup-hover);
+    --btn-claro-texto:         var(--texto-principal);
+
+    /* bt_teclado_y - destaque / atencao */
+    --btn-destaque-fundo:      var(--p-marca-amarelo);
+    --btn-destaque-fundo-ativo:var(--p-marca-laranja);
+    --btn-destaque-texto:      var(--texto-principal);
+
+    /* bt_teclado_a - acao secundaria.
+       O pressionado era --p-cinza-800: um botao ambar que virava
+       grafite ao toque, o que parecia defeito e nao feedback.
+       Agora escurece dentro da propria familia de cor. */
+    --btn-acao-fundo:          var(--p-marca-amarelo);
+    --btn-acao-fundo-ativo:    var(--p-marca-laranja-escuro);
+    --btn-acao-texto:          var(--texto-principal);
+    --btn-acao-texto-ativo:    var(--texto-invertido);
+
+    /* bt_teclado_a2 - acao escura / primaria neutra */
+    --btn-escuro-fundo:        var(--p-cinza-800);
+    --btn-escuro-fundo-ativo:  var(--p-cinza-900);
+    --btn-escuro-texto:        var(--texto-invertido);
+
+    /* bt_teclado_v - CANCELAR / perigo (semaforo, nao a marca) */
+    --btn-cancelar-fundo:      var(--p-perigo);
+    --btn-cancelar-fundo-ativo:var(--p-perigo-escuro);
+    --btn-cancelar-texto:      var(--texto-invertido);
+
+    /* bt_teclado_vd - CONFIRMAR / sucesso */
+    --btn-confirmar-fundo:      var(--p-sucesso);
+    --btn-confirmar-fundo-ativo:var(--p-sucesso-escuro);
+    --btn-confirmar-texto:      var(--texto-invertido);
+
+    /* bt_teclado_c - LIMPAR / corrige.
+       Laranja EXCLUSIVO desta funcao, igual ao style2. Nenhum outro
+       botao pode usar laranja - era a cor do bt_teclado_l, que cedeu
+       (ver logo abaixo). */
+    --btn-limpar-fundo:       var(--p-marca-laranja);
+    --btn-limpar-fundo-ativo: var(--p-marca-laranja-escuro);
+    --btn-limpar-texto:       var(--texto-invertido);
+
+    /* bt_teclado_l - verde, alinhado ao style2.
+       ANTES era o laranja da marca. Cedeu a cor para o Limpar quando
+       os dois arquivos foram uniformizados. Se algum dia o laranja
+       voltar para ca, o Limpar precisa de outra cor - senao viram dois
+       papeis com a mesma cor, que e o que este arquivo evita.
+       Nota: divide o verde com --btn-confirmar-*, mesma situacao que
+       ja existia no style2. */
+    --btn-verde-fundo:       var(--p-sucesso);
+    --btn-verde-fundo-ativo: var(--p-sucesso-escuro);
+    --btn-verde-texto:       var(--texto-invertido);
+
+    /* bt_teste - diagnostico */
+    --btn-teste-fundo:         var(--p-cinza-800);
+    --btn-teste-fundo-ativo:   var(--p-cinza-900);
+    --btn-teste-texto:         var(--p-branco);
+
+    /* --- FORMAS DE PAGAMENTO (self: credito / debito / pix) --- */
+    --pgto-card-fundo:        var(--p-cinza-050);
+    --pgto-aceitos-titulo:    var(--p-preto);
+
+    --pgto-credito-cor:       var(--p-azul);
+    --pgto-credito-cor-ativo: var(--p-azul-escuro);
+    --pgto-debito-cor:        var(--p-teal);
+    --pgto-debito-cor-ativo:  var(--p-teal-escuro);
+    --pgto-pix-cor:           var(--p-roxo);
+    --pgto-pix-cor-ativo:     var(--p-roxo-escuro);
+    --pgto-faixa-largura:     4px;   /* cards */
+    --pgto-faixa-btn:         6px;   /* botoes DEBITO/CREDITO/PIX */
+
+    /* --- CUPOM / GRID --- */
+    --cupom-cabecalho-fundo:      var(--p-cinza-800);
+    --cupom-cabecalho-texto:      var(--p-branco);
+    --cupom-linha-fundo:          var(--sup-painel);
+    --cupom-linha-alt-fundo:      var(--sup-cartao);
+    --cupom-linha-cancelada-fundo:     var(--p-perigo-claro);
+    --cupom-linha-cancelada-alt-fundo: var(--p-perigo-claro-2);
+    --cupom-linha-cancelada-texto:     var(--p-perigo-escuro);
+    --cupom-linha-nova-flash:     rgba(255, 213, 79, .70);
+    --cupom-codigo-texto:         var(--p-sucesso-escuro);
+    --cupom-scroll-polegar:       var(--p-cinza-400);
+
+    /* --- CHECK / seletor de item --- */
+    --check-borda:            var(--p-cinza-700);
+    --check-marca:            var(--p-cinza-700);
+    --check-ativo-fundo:      var(--p-sucesso);
+    --check-ativo-marca:      var(--p-branco);
+
+    /* --- JANELAS / MODAIS --- */
+    --janela-fundo:           var(--sup-cartao);
+    --janela-raio:            var(--dlg-raio);
+    --janela-sombra:          var(--dlg-sombra);
+    --janela-cabecalho-fundo: var(--dlg-cabecalho-fundo);
+    --janela-cabecalho-texto: var(--dlg-cabecalho-texto);
+    --janela-mascara-fundo:   var(--p-cinza-900);
+    --janela-mascara-opacidade: .58;
+
+    /* --- PROGRESSO / CARREGAMENTO --- */
+    --progresso-trilha-fundo: var(--p-cinza-200);
+    --progresso-barra-fundo:  var(--p-marca-vermelho);
+    --spinner-trilha:         var(--p-cinza-300);
+    --spinner-ativo:          var(--p-marca-vermelho);
+
+    /* --- BOTOES DE DIALOGO ---
+       CUIDADO: bt_tec_N e o codigo da tecla, NAO a funcao do botao.
+       O mesmo numero muda de papel conforme o tipo de janela.
+       Tabela completa e regras: ver secao 17.
+
+       Tratamento "ghost": contorno feito com inset box-shadow, NUNCA com
+       border. Border altera a caixa e o ExtJS ja fixou border-width:1px
+       inline em cada botao - mexer nisso desloca o layout.             */
+
+    /* Confirmar - unico botao solido do dialogo */
+    --dlg-confirmar-fundo:       var(--p-sucesso);
+    --dlg-confirmar-fundo-ativo: var(--p-sucesso-escuro);
+    --dlg-confirmar-texto:       var(--p-branco);
+    --dlg-confirmar-halo:        rgba(76, 175, 80, .22);
+
+    /* Recusar - ghost neutro */
+    --dlg-recusar-contorno:      var(--p-cinza-400);
+    --dlg-recusar-texto:         var(--p-cinza-800);
+    --dlg-recusar-fundo-ativo:   var(--p-cinza-200);
+
+    /* Abortar - ghost vermelho (destrutivo nao deve puxar o olho) */
+    --dlg-abortar-contorno:      var(--p-perigo);
+    --dlg-abortar-texto:         var(--p-perigo);
+    --dlg-abortar-fundo-ativo:   var(--p-perigo-claro-2);
+
+    --dlg-ghost-espessura:       2px;
+
+    /* --- POP-UPS / DIALOGOS --- */
+    --dlg-acento:            var(--p-cinza-900);   /* faixa de topo */
+    --dlg-acento-altura:     4px;
+    --dlg-cabecalho-fundo:   var(--p-branco);
+    --dlg-cabecalho-texto:   var(--p-cinza-900);
+    --dlg-corpo-fundo:       var(--p-branco);
+    --dlg-mensagem-texto:    var(--p-cinza-900);
+    --dlg-rodape-fundo:      var(--p-cinza-050);
+    --dlg-rodape-linha:      var(--p-cinza-200);
+    --dlg-raio:              14px;
+    --dlg-sombra:            0 18px 44px rgba(0,0,0,.26),
+                             0 2px 6px rgba(0,0,0,.10);
+
+    /* --- SPLASH DE INICIALIZACAO (pdvstartup) --- */
+    --splash-fundo:        #0F1720;
+    --splash-fundo-2:      #1B2634;
+    --splash-brilho:       rgba(229, 57, 53, .16);
+    --splash-cartao:       rgba(255, 255, 255, .05);
+    --splash-borda:        rgba(255, 255, 255, .10);
+    --splash-acento:       var(--p-marca-vermelho);
+    --splash-texto:        rgba(255, 255, 255, .95);
+    --splash-texto-fraco:  rgba(255, 255, 255, .50);
+    --splash-trilha:       rgba(255, 255, 255, .10);
+    --splash-btn-borda:    rgba(255, 255, 255, .28);
+    --splash-btn-ativo:    rgba(255, 255, 255, .12);
+    --splash-logo:         url("../imagens/logo_self.png");
+
+
+
+    /* --- Legado do original (mantido para nao quebrar JS/HTML externo) --- */
+    --menu-tamanho-icone: auto;
+    --menu-tamanho-texto: 11px;
+}
+
+
+/* =======================================================================
+   03. BASE / TIPOGRAFIA
+======================================================================= */
 body {
     font-family: tahoma, arial, helvetica, sans-serif !important;
 }
 
+/* Numeros monetarios nao "dancam" ao atualizar */
+.label-text-subtotal,
+.input-sub-total,
+.pdv-grid-panel .produto-valor-unitario,
+.pdv-grid-panel .produto-total,
+.pdv-grid-panel .produto-quantidade {
+    font-variant-numeric: tabular-nums !important;
+    font-feature-settings: "tnum" 1 !important;
+}
+
+/* Foco visivel de teclado (operador que voa no teclado) */
+:focus-visible {
+    outline: 2px solid var(--foco-cor) !important;
+    outline-offset: 2px !important;
+}
+
+
+/* =======================================================================
+   04. ESTRUTURA (topo, rodape, areas, layout)
+======================================================================= */
 .topo_pdv .x-panel-body-default{
     background: transparent !important;
 }
 
 .area-south {
-    background: var(--bg-card) !important;
+    background: var(--sup-cartao) !important;
 }
 
 .area-footer {
-    background: var(--bg-surface) !important;
+    background: var(--sup-painel) !important;
 }
 
-/* =======================================================================
-   CORES DAS BARRAS (TOPO INTEIRO E RODAPÉ)
-======================================================================= */
 .topo_pdv,
 [id^="telatopo-"] {
-    background-color: var(--div-topo-cores) !important;
+    background-color: var(--barra-topo-fundo) !important;
     background-image: none !important;
 }
 
 .bg-rodape {
-    background-color: var(--div-topo-cores) !important;
+    background-color: var(--barra-rodape-fundo) !important;
 }
 
 .menu-self {
-    background-color: var(--div-topo-cores) !important;
+    background-color: var(--barra-menu-fundo) !important;
 }
 
-/* ======================================================================= */
+.x-border-layout-ct {
+    background-color: var(--sup-app) !important;
+}
+
+.x-panel-header-default {
+    background: var(--sup-painel) !important;
+    border: none !important;
+    border-bottom: 2px solid var(--borda-sutil) !important;
+}
+
+.x-box-item .x-toolbar-default{
+    background-color: var(--sup-painel) !important;
+    background-image: none !important;
+}
+
+/* Toolbar de navegacao */
+.x-toolbar.area-nav {
+    background-color: var(--barra-nav-fundo) !important;
+    border-color: transparent !important;
+}
+
+/* Toolbar inferior (setas de navegacao) */
+div[id^="toolbar-"].x-toolbar-docked-bottom,
+div[id^="toolbar-"].x-toolbar-docked-bottom > div.x-box-inner {
+    background-color: var(--barra-nav-fundo) !important;
+}
 
 .x-grid-empty{
     font-weight: bold !important;
-    color: var(--grey-700) !important;
+    color: var(--texto-terciario) !important;
     font-size: 60px !important;
     text-align: center !important;
     height: 99% !important;
@@ -107,6 +414,14 @@ body {
     display: table-cell !important;
 }
 
+.x-field-label-cell {
+    vertical-align: middle;
+}
+
+
+/* =======================================================================
+   05. CAMPOS DE ENTRADA
+======================================================================= */
 .topo_pdv input[type=text]{
     height: 30px !important;
     font-size: 18px !important;
@@ -116,16 +431,31 @@ input[type=text] {
     -webkit-border-radius: 4px !important;
     -moz-border-radius: 4px !important;
     border-radius: 4px !important;
-    border: 1px solid var(--grey-300) !important;
+    border: 1px solid var(--campo-borda) !important;
     font-weight: bold !important;
-    color: var(--grey-900) !important;
+    color: var(--campo-texto) !important;
     text-align: right;
-    background: var(--bg-card) !important;
+    background: var(--campo-fundo) !important;
     box-shadow: none !important;
+    transition: border-color var(--dur-media) var(--curva),
+                box-shadow var(--dur-media) var(--curva) !important;
 }
 
-input[type=text]:focus {
-    border-color: var(--grey-600) !important;
+/* Foco: a borda escurece um tom. So isso.
+   Inclui .x-form-focus porque em touch o :focus-visible nao dispara e
+   o ExtJS marca o campo ativo com essa classe. */
+/* Foco: a borda escurece um tom. So isso.
+
+   Inclui .x-form-focus porque em touch o :focus nativo nem sempre
+   dispara e o ExtJS marca o campo ativo com essa classe.
+
+   ATENCAO: nas janelas coletoras isso NAO vale - la o campo nunca
+   recebe foco. Ver secao 24. */
+input[type=text]:focus,
+input[type=text].x-form-focus,
+.x-form-focus input[type=text] {
+    border-color: var(--campo-foco-borda) !important;
+    box-shadow: none !important;
     outline: none;
 }
 
@@ -155,15 +485,26 @@ input[type=text]:focus {
 }
 
 input[readonly] {
-    background: var(--bg-surface) !important;
-    color: var(--grey-900) !important;
+    background: var(--sup-painel) !important;
+    color: var(--texto-principal) !important;
 }
 
+/* Campo com erro: tremida curta, o operador percebe sem ler */
+input[type=text].campo-erro,
+.x-form-invalid-field {
+    border-color: var(--p-perigo) !important;
+    animation: zx-tremer var(--dur-media) var(--curva) 1 !important;
+}
+
+
+/* =======================================================================
+   06. BARRAS DE PROGRESSO E VISORES
+======================================================================= */
 .pbar1{
     width: 400px !important;
     height: 20px;
     line-height:20px;
-    border: 1px solid var(--grey-300);
+    border: 1px solid var(--borda-sutil);
     -webkit-border-radius: 4px;
     -moz-border-radius: 4px;
     border-radius: 4px;
@@ -178,37 +519,72 @@ input[readonly] {
     -webkit-border-radius: 4px;
     -moz-border-radius: 4px;
     border-radius: 4px;
-    background: var(--accent-dark);
+    background: var(--p-cinza-800);
+    transition: width var(--dur-lenta) var(--curva);
+}
+
+/* --- Barra de progresso: OCULTA ---------------------------------------
+   Vale para TODA .pbar1, splash inclusive. Ela nasce torta (o ExtJS
+   crava a posicao inline, `left: 49px`) e nao ha conserto via CSS sem
+   quebrar o box layout - ver a nota longa na secao 20.
+
+   Sem excecao nenhuma. Uma versao anterior liberava a barra dentro de
+   pdvstartup-*, o que anulava a regra justamente na tela onde ela mais
+   incomoda.
+
+   O PDV nao fica sem sinal de vida durante a carga: a varredura
+   animada no topo do cartao (secao 20.2, .area_pbar::after) faz esse
+   papel, e faz melhor - ela e indeterminada e nao depende do backend
+   reportar percentual.
+
+   `visibility` e nao `display`: a caixa continua ocupando o mesmo
+   espaco e a conta de layout do ExtJS nao muda. Com display:none os
+   irmaos se mexem e a tela se reorganiza.
+
+   CONSEQUENCIA: as regras de cor da barra da splash (secao 20.5) ficam
+   inertes. Foram mantidas de proposito - se um dia a barra voltar,
+   volta ja estilizada. */
+.pbar1 {
+    visibility: hidden !important;
 }
 
 .area_pbar{
-    border: 1px solid var(--grey-700) !important;
+    border: 1px solid var(--borda-forte) !important;
     -webkit-border-radius: 6px;
     -moz-border-radius: 6px;
     border-radius: 6px;
-    background: var(--accent-darker);
+    background: var(--p-cinza-900);
     box-shadow: none;
 }
 
 .area_pbar label{
-    color: var(--grey-100) !important;
+    color: var(--p-cinza-100) !important;
     font-size: 14px !important;
     margin: 0 2 0 2;
 }
 
 .area_pbar .x-form-display-field{
-    color: var(--grey-300) !important;
+    color: var(--p-cinza-300) !important;
     font-size: 12px !important;
     width: 100% !important;
     overflow: hidden !important;
     margin: 0 2 0 2;
 }
 
+/* NOTA: no original .texto-visor aparecia 2x (15px e depois 12px).
+   A segunda vencia. Consolidado numa regra so, com 12px. */
 .texto-visor .x-form-display-field{
-    color: var(--grey-800) !important;
-    font-size: 15px !important;
+    color: var(--texto-secundario) !important;
+    font-size: 12px !important;
     font-weight: bold !important;
     text-shadow: none !important;
+}
+
+.texto-visor2 .x-form-display-field{
+    color: var(--texto-terciario) !important;
+    font-size: 12px !important;
+    font-weight: bold !important;
+    padding-right: 5px !important;
 }
 
 .itens_tne{
@@ -226,19 +602,30 @@ input[readonly] {
     font-size: 40px;
     font-weight: bold;
     text-shadow: none !important;
-    color: var(--grey-900);
+    color: var(--texto-principal);
 }
 
+
+/* =======================================================================
+   07. TECLADO E BOTOES
+======================================================================= */
+
+/* --- 7.1 Area do teclado ---------------------------------------------
+   NOTA: no original .area-teclado aparecia 2x (aqui e no patch final).
+   Consolidado: fundo do patch final venceu. */
 .area-teclado{
     border:none !important;
-    background: none !important;
+    background-color: var(--sup-app) !important;
+    border-color: transparent !important;
+    border-width: 0 !important;
 }
 
 .area-teclado .x-panel-body-default{
-    border: 1px solid var(--grey-300) !important;
-    background: var(--bg-surface) !important;
+    border: 1px solid var(--borda-sutil) !important;
+    background: var(--sup-painel) !important;
 }
 
+/* --- 7.2 Forma base de todo botao ------------------------------------ */
 .bt_bbar,
 .bt_teclado,
 .bt_teclado_y,
@@ -264,6 +651,43 @@ input[readonly] {
     box-shadow: none !important;
 }
 
+/* --- 7.3 Feedback de toque (sem :hover - nao existe mouse no self) ---- */
+.bt_bbar, .bt_teclado, .bt_teclado_y, .bt_teclado_a, .bt_teclado_a2,
+.bt_teclado_v, .bt_teclado_vd, .bt_teclado_c, .bt_numerico,
+.bt_teclado_l, .bt_teclado_menu, .bt_teclado_w, .bt_seletora,
+.bt_nav, .bt_menu, .bt_funcao, .bt_self, .bt_teste {
+    transition: background-color var(--dur-rapida) var(--curva),
+                filter var(--dur-rapida) var(--curva) !important;
+    -webkit-tap-highlight-color: transparent !important;
+}
+
+.bt_bbar:active:not(.x-btn-disabled),
+.bt_teclado:active:not(.x-btn-disabled),
+.bt_teclado_y:active:not(.x-btn-disabled),
+.bt_teclado_a:active:not(.x-btn-disabled),
+.bt_teclado_a2:active:not(.x-btn-disabled),
+.bt_teclado_v:active:not(.x-btn-disabled),
+.bt_teclado_vd:active:not(.x-btn-disabled),
+.bt_teclado_c:active:not(.x-btn-disabled),
+.bt_numerico:active:not(.x-btn-disabled),
+.bt_teclado_l:active:not(.x-btn-disabled),
+.bt_teclado_menu:active:not(.x-btn-disabled),
+.bt_teclado_w:active:not(.x-btn-disabled),
+.bt_seletora:active:not(.x-btn-disabled),
+.bt_nav:active:not(.x-btn-disabled),
+.bt_menu:active:not(.x-btn-disabled),
+.bt_self:active:not(.x-btn-disabled) {
+    filter: brightness(.94) !important;
+}
+
+/* Estado desabilitado padronizado */
+.x-btn-disabled {
+    opacity: .45 !important;
+    filter: grayscale(.4) !important;
+    box-shadow: none !important;
+}
+
+/* --- 7.4 Tipografia interna dos botoes ------------------------------- */
 .bt_teclado span,
 .bt_teclado_y span,
 .bt_teclado_a span,
@@ -280,7 +704,7 @@ input[readonly] {
     width: 70px;
     height: 55px;
     text-align: center;
-    color: var(--grey-900) !important;
+    color: var(--btn-neutro-texto) !important;
     font-family: tahoma, arial, helvetica, sans-serif !important;
     font-weight: bold !important;
     text-rendering: optimizeLegibility !important;
@@ -326,6 +750,19 @@ input[readonly] {
     border-radius: 6px 0 0 6px !important;
 }
 
+/* Setas de navegacao (cima/baixo) do rodape: OCULTAS.
+   Sao os botoes .bt_nav com icone seta_cima_self / seta_baixo_self.
+   Escondidas pela classe de icone, que e o que as distingue dos demais
+   .bt_nav - nao usar id, que e indice do ExtJS e muda.
+
+   `visibility` e nao `display`: os dois tbfill em volta ja tem largura
+   cravada inline pelo box layout; com display:none o toolbar recalcula
+   e o resto do rodape anda de lugar. */
+.bt_nav.bt_seta_cima_self,
+.bt_nav.bt_seta_baixo_self {
+    visibility: hidden !important;
+}
+
 .bt_nav span.x-btn-icon {
     display: block !important;
     background: transparent;
@@ -353,7 +790,7 @@ input[readonly] {
     height: 100%;
     min-width: 70px;
     margin: 2px;
-    background: var(--bg-card) !important;
+    background: var(--btn-claro-fundo) !important;
 }
 
 .bt_numerico span{
@@ -368,9 +805,33 @@ input[readonly] {
     font-family: tahoma, arial, helvetica, sans-serif !important;
 }
 
-/* Base neutra */
-.bt_teclado, .bt_numerico, .bt_teclado_menu, .sub_total, .bt_bbar, .bt_seletora, .bt_nav, .bt_menu {
-    background: var(--grey-200) !important;
+.bt_menu span, .bt_funcao span{
+    font-size: 15px !important;
+    font-weight: bold !important;
+    width: 140px;
+    height: 70px;
+    text-align: center;
+    color: var(--btn-neutro-texto) !important;
+    font-family: tahoma, arial, helvetica, sans-serif !important;
+}
+
+.bt_funcao, .bt_menu{
+    width: 150px !important;
+}
+
+.bt_self span{
+    font-size: 20px !important;
+    font-weight: bold !important;
+    font-family: tahoma, arial, helvetica, sans-serif !important;
+    color: var(--btn-neutro-texto) !important;
+}
+
+/* --- 7.5 CORES POR FUNCAO ------------------------------------------- */
+
+/* NEUTRO - base */
+.bt_teclado, .bt_numerico, .bt_teclado_menu, .sub_total,
+.bt_bbar, .bt_seletora, .bt_nav, .bt_menu {
+    background: var(--btn-neutro-fundo) !important;
 }
 
 .bt_teclado:active:not(.x-btn-disabled),
@@ -384,109 +845,142 @@ input[readonly] {
 .bt_numerico.x-pressed,
 .bt_bbar.x-pressed,
 .bt_seletora.x-pressed {
-    background: var(--bg-pressed) !important;
+    background: var(--btn-neutro-fundo-ativo) !important;
     box-shadow: none !important;
 }
 
-/* Cores Mapeadas */
-.bt_teclado_y {
-    background: var(--yellow-logo) !important; 
+/* CLARO */
+.bt_teclado_w{
+    background: var(--btn-claro-fundo) !important;
+}
+.bt_teclado_w span {
+    color: var(--btn-claro-texto) !important;
+    font-size: 16px !important;
+    font-weight: bold !important;
+}
+.bt_teclado_w:active:not(.x-btn-disabled){
+    box-shadow: none !important;
+    background: var(--btn-claro-fundo-ativo) !important;
 }
 
+/* DESTAQUE */
+.bt_teclado_y {
+    background: var(--btn-destaque-fundo) !important;
+}
+.bt_teclado_y span { color: var(--btn-destaque-texto) !important; }
 .bt_teclado_y:active:not(.x-btn-disabled),
 .bt_teclado_y .x-btn-pressed {
     box-shadow: none !important;
-    background: var(--orange-logo) !important;
+    background: var(--btn-destaque-fundo-ativo) !important;
 }
 
+/* ACAO SECUNDARIA */
 .bt_teclado_a {
-    background: var(--yellow-logo) !important;
+    background: var(--btn-acao-fundo) !important;
 }
-
+.bt_teclado_a span { color: var(--btn-acao-texto) !important; }
 .bt_teclado_a:active:not(.x-btn-disabled),
 .bt_teclado_a .x-btn-pressed {
     box-shadow: none !important;
-    background: var(--accent-dark) !important;
+    background: var(--btn-acao-fundo-ativo) !important;
+}
+/* Texto escuro sobre laranja escuro nao le. Inverte enquanto pressionado. */
+.bt_teclado_a:active:not(.x-btn-disabled) span,
+.bt_teclado_a:active:not(.x-btn-disabled) .x-btn-inner,
+.bt_teclado_a:active:not(.x-btn-disabled) i.fa {
+    color: var(--btn-acao-texto-ativo) !important;
 }
 
+/* ESCURO */
 .bt_teclado_a2 {
-    background: var(--accent-dark) !important;
+    background: var(--btn-escuro-fundo) !important;
 }
-
 .bt_teclado_a2 span{
-    color: #FFF !important;
+    color: var(--btn-escuro-texto) !important;
 }
-
 .bt_teclado_a2:active:not(.x-btn-disabled),
 .bt_teclado_a2 .x-btn-pressed {
     box-shadow: none !important;
-    background: var(--accent-darker) !important;
+    background: var(--btn-escuro-fundo-ativo) !important;
 }
 
+/* CANCELAR - perigo. Unico vermelho de acao no sistema. */
 .bt_teclado_v {
-    background: var(--red-logo) !important; 
+    background: var(--btn-cancelar-fundo) !important;
 }
-
 .bt_teclado_v span {
-    color: #FFFFFF !important;
+    color: var(--btn-cancelar-texto) !important;
 }
-
 .bt_teclado_v:active:not(.x-btn-disabled),
 .bt_teclado_v .x-btn-pressed {
     box-shadow: none !important;
-    background: var(--red-logo-dark) !important;
+    background: var(--btn-cancelar-fundo-ativo) !important;
 }
 
+/* CONFIRMAR - sucesso */
 .bt_teclado_vd {
-    background: var(--green-500) !important;
+    background: var(--btn-confirmar-fundo) !important;
 }
-
 .bt_teclado_vd span {
-    color: #FFFFFF !important;
+    color: var(--btn-confirmar-texto) !important;
 }
-
 .bt_teclado_vd:active:not(.x-btn-disabled),
 .bt_teclado_vd .x-btn-pressed {
     box-shadow: none !important;
-    background: var(--green-600) !important;
+    background: var(--btn-confirmar-fundo-ativo) !important;
 }
 
+/* LIMPAR / corrige - laranja exclusivo */
 .bt_teclado_c {
-    background: var(--grey-300) !important;
+    background: var(--btn-limpar-fundo) !important;
 }
-
+.bt_teclado_c span { color: var(--btn-limpar-texto) !important; }
 .bt_teclado_c:active:not(.x-btn-disabled),
 .bt_teclado_c .x-btn-pressed {
     box-shadow: none !important;
-    background: var(--grey-700) !important;
+    background: var(--btn-limpar-fundo-ativo) !important;
 }
 
+/* VERDE generico (bt_teclado_l) - ver nota nos tokens */
 .bt_teclado_l {
-    background: var(--orange-logo) !important; 
+    background: var(--btn-verde-fundo) !important;
 }
-
 .bt_teclado_l span {
-    color: #FFFFFF !important;
+    color: var(--btn-verde-texto) !important;
 }
-
 .bt_teclado_l:active:not(.x-btn-disabled),
 .bt_teclado_l .x-btn-pressed {
     box-shadow: none !important;
-    background: #E65100 !important;
+    background: var(--btn-verde-fundo-ativo) !important;
 }
 
-.bt_menu span, .bt_funcao span{
-    font-size: 15px !important;
+/* TESTE / diagnostico */
+.bt_teste {
+    background: var(--btn-teste-fundo) !important;
+    width: 200px;
+    left: 147px;
+    top: 27% !important;
+}
+.bt_teste span {
     font-weight: bold !important;
-    width: 140px;
-    height: 70px;
-    text-align: center;
-    color: var(--grey-900) !important;
-    font-family: tahoma, arial, helvetica, sans-serif !important;
+    color: var(--btn-teste-texto) !important;
+    text-align: center !important;
+}
+.bt_teste:active:not(.x-btn-disabled){
+    box-shadow: none !important;
+    background: var(--btn-teste-fundo-ativo) !important;
 }
 
-.bt_funcao, .bt_menu{
-    width: 150px !important;
+/* Botao de ajuda */
+div.bt-ajuda span {
+    color: var(--texto-principal) !important;
+}
+div.bt-ajuda {
+    border: none !important;
+}
+
+.menu-self button, .menu-self .menu-space, .menu-self button span .bt-ajuda{
+    width: 120px;
 }
 
 .tip-ajuda{
@@ -494,16 +988,20 @@ input[readonly] {
     min-width: 150px;
 }
 
+
+/* =======================================================================
+   08. ROTULOS (LABELS)
+======================================================================= */
 .label-text{
     font-weight: bold !important;
-    color: var(--grey-900) !important;
+    color: var(--texto-principal) !important;
     font-family: tahoma, arial, helvetica, sans-serif !important;
     font-size: 16px !important;
 }
 
 .label-text-grande{
     font-weight: bold !important;
-    color: var(--grey-900) !important;
+    color: var(--texto-principal) !important;
     font-family: tahoma, arial, helvetica, sans-serif !important;
     font-size: 30px !important;
     text-rendering: optimizeLegibility;
@@ -511,27 +1009,29 @@ input[readonly] {
 
 .label-text-input{
     font-weight: bold !important;
-    color: var(--grey-900) !important;
+    color: var(--texto-principal) !important;
     font-family: tahoma, arial, helvetica, sans-serif !important;
 }
 
 .label-text-pagamento{
     font-weight: bold !important;
-    color: var(--grey-900) !important;
+    color: var(--texto-principal) !important;
     font-family: tahoma, arial, helvetica, sans-serif !important;
     font-size: 14px !important;
 }
 
 .label-text-display{
     font-size: 16px !important;
-    color: var(--grey-800) !important;
+    color: var(--texto-secundario) !important;
     font-family: tahoma, arial, helvetica, sans-serif !important;
     font-weight: bold !important;
 }
 
+/* CORRIGIDO: usava var(--red-600), que NUNCA foi definida no original.
+   A cor simplesmente nao era aplicada. Agora usa o token de alerta. */
 .label-text-display-funcao{
     font-size: 12px !important;
-    color: var(--red-600) !important;
+    color: var(--texto-alerta) !important;
     font-family: tahoma, arial, helvetica, sans-serif !important;
     font-weight: bold !important;
 }
@@ -539,7 +1039,7 @@ input[readonly] {
 .label-text-subtotal{
     font-weight: bold !important;
     font-size: 25px !important;
-    color: var(--grey-900) !important;
+    color: var(--texto-principal) !important;
     font-family: tahoma, arial, helvetica, sans-serif !important;
     padding-top: 10px;
 }
@@ -548,8 +1048,292 @@ input[readonly] {
     padding: 5px;
 }
 
+.label_titulo {
+    color: var(--texto-principal) !important;
+    font-family: Tahoma, sans-serif !important;
+    text-shadow: none !important;
+}
+
+.label_msg_corpo_coletor {
+    color: var(--texto-secundario) !important;
+    font-family: Tahoma, sans-serif !important;
+    font-size: 14px !important;
+    text-shadow: none !important;
+}
+
+.texto-startupcon {
+    position: relative;
+    top: 23%;
+    margin: auto;
+    font-size: 16px;
+    color: var(--texto-invertido);
+    font-family: tahoma, arial, helvetica, sans-serif;
+    text-align: center;
+    margin-bottom: auto;
+}
+
+
+/* =======================================================================
+   09. GRID DO CUPOM
+======================================================================= */
+.pdv-grid-panel .x-grid-table,
+.pdv-grid-panel .x-grid-row .x-grid-cell {
+    background: none !important;
+    background-color: transparent;
+    border: 0px !important;
+    font-weight: bolder !important;
+    font-size: 110% !important;
+    text-overflow: ellipsis !important;
+    padding-right: 5px !important;
+}
+
+.pdv-grid-panel .x-grid-cell-first .x-grid-cell-inner {
+    -height: 42px !important;
+}
+
+.pdv-grid-panel .x-grid {
+    border: none;
+}
+
+.pdv-grid-panel .x-grid-header-ct {
+    border: 0px !important;
+    background: none !important;
+    background-color: var(--cupom-cabecalho-fundo) !important;
+}
+
+.pdv-grid-panel .x-column-header,
+.pdv-grid-panel .x-column-header-over {
+    font-size: 12px !important;
+    font-weight: bold !important;
+    background: none !important;
+    border: 0px !important;
+    background-color: var(--cupom-cabecalho-fundo) !important;
+    color: var(--cupom-cabecalho-texto) !important;
+}
+
+.x-column-header {
+    font-family: tahoma, arial, helvetica, sans-serif !important;
+}
+
+/* NOTA: no original .pdv-grid-panel .x-grid-row aparecia 2x seguidas.
+   Consolidado numa regra so. Zebra mantida via -row-alt. */
+.pdv-grid-panel .x-grid-row {
+    height: 50px !important;
+    vertical-align: middle !important;
+    background-color: var(--cupom-linha-fundo) !important;
+}
+
+.pdv-grid-panel .x-grid-row-alt {
+    background-color: var(--cupom-linha-alt-fundo) !important;
+}
+
+/* Borda do cupom */
+div[id^="cupom-"] {
+    border-color: var(--borda-cupom) !important;
+}
+
+/* --- Item cancelado ---
+   CORRIGIDO: original usava --red-flat-border e --red-flat-light,
+   ambas INEXISTENTES. So funcionava por causa de um patch com
+   #FFCDD2 hardcoded no fim do arquivo. Agora tokenizado de verdade. */
+.pdv-grid-panel .x-grid-row.item-cancelado,
+.pdv-grid-panel .item-cancelado {
+    height: 50px !important;
+    vertical-align: middle !important;
+    background-color: var(--cupom-linha-cancelada-fundo) !important;
+}
+
+.pdv-grid-panel .x-grid-row-alt .item-cancelado {
+    background-color: var(--cupom-linha-cancelada-alt-fundo) !important;
+}
+
+.pdv-grid-panel .item-cancelado .produto-descricao,
+.pdv-grid-panel .item-cancelado .produto-quantidade,
+.pdv-grid-panel .item-cancelado .produto-valor-unitario,
+.pdv-grid-panel .item-cancelado .produto-total {
+    text-decoration: line-through !important;
+    color: var(--cupom-linha-cancelada-texto) !important;
+    opacity: .85 !important;
+}
+
+.pdv-grid-panel .item-cancelado .zanthus-botao-cancela-item {
+    display: none !important;
+}
+
+/* Linha recem-inserida: flash rapido para o operador ver o que entrou.
+   Aplicar a classe .item-novo via JS ao inserir; ela se apaga sozinha. */
+.pdv-grid-panel .x-grid-row.item-novo {
+    animation: zx-flash-linha 700ms var(--curva-saida) 1 !important;
+}
+
+.cod-produto-no-cupom {
+    color: var(--cupom-codigo-texto) !important;
+    font-weight: normal !important;
+    text-decoration: none !important;
+}
+
+/* --- Scroll --- */
+.pdv-grid-panel .x-scroller-vertical,
+.pdv-grid-panel .x-scroller {
+    overflow: visible;
+    background-color: var(--sup-cartao);
+}
+
+.pdv-grid-panel .x-scroller-vertical {
+    -webkit-border-top-right-radius: 15px;
+    -webkit-border-bottom-right-radius: 15px;
+    -moz-border-bottom-right-radius: 15px;
+    border-bottom-right-radius: 15px;
+}
+
+.pdv-grid-panel .x-scroller-ct {
+    width: 20px !important;
+    left: -8px !important;
+}
+
+::-webkit-scrollbar {
+    width: 5px;
+}
+
+::-webkit-scrollbar-thumb:vertical,
+::-webkit-scrollbar-thumb:horizontal {
+    background-color: var(--cupom-scroll-polegar);
+    -webkit-border-radius: 4px;
+}
+
+
+/* =======================================================================
+   10. BOTAO SELETOR DE ITEM (CHECK) - CSS puro, sem imagem
+======================================================================= */
+
+/* Aniquila a imagem legada do ExtJS em todos os estados */
+.x-grid-row .zanthus-botao-cancela-item,
+.x-grid-cell .zanthus-botao-cancela-item,
+.x-grid-row-selected .zanthus-botao-cancela-item,
+.x-grid-cell-selected .zanthus-botao-cancela-item {
+    background-image: none !important;
+}
+
+.zanthus-botao-cancela-item .imagem-cancelar {
+    display: none !important;
+    background-image: none !important;
+}
+
+/* Base: anel vazado */
+.x-grid-row .zanthus-botao-cancela-item,
+.x-grid-cell .zanthus-botao-cancela-item {
+    position: relative !important;
+    display: inline-block !important;
+    width: 40px !important;
+    height: 40px !important;
+    border-radius: 50% !important;
+    border: 2px solid var(--check-borda) !important;
+    background-color: transparent !important;
+    cursor: pointer !important;
+    box-sizing: border-box !important;
+    transition: background-color var(--dur-media) var(--curva),
+                border-color var(--dur-media) var(--curva),
+                transform var(--dur-media) var(--curva-saida) !important;
+    box-shadow: none !important;
+    margin: 0 auto !important;
+}
+
+/* O "visto" desenhado com bordas */
+.zanthus-botao-cancela-item::before {
+    content: "" !important;
+    position: absolute !important;
+    width: 8px !important;
+    height: 16px !important;
+    border-bottom: 3px solid var(--check-marca) !important;
+    border-right: 3px solid var(--check-marca) !important;
+    top: 45% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) rotate(45deg) !important;
+    transition: border-color var(--dur-media) var(--curva) !important;
+}
+
+/* Selecionado */
+.x-grid-row-selected .zanthus-botao-cancela-item,
+.x-grid-cell-selected .zanthus-botao-cancela-item {
+    background-color: var(--check-ativo-fundo) !important;
+    border-color: var(--check-ativo-fundo) !important;
+    transform: scale(1.05) !important;
+    box-shadow: none !important;
+}
+
+.x-grid-row-selected .zanthus-botao-cancela-item::before,
+.x-grid-cell-selected .zanthus-botao-cancela-item::before {
+    border-bottom-color: var(--check-ativo-marca) !important;
+    border-right-color: var(--check-ativo-marca) !important;
+}
+
+.x-grid-row.desabilitar-selecao .zanthus-botao-cancela-item{
+    display:none !important;
+}
+
+
+/* =======================================================================
+   11. JANELAS, MODAIS E TOOLBARS
+   Aqui mora a queixa do "opaco": janelas surgiam secas, sem transicao.
+   Ganham entrada suave (fade + leve escala) e mascara com fade.
+   IMPORTANTE: a animacao usa opacity/transform, que NAO afetam o layout
+   calculado pelo ExtJS. Nenhuma propriedade de posicao foi tocada.
+======================================================================= */
+.x-css-shadow {
+    box-shadow: var(--sombra-media) !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+}
+
+.x-window, .x-window-default {
+    background: var(--janela-fundo) !important;
+    border: none !important;
+    border-radius: var(--janela-raio) !important;
+    box-shadow: var(--janela-sombra) !important;
+    overflow: hidden !important;
+    animation: zx-janela-entra var(--dur-lenta) var(--curva-saida) both !important;
+    transform-origin: center center !important;
+}
+
+/* Cabecalho: funde com o corpo. No lugar da barra cinza, uma faixa de
+   acento de 4px no topo, desenhada com inset box-shadow - ela NAO ocupa
+   espaco, aproveita os 19px que o ExtJS ja reservou para o header. */
+.x-window-header-default, .x-window-header {
+    background: var(--janela-cabecalho-fundo) !important;
+    background-image: none !important;
+    border: none !important;
+    border-bottom: none !important;
+    box-shadow: inset 0 var(--dlg-acento-altura) 0 0 var(--dlg-acento) !important;
+}
+
+.x-window-header-text-default {
+    color: var(--janela-cabecalho-texto) !important;
+    font-weight: bold !important;
+    text-shadow: none !important;
+}
+
+.x-window-body,
+.x-window-body-default,
+.body-msg {
+    background: var(--janela-fundo) !important;
+    border: none !important;
+    border-width: 0px !important;
+    border-color: transparent !important;
+    border-style: none !important;
+}
+
 .janela-menu{
-    background: var(--bg-surface);
+    background: var(--sup-painel);
+}
+
+/* Grid seletor: o tema padrao do ExtJS desenha a moldura num azul
+   claro proprio. Vira preta, igual a caixa do cupom.
+
+   So `border-color` - a borda ja existe e tem largura definida pelo
+   tema. Reescrever `border` inteiro fixaria uma largura que hoje nao e
+   nossa, e a caixa mudaria junto. Cor e cor, largura e largura. */
+div[id^="gridseletor-"] {
+    border-color: var(--borda-caixa) !important;
 }
 
 .janela-seletor .x-window-header-text{
@@ -568,200 +1352,12 @@ input[readonly] {
     font-size: 30px !important;
 }
 
-.texto-visor .x-form-display-field{
-    color: var(--grey-800) !important;
-    font-size: 12px !important;
-    font-weight: bold !important;
-    text-shadow: none;
-}
-
-.texto-visor2 .x-form-display-field{
-    color: var(--grey-700) !important;
-    font-size: 12px !important;
-    font-weight: bold !important;
-    padding-right: 5px !important;
-}
-
-/* Grid */
-.pdv-grid-panel .x-grid-table, .pdv-grid-panel .x-grid-row .x-grid-cell {
-        background: none !important;
-        background-color: transparent;
-        border: 0px !important;
-        font-weight: bolder !important;
-        font-size: 110% !important;
-        text-overflow: ellipsis !important;
-        padding-right: 5px !important;
-}
-
-.pdv-grid-panel .x-grid-cell-first .x-grid-cell-inner {
-    -height: 42px !important;
-}
-
-.pdv-grid-panel .x-grid {
-    border: none;
-}
-
-.pdv-grid-panel .x-grid-header-ct {
-    border: 0px !important;
-    background: none !important;
-    background-color: var(--accent-dark) !important;
-}
-
-.pdv-grid-panel .x-column-header, .pdv-grid-panel .x-column-header-over {
-    font-size: 12px !important;
-    font-weight: bold !important;
-    background: none !important;
-    border: 0px !important;
-    background-color: var(--accent-dark) !important;
-    color: #FFF !important;
-}
-
-.pdv-grid-panel .x-grid-row {
-    height: 50px !important;
-    vertical-align: middle !important;    
-}
-
-.pdv-grid-panel .x-grid-row{
-    background-color: var(--bg-surface) !important;
-}
-
-.pdv-grid-panel .x-grid-row-alt {
-    background-color: var(--bg-card) !important;
-}
-
-.pdv-grid-panel .item-cancelado {
-    height: 50px !important;
-    vertical-align: middle !important;    
-    background-color: var(--red-flat-border) !important;
-}
-
-.pdv-grid-panel .x-grid-row-alt .item-cancelado {
-    background-color: var(--red-flat-light) !important;
-}
-.pdv-grid-panel .item-cancelado .produto-descricao,
-.pdv-grid-panel .item-cancelado .produto-quantidade,
-.pdv-grid-panel .item-cancelado .produto-valor-unitario,
-.pdv-grid-panel .item-cancelado .produto-total
-{
-    text-decoration: line-through !important;
-}
-.pdv-grid-panel .item-cancelado .produto-descricao,
-.pdv-grid-panel .item-cancelado .produto-valor-unitario,
-.pdv-grid-panel .item-cancelado .produto-total,
-.pdv-grid-panel .item-cancelado .produto-quantidade {
-    -text-decoration: line-through;
-    color: var(--red-logo-dark) !important;
-}
-
-.pdv-grid-panel .item-cancelado .zanthus-botao-cancela-item {
-    display: none !important;
-}
-    
-.pdv-grid-panel .x-grid-row-alt .x-grid-cell-last {
-    /*-webkit-border-top-right-radius: 15px !important;
-    -webkit-border-bottom-right-radius: 15px !important;*/
-}
-    
-.pdv-grid-panel .x-scroller-vertical, .pdv-grid-panel .x-scroller {
-    overflow: visible;
-    background-color: var(--bg-card);
-}
-    
-.pdv-grid-panel .x-scroller-vertical {
-    -webkit-border-top-right-radius: 15px;
-    -webkit-border-bottom-right-radius: 15px;
-    -moz-border-bottom-right-radius: 15px;
-    border-bottom-right-radius: 15px;
-}
-    
-.pdv-grid-panel .x-scroller-ct {
-    width: 20px !important;
-    left: -8px !important;
-}
-    
-::-webkit-scrollbar { 
-    width: 5px;
-}
-
-::-webkit-scrollbar-thumb:vertical, 
-::-webkit-scrollbar-thumb:horizontal { 
-    background-color: var(--grey-400); 
-    -webkit-border-radius: 4px;
-}
-
-.zanthus-botao-cancela-item {
-    background: var(--bg-surface) !important;
-    -webkit-border-radius: 2em !important;
-    width: 40px !important;
-    height: 40px !important;
-    -webkit-box-shadow: none !important;
-    margin-left: 10px;
-}
-
-.zanthus-botao-cancela-item {
-    background: url(../imagens/cancela.png) no-repeat !important;
-}
-.x-grid-row-selected .zanthus-botao-cancela-item, .x-grid-cell-selected .zanthus-botao-cancela-item {
-    box-shadow: none !important;
-    background: var(--bg-surface) !important;
-    border: none !important;
-}
-
-.x-grid-row-selected .zanthus-botao-cancela-item, .x-grid-cell-selected .zanthus-botao-cancela-item {
-    background: url(../imagens/cancela_sel.png) no-repeat !important;
-}
-
-.x-grid-row.desabilitar-selecao .zanthus-botao-cancela-item{
-    display:none !important;
-}
-
-/* =======================================================================
-   REMOÇÃO DE SOMBRAS E EFEITOS 3D DO EXTJS (INCLUINDO MODAIS E DIVISÓRIAS)
-======================================================================= */
-.x-css-shadow {
-    box-shadow: var(--shadow-md) !important;
-    border-radius: 0 !important;
-    background: transparent !important;
-}
-
-.x-window, .x-window-default {
-    background: var(--bg-card) !important;
-    border: none !important; 
-    border-radius: 10px !important; 
-    box-shadow: var(--shadow-md) !important;
-    overflow: hidden !important; 
-}
-
-.x-window-header-default, .x-window-header {
-    background: var(--div-topo-cores) !important; 
-    background-image: none !important;
-    border: none !important;
-    border-bottom: none !important; 
-}
-
-.x-window-header-text-default {
-    color: #000000 !important; 
-    font-weight: bold !important;
-    text-shadow: none !important;
-}
-
-/* AQUI: Removidas as linhas divisórias e bordas do corpo da janela */
-.x-window-body,
-.x-window-body-default,
-.body-msg {
-    background: var(--bg-card) !important;
-    border: none !important;
-    border-width: 0px !important;
-    border-color: transparent !important;
-    border-style: none !important;
-}
-
 .x-toolbar-default,
 .x-toolbar-docked-top {
-    background-color: var(--bg-card) !important; 
+    background-color: var(--sup-cartao) !important;
     background-image: none !important;
     border: none !important;
-    border-top: none !important; 
+    border-top: none !important;
     box-shadow: none !important;
 }
 
@@ -773,108 +1369,32 @@ input[readonly] {
     box-shadow: none !important;
 }
 
+/* Mascara de fundo com fade - tira o "corte seco" ao abrir modal */
 .x-mask {
-    background: var(--grey-900) !important;
-    opacity: 0.5 !important;
+    background: var(--janela-mascara-fundo) !important;
+    opacity: var(--janela-mascara-opacidade) !important;
+    animation: zx-fade-entra var(--dur-media) var(--curva) both !important;
 }
 
-.label_titulo {
-    color: var(--grey-900) !important;
-    font-family: Tahoma, sans-serif !important;
-    text-shadow: none !important;
-}
-
-.label_msg_corpo_coletor {
-    color: var(--grey-800) !important;
-    font-family: Tahoma, sans-serif !important;
-    font-size: 14px !important;
-    text-shadow: none !important;
-}
-
-/* ======================================================================= */
-
-.texto-startupcon {
-    position: relative;
-    top: 23%;
-    margin: auto;
-    font-size: 16px;
-    color: white;
-    font-family: tahoma, arial, helvetica, sans-serif;
-    text-align: center;
-    margin-bottom: auto;
-}
-
-.bt_teste {
-    background: var(--accent-dark) !important;
-    width: 200px;
-    left: 147px;
-    top: 27% !important;
-}
-
-.bt_teste span {
-    font-weight: bold !important;
-    color: white !important;
-    text-align: center !important;
-}
-
-.bt_teste:active:not(.x-btn-disabled){
-    box-shadow: none !important;
-    background: var(--accent-darker) !important;
-}
-
-.cod-produto-no-cupom {
-    color: var(--green-600) !important;
-    font-weight: normal !important;
-    text-decoration: none !important;
-}
-
+/* Tooltips */
 .tooltip-no-cupom {
-    background: var(--bg-card) !important;
-    border: 1px solid var(--grey-300) !important;
+    background: var(--sup-cartao) !important;
+    border: 1px solid var(--borda-sutil) !important;
+    box-shadow: var(--sombra-media) !important;
 }
 
 .tooltip-no-cupom .x-tool {
-    display: none !important;    
+    display: none !important;
 }
 
 .tooltip-no-cupom .x-tip-anchor {
     border-width: 12px !important;
 }
 
-.x-field-label-cell {
-    vertical-align: middle;
-}
 
-.menu-self button, .menu-self .menu-space, .menu-self button span .bt-ajuda{
-    width: 120px;
-}
-
-.bt_teclado_w{
-    background: var(--bg-card) !important; 
-}
-
-.bt_teclado_w span {
-    color: var(--grey-900) !important;
-    font-size: 16px !important;
-    font-weight: bold !important;
-}
-
-.bt_teclado_w:active:not(.x-btn-disabled){
-    box-shadow: none !important;
-    background: var(--bg-hover) !important;
-}
-
-.bt_self span{
-    font-size: 20px !important;
-    font-weight: bold !important;
-    font-family: tahoma, arial, helvetica, sans-serif !important;
-    color: var(--grey-900) !important;
-}
-
-.x-border-layout-ct {
-    background-color: var(--bg-app) !important;
-}
-
+/* =======================================================================
+   12. TELA SELF-CHECKOUT E IMAGENS
+======================================================================= */
 i.fa {
     font-size: 30px !important;
 }
@@ -893,21 +1413,15 @@ i.fa {
     top: 20px !important;
 }
 
-.bg-image,.bg-image2 {
-    background: var(--bg-card) !important;
+/* NOTA: .bg-image tinha fundo definido em 2 lugares no original
+   (var(--bg-card) e depois #FAFAFA). Consolidado no valor final. */
+.bg-image,
+.bg-image > div.x-box-inner {
+    background-color: var(--sup-app) !important;
 }
 
-div.bt-ajuda span {
-    color: var(--grey-900) !important;
-}
-
-div.bt-ajuda {
-    border: none !important;
-}
-
-.x-box-item .x-toolbar-default{
-    background-color: var(--bg-surface) !important;
-    background-image: none !important;
+.bg-image2 {
+    background: var(--sup-cartao) !important;
 }
 
 .img-self{
@@ -929,32 +1443,184 @@ div.bg-image2 div div {
     height: 100% !important;
 }
 
-.x-column-header {
-    font-family: tahoma, arial, helvetica, sans-serif !important;
-}
-
-.x-panel-header-default {
-    background: var(--bg-surface) !important;
-    border: none !important;
-    border-bottom: 2px solid var(--grey-300) !important;
-}
-
 #imgSelf2 {
     width: 60% !important;
 }
 
 .bg-descanso .x-box-inner {
-    background: #FFF url('../imagens/descanso1000.jpg') no-repeat center top !important;
+    background: var(--p-branco) url('../imagens/descanso1000.jpg') no-repeat center top !important;
     background-size: 100% 100% !important;
 }
 
-/**
-   NPS - CSS
- */
+/* SVG animado do codigo de barras (substitui GIF legado) */
+.img-self.bt_image_codigo {
+    content: url("/Zanthus/Zeus/Interface/resources/imagens/animacao-codigo-pdv.svg") !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+    object-fit: contain !important;
+    object-position: center 75% !important;
+}
+
+/* SVG animado de pagamento aplicado na DIV pai */
+.x-container.bg-image2 {
+    background-image: url("/Zanthus/Zeus/Interface/resources/imagens/animacao-pagamento-pdv.svg") !important;
+    background-size: contain !important;
+    background-position: center center !important;
+    background-repeat: no-repeat !important;
+}
+
+.img-self2.bt_image_pagamento {
+    opacity: 0 !important;
+}
+
+
+/* =======================================================================
+   13. FORMAS DE PAGAMENTO (self: CREDITO / DEBITO / PIX)
+   Os "quadrados desconexos" gerados pelo ext-all.js. Cada card recebe
+   uma faixa lateral colorida por metodo, sem tocar em posicao/tamanho.
+
+   COMO MAPEAR CADA CARD:
+   O ExtJS gera ids dinamicos (formaspagamentocard-1234). Para colorir
+   por metodo, adicione UMA classe no card correspondente:
+       .pgto-credito   .pgto-debito   .pgto-pix
+   Se ainda nao houver essa classe no HTML/JS, os cards ficam neutros
+   (comportamento identico ao atual) - nada quebra.
+======================================================================= */
+
+/* Container inferior de pagamento */
+.area-south {
+    background-color: var(--barra-sul-fundo) !important;
+}
+
+/* Cards de forma de pagamento - base neutra */
+div[id^="formaspagamentocard-"],
+div[id^="formaspagamentocard-"] > .x-panel-body {
+    background-color: var(--pgto-card-fundo) !important;
+    border-color: transparent !important;
+    border-width: 0 !important;
+    transition: box-shadow var(--dur-media) var(--curva),
+                filter var(--dur-rapida) var(--curva) !important;
+}
+
+div[id^="formaspagamentocard-"]:active {
+    filter: brightness(.96) !important;
+}
+
+/* Identidade por metodo: faixa lateral (nao mexe em layout) */
+div[id^="formaspagamentocard-"].pgto-credito {
+    box-shadow: inset var(--pgto-faixa-largura) 0 0 0 var(--pgto-credito-cor) !important;
+}
+div[id^="formaspagamentocard-"].pgto-credito:active {
+    box-shadow: inset var(--pgto-faixa-largura) 0 0 0 var(--pgto-credito-cor-ativo) !important;
+}
+
+div[id^="formaspagamentocard-"].pgto-debito {
+    box-shadow: inset var(--pgto-faixa-largura) 0 0 0 var(--pgto-debito-cor) !important;
+}
+div[id^="formaspagamentocard-"].pgto-debito:active {
+    box-shadow: inset var(--pgto-faixa-largura) 0 0 0 var(--pgto-debito-cor-ativo) !important;
+}
+
+div[id^="formaspagamentocard-"].pgto-pix {
+    box-shadow: inset var(--pgto-faixa-largura) 0 0 0 var(--pgto-pix-cor) !important;
+}
+div[id^="formaspagamentocard-"].pgto-pix:active {
+    box-shadow: inset var(--pgto-faixa-largura) 0 0 0 var(--pgto-pix-cor-ativo) !important;
+}
+
+/* --- BOTOES DEBITO / CREDITO / PIX ------------------------------------
+   Mesma gramatica dos cards: faixa lateral colorida, fundo neutro
+   intacto. Rotulo no tom escuro da cor para nao ficar cinza sobre uma
+   faixa colorida.
+
+   DOIS GANCHOS, NESTA ORDEM DE PREFERENCIA
+   ----------------------------------------
+   1. CLASSE (.pgto-credito / .pgto-debito / .pgto-pix) no botao.
+      E o jeito certo. Nao existe no HTML/JS ainda - quando existir,
+      estas regras assumem sozinhas por serem mais especificas.
+
+   2. ORDEM (:nth-of-type). Funciona hoje, sem tocar em JS, porem
+      assume a sequencia observada no DOM: DEBITO, CREDITO, PIX.
+      SE UMA LOJA REORDENAR OU DESABILITAR UMA FORMA DE PAGAMENTO,
+      AS CORES TROCAM DE LUGAR SILENCIOSAMENTE. Nao ha como o CSS
+      perceber - ele nao le o texto do botao. E o preco de nao ter
+      classe.
+
+   A faixa e inset box-shadow, nunca border: o ExtJS crava
+   border-width:1px inline em cada botao. */
+
+/* 2. Por ordem - remover este bloco quando as classes existirem */
+div[id^="formaspagamentocard-"] .bt_seletora:nth-of-type(1) {
+    box-shadow: inset var(--pgto-faixa-btn) 0 0 0 var(--pgto-debito-cor) !important;
+}
+div[id^="formaspagamentocard-"] .bt_seletora:nth-of-type(1) span {
+    color: var(--pgto-debito-cor-ativo) !important;
+}
+div[id^="formaspagamentocard-"] .bt_seletora:nth-of-type(2) {
+    box-shadow: inset var(--pgto-faixa-btn) 0 0 0 var(--pgto-credito-cor) !important;
+}
+div[id^="formaspagamentocard-"] .bt_seletora:nth-of-type(2) span {
+    color: var(--pgto-credito-cor-ativo) !important;
+}
+div[id^="formaspagamentocard-"] .bt_seletora:nth-of-type(3) {
+    box-shadow: inset var(--pgto-faixa-btn) 0 0 0 var(--pgto-pix-cor) !important;
+}
+div[id^="formaspagamentocard-"] .bt_seletora:nth-of-type(3) span {
+    color: var(--pgto-pix-cor-ativo) !important;
+}
+
+/* 1. Por classe - o gancho definitivo */
+.bt_seletora.pgto-credito {
+    box-shadow: inset var(--pgto-faixa-btn) 0 0 0 var(--pgto-credito-cor) !important;
+}
+.bt_seletora.pgto-credito span { color: var(--pgto-credito-cor-ativo) !important; }
+
+.bt_seletora.pgto-debito {
+    box-shadow: inset var(--pgto-faixa-btn) 0 0 0 var(--pgto-debito-cor) !important;
+}
+.bt_seletora.pgto-debito span { color: var(--pgto-debito-cor-ativo) !important; }
+
+.bt_seletora.pgto-pix {
+    box-shadow: inset var(--pgto-faixa-btn) 0 0 0 var(--pgto-pix-cor) !important;
+}
+.bt_seletora.pgto-pix span { color: var(--pgto-pix-cor-ativo) !important; }
+
+/* Pressionado: a regra geral da secao 7.5 zera box-shadow, o que
+   apagaria a faixa no toque. Redesenhada aqui no tom escuro. */
+div[id^="formaspagamentocard-"] .bt_seletora:nth-of-type(1):active:not(.x-btn-disabled),
+.bt_seletora.pgto-debito:active:not(.x-btn-disabled) {
+    box-shadow: inset var(--pgto-faixa-btn) 0 0 0 var(--pgto-debito-cor-ativo) !important;
+}
+div[id^="formaspagamentocard-"] .bt_seletora:nth-of-type(2):active:not(.x-btn-disabled),
+.bt_seletora.pgto-credito:active:not(.x-btn-disabled) {
+    box-shadow: inset var(--pgto-faixa-btn) 0 0 0 var(--pgto-credito-cor-ativo) !important;
+}
+div[id^="formaspagamentocard-"] .bt_seletora:nth-of-type(3):active:not(.x-btn-disabled),
+.bt_seletora.pgto-pix:active:not(.x-btn-disabled) {
+    box-shadow: inset var(--pgto-faixa-btn) 0 0 0 var(--pgto-pix-cor-ativo) !important;
+}
+
+
+/* Painel "Pagamentos realizados" */
+div[id^="pagamentosaceitos-"] .x-panel-header-text {
+    color: var(--pgto-aceitos-titulo) !important;
+}
+
+div[id^="pagamentosaceitos-"],
+div[id^="pagamentosaceitos-"] > .x-panel-header {
+    border-color: transparent !important;
+    border-width: 0 !important;
+    box-shadow: none !important;
+}
+
+
+/* =======================================================================
+   14. NPS
+======================================================================= */
 .imagem-logo-nps{
     background: url(../imagens/1000/1.png) no-repeat center !important;
     background-size: contain !important;
-    color: var(--grey-900) !important;
+    color: var(--texto-principal) !important;
     margin-bottom: 2%;
 }
 
@@ -970,7 +1636,7 @@ div.bg-image2 div div {
     text-align: center;
     margin-top: -1%;
     margin-bottom: 2%;
-    color: var(--grey-900) !important;
+    color: var(--texto-principal) !important;
 }
 
 .sub-title-nps{
@@ -982,7 +1648,7 @@ div.bg-image2 div div {
     display: flex;
     align-items: center;
     text-align: center;
-    color: var(--grey-800) !important;
+    color: var(--texto-secundario) !important;
 }
 
 .title-agradecimento{
@@ -996,7 +1662,7 @@ div.bg-image2 div div {
     display: flex;
     align-items: center;
     text-align: center;
-    color: var(--grey-900) !important;
+    color: var(--texto-principal) !important;
 }
 
 .pesquisa-nps{
@@ -1017,19 +1683,22 @@ div.bg-image2 div div {
     font-size: 1rem;
     width: 2rem;
     height: 2rem;
-    border: 1px solid var(--grey-700) !important;
+    border: 1px solid var(--borda-forte) !important;
     border-radius: 8px;
-    color: var(--grey-900) !important;
+    color: var(--texto-principal) !important;
 }
+
 td {
     width: 35px !important;
     height: 32px !important;
 }
+
 .table-component-colors-nps{
     width: 20px;
     height: 6px;
     border-radius: 24px;
 }
+
 .table-component-pesquisa-nps{
     display: flex;
     flex-direction: row;
@@ -1037,16 +1706,18 @@ td {
     align-items: center;
     padding-left: 25px;
     height: 45px;
-    border: 2px solid var(--grey-300) !important;
+    border: 2px solid var(--borda-sutil) !important;
     border-radius: 9px;
     width: 600px;
 }
+
 .pergunta {
     align-items: center;
     display: flex;
     width: 70%;
     height: 100%;
 }
+
 .botoes {
     justify-content: end;
     display: flex;
@@ -1055,18 +1726,20 @@ td {
     width: 30%;
     height: 100%;
 }
+
 .botao-like{
     height: 27px;
     margin: 40px;
-    color: var(--grey-900) !important;
+    color: var(--texto-principal) !important;
     text-shadow: none !important;
 }
 
 .botao-dislike{
     height: 27px;
-    color: var(--grey-900) !important;
+    color: var(--texto-principal) !important;
     text-shadow: none !important;
 }
+
 .text-pesquisa{
     font-family: 'circularx-medium';
     font-style: normal;
@@ -1074,7 +1747,7 @@ td {
     line-height: 100%;
     font-weight: 900;
     letter-spacing: -0.01em;
-    color: var(--grey-900) !important;
+    color: var(--texto-principal) !important;
 }
 
 .btn-save-nps {
@@ -1083,7 +1756,7 @@ td {
     align-items: center;
     width: 600px;
     height: 60px;
-    background: var(--accent-dark) !important;
+    background: var(--btn-escuro-fundo) !important;
     border-radius: 9px;
     font-family: 'circularx-medium';
     font-style: normal;
@@ -1092,12 +1765,19 @@ td {
     line-height: 116%;
     text-align: center;
     letter-spacing: -0.01em;
-    color: #FFFFFF !important;
+    color: var(--btn-escuro-texto) !important;
     text-decoration: none;
+    transition: filter var(--dur-rapida) var(--curva);
 }
+
+.btn-save-nps:active {
+    filter: brightness(.92);
+}
+
 .icone-like {
     font-size: 70px !important;
 }
+
 #perguntasDinamicas table {
     border-spacing: 15px;
 }
@@ -1105,33 +1785,33 @@ td {
 #nps_zanthus{
     width: 2560px !important;
     height: 1276px !important;
-    background-color: var(--bg-card) !important;
+    background-color: var(--sup-cartao) !important;
 }
 
 #nps_zanthus-body{
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    background-color: var(--bg-card) !important;
+    background-color: var(--sup-cartao) !important;
 }
 
 #nps_zanthus_agradecimento{
     width: 2560px !important;
     height: 1276px !important;
-    background-color: var(--bg-card) !important;
+    background-color: var(--sup-cartao) !important;
 }
 
 #nps_zanthus_agradecimento-body{
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    background-color: var(--bg-card) !important;
+    background-color: var(--sup-cartao) !important;
 }
 
 #panel_nps_zanthus_agradecimento{
     left: 0px;
     top: 0px;
-    background-color: var(--bg-card) !important;
+    background-color: var(--sup-cartao) !important;
     position: relative !important;
     margin: 0px;
     height: 720px !important;
@@ -1145,7 +1825,7 @@ td {
 #panel_nps_zanthus_agradecimento-body{
     left: 0px;
     top: 0px;
-    background-color: var(--bg-card) !important;
+    background-color: var(--sup-cartao) !important;
     position: relative !important;
     margin: 0px;
     height: 720px !important;
@@ -1160,7 +1840,7 @@ td {
 #panel_nps_zanthus{
     left: 0px;
     top: 0px;
-    background-color: var(--bg-card) !important;
+    background-color: var(--sup-cartao) !important;
     position: relative !important;
     margin: 0px;
     height: 720px !important;
@@ -1174,7 +1854,7 @@ td {
 #panel_nps_zanthus-body{
     left: 0px;
     top: 0px;
-    background-color: var(--bg-card) !important;
+    background-color: var(--sup-cartao) !important;
     position: relative !important;
     margin: 0px;
     height: 720px !important;
@@ -1184,137 +1864,53 @@ td {
     justify-content: center;
     width: 1280px !important;
 }
+
+
 /* =======================================================================
-   AJUSTES SOLICITADOS (FUNDO #FAFAFA E BORDA TRANSPARENTE)
+   15. CARREGAMENTO (barra de progresso e spinner)
 ======================================================================= */
 
-/* Elemento 1: Fundo da toolbar de navegação (area-nav) */
-.x-toolbar.area-nav {
-    background-color: #FAFAFA !important; /* Corresponde à sua var(--bg-app) */
-    border-color: transparent !important;
-}
-
-/* Elemento 2: Fundo dos blocos de pagamento e remoção da borda */
-/* Usamos o seletor [id^="..."] para pegar o ID mesmo que o número final mude */
-div[id^="formaspagamentocard-"],
-div[id^="formaspagamentocard-"] > .x-panel-body,
-.area-teclado {
-    background-color: #FAFAFA !important;
-    border-color: transparent !important;
-    border-width: 0 !important;
-}
-/* =======================================================================
-   FUNDO DO CONTAINER DE PAGAMENTO INFERIOR
-======================================================================= */
-.area-south {
-    background-color: var(--cor-container-pagamento-inferior) !important;
-}
-/* =======================================================================
-   AJUSTES DO PAINEL "PAGAMENTOS REALIZADOS"
-======================================================================= */
-
-/* 1. Deixa o texto "Pagamentos realizados" na cor preta */
-div[id^="pagamentosaceitos-"] .x-panel-header-text {
-    color: #000000 !important;
-}
-
-/* 2. Remove a borda azul (deixa transparente) do painel e do cabeçalho */
-div[id^="pagamentosaceitos-"],
-div[id^="pagamentosaceitos-"] > .x-panel-header {
-    border-color: transparent !important;
-    border-width: 0 !important; /* Zera a largura da borda por segurança */
-    box-shadow: none !important; /* Remove qualquer sombra residual */
-}
-/* =======================================================================
-   AJUSTES DA TELA PRINCIPAL (CUPOM E PAINÉIS LATERAIS/INFERIORES)
-======================================================================= */
-
-/* 1. Muda apenas a cor da borda do grid principal (cupom) para preto */
-div[id^="cupom-"] {
-    border-color: #000000 !important;
-}
-
-/* 2. Fundo #FAFAFA APENAS para a toolbar inferior (setas de navegação) */
-div[id^="toolbar-"].x-toolbar-docked-bottom,
-div[id^="toolbar-"].x-toolbar-docked-bottom > div.x-box-inner {
-    background-color: #FAFAFA !important;
-}
-
-/* 3. Fundo #FAFAFA estritamente no bloco lateral (onde fica a imagem do código).
-   Removemos o seletor global x-layout-fit para NÃO vazar no botão de Finalizar Compra */
-.bg-image,
-.bg-image > div.x-box-inner {
-    background-color: #FAFAFA !important;
-}
-/* =======================================================================
-   ESTILO GERAL PARA ITEM CANCELADO (Independente de foco)
-======================================================================= */
-.pdv-grid-panel .x-grid-row.item-cancelado {
-    background-color: #FFCDD2 !important;
-}
-/* =======================================================================
-   ANIMAÇÃO MODERNA DA BARRA DE CARREGAMENTO (MESSAGEBOX)
-======================================================================= */
-
-/* 1. Container da barra: remove as bordas antigas e deixa arredondado/suave */
+/* --- Barra de progresso do MessageBox --- */
 div[id^="messagebox-"] .x-progress {
-    background-color: #EEEEEE !important; /* Cor de fundo suave */
+    background-color: var(--progresso-trilha-fundo) !important;
     border: none !important;
     border-radius: 8px !important;
     box-shadow: inset 0 1px 2px rgba(0,0,0,0.1) !important;
     overflow: hidden !important;
-    height: 14px !important; /* Deixa a barra um pouco mais fina e elegante */
+    height: 14px !important;
 }
 
-/* 2. A barra em si: cor sólida, listras animadas e bordas arredondadas */
 div[id^="messagebox-"] .x-progress-bar {
-    background-color: #E53935 !important; /* Cor principal da logo */
+    background-color: var(--progresso-barra-fundo) !important;
     background-image: linear-gradient(
-        45deg, 
-        rgba(255, 255, 255, 0.15) 25%, 
-        transparent 25%, 
-        transparent 50%, 
-        rgba(255, 255, 255, 0.15) 50%, 
-        rgba(255, 255, 255, 0.15) 75%, 
-        transparent 75%, 
+        45deg,
+        rgba(255, 255, 255, 0.15) 25%,
+        transparent 25%,
+        transparent 50%,
+        rgba(255, 255, 255, 0.15) 50%,
+        rgba(255, 255, 255, 0.15) 75%,
+        transparent 75%,
         transparent
     ) !important;
-    background-size: 20px 20px !important; /* Tamanho das listras */
+    background-size: 20px 20px !important;
     border: none !important;
     border-radius: 8px !important;
     box-shadow: none !important;
-    
-    /* Ativa a animação contínua e a transição suave de largura */
-    transition: width 0.3s ease !important;
-    animation: progress-stripes 1s linear infinite !important;
+    transition: width var(--dur-lenta) var(--curva) !important;
+    animation: zx-listras 1s linear infinite !important;
 }
 
-/* 3. Oculta o texto feio de porcentagem/carregando de cima da barra (opcional, visual mais limpo) */
 div[id^="messagebox-"] .x-progress-text {
-    display: none !important; 
+    display: none !important;
 }
 
-/* 4. O motor da animação: move o background para criar o efeito de fluxo */
-@keyframes progress-stripes {
-    from {
-        background-position: 20px 0;
-    }
-    to {
-        background-position: 0 0;
-    }
-}
-/* =======================================================================
-   NOVA TELA DE CARREGAMENTO (SPINNER CIRCULAR EM VEZ DE GIF) - CORRIGIDO
-======================================================================= */
-
-/* Remove o fundo azul gradiente antigo da janelinha */
+/* --- Spinner circular (substitui o GIF legado) --- */
 .window-spinner,
 .window-spinner .x-window-body {
-    background-color: var(--bg-card) !important; 
+    background-color: var(--janela-fundo) !important;
 }
 
-/* Força o GIF antigo a ficar invisível e sem tamanho, anulando o bloqueio do ExtJS */
-.processando-gif, 
+.processando-gif,
 img[class*="processando"] {
     opacity: 0 !important;
     width: 0 !important;
@@ -1325,117 +1921,566 @@ img[class*="processando"] {
     visibility: hidden !important;
 }
 
-/* Cria o spinner circular moderno via CSS e garante o seu posicionamento */
+/* Spinner circular. Substitui a grade 3x3 por mascara, que dependia de
+   mask-image com 9 camadas - bonito, porem refem do suporte do
+   Chromium. Um circulo girando e o mesmo do style2: dois arquivos, um
+   indicador de carregamento so. */
 .container-processando::after {
     content: "";
     position: absolute;
     top: 50px;
-    left: calc(50% - 20px); /* Centraliza o círculo de 40px exatamente no meio */
+    left: calc(50% - 20px);   /* centraliza o circulo de 40px */
     width: 40px;
     height: 40px;
     box-sizing: border-box;
-    border: 4px solid var(--grey-300); /* Borda de trilha (cinza claro) */
-    border-top: 4px solid var(--red-logo); /* Borda de progresso (Cores da logo) */
+    border: 4px solid var(--spinner-trilha);
+    border-top: 4px solid var(--spinner-ativo);
     border-radius: 50%;
-    animation: spinner-circular 1s linear infinite !important;
+    animation: zx-girar 1s linear infinite !important;
     display: block !important;
 }
 
-/* Motor do giro circular */
-@keyframes spinner-circular {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-/*Animação Self*/
-.img-self.bt_image_codigo {
-    /* 1. Troca o GIF pelo SVG nativamente com o caminho absoluto correto */
-    content: url("/Zanthus/Zeus/Interface/resources/imagens/animacao-codigo-pdv.svg") !important;
-    
-    /* 2. Garante que nunca vai vazar do bloco pai dinâmico, mas sem fixar medidas */
-    max-width: 100% !important;
-    max-height: 100% !important;
-    
-    /* 3. Faz o SVG se adaptar ao bloco preservando as proporções */
-    object-fit: contain !important;
-    
-    /* 4. O TRUQUE: Empurra apenas o desenho para baixo dentro da área que o ExtJS liberou */
-    object-position: center 75% !important; 
-}
-/* Substitui o GIF de pagamento pelo SVG animado do Checkout */
-/* 1. Aplica o SVG animado na DIV PAI, aproveitando o tamanho dinâmico do ExtJS */
-.x-container.bg-image2 {
-    background-image: url("/Zanthus/Zeus/Interface/resources/imagens/animacao-pagamento-pdv.svg") !important;
-    background-size: contain !important;
-    background-position: center center !important;
-    background-repeat: no-repeat !important;
-}
 
-/* 2. Deixa o GIF original 100% invisível.
-   Ele continua lá fisicamente para o ExtJS não quebrar o layout, mas ninguém vê. */
-.img-self2.bt_image_pagamento {
-    opacity: 0 !important;
-}
 /* =======================================================================
-   BOTÃO DE SELEÇÃO (VISTO/CHECK) - CSS PURO (Sem Imagens)
+   16. ANIMACOES / KEYFRAMES
+   Prefixo zx- para nunca colidir com nome do ExtJS ou de terceiros.
 ======================================================================= */
 
-/* 1. ANIQUILA a imagem do ExtJS em todos os estados da Grid */
-.x-grid-row .zanthus-botao-cancela-item,
-.x-grid-cell .zanthus-botao-cancela-item,
-.x-grid-row-selected .zanthus-botao-cancela-item,
-.x-grid-cell-selected .zanthus-botao-cancela-item {
-    background-image: none !important;
+/* Entrada de janela/modal: fade + escala minima.
+   Escala de 0.97 -> 1: nao desloca layout, so da profundidade. */
+@keyframes zx-janela-entra {
+    from { opacity: 0; transform: scale(.97); }
+    to   { opacity: 1; transform: scale(1); }
 }
 
-/* Oculta o span interno da imagem antiga para ele não ocupar espaço */
-.zanthus-botao-cancela-item .imagem-cancelar {
-    display: none !important;
-    background-image: none !important;
+@keyframes zx-fade-entra {
+    from { opacity: 0; }
+    to   { opacity: var(--janela-mascara-opacidade); }
 }
 
-/* 2. Base do botão (Anel com fundo transparente, AGORA MAIS ESCURO) */
-.x-grid-row .zanthus-botao-cancela-item,
-.x-grid-cell .zanthus-botao-cancela-item {
-    position: relative !important;
-    display: inline-block !important;
-    width: 40px !important;
-    height: 40px !important;
-    border-radius: 50% !important;
-    border: 2px solid var(--grey-700) !important; /* Deixei a borda bem mais escura */
-    background-color: transparent !important;
-    cursor: pointer !important;
-    box-sizing: border-box !important;
-    transition: all 0.2s ease !important;
+/* Flash da linha recem-inserida no cupom */
+@keyframes zx-flash-linha {
+    0%   { background-color: var(--cupom-linha-nova-flash); }
+    100% { background-color: transparent; }
+}
+
+/* Tremida curta em campo invalido */
+@keyframes zx-tremer {
+    0%, 100% { transform: translateX(0); }
+    25%      { transform: translateX(-3px); }
+    75%      { transform: translateX(3px); }
+}
+
+/* Listras da barra de progresso */
+@keyframes zx-listras {
+    from { background-position: 20px 0; }
+    to   { background-position: 0 0; }
+}
+
+/* Giro do spinner circular */
+@keyframes zx-girar {
+    0%   { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+
+/* =======================================================================
+   17. BOTOES DE DIALOGO POR FUNCAO
+
+   ATENCAO - LEIA ANTES DE EDITAR
+   ------------------------------
+   bt_tec_N NAO e um codigo de funcao. E o codigo da tecla mensageira, e
+   o mesmo numero significa coisas DIFERENTES conforme o tipo de janela:
+
+       classe da janela   bt_tec_11    bt_tec_56
+       ----------------   ----------   ---------
+       .janela-msg        Sim / Ok     Nao
+       .tela_dialogo      Cancelar     OK        <-- invertido!
+
+   MAPA COMPLETO (atualizar conforme novos dumps aparecerem):
+
+       papel        .janela-msg                    .tela_dialogo
+       ----------   ----------------------------   -------------
+       confirmar    11 (Sim/Ok), 27 (Sim),         56 (OK)
+                    21 (Tentar novamente),
+                    58 (Sim)  [dump 2026-08]
+       recusar      56 (Nao), 28 (Nao),            21 (Voltar)
+                    2 (Nao)   [dump 2026-08]
+
+   ARMADILHA REAL: bt_tec_21 e "Tentar novamente" (confirmar) em
+   .janela-msg e "Voltar" (recusar) em .tela_dialogo. Mesmo numero,
+   papeis opostos. E exatamente por isso que o escopo por tipo de
+   janela nao e frescura.
+       abortar      1 (Cancelar)                   11 (Cancelar)
+
+   REVISAO 2026-08: 58 e 2 foram remapeados a partir de um dump real
+   (dialogomsg-1420, "Confirma mudança para modo administrativo?", com
+   Sim=58 e Nao=2). Antes estavam como "Voltar" (recusar) e "Cancelar"
+   (abortar) - papeis herdados sem dump que os comprovasse.
+   Mapa mantido igual ao do style2.css. Se algum "Voltar" aparecer
+   verde aqui, entao o codigo depende do DIALOGO e nao da classe da
+   janela - e ai este mapa inteiro precisa ser trocado por outra
+   estrategia (ordem no rodape, por exemplo).
+
+   FALLBACK SEGURO: codigo nao mapeado cai no cinza neutro solido da
+   secao 7.5. Feio, porem nunca perigoso - um Cancelar desconhecido
+   jamais aparece verde. Se voce ver um botao de dialogo cinza chapado,
+   e um codigo novo esperando entrar na tabela.
+
+   Por isso todo seletor aqui e OBRIGATORIAMENTE escopado pela classe da
+   janela. Nunca estilize .bt_tec_N solto: vai pintar Cancelar de verde
+   em algum lugar.
+
+   Se aparecer um tipo de janela novo, mapeie o par antes de estilizar -
+   confira o texto real dos botoes no DevTools.
+
+   Hierarquia: um unico solido (confirmar) guia o olho; recusar e abortar
+   sao ghost. Contorno via inset box-shadow - ver nota nos tokens.
+======================================================================= */
+
+/* --- 17.1 Aparencia por PAPEL (classes internas, sem codigo de tecla) -
+   Os seletores de mapeamento (17.2) apontam para estes blocos.        */
+
+/* CONFIRMAR - o unico solido */
+.janela-msg   .bt_bbar.bt_tec_11,
+.janela-msg   .bt_bbar.bt_tec_27,
+.janela-msg   .bt_bbar.bt_tec_21,
+.janela-msg   .bt_bbar.bt_tec_58,
+.tela_dialogo .bt_bbar.bt_tec_56 {
+    background: var(--dlg-confirmar-fundo) !important;
     box-shadow: none !important;
-    margin: 0 auto !important;
+    animation: zx-halo 1.5s var(--curva) 2 !important;
+}
+.janela-msg   .bt_bbar.bt_tec_11 .x-btn-inner,
+.janela-msg   .bt_bbar.bt_tec_27 .x-btn-inner,
+.janela-msg   .bt_bbar.bt_tec_21 .x-btn-inner,
+.janela-msg   .bt_bbar.bt_tec_21 span,
+.janela-msg   .bt_bbar.bt_tec_58 .x-btn-inner,
+.janela-msg   .bt_bbar.bt_tec_58 span,
+.tela_dialogo .bt_bbar.bt_tec_56 .x-btn-inner,
+.janela-msg   .bt_bbar.bt_tec_11 span,
+.janela-msg   .bt_bbar.bt_tec_27 span,
+.tela_dialogo .bt_bbar.bt_tec_56 span {
+    color: var(--dlg-confirmar-texto) !important;
+}
+.janela-msg   .bt_bbar.bt_tec_11:active:not(.x-btn-disabled),
+.janela-msg   .bt_bbar.bt_tec_27:active:not(.x-btn-disabled),
+.janela-msg   .bt_bbar.bt_tec_21:active:not(.x-btn-disabled),
+.janela-msg   .bt_bbar.bt_tec_58:active:not(.x-btn-disabled),
+.tela_dialogo .bt_bbar.bt_tec_56:active:not(.x-btn-disabled) {
+    background: var(--dlg-confirmar-fundo-ativo) !important;
 }
 
-/* 3. Desenha o "Visto" usando bordas no ::before (AGORA MAIS ESCURO) */
-.zanthus-botao-cancela-item::before {
+/* RECUSAR (Nao) - ghost neutro */
+.janela-msg   .bt_bbar.bt_tec_56,
+.janela-msg   .bt_bbar.bt_tec_28,
+.janela-msg   .bt_bbar.bt_tec_2,
+.tela_dialogo .bt_bbar.bt_tec_21 {
+    background: transparent !important;
+    box-shadow: inset 0 0 0 var(--dlg-ghost-espessura) var(--dlg-recusar-contorno) !important;
+    animation: none !important;
+}
+.janela-msg   .bt_bbar.bt_tec_56 .x-btn-inner,
+.janela-msg   .bt_bbar.bt_tec_28 .x-btn-inner,
+.janela-msg   .bt_bbar.bt_tec_2 .x-btn-inner,
+.tela_dialogo .bt_bbar.bt_tec_21 .x-btn-inner,
+.janela-msg   .bt_bbar.bt_tec_2 span,
+.janela-msg   .bt_bbar.bt_tec_56 span,
+.janela-msg   .bt_bbar.bt_tec_28 span,
+.tela_dialogo .bt_bbar.bt_tec_21 span {
+    color: var(--dlg-recusar-texto) !important;
+}
+.janela-msg   .bt_bbar.bt_tec_56:active:not(.x-btn-disabled),
+.janela-msg   .bt_bbar.bt_tec_28:active:not(.x-btn-disabled),
+.janela-msg   .bt_bbar.bt_tec_2:active:not(.x-btn-disabled),
+.tela_dialogo .bt_bbar.bt_tec_21:active:not(.x-btn-disabled) {
+    background: var(--dlg-recusar-fundo-ativo) !important;
+}
+
+/* ABORTAR (Cancelar) - ghost vermelho */
+.janela-msg   .bt_bbar.bt_tec_1,
+.tela_dialogo .bt_bbar.bt_tec_11 {
+    background: transparent !important;
+    box-shadow: inset 0 0 0 var(--dlg-ghost-espessura) var(--dlg-abortar-contorno) !important;
+    animation: none !important;
+}
+.janela-msg   .bt_bbar.bt_tec_1 .x-btn-inner,
+.tela_dialogo .bt_bbar.bt_tec_11 .x-btn-inner,
+.janela-msg   .bt_bbar.bt_tec_1 span,
+.tela_dialogo .bt_bbar.bt_tec_11 span {
+    color: var(--dlg-abortar-texto) !important;
+}
+.janela-msg   .bt_bbar.bt_tec_1:active:not(.x-btn-disabled),
+.tela_dialogo .bt_bbar.bt_tec_11:active:not(.x-btn-disabled) {
+    background: var(--dlg-abortar-fundo-ativo) !important;
+}
+
+/* Raio dos botoes de dialogo */
+.janela-msg   .bt_bbar[class*="bt_tec_"],
+.tela_dialogo .bt_bbar[class*="bt_tec_"] {
+    border-radius: 8px !important;
+}
+
+
+/* =======================================================================
+   18. POP-UPS / DIALOGOS (visual)
+
+   Vale para toda .janela-msg (dialogomsg-*), sem distincao de conteudo.
+   Nada aqui altera posicao, tamanho ou espacamento - so cor, borda,
+   sombra e tipografia.
+======================================================================= */
+
+.x-window.janela-msg {
+    background: var(--dlg-corpo-fundo) !important;
+}
+
+.x-window.janela-msg .x-window-body,
+.x-window.janela-msg .body-msg {
+    background: var(--dlg-corpo-fundo) !important;
+}
+
+/* Mensagem em peso normal. 30px em negrito grita. */
+.janela-msg .msg-container {
+    color: var(--dlg-mensagem-texto) !important;
+    font-weight: normal !important;
+    letter-spacing: -.01em !important;
+}
+
+/* Rodape ganha chao: fundo mais frio e uma linha de 1px acima.
+   Linha via inset box-shadow para nao criar borda (que mudaria a caixa). */
+.janela-msg .x-toolbar-docked-bottom,
+.tela_dialogo .x-toolbar-docked-bottom {
+    background: var(--dlg-rodape-fundo) !important;
+    background-image: none !important;
+    box-shadow: inset 0 1px 0 0 var(--dlg-rodape-linha) !important;
+}
+
+
+/* =======================================================================
+   19. ANIMACOES ADICIONAIS
+======================================================================= */
+
+@keyframes zx-halo {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
+    50%      { box-shadow: 0 0 0 6px var(--dlg-confirmar-halo); }
+}
+
+/* Respeita quem desligou animacao no sistema */
+@media (prefers-reduced-motion: reduce) {
+    .x-window,
+    .janela-msg .bt_bbar.bt_tec_11,
+    .janela-msg .bt_bbar.bt_tec_27,
+    .tela_dialogo .bt_bbar.bt_tec_56,
+    .pdv-grid-panel .x-grid-row.item-novo,
+    .x-mask,
+    .container-processando::after {
+        animation: none !important;
+    }
+}
+
+
+/* =======================================================================
+   20. SPLASH DE INICIALIZACAO (pdvstartup)
+
+   ESCOPO: SO COR. Nada de position, width, height, margin, transform
+   ou float em elemento real.
+
+   Uma versao anterior tentou centrar o cartao com position:fixed e
+   forcar os innerCt a 100% - isso destruiu a matematica do box layout
+   do ExtJS e a tela veio vazia. O ExtJS mede os filhos e distribui a
+   partir dessas medidas; qualquer override de caixa envenena a conta.
+   NAO TENTE DE NOVO por aqui.
+
+   Consequencia assumida: o problema de "sai da tela em outra resolucao"
+   permanece. Ele nasce do layout que o ExtJS calcula, e nao ha conserto
+   possivel via CSS sem quebrar o que quebrou acima.
+
+   Os pseudo-elementos (logo e varredura) sao seguros: ::before/::after
+   posicionados em absolute nao entram na medicao dos irmaos.
+
+   E cuidado com `border: none`: REMOVER uma borda que existe encolhe a
+   caixa exatamente como adicionar uma a aumenta. Onde a borda ja existe
+   e so incomoda visualmente, use `border-color: transparent`.
+======================================================================= */
+
+/* --- 20.1 Fundo (o azul #8D9DB3 vem inline no HTML; so !important vence) */
+div[id^="pdvstartup-"] {
+    background-color: var(--splash-fundo) !important;
+    background-image:
+        radial-gradient(60vw 60vh at 18% 12%, var(--splash-brilho), transparent 60%),
+        radial-gradient(50vw 50vh at 85% 88%, rgba(245,124,0,.12), transparent 60%),
+        linear-gradient(160deg, var(--splash-fundo) 0%, var(--splash-fundo-2) 100%) !important;
+}
+
+div[id^="pdvstartup-"] > div[id$="-body"] {
+    background: transparent !important;
+    border-color: transparent !important;
+}
+
+/* --- 20.2 Cartao ------------------------------------------------------- */
+div[id^="pdvstartup-"] .area_pbar {
+    background: var(--splash-cartao) !important;
+    border: 1px solid var(--splash-borda) !important;
+    border-radius: 18px !important;
+    box-shadow: 0 24px 60px rgba(0,0,0,.45) !important;
+    overflow: visible !important;
+}
+
+div[id^="pdvstartup-"] div[class*="area_pbar-body"] {
+    background: transparent !important;
+    border-color: transparent !important;
+}
+
+/* Logo acima do cartao - pseudo-elemento, nao afeta o layout dos irmaos */
+div[id^="pdvstartup-"] .area_pbar::before {
     content: "" !important;
     position: absolute !important;
-    width: 8px !important;
-    height: 16px !important;
-    /* O visto base (L) acompanha o cinza escuro */
-    border-bottom: 3px solid var(--grey-700) !important;
-    border-right: 3px solid var(--grey-700) !important;
-    top: 45% !important;
     left: 50% !important;
-    transform: translate(-50%, -50%) rotate(45deg) !important;
-    transition: border-color 0.2s ease !important;
+    top: -92px !important;
+    transform: translateX(-50%) !important;
+    width: 256px !important;
+    height: 52px !important;
+    background: var(--splash-logo) no-repeat center !important;
+    background-size: contain !important;
+    opacity: .95 !important;
+    pointer-events: none !important;
 }
 
-/* 4. Estado Selecionado / Clicado (Fundo verde) */
-.x-grid-row-selected .zanthus-botao-cancela-item,
-.x-grid-cell-selected .zanthus-botao-cancela-item {
-    background-color: var(--green-500) !important;
-    border-color: var(--green-500) !important;
-    transform: scale(1.05) !important;
+/* Varredura indeterminada na borda superior: sinaliza "vivo" mesmo com
+   a barra de progresso parada em 0%. Tambem e pseudo-elemento. */
+div[id^="pdvstartup-"] .area_pbar::after {
+    content: "" !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    height: 3px !important;
+    border-radius: 18px 18px 0 0 !important;
+    background-image: linear-gradient(90deg,
+        transparent 0%,
+        var(--splash-acento) 50%,
+        transparent 100%) !important;
+    background-size: 45% 100% !important;
+    background-repeat: no-repeat !important;
+    animation: zx-splash-varredura 1.6s var(--curva) infinite !important;
+    pointer-events: none !important;
 }
 
-/* 5. Muda a cor do "Visto" para branco quando o fundo ficar verde */
-.x-grid-row-selected .zanthus-botao-cancela-item::before,
-.x-grid-cell-selected .zanthus-botao-cancela-item::before {
-    border-bottom-color: #FFFFFF !important;
-    border-right-color: #FFFFFF !important;
+/* --- 20.3 Mensagem de status ------------------------------------------ */
+div[id^="pdvstartup-"] .texto-startupcon {
+    color: var(--splash-texto) !important;
+    font-weight: 400 !important;
+    text-shadow: none !important;
+}
+
+/* --- 20.4 Botao "Conectar-se a outro endereco" ------------------------- */
+div[id^="pdvstartup-"] .bt_teste {
+    background: transparent !important;
+    border-color: transparent !important;
+    border-radius: 10px !important;
+    box-shadow: inset 0 0 0 1px var(--splash-btn-borda) !important;
+    transition: background-color var(--dur-rapida) var(--curva) !important;
+}
+
+div[id^="pdvstartup-"] .bt_teste span,
+div[id^="pdvstartup-"] .bt_teste .x-btn-inner {
+    color: var(--splash-texto) !important;
+    font-weight: 400 !important;
+    text-shadow: none !important;
+}
+
+div[id^="pdvstartup-"] .bt_teste:active:not(.x-btn-disabled) {
+    background: var(--splash-btn-ativo) !important;
+}
+
+div[id^="pdvstartup-"] .bt_teste.x-btn-disabled {
+    opacity: .30 !important;
+    filter: none !important;
+}
+
+/* --- 20.5 Barra de progresso (so cor) ---------------------------------- */
+div[id^="pdvstartup-"] .pbar1 {
+    border-color: transparent !important;
+    border-radius: 999px !important;
+    background: var(--splash-trilha) !important;
+    box-shadow: none !important;
+    overflow: hidden !important;
+}
+
+div[id^="pdvstartup-"] .pbar1 .x-progress-bar {
+    border-radius: 999px !important;
+    background-color: var(--splash-acento) !important;
+    background-image: linear-gradient(90deg,
+        var(--splash-acento) 0%,
+        var(--p-marca-laranja) 100%) !important;
+    box-shadow: 0 0 12px rgba(229,57,53,.55) !important;
+    transition: width var(--dur-lenta) var(--curva) !important;
+}
+
+/* --- 20.6 Versao do PDV (cor e text-shadow vem inline) ----------------- */
+div[id^="pdvstartup-"] .area_pbar .x-container {
+    color: var(--splash-texto-fraco) !important;
+    font-weight: 400 !important;
+    text-shadow: none !important;
+}
+
+/* --- 20.7 Telas irmas com o mesmo azul inline -------------------------- */
+div[id^="pdvsemapresentacao-"],
+div[id^="fechamentointerface-"] {
+    background-color: var(--splash-fundo) !important;
+    background-image: linear-gradient(160deg,
+        var(--splash-fundo) 0%, var(--splash-fundo-2) 100%) !important;
+}
+
+div[id^="pdvsemapresentacao-"] .texto_tne,
+div[id^="pdvsemapresentacao-"] .texto_tne h1,
+div[id^="fechamentointerface-"] .label-text-grande,
+div[id^="fechamentointerface-"] div[class*="label-text-grande-body"] {
+    color: var(--splash-texto) !important;
+    background: transparent !important;
+    text-shadow: none !important;
+}
+
+div[id^="pdvsemapresentacao-"] .area_pbar,
+div[id^="pdvsemapresentacao-"] .itens_tne,
+div[id^="pdvsemapresentacao-"] div[class*="itens_tne-body"] {
+    background: transparent !important;
+    border-color: var(--splash-borda) !important;
+}
+
+
+/* =======================================================================
+   21. ANIMACOES DA SPLASH
+======================================================================= */
+
+@keyframes zx-splash-varredura {
+    0%   { background-position: -45% 0; }
+    100% { background-position: 145% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    div[id^="pdvstartup-"] .area_pbar::after {
+        animation: none !important;
+    }
+}
+
+
+/* =======================================================================
+   23. O AZUL INLINE (#8D9DB3)
+
+   O Zanthus crava `background:#8D9DB3` INLINE em onze paineis de tela
+   cheia. CSS nao consegue casar por valor de style, entao a lista de
+   prefixos de id abaixo e a unica saida - e precisa ser mantida se o
+   Zanthus adicionar telas novas.
+
+   Dois destinos, conforme o papel da tela:
+   - Telas de carga/erro (splash, sem apresentacao, fechamento): grafite
+     escuro, tratadas na secao 20.
+   - Telas operacionais e de cliente: cinza claro do app. Elas ja sao
+     claras por dentro; o azul so vazava pelas frestas.
+
+   SO COR. Nenhuma propriedade de caixa aqui.
+======================================================================= */
+
+div[id^="pdvmain-"],
+div[id^="pdvtelapagamento-"],
+div[id^="pdvtelacomanda-"],
+div[id^="pdvteladescanso-"],
+div[id^="pdvtelanps-"],
+div[id^="pdvtelanpshorizontal-"],
+div[id^="pdvtelaagradecimento-"],
+div[id^="pdvtelaagradecimentohorizontal-"],
+div[id^="pdvtelaagradecimento2002-"],
+div[id^="pdvtelaresumo-"],
+div[id="nps_zanthus"],
+div[id="nps_decatlhon"],
+div[id="nps_zanthus_agradecimento"],
+div[id="nps_decatlhon_agradecimento"],
+div[id="nps_decatlhon_2012"] {
+    background-color: var(--sup-app) !important;
+    background-image: none !important;
+}
+
+/* A tela de descanso tem imagem propria; nao apagar o background-image */
+div[id^="pdvteladescanso-"] {
+    background-image: initial !important;
+}
+
+/* Corpo do documento, para o azul nao aparecer em nenhuma fresta */
+body.x-body {
+    background-color: var(--sup-app) !important;
+}
+
+
+/* =======================================================================
+   24. JANELAS COLETORAS (coletor-* e coletadadoscon-*)
+
+   Estas janelas usam o visual PADRAO da secao 11 - fundo, raio, sombra
+   e faixa de acento no cabecalho ja vem de la. Nada e redefinido aqui.
+
+   So restam duas coisas que a secao 11 nao alcanca.
+
+   ARMADILHA QUE JA CUSTOU CARO
+   ----------------------------
+   Uma versao anterior adicionou a segunda janela com um replace cego de
+   `div[id^="coletor-"]` por `div[id^="coletor-"], div[id^="coletadadoscon-"]`.
+   Isso quebrou TODO seletor composto: a regra do botao Cancelar virou
+
+       div[id^="coletor-"],                       <- a janela inteira!
+       div[id^="coletadadoscon-"] .bt_teclado_a
+
+   e a janelona ganhou contorno vermelho de botao. Em CSS a virgula
+   separa seletores inteiros - ao adicionar um prefixo, cada linha
+   precisa ser escrita por extenso.
+======================================================================= */
+
+/* 1. O tema padrao do ExtJS pinta .x-panel-default-framed com um
+      azulado proprio. Zerado, a janela vira uma superficie unica. */
+div[id^="coletor-"] .x-panel-default-framed,
+div[id^="coletor-"] div[class*="x-panel-body-default-framed"],
+div[id^="coletadadoscon-"] .x-panel-default-framed,
+div[id^="coletadadoscon-"] div[class*="x-panel-body-default-framed"] {
+    background: transparent !important;
+    background-image: none !important;
+    border-color: transparent !important;
+}
+
+/* 2. Cancelar nestas janelas usa .bt_teclado_a (o amarelo generico do
+      teclado), nao um bt_tec_*. Mapeamento observado no DOM das duas.
+      Fora daqui, bt_teclado_a segue amarelo. */
+div[id^="coletor-"] .bt_teclado_a,
+div[id^="coletadadoscon-"] .bt_teclado_a {
+    background: transparent !important;
+    box-shadow: inset 0 0 0 var(--dlg-ghost-espessura) var(--dlg-abortar-contorno) !important;
+}
+div[id^="coletor-"] .bt_teclado_a span,
+div[id^="coletadadoscon-"] .bt_teclado_a span {
+    color: var(--dlg-abortar-texto) !important;
+}
+div[id^="coletor-"] .bt_teclado_a:active:not(.x-btn-disabled),
+div[id^="coletadadoscon-"] .bt_teclado_a:active:not(.x-btn-disabled) {
+    background: var(--dlg-abortar-fundo-ativo) !important;
+}
+
+
+/* 3. O CAMPO NUNCA RECEBE FOCO NESTAS JANELAS
+      ----------------------------------------
+      O operador digita pelo teclado numerico da propria tela e o ExtJS
+      escreve o valor direto no input. Nenhum evento de foco acontece:
+      o elemento nao ganha :focus, nem .x-form-focus, nem .x-field-focus.
+      Conferido no DOM de coletor-1388 (Autorizacao / FUNCIONARIO).
+
+      Ou seja: a regra de foco da secao 05 e letra morta aqui, e nenhum
+      gancho adicional resolve - nao ha o que enganchar.
+
+      Como estas janelas tem UM campo so, e ele e sempre o campo ativo,
+      o destaque fica permanente. Nao e "sempre focado" por preguica;
+      e que o estado nunca muda.
+
+      SE APARECER UMA COLETORA COM DOIS CAMPOS, esta regra passa a
+      destacar os dois ao mesmo tempo e vira mentira. Nesse dia, ou se
+      escopa por posicao, ou se aceita o campo sem destaque. */
+div[id^="coletor-"] input.input-input,
+div[id^="coletadadoscon-"] input.input-input {
+    border-color: var(--campo-foco-borda) !important;
 }
