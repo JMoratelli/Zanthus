@@ -347,6 +347,26 @@
 
     --dlg-ghost-espessura: 2px;
 
+    /* --- SELECAO POR SETA (secao 22) ---
+       Marca o botao alcancado com as setas esquerda/direita. Feita com
+       OUTLINE, nao com box-shadow: os contornos "ghost" dos bt_tec_*
+       (secao 21) ja ocupam o box-shadow em modo inset, e .bt_bbar traz
+       box-shadow:none !important na secao 7.5. Outline nao altera caixa,
+       entao convive com os dois sem quebrar layout.
+
+       CUIDADO COM O VERMELHO: --dlg-abortar-contorno tambem e
+       --p-perigo. Num botao Cancelar (bt_tec_1 / bt_tec_2) o anel
+       vermelho quase some contra o ghost vermelho ja existente.
+       Alternativa neutra, sem colisao: trocar --sel-seta-anel por
+       var(--borda-caixa) e --sel-seta-fundo por var(--sup-hover). */
+    --sel-seta-anel:      var(--p-perigo);
+    --sel-seta-espessura: 3px;
+    --sel-seta-folga:     2px;
+    --sel-seta-fundo:     var(--p-perigo-claro-2);
+    /* Preto, nao vermelho: precisa ser legivel tambem sobre o fundo dos
+       botoes de confirmar, que a selecao clareia. */
+    --sel-seta-texto:     var(--texto-principal);
+
     /* --- POP-UPS / DIALOGOS --- */
     --dlg-acento:          var(--p-cinza-900);   /* faixa de topo */
     --dlg-acento-altura:   4px;
@@ -2428,4 +2448,54 @@ div[id^="coletadadoscon-"] input.input-input {
 /* Raio dos botoes de dialogo */
 .janela-msg .bt_bbar[class*="bt_tec_"] {
     border-radius: 8px !important;
+}
+
+
+/* =======================================================================
+   22. SELECAO POR SETA NOS BOTOES DE DIALOGO
+
+   Par visual do bloco inserido em Controller.js (navegacao lateral com
+   as setas esquerda/direita). O JS apenas liga e desliga a classe
+   .selecionado-seta-botao no <div class="x-btn">; toda a aparencia mora
+   aqui.
+
+   POR QUE OUTLINE E NAO BOX-SHADOW
+   --------------------------------
+   1. Secao 7.5 fixa box-shadow:none !important em .bt_bbar.
+   2. Secao 21 usa box-shadow inset para o contorno ghost dos bt_tec_*.
+   Escrever box-shadow aqui apagaria o ghost. Outline e uma camada
+   propria, nao participa do layout e respeita o border-radius.
+
+   ESTA SECAO FICA NO FIM DE PROPOSITO
+   -----------------------------------
+   Precisa vencer as secoes 7.5 e 21 por ordem de cascata. Se algo for
+   acrescentado depois dela, mova este bloco para o fim de novo.
+======================================================================= */
+
+.bt_bbar.selecionado-seta-botao,
+.janela-msg .bt_bbar.selecionado-seta-botao,
+.janela-seletor .bt_bbar.selecionado-seta-botao {
+    background: var(--sel-seta-fundo) !important;
+    outline: var(--sel-seta-espessura) solid var(--sel-seta-anel) !important;
+    outline-offset: var(--sel-seta-folga);
+    transition: background var(--dur-rapida) var(--curva),
+                outline-color var(--dur-rapida) var(--curva);
+}
+
+/* TEXTO ESCURO SEMPRE, SEM EXCECAO
+   ---------------------------------
+   O fundo da selecao e claro. Os botoes de confirmar (bt_tec_11 / 27 /
+   21) tem texto BRANCO pela secao 21 - branco sobre fundo claro some.
+   Como a selecao vale para qualquer botao, a cor do texto e forcada
+   aqui e a da secao 21 volta sozinha assim que a classe sai.
+
+   Especificidade: 5 classes, contra as 4 da secao 21, entao vence sem
+   depender so da ordem no arquivo. */
+.x-btn.bt_bbar.selecionado-seta-botao .x-btn-inner,
+.x-btn.bt_bbar.selecionado-seta-botao span,
+.janela-msg .x-btn.bt_bbar.selecionado-seta-botao .x-btn-inner,
+.janela-msg .x-btn.bt_bbar.selecionado-seta-botao span,
+.janela-seletor .x-btn.bt_bbar.selecionado-seta-botao .x-btn-inner,
+.janela-seletor .x-btn.bt_bbar.selecionado-seta-botao span {
+    color: var(--sel-seta-texto) !important;
 }
