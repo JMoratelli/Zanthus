@@ -1,177 +1,2909 @@
-Ext.define("Pdv.controller.Controller",{extend:"Ext.app.Controller",alias:"widget.controller",requires:["Pdv.api.nucleo.Comunicador","Pdv.api.store.Gerenciador","Pdv.api.sistema.Mascara","Pdv.store.componente.FormasPagamentos"],stores:["sistema.Conexao"],models:["sistema.Conexao"],views:"sistema.dialogo.ColetorDadosConexao sistema.dialogo.Coletor sistema.dialogo.MultiColetor sistema.dialogo.Msg sistema.dialogo.CadastroCliente sistema.dialogo.AjusteCliente".split(" "),refs:[{ref:"startup",selector:"pdvstartup"}],
-bloquearCtrlJ:function(a){var b=a.keyCode;a.ctrlKey&&74==b&&(a.keyCode=0,a.returnValue=!1)},init:function(){this.control({"tecladodata datepicker":{select:function(a,b){var d=new Date(b),e=null,f=a.up("window");if(void 0!=f){var g=f.down("campoinput"),e=d.getDate()+"/"+d.getMonth()+"/"+d.getFullYear();console.log(f);g.setValue(e)}}},viewport:{afterrender:function(){var a=Ext.getBody(),b=this,d=!1;"caedu"!==__template&&("Touch"==__PDV&&!0!=__modoPedido&&!0!=__modoSelf&&!0!=Pdv.api.sistema.Gerenciador.checkMonitor()&&
-!0!=Pdv.api.sistema.Gerenciador.verificarSegundoMonitor()&&200!=__template&&1200!=__template)&&(teclado=Pdv.api.sistema.Gerenciador.getTelaCorrente().down('teclado[tipo="comum"]'),campo=teclado.getCampoDeInput(),tcEntrar=teclado.down("teclaentrar"));a.dom.addEventListener("keypress",function(a){Pdv.api.sistema.Gerenciador.validarLeituraUSB(a)||Pdv.api.sistema.Gerenciador.enviarCodigoTecla(a.keyCode)});Pdv.api.tela.Gerenciador.eventoKeyDown=function(a){if(Pdv.api.sistema.Gerenciador.validarLeituraUSB(a)){Pdv.api.sistema.Gerenciador.enviarCodigoLido(a);
-return true}var f=typeof Ext.ComponentQuery.query("#cpf_consulta")[0]=="undefined"?false:true;if(Pdv.api.sistema.Gerenciador.getTelaCorrente().disabled==true&&f==true){a.keyCode=0;a.returnValue=false}b.bloquearCtrlJ(a);Pdv.api.tela.Gerenciador.desabilitaFsBrowser(a);if(Pdv.api.sistema.Gerenciador.sistemaEmInteracao==true&&a.keyCode>=112&&a.keyCode<=123&&__template!=="caedu")return false;if(typeof __gatilho_teclas!="undefined"&&__gatilho_teclas!=null&&__gatilho_teclas(a)==true)return true;/* === [@JJMoratelli] navegacao lateral entre botoes (convive com a lista nativa) === */try{if(__habilita_setas_opcoes&&(a.keyCode==37||a.keyCode==39||a.keyCode==13||a.keyCode==38||a.keyCode==40)){var _dl=Ext.ComponentQuery.query("dialogo{isVisible(true)}");if(!Ext.isEmpty(_dl)){var _dg=_dl[_dl.length-1],_tb=_dg.down("toolbar");if(_tb){var _bt=_tb.query("component{isVisible(true)}").filter(function(c){return c.xtype!=="tbfill"&&c.xtype!=="tbspacer"&&c.xtype!=="tbseparator"&&!c.disabled});if(_bt.length>1){var _G=Pdv.api.sistema.Gerenciador;if(_G.dlgSeletor!==_dg.id){_G.dlgSeletor=_dg.id;_G.colSeletor=null}var _pt=function(){_bt.forEach(function(b,i){b.el.dom.classList.toggle("selecionado-seta-botao",i===_G.colSeletor)})};if(a.keyCode==38||a.keyCode==40){if(_G.colSeletor!=null){_G.colSeletor=null;_pt()}}else{var _ps=a.keyCode==39?1:a.keyCode==37?-1:0;if(_ps){_G.colSeletor=_G.colSeletor==null?(_ps>0?0:_bt.length-1):(_G.colSeletor+_ps+_bt.length)%_bt.length;_pt();return true}if(a.keyCode==13&&_G.colSeletor!=null&&_bt[_G.colSeletor]){var _b=_bt[_G.colSeletor];_G.colSeletor=null;_G.dlgSeletor=null;_pt();_b.fireEvent("click",_b);return true}}}}}}}catch(_e){}/* === fim navegacao lateral === */try{if(__habilita_setas_opcoes&&
-(a.keyCode==38||a.keyCode==40)&&!Ext.isEmpty(Ext.ComponentQuery.query("dialogo"))&&!Ext.isEmpty(Ext.ComponentQuery.query("dialogo")[0].seletor.opcoes)&&Ext.ComponentQuery.query("dialogo")[0].seletor.opcoes.length>0){for(var g,f=0;f<4;f++)if(document.getElementById("row_"+f)!==null){g="row_"+f;break}var h="row_"+Pdv.api.sistema.Gerenciador.rowSeletor,j=document.getElementById(g).closest(".x-grid-view").id,k=document.getElementById(h),l=Ext.ComponentQuery.query("dialogo")[0].seletor.opcoes.length;if(a.keyCode==
-38){Pdv.api.sistema.Gerenciador.rowSeletor=Pdv.api.sistema.Gerenciador.rowSeletor-1;if(Pdv.api.sistema.Gerenciador.rowSeletor<f)Pdv.api.sistema.Gerenciador.rowSeletor=f;Pdv.api.sistema.Gerenciador.rowSeletor%4==0&&Pdv.api.sistema.Gerenciador.rowSeletor<l-3&&document.getElementById(j).scrollBy(0,-135)}if(a.keyCode==40){Pdv.api.sistema.Gerenciador.rowSeletor=Pdv.api.sistema.Gerenciador.rowSeletor==null?f:Pdv.api.sistema.Gerenciador.rowSeletor+1;Pdv.api.sistema.Gerenciador.rowSeletor%3==0&&Pdv.api.sistema.Gerenciador.rowSeletor>
-0&&document.getElementById(j).scrollBy(0,135);Pdv.api.sistema.Gerenciador.rowSeletor>=l-1&&document.getElementById(j).scroll(0,document.getElementById(j).scrollHeight)}var h="row_"+Pdv.api.sistema.Gerenciador.rowSeletor,m=document.getElementById(h);Ext.isEmpty(k)||k.closest("tr").classList.toggle("selecionado-seta");if(Ext.isEmpty(m)){if(a.keyCode==40){Pdv.api.sistema.Gerenciador.rowSeletor=Pdv.api.sistema.Gerenciador.rowSeletor-1;k.closest("tr").classList.toggle("selecionado-seta")}}else m.closest("tr").classList.toggle("selecionado-seta")}if(__habilita_setas_opcoes&&
-a.keyCode==13&&!Ext.isEmpty(Ext.ComponentQuery.query("dialogo"))&&(!Ext.isEmpty(Ext.ComponentQuery.query("dialogo")[0].seletor.opcoes)&&Ext.ComponentQuery.query("dialogo")[0].seletor.opcoes.length>0)&&Pdv.api.sistema.Gerenciador.rowSeletor>=0){h="row_"+Pdv.api.sistema.Gerenciador.rowSeletor;document.getElementById(h).closest("tr").click();return}}catch(n){}Pdv.api.tela.Gerenciador.gerenciarTeclaAtalhoFinalizadora(a);switch(a.keyCode){case 112:d=Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#teclaF1");
-break;case 113:d=Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#teclaF2");break;case 114:d=Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#teclaF3");break;case 115:d=Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#teclaF4");break;case 116:d=Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#teclaF5");break;case 117:d=Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#teclaF6");break;case 118:d=Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#teclaF7");break;case 119:d=Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#teclaF8");
-break;case 120:d=Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#teclaF9");break;case 121:d=Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#teclaF10");break;case 122:d=Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#teclaF11");break;case 123:d=Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#teclaF12");break;case 8:Pdv.api.sistema.Gerenciador.getStatusBuffer()&&Pdv.api.sistema.Gerenciador.backspaceBuffer();break;case 9:if(Pdv.api.tela.Gerenciador.getStatusFocus()){g=Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#qtd");
-Pdv.api.tela.Gerenciador.setFocusInput(g)}else Pdv.api.tela.Gerenciador.setFocusInput();break;case 13:Pdv.api.sistema.Gerenciador.getTeclaPeriferia()==0&&(Pdv.api.sistema.Gerenciador.getStatusBuffer()?setTimeout(function(){Pdv.api.sistema.Gerenciador.armazenarBuffer();b.enviarEnter()},800):b.enviarEnter());break;case 27:g=null;g=Pdv.api.tela.Gerenciador.setFocusInput();g!=true&&g!=void 0&&g.setValue("");g=Ext.ComponentQuery.query("dialogo").length-1;if(h=Ext.ComponentQuery.query("dialogo")[g]){if(__desativaTeclaEscDialogo)return;
-if((g=Ext.ComponentQuery.query("teclamensageira"))&&g.length==1)void 0!=g[0]&&g[0].fireEvent("click",g[0]);else if(g.length>1)g[0].focus();else if(void 0==h.campo){if(Pdv.api.sistema.Gerenciador.chaveSeletorTiposDeBusca!=null&&Pdv.api.sistema.Gerenciador.exibirErroTipoBusca===false){Pdv.api.nucleo.Comunicador.setColeta(Pdv.api.sistema.Gerenciador.chaveSeletorTiposDeBusca,-1,"");Pdv.api.sistema.Gerenciador.chaveSeletorTiposDeBusca=null}if(Pdv.api.sistema.Gerenciador.exibirErroTipoBusca)Pdv.api.sistema.Gerenciador.exibirErroTipoBusca=
-false;h.close();Pdv.api.tela.Gerenciador.setFocusInput()}}else{if(Pdv.api.sistema.Gerenciador.limparPagamento&&Pdv.api.nucleo.Interpretador.estadoCorrente==11){Pdv.api.nucleo.Comunicador.limparPagamento();return}Pdv.api.nucleo.Comunicador.limparItem()}}if(d!=false&&(d.constructor===Object||typeof d==="object")&&Pdv.api.sistema.Gerenciador.functionKeysEnabled){d.fireEvent("click",d);d=false;if(a.keyCode!=113)if(a=Ext.WindowManager.getActive()){Pdv.api.sistema.Gerenciador.functionKeysEnabled=false;
-a.on("close",function(){Pdv.api.sistema.Gerenciador.functionKeysEnabled=true})}}};a.dom.addEventListener("keydown",Pdv.api.tela.Gerenciador.eventoKeyDown,!0)}},"#qtd":{blur:function(a){var b=a.getValue().replace(",",".");a.setValue(b);Ext.isNumeric(b)||a.setValue("")},focus:function(a){a.selectText()}},window:{close:function(){Pdv.api.tela.Gerenciador.setFocusInput();Pdv.api.sistema.Gerenciador.setForceSituacaoPDV(0);Pdv.api.sistema.Gerenciador.setSelecaoComoBotao(!1);Pdv.api.sistema.Gerenciador.setHabilitarBotaoFecharTopo(!1);
-if(200==__template||1200==__template)Pdv.api.sistema.Gerenciador.evtoSeparadorDecimal=!0},hide:function(){Pdv.api.tela.Gerenciador.setFocusInput();Pdv.api.sistema.Gerenciador.setForceSituacaoPDV(0);Pdv.api.sistema.Gerenciador.setSelecaoComoBotao(!1);Pdv.api.sistema.Gerenciador.setHabilitarBotaoFecharTopo(!1)}},tooltip:{close:function(){Pdv.api.tela.Gerenciador.setFocusInput()},hide:function(){Pdv.api.tela.Gerenciador.setFocusInput()}},"#visorColetor":{change:function(a){Pdv.api.sistema.Gerenciador.campoEditado=
-!0;if("combobox"==a.xtype&&__habilitaTecladoTouchCadCli){var b=Ext.ComponentQuery.query("#coletorHidden")[0];b&&b.setValue(a.getValue())}a.tratarDisabled&&(b=Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("teclaentrar"),!Ext.isEmpty(a.getValue())&&!Ext.isEmpty(b)?b.setDisabled(!1):b.setDisabled(!0))},blur:function(a){if("combobox"==a.xtype&&__habilitaTecladoTouchCadCli){var b=Ext.ComponentQuery.query("#coletorHidden")[0];b&&(document.getElementById(a.getInputId()).value=b.getValue())}}},"#teclaAtividade":{click:Pdv.api.nucleo.Comunicador.setAtividade},
-teclaletraselecao:{click:function(a){var b=a.up("dialogobotoes"),d=Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#visorColetor");d.setValue(d.getValue().substring(0,d.getValue().length)+Pdv.api.validacao.VType.decodeHtml(a.value));if("combobox"==d.xtype&&__habilitaTecladoTouchCadCli){var e=Ext.ComponentQuery.query("#coletorHidden")[0];e&&(e.setValue(e.getValue()+Pdv.api.validacao.VType.decodeHtml(a.value)),document.getElementById(d.getInputId()).value=e.getValue(),d.doRawQuery())}b.destroy()}},
-"#teclaMudarTemplate":{click:function(){Ext.create("Pdv.view.sistema.dialogo.Template").show()}},"#teclaMudarOperacaoRemota":{click:function(){Ext.create("Pdv.view.sistema.dialogo.OperacaoRemota").show()}},"#descontoValorItem":{click:function(a){"undefined"!=typeof __gatilho_descontoValorItem&&null!=__gatilho_descontoValorItem?__gatilho_descontoValorItem(a):(Pdv.api.sistema.Gerenciador.telaDesconto=!0,a.evento=[29,29],a.autoColeta=!0,a.monetario=2,a.multiColeta=!0,a.itensMultiColeta={tecladoInicialVisivel:!0,
-tbar:[{xtype:"label",itemId:"visorValorTotal",flex:1,margin:"0 10 10 5",cls:"label-text-subtotal lbl-desc",style:"float:right !important; margin-right: 20px;",text:"Valor Bruto: "},{xtype:"label",itemId:"visorValorDesconto",flex:1,margin:"0 10 10 5",cls:"label-text-subtotal lbl-desc",style:"float:right !important; margin-right: 20px;",text:"Valor Liquido: "}],itens:[{xtype:"campoinput",itemId:"valorDesconto",labelAlign:"top",fieldLabel:"Desconto Valor",allowBlank:!0,msgTarget:"under",margin:"0 10 10 5",
-dadoNumerico:!0,monetario:2,disposicaoNumerica:"padrao",permitirValorDecimal:!0,usarDuploZero:!0,valorInicial:null,width:"98%",style:"float:right !important; margin-right: 20px;",labelClsExtra:"label-text-subtotal label-desconto",fieldCls:"input-sub-total",listeners:{focus:function(a){a.inputEl.addCls("input-desconto-alterado");a.labelEl.addCls("input-desconto-alterado-label")},blur:function(a){a.inputEl.removeCls("input-desconto-alterado");a.labelEl.removeCls("input-desconto-alterado-label")}}},
-{xtype:"campoinput",itemId:"percentualDesconto",labelAlign:"top",fieldLabel:"Desconto %",allowBlank:!0,msgTarget:"under",margin:"0 10 10 5",dadoNumerico:!0,monetario:0,disposicaoNumerica:"padrao",permitirValorDecimal:!0,usarDuploZero:!0,valorInicial:null,width:"98%",style:"float:right !important; margin-right: 20px;",labelClsExtra:"label-text-subtotal label-desconto",fieldCls:"input-sub-total",listeners:{focus:function(a){a.inputEl.addCls("input-desconto-alterado");a.labelEl.addCls("input-desconto-alterado-label")},
-blur:function(a){a.inputEl.removeCls("input-desconto-alterado");a.labelEl.removeCls("input-desconto-alterado-label")}}}]},this.abrirJanelaMultiColeta(a))}},"#acrescimoValorItem":{click:function(a){Pdv.api.sistema.Gerenciador.telaDesconto=!1;a.evento=[48,33];a.autoColeta=!0;a.monetario=2;a.multiColeta=!0;a.itensMultiColeta={tecladoInicialVisivel:!0,tbar:[{xtype:"label",itemId:"visorValorTotal",flex:1,margin:"0 10 10 5",cls:"label-text-subtotal lbl-desc",style:"float:right !important; margin-right: 20px;",
-text:"Valor Bruto: "},{xtype:"label",itemId:"visorValorAcrescimo",flex:1,margin:"0 10 10 5",cls:"label-text-subtotal lbl-desc",style:"float:right !important; margin-right: 20px;",text:"Valor Liquido: "}],itens:[{xtype:"campoinput",itemId:"valorAcrescimo",labelAlign:"top",fieldLabel:"Acrescimo Valor",allowBlank:!0,msgTarget:"under",margin:"0 10 10 5",dadoNumerico:!0,monetario:2,disposicaoNumerica:"padrao",permitirValorDecimal:!0,usarDuploZero:!0,valorInicial:null,width:"98%",style:"float:right !important; margin-right: 20px;",
-labelClsExtra:"label-text-subtotal label-desconto",fieldCls:"input-sub-total",listeners:{focus:function(a){a.inputEl.addCls("input-desconto-alterado");a.labelEl.addCls("input-desconto-alterado-label")},blur:function(a){a.inputEl.removeCls("input-desconto-alterado");a.labelEl.removeCls("input-desconto-alterado-label")}}},{xtype:"campoinput",itemId:"percentualAcrescimo",labelAlign:"top",fieldLabel:"Acrescimo %",allowBlank:!0,msgTarget:"under",margin:"0 10 10 5",dadoNumerico:!0,monetario:0,disposicaoNumerica:"padrao",
-permitirValorDecimal:!0,usarDuploZero:!0,valorInicial:null,width:"98%",style:"float:right !important; margin-right: 20px;",labelClsExtra:"label-text-subtotal label-desconto",fieldCls:"input-sub-total",listeners:{focus:function(a){a.inputEl.addCls("input-desconto-alterado");a.labelEl.addCls("input-desconto-alterado-label")},blur:function(a){a.inputEl.removeCls("input-desconto-alterado");a.labelEl.removeCls("input-desconto-alterado-label")}}}]};this.abrirJanelaMultiColeta(a)}},"#modificadorItem":{click:function(a){a.escopo.gerenciador.tooltipCupom.close();
-Pdv.api.tela.Gerenciador.setFocusInput();a.escopo.view.deselect([a.escopo.record]);Ext.isDefined(a.listaModificadores)&&Ext.isDefined(a.chaveItem)&&Pdv.api.sistema.Gerenciador.montarSelectModificadores(a.chaveItem,a.listaModificadores)}},"#cancelarItem":{click:function(a){Pdv.api.nucleo.Comunicador.cancelarItem(a.escopo.record.get("chave"));a.escopo.gerenciador.tooltipCupom.close();Pdv.api.tela.Gerenciador.setFocusInput();a.escopo.view.deselect([a.escopo.record]);Pdv.api.sistema.Gerenciador.bloquearAutoScrollCupom(!0)}},
-"#fecharTooltipCupom":{click:function(a){a.escopo.gerenciador.tooltipCupom.close();Pdv.api.tela.Gerenciador.setFocusInput();a.escopo.view.deselect([a.escopo.record])}},"#cancelarItemComanda":{click:function(a){a.escopo.gerenciador.tooltipComanda.close();Pdv.api.sistema.Gerenciador.teclaCancelar=a;Pdv.api.tela.Gerenciador.setFocusInput();a.escopo.view.deselect([a.escopo.record]);__cancelarItemComandaSupervisor?Pdv.api.nucleo.Comunicador.enviarServicoNucleo("AutorizacaoCancelaItemComanda",10,{nfunc:"",
-nfunc2:"",autoriz_default:2,texto:""}):Pdv.api.nucleo.Restful.cancelarItem(a.escopo.record.get("cod_pedido_item"))}},"#fecharTooltipComanda":{click:function(a){a.escopo.gerenciador.tooltipComanda.close();Pdv.api.tela.Gerenciador.setFocusInput();a.escopo.view.deselect([a.escopo.record])}},"#msgPdvStartup":{},"#novaConexao":{click:function(a){clearInterval(Pdv.api.nucleo.Comunicador.intervaloConexao);msg=a.up("#msgPdvStartup");msg.hide();this.getView("sistema.dialogo.ColetorDadosConexao").create({dialogo:msg}).show();
-intervalo=msg.dialogScope.intervalo;clearInterval(intervalo)}},"#porta":{focus:function(a){(a=a.up("dialogo").down("teclaseparadordecimal"))&&a.setDisabled(!1)}},"#btFecharDialogo":{click:function(){!1!=Pdv.api.sistema.Gerenciador.coletaQtd&&Pdv.api.nucleo.Interpretador.tratarArgsMenuLista(null,null,Pdv.api.sistema.Gerenciador.historico)}},teclaalt:{click:function(a){var b=a.up("teclado").query("teclalocal");if(a.pressed)for(var d in b)void 0==b[d].altValue?b[d]!==a&&b[d].setDisabled(!0):(teclaText=
-Pdv.view.componente.teclado.Alfanumerico.getTextSensivelContexto(b[d]),b[d].setText(teclaText));else for(d in b)void 0==b[d].altValue?b[d]!==a&&b[d].setDisabled(!1):(teclaText=Pdv.view.componente.teclado.Alfanumerico.getTextSensivelContexto(b[d]),b[d].setText(teclaText))}},"#teclashift":{click:function(a){var b=a.up("teclado"),d=b.query("teclalocal"),b=b.down("teclaalt");if(a.pressed)for(var e in d)d[e]instanceof Pdv.view.componente.tecla.Letra?(teclaText=Pdv.view.componente.teclado.Alfanumerico.getTextSensivelContexto(d[e]),
-d[e].setText(teclaText)):d[e].setDisabled(!0);else for(e in d)d[e]instanceof Pdv.view.componente.tecla.Letra?(teclaText=Pdv.view.componente.teclado.Alfanumerico.getTextSensivelContexto(d[e]),d[e].setText(teclaText)):d[e].setDisabled(!1);b.setDisabled(!1)}},"coletor tecladonumerico teclaseparadordecimal":{click:function(a){teclado=a.up("tecladonumerico");a.setDisabled(!0);teclado.contadorClick=0;teclasNumericas=teclado.query('tecla[grupo="numerico"]');for(var b in teclasNumericas)teclasNumericas[b].setDisabled(!1)}},
-"coletor tecladonumerico teclabackspace":{click:function(a){var b=a.up("tecladonumerico"),a=""+b.getCampoDeInput().getValue(),d=b.getSeparadorDecimal(),e=2E3<=__template&&2100>__template||4E3==__template||!Pdv.api.sistema.Gerenciador.evtoSeparadorDecimal||(200==__template||1200==__template)&&Ext.isEmpty(d)?".":d.getCaractereSeparador(),f=(""+a).substr((""+a).length-1,1),g=b.casasAntesDoSeparador,b=b.query('tecla[grupo="numerico"]');if(f==e){if(g==a.substr(0,a.search(RegExp("\\"+e))).length&&b)for(var h in b)b[h].setDisabled(!0);
-d.setDisabled(!1)}else if(posicaoCaractereSeparador=a.search(RegExp("\\"+e)),-1==posicaoCaractereSeparador&&b)for(h in b)b[h].setDisabled(!1)}},"coletor tecladonumerico teclalimpar":{click:function(a){var b=a.up("tecladonumerico"),a=b.getCampoDeInput();(a.getValue()||a.getRawValue())&&a.setValue("");if(b=b.query('tecla[grupo="numerico"]'))for(var d in b)b[d].setDisabled(!1);a.bloquearCampo(!1)}},"coletor tecladosimples teclabackspace":{click:function(a){a.up("tecladosimples").getCampoDeInput().setValue("");
-Pdv.api.sistema.Gerenciador.getStatusBuffer()&&Pdv.api.sistema.Gerenciador.limparStrBuffer()}},tecladuplozero:{click:function(a){if(-1!=[200,1200].indexOf(parseInt(__template))&&a.configurador)(a=Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva(a.campoDeInput))&&a.setValue(a.getValue()+"00");else{var b=a.up("tecladonumerico"),a=b.getCampoDeInput();a.getValue();a=b.query('teclanumeral[value="0"]')[0];a.isDisabled()||(a.fireEvent("click",a),a.isDisabled()||a.fireEvent("click",a))}}},"coletor tecladonumerico teclanumeral":{click:function(a){if(teclado=
-a.up("tecladonumerico")){var a=teclado.getCampoDeInput(),b=teclado.casasAntesDoSeparador,d=teclado.monetario,e=teclado.precisaoDecimal,f=teclado.getSeparadorDecimal(),g=2E3<=__template&&2100>__template||4E3==__template||!Pdv.api.sistema.Gerenciador.evtoSeparadorDecimal||(200==__template||1200==__template)&&Ext.isEmpty(f)?".":f.getCaractereSeparador(),h=""+a.getValue();if(a.isDirty()||!a.valorInicialNoCampo)if(2==d)try{teclado.down("teclaseparadordecimal").setDisabled(!0)}catch(j){}else if(b||e)if(arrAux=
-h.split(g),numeroDeCaracteresAntes=arrAux[0].length+1,numeroDeCaracteresDepois=arrAux[1]?arrAux[1].length:0,caractereSeparadorNoValor=h.charAt(b-1),numeroDeCaracteresAntes==b)if(caractereSeparadorNoValor!=g){teclasNumericas=teclado.query('tecla[grupo="numerico"]');for(var k in teclasNumericas)teclasNumericas[k].setDisabled(!0);(2E3>__template&&2100<=__template||4E3==__template)&&f.setDisabled(!1)}else numeroDeCaracteresDepois==e&&a.bloquearCampo(!0);else 0!=e&&numeroDeCaracteresDepois==e&&a.bloquearCampo(!0)}}},
-"#tecladoPagamento teclanumeral":{click:function(a){teclado=a.up("tecladonumerico");a=teclado.getCampoDeInput();a.value==Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#visorLogico80").value&&!0==Pdv.api.sistema.Gerenciador.getZeraInput()&&(a.setValue(0),Pdv.api.sistema.Gerenciador.setZeraInput(!1))}},"#tecladoPagamento":{afterlayout:function(){Pdv.api.sistema.Gerenciador.setZeraInput(!0)}},teclainfo:{click:function(a){var b=void 0!=a.tip.titulo?a.tip.titulo.join("<br />"):"",d=void 0!=a.tip.corpo?
-a.tip.corpo.join("<br />"):"",e=void 0!=a.tip.rodape?a.tip.rodape.join(" "):"",f=Ext.create("Ext.tip.ToolTip",{title:b,autoHide:!1,cls:"tip-ajuda",html:d+"<br /><br />"+e,closeAction:"destroy",dockedItems:[{xtype:"toolbar",style:"border: none !important",dock:"bottom",height:40,items:["->",{text:"Fechar",xtype:"button",width:90,height:35,scope:this,handler:function(){f.close();Pdv.api.tela.Gerenciador.setFocusInput()}},"->"]}]});f.show();f.alignTo(a,"br-tl")}},"coletadadoscon teclaentrar":{click:function(a){var a=
-a.up("coletadadoscon"),b=a.down("form");if(b&&(b=b.getForm(),b.isValid()))valores=b.getValues(),this.storeConexao||(this.storeConexao=Ext.create("Pdv.store.sistema.Conexao")),0!=this.storeConexao.getCount()&&(localStorage.removeItem("zanlink"),this.storeConexao=Ext.create("Pdv.store.sistema.Conexao")),this.storeConexao.add(Ext.create("Pdv.model.sistema.Conexao",{ip:valores.ip,porta:valores.porta})),this.storeConexao.sync(),Pdv.api.store.Gerenciador.setStoreConexao(this.storeConexao),a.close()}},coletadadoscon:{hide:this.exibirContagemRegressivaParaConexao},
-"#campoInputIP":{focus:function(a){(a=a.up("dialogo").down("teclaseparadordecimal"))&&a.setDisabled(!1)},change:function(a,b){if("."!=b&&(a.up("dialogo").down('teclado[tipo="comum"]').getTeclaBackspace().setDisabled(!1),arr=b.split("."),2<b.length)){if(Ext.isArray(arr)&&(retorno=(""+arr[arr.length-1]).match(/[0-9]{3}/),4==arr.length)){3==arr[arr.length-1].length&&(a.markInvalid("IP inv&aacute;lido"),a.bloquearCampo(!0));return}retorno&&a.setRawValue(b+".")}}},"dialogo campoinput":{focus:function(a){a.customizado&&
-this.tratarCampoColetaCustomizada(a);if(void 0!=a.value)try{var b=Pdv.api.sistema.Gerenciador.argsInteracao.form.coletas[0].classe.atributos.antes,d=Pdv.api.sistema.Gerenciador.argsInteracao.form.coletas[0].classe.atributos.depois,e=Pdv.api.sistema.Gerenciador.argsInteracao.form.coletas[0].classe.atributos.monetario;if(a.value.length>Pdv.api.sistema.Gerenciador.argsInteracao.form.coletas[0].classe.atributos.tamanho){var f=a.getValue();a.setValue(f.substring(0,f.length-1))}else 0<b&&(0<=d&&0!=e)&&
-(a.maxLength=b+d+1+(b/3|0))}catch(g){}b=a.up("dialogo");if("multiColetor"!=b.xtype&&"coletorMultiploPDV"!=b.xtype){if(teclado=a.up("dialogo").down('teclado[tipo="comum"]'))return teclado.setCampoDeInput(a),teclado.getCampoDeInput()&&(b=teclado.getTeclaBackspace())&&b.setDisabled(!1),Pdv.api.sistema.Gerenciador.getStatusBuffer()?a.blur():(valor=a.getValue(),a.reset(),a.setValue(valor)),!1}else"coletorMultiploPDV"==b.xtype&&Pdv.api.sistema.Gerenciador.setCampoAtivoMultiColeta(a)},change:function(a,
-b){Pdv.api.nucleo.Comunicador.enviarInfoAtividade();"undefined"!=typeof __gatilho_input_coletor&&"undefined"!=typeof __gatilho_input_coletor&&__gatilho_input_coletor();a.customizado&&this.tratarCampoColetaCustomizada(a);try{if(void 0!=a.value&&a.value.length>Pdv.api.sistema.Gerenciador.argsInteracao.form.coletas[0].classe.atributos.tamanho){var d=a.getValue();a.setValue(d.substring(0,d.length-1))}}catch(e){}if(teclado=a.up("dialogo").down('teclado[tipo="comum"]')){Ext.isEmpty(b)&&a.clearInvalid();
-0<parseInt(teclado.monetario,10)?Pdv.api.sistema.Mascara.mascaraMonetario(a):0==teclado.tipoColeta&&Pdv.api.sistema.Mascara.numerico(a);switch(teclado.tipoColeta){case 2:a.setValue(Pdv.api.validacao.VType.maskDate(a.getValue(),!1));break;case 3:a.setValue(Pdv.api.validacao.VType.maskDate(a.getValue(),!0));break;case 4:a.setValue(Pdv.api.validacao.VType.maskCelular(a.getValue()));break;case 5:Pdv.api.validacao.VType.maskCEP(a);break;case 6:a.setValue(Pdv.api.validacao.VType.montarMascaraCPFCNPJ(a.getValue()))}Ext.is.Android||
-a.focus()}a.tratarDisabled&&(d=Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("teclaentrar"),!Ext.isEmpty(a.getValue())&&!Ext.isEmpty(d)?d.setDisabled(!1):d.setDisabled(!0));d=teclado.getTeclaLimpar();Ext.isEmpty(d)||(Ext.isEmpty(a.getValue())?d.setDisabled(!0):d.setDisabled(!1))}},"dialogo combobox":{focus:function(a){this.tratarCampoColetaCustomizada(a)},change:function(a){this.tratarCampoColetaCustomizada(a)}},"#visorLogico80":{change:function(){1==Pdv.api.sistema.Gerenciador.self||__pagamentoSCTotal||
-Pdv.api.sistema.Gerenciador.setarValorInputParaVisor80()}},"#visorLogico10":{change:function(){Pdv.api.sistema.Gerenciador.setAtualizarVisores(!0)}},"campoinput[itemId=valorInput]":{change:function(a){Pdv.api.sistema.Mascara.mascaraMonetario(a)}},"campoinput[itemId=valorInput]":{change:function(a,b){teclado=Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#tecladoPagamento");Ext.isEmpty(b)&&(a.clearInvalid(),null!==teclado&&void 0!=teclado&&teclado.getTeclaBackspace().setDisabled(!0),Ext.isEmpty(b)?
-Ext.isEmpty(teclado)||teclado.getTeclaBackspace().setDisabled(!0):teclado.getTeclaBackspace().setDisabled(!1));null!==teclado&&(void 0!=teclado&&null!==teclado.monetario&&void 0!==teclado.monetario&&0<parseInt(teclado.monetario,10))&&Pdv.api.sistema.Mascara.mascaraMonetario(a)}},"#telaDetalhesCliente":{close:function(){args=Pdv.api.sistema.Gerenciador.getArgsInteracao();Pdv.api.nucleo.Interpretador.iniciarInteracao(args)}},teclasimbolo:{click:this.exibeBotoesAcentuados},coletor:{show:function(a){Ext.Function.defer(function(){if(!Pdv.api.sistema.Gerenciador.getStatusBuffer()){try{a.down("campoinput").focus()}catch(b){}if("undefined"!=
-Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#tela_cadastro_cliente")&&"caedu"==__template){var d=a.down("campoinput").getValue();a.down("campoinput").setValue("");a.down("campoinput").setValue(d)}}},100)}},multiColetor:{afterrender:function(a){var b="field displayfield campodata textfield visor campoinput".split(" "),d=function f(a){for(i in a){if(-1!=b.indexOf(a[i].xtype))return a[i].focus(!1,100),__debug&&console.log("Multi Coleta: Focando o cmapo "+a[i].itemId),!0;a[i].items&&f(a[i].items)}return!1};
-!0===a.tecladoInicialVisivel&&d(a.down("#mainFrame").items.items)},close:function(){Pdv.api.sistema.Gerenciador.multiColetaCtrl={};__debug&&console.log("Multi Coleta: Encerrando")},resize:function(a,b,d){this.resizeMultiColetor(a,d)}},"multiColetor campoinput":{change:function(a,b){Pdv.api.sistema.Gerenciador.multiColetaCtrl[a.itemId].valor=b},focus:function(a){Pdv.api.sistema.Gerenciador.multiColetaCtrl.focused=a.itemId;if(a&&"Touch"==__PDV){var b=a.up("window"),d=b.down("#tecladoColetorAN");if(d){if(a.dadoNumerico){var e=
-b.down("#tecladoColetorN"),f=d;e.monetario=a.monetario}else e=d,f=b.down("#tecladoColetorN");f&&f.setVisible(!1);e&&(Pdv.api.sistema.Gerenciador.multiColetaCtrl.focusedKeyboard=e.itemId,e.setVisible(!0),e.setCampoDeInput(a),a=b.down("#mainFrame"),a.oldFucusedControl!=e.itemId&&(""!==a.oldFucusedControl&&("tecladoColetorAN"==e.itemId?a.setHeight(a.height-d.height):"tecladoColetorN"==e.itemId&&a.setHeight(a.height+d.height)),a.oldFucusedControl=e.itemId));this.resizeMultiColetor(b)}}}},"multiColetor label[itemId=visorValorTotal]":{afterrender:function(a){var b=
-a.up("multiColetor").parametrosGerais,d=0;if(b.visorValorTotal){if(-1==b.visorValorTotal.indexOf("#"))a.setText("Valor Bruto: "+(d=b.visorValorTotal));else if(void 0!==(cmp=Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva(b.visorValorTotal)))a.setText("Valor Bruto: "+(d=cmp.getValue()));setTimeout(function(){a.up("window").down("#visorValorDesconto").setText("Valor Liquido: "+d)},500)}}},"multiColetor campoinput[itemId=valorDesconto]":{change:function(a,b){var d=a.up("window"),e=d.down("#valorDesconto"),
-f=d.down("#percentualDesconto"),g=teclado.getSeparadorDecimal();e.setRawValue(e.getValue().trim().replace(".",""));var h=e.getValue().replace(".","").replace(".","").replace(".",""),h=h.trim().replace(",",".").replace(" ",""),h=""==h?parseFloat(b.replace(",",".")):h;0===parseFloat(h)&&""===f.getValue().trim()&&g.setDisabled(!1);if(isNaN(h))e.setRawValue(""),f.setRawValue("");else{var j=d.down("#visorValorTotal"),d=d.down("#visorValorDesconto"),g="0"==b?0:2,j=parseFloat((""+j.text.split(":")[1]).trim().replace(".",
-"").replace(",",".")),k=100-100*(j-h)/j;d.setText("Valor Liquido: "+(0==h?"":Pdv.api.sistema.Gerenciador.formatarMoeda(j-h,2,",",".")));f.setRawValue(0==h?"":Ext.Number.toFixed(k,g).replace(".",","));e.setRawValue(h.trim().replace(".",","))}}},"multiColetor campoinput[itemId=percentualDesconto]":{change:function(a,b){var d=a.up("window"),e=d.down("#percentualDesconto"),f=d.down("#valorDesconto"),g=e.getValue().trim().replace(",",".").replace(" ","").replace(" ",""),h=teclado.getSeparadorDecimal();
-e.setRawValue(e.getValue().trim().replace(".",""));g=""==g?parseFloat(b.replace(",",".")):g;if(isNaN(g))f.setRawValue(""),e.setRawValue(""),h.setDisabled(!1);else{var j=d.down("#visorValorTotal"),d=d.down("#visorValorDesconto"),h="0"==b?0:2,j=parseFloat((""+j.text.split(":")[1]).trim().replace(".","").replace(",",".")),k=j*g/100;d.setText("Valor Liquido: "+(0==g?"":Pdv.api.sistema.Gerenciador.formatarMoeda(j-k,2,",",".")));f.setRawValue(0==g?"":Ext.Number.toFixed(k,h).replace(".",","));e.setRawValue(g.trim().replace(".",
-","))}}},"multiColetor campoinput[itemId=valorAcrescimo]":{change:function(a,b){var d=a.up("window"),e=d.down("#valorAcrescimo"),f=d.down("#percentualAcrescimo"),g=teclado.getSeparadorDecimal();e.setRawValue(e.getValue().trim().replace(".",""));var h=e.getValue().replace(".","").replace(".","").replace(".",""),h=h.trim().replace(",",".").replace(" ",""),h=""==h?parseFloat(b.replace(",",".")):h;0===parseFloat(h)&&""===f.getValue().trim()&&g.setDisabled(!1);if(isNaN(h))e.setRawValue(""),f.setRawValue("");
-else{var j=d.down("#visorValorTotal"),d=d.down("#visorValorAcrescimo"),g="0"==b?0:2,j=parseFloat((""+j.text.split(":")[1]).trim().replace(".","").replace(",",".")),k=100*(h/j);d.setText("Valor Liquido: "+(0==h?"":Pdv.api.sistema.Gerenciador.formatarMoeda(j+1*h,2,",",".")));f.setRawValue(0==h?"":Ext.Number.toFixed(k,g).replace(".",","));e.setRawValue(h.trim().replace(".",","))}}},"multiColetor campoinput[itemId=percentualAcrescimo]":{change:function(a,b){var d=a.up("window"),e=d.down("#percentualAcrescimo"),
-f=d.down("#valorAcrescimo"),g=e.getValue().trim().replace(",",".").replace(" ","").replace(" ",""),h=teclado.getSeparadorDecimal();e.setRawValue(e.getValue().trim().replace(".",""));g=""==g?parseFloat(b.replace(",",".")):g;if(isNaN(g))f.setRawValue(""),e.setRawValue(""),h.setDisabled(!1);else{var j=d.down("#visorValorTotal"),d=d.down("#visorValorAcrescimo"),h="0"==b?0:2,j=parseFloat((""+j.text.split(":")[1]).trim().replace(".","").replace(",",".")),k=j*g/100;d.setText("Valor Liquido: "+(0==g?"":Pdv.api.sistema.Gerenciador.formatarMoeda(j+
-k,2,",",".")));f.setRawValue(0==g?"":Ext.Number.toFixed(k,h).replace(".",","));e.setRawValue(g.trim().replace(".",","))}}},"multiColetor tecladonumerico teclaseparadordecimal":{click:function(a){teclado=a.up("tecladonumerico");a.setDisabled(!0);teclado.contadorClick=0;teclasNumericas=teclado.query('tecla[grupo="numerico"]');for(var b in teclasNumericas)teclasNumericas[b].setDisabled(!1)}},"multiColetor tecladonumerico teclabackspace":{click:function(a){var b=a.up("tecladonumerico"),a=""+b.getCampoDeInput().getValue(),
-d=b.getSeparadorDecimal(),e=2E3<=__template&&2100>__template||4E3==__template||!Pdv.api.sistema.Gerenciador.evtoSeparadorDecimal||(200==__template||1200==__template)&&Ext.isEmpty(d)?".":d.getCaractereSeparador(),f=(""+a).substr((""+a).length-1,1),g=b.casasAntesDoSeparador,b=b.query('tecla[grupo="numerico"]');if(f==e){if(g==a.substr(0,a.search(RegExp("\\"+e))).length&&b)for(var h in b)b[h].setDisabled(!0);d.setDisabled(!1)}else if(posicaoCaractereSeparador=a.search(RegExp("\\"+e)),-1==posicaoCaractereSeparador&&
-b)for(h in b)b[h].setDisabled(!1)}},"multiColetor teclaentrar":{click:this.enviarColeta},"multiColetor tecladonumerico teclalimpar":{click:function(a){var b=a.up("tecladonumerico"),a=b.getCampoDeInput();(a.getValue()||a.getRawValue())&&a.setValue("");if(b=b.query('tecla[grupo="numerico"]'))for(var d in b)b[d].setDisabled(!1);a.bloquearCampo(!1)}},campoinput:{change:function(a,b){if("Touch"==__PDV){if(void 0!=b&&Ext.isEmpty(b)){if(!Pdv.api.sistema.Gerenciador.getTecladoTouchForcado()&&(2E3>__template&&
-2100<=__template||"caedu"==__template||4E3==__template))a&&a.valorInicial?a.setValue(a.valorInicial):a&&a.originalValue&&a.setValue(a.originalValue),a.valorInicialNoCampo=!0;"caedu"==__template&&(a.valorInicialNoCampo=!0)}}else Pdv.api.sistema.Gerenciador.getNaoPermitirFocarAgora()||Ext.is.Android||a.focus()},keydown:function(a,b){if(2013==__template&&Ext.isEmpty(Pdv.api.sistema.Gerenciador.retornarTelaDialogo())&&!Ext.isEmpty(Ext.ComponentQuery.query("#workspace")[0].down("#telaGenerica"))&&13==
-b.keyCode&&!Ext.isEmpty(a.getValue()))!Ext.isEmpty(Pdv.api.sistema.Gerenciador.argsInteracao)&&!Ext.isEmpty(Pdv.api.sistema.Gerenciador.argsInteracao.chave)&&Pdv.api.nucleo.Comunicador.setColeta(Pdv.api.sistema.Gerenciador.argsInteracao.chave,-5,a.getValue()),validarEstadoVenda();else{var d=a.up("dialogo");if(void 0!=d&&d instanceof Pdv.view.sistema.dialogo.ColetorMultiploPDV)return!0;if(!0==Pdv.api.sistema.Gerenciador.sistemaEmInteracao&&112<=b.keyCode&&123>=b.keyCode)return!1;switch(b.keyCode){case 13:var e=
-a.getValue(),f=Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#qtd");void 0==f?Pdv.api.sistema.Gerenciador.getUsarCampoQuantidade()&&(f=Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#visorLogico8")):void 0==f&&(f=Pdv.api.sistema.Gerenciador.multiColetaCtrl[campo.itemId].valor);if(0==Pdv.api.sistema.Gerenciador.getTeclaPeriferia()){if(d)d=d.down("teclaentrar"),void 0!=d&&!Ext.isEmpty(e)&&(d.fireEvent("click",d),this.enviarEventoDoGatilho(d,e));else{d={evento:4};if("campoinput"!=a.xtype||Ext.isEmpty(e)||
-"valorInput"==a.itemId||"qtd"==a.itemId)return!0;null===f||void 0===f?Pdv.api.nucleo.Comunicador.setQuantidade(1):!Ext.isEmpty(f.getValue())&&"Mouse"==__PDV&&(Pdv.api.nucleo.Comunicador.setQuantidade(f.getValue()),f.setValue(""));this.enviarEventoDoGatilho(d,e)}a.setValue()}e=Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#qtd101");void 0!=e&&e.setValue("")}}},keypress:function(a,b){if(0!=Pdv.api.sistema.Gerenciador.getForcarEnvioTeclaPerifInputMercadoria()&&(Pdv.api.sistema.Gerenciador.setStatusBuffer(!0),
-Pdv.api.sistema.Gerenciador.setTeclaPeriferia(1),8!=b.keyCode))return Pdv.api.sistema.Gerenciador.setFocadoInputTelaMainPDV(!0),b.preventDefault(),b.cancelBubble=!0,b.keyCode=0,!1},blur:function(){0!=Pdv.api.sistema.Gerenciador.getForcarEnvioTeclaPerifInputMercadoria()&&!0==Pdv.api.sistema.Gerenciador.getFocadoInputTelaMainPDV()&&(Pdv.api.sistema.Gerenciador.setFocadoInputTelaMainPDV(!1),Pdv.api.sistema.Gerenciador.limparStrBuffer())}},teclafuncao:{click:function(a){if(15==a.evento){var b=Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("campoinput");
-if(void 0==b)return!0;var d=b.getValue();if(!Ext.isEmpty(d)&&Ext.isNumeric(d))return this.enviarEventoDoGatilho(a,d),b.setValue(""),!1}}},"#input":{focus:function(a){Pdv.api.sistema.Gerenciador.sistemaEmInteracao&&a.blur();Pdv.api.tela.Gerenciador.setStatusFocus(!0)},blur:function(){Pdv.api.tela.Gerenciador.setStatusFocus(!1)}},pdvstartup:{activate:this.iniciar},"coletor teclaentrar":{click:function(a){136==Pdv.api.sistema.Gerenciador.getSituacaoRealPDV()&&__validarCodProdutoLido&2?setTimeout(function(){__myApp.getController("Pdv.controller.Controller").enviarColeta(a)},
-350):this.enviarColeta(a)}},"coletorMultiploPDV teclaentrar":{click:this.enviarColeta},gridgeral:{itemclick:function(a,b){a.up("grid").getSelectionModel().select([b])}},gridseletor:{select:this.enviarSelecao},teclaseletora:{click:this.enviarSelecaoBtn},teclapagamento:{click:this.enviarFormaPagamentoBotao},teclaquantidade:{click:this.enviarQuantidade},teclabackspace:{click:function(a){if(-1!=[200,1200].indexOf(parseInt(__template))&&a.configurador){var b=Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva(a.campoDeInput);
-if(a=b.getValue()||b.getRawValue())a=(""+a).substr(0,(""+a).length-1),b.setValue(a)}else{teclado=a.up('teclado[tipo="comum"]');b=teclado.getCampoDeInput();Ext.isObject(b)||(b=(dialogo=a.up("dialogo"))?dialogo.down(b):a.up("pdvtela").down(b));if(b){if("combobox"==b.xtype&&__habilitaTecladoTouchCadCli){if(a=Ext.ComponentQuery.query("#coletorHidden")[0])document.getElementById(b.getInputId()).value="",a.setValue("");return}if(a=b.getValue()||b.getRawValue())a=(""+a).substr(0,(""+a).length-1),b.setValue(a);
-b.bloquearCampo(!1)}!0==Pdv.api.sistema.Gerenciador.getZeraInput()&&Pdv.api.sistema.Gerenciador.setZeraInput(!1)}}},formaspagamento:{select:this.enviarFormaPagamento},listatemplate:{select:this.mudarTemplate},listaoperacaoRemota:{select:this.mudarOperacaoRemota},"janelamenu teclafuncional":{click:this.fecharMenu},menu:{click:function(){var a=Ext.ComponentQuery.query("menu");Ext.Array.each(a,function(a){a.hide()})}},"janelamenu teclagatilho":{click:this.fecharMenu},teclafuncional:{click:this.processarTeclaFuncional},
-teclafinalizadora:{click:this.processarTeclaFinalizadora},teclaproduto:{click:this.processarTeclaProduto},teclagatilho:{click:this.tratarAutoColeta},teclalocal:{click:this.escreverNoCampo},teclamensageira:{click:this.enviarAcaoDialogo},teclamensageiramenu:{click:this.enviarAcaoMenuLista},teclamenu:{click:this.abrirMenu},button:{click:this.bipar},textfield:{focus:this.bipar},"#teclaBaixo":{click:this.navGrid},"#teclaCima":{click:this.navGrid},teclanumeralConfig:{click:this.tecladoConfiguradorNumerico},
-pdvtelapagamento:{show:this.verificaPagamento,afterlayout:function(){}},"#janelaAutoColeta":{show:function(){setTimeout(function(){try{campoColeta=Ext.ComponentQuery.query("#campoJanelaAutoColeta")[0],void 0!=campoColeta&&Ext.ComponentQuery.query("#campoJanelaAutoColeta")[0].focus(!0)}catch(a){}},500)}},"#valorInput":{afterrender:function(){Pdv.api.sistema.Gerenciador.getNaoPermitirFocarAgora()||Ext.ComponentQuery.query("#valorInput")[0].focus(!0)}},cupom:{afterlayout:function(){if(2007!=__template){var a=
-Pdv.api.store.Gerenciador.getStoreCupom();a.each(function(b){void 0!=b&&!0==b.get("agrupado")&&!0==b.get("cancelado")&&a.remove(b)})}Pdv.api.sistema.Gerenciador.habilitarDesabilitarTeclaFinalizadora()},select:function(a,b){if(2005==__template||__trataModificadores&&200==__template||__opcoesTemplateDinamico&32768){if(!1==Pdv.api.sistema.Gerenciador.clickItem){a.view.deselect([b]);return}Pdv.api.sistema.Gerenciador.clickItem=!1}if(!(!0!=__forcarCancelaSelf&&(1==Pdv.api.sistema.Gerenciador.self&&null==
-__ip_monitor||!0==Pdv.api.sistema.Gerenciador.checkMonitor()))){if(Pdv.api.tela.Gerenciador.getImagemClick()&&(Pdv.api.tela.Gerenciador.setImagemClick(!1),b.data.img.nome)){var d=Ext.create("Ext.container.Container",{scrollable:!0,items:[{xtype:"image",style:"padding:10%; width: auto; height: auto; max-width:100%; max-height:100%; display: block; margin:auto;",src:"resources/imagens/"+b.data.img.nome}]});Ext.create("Ext.window.Window",{closeAction:"destroy",width:400,height:400,resizable:!1,closable:!0,
-draggable:!0,layout:"card",title:b.data.descricao,style:"padding:1%",items:[d],listeners:{close:function(){Pdv.api.tela.Gerenciador.setFocusInput();a.view.deselect([b])}}}).show();Ext.ComponentQuery.query("viewport")[0].setDisabled(!0);return}!0!=b.get("desab")&&!Pdv.api.sistema.Gerenciador.verificarSegundoMonitor()&&(Ext.ComponentQuery.query("viewport")[0].setDisabled(!0),checkerTr=Ext.select(a.view.getSelectedNodes()).elements[0],checker=checkerTr.children[checkerTr.children.length-1],checkerCl=
-Ext.select([checker]),checkerCl.el.dom=checker,x=checkerCl.el.getXY()[0],y=checkerCl.el.getXY()[1],Pdv.api.sistema.Gerenciador.setTooltipCupom(x,y,b,a.view).show())}},beforedeselect:function(){Ext.ComponentQuery.query("viewport")[0].setDisabled(!1)}},cupomrfid:{afterlayout:function(){if(2007!=__template){var a=Pdv.api.store.Gerenciador.getStoreCupom();a.each(function(b){void 0!=b&&!0==b.get("agrupado")&&!0==b.get("cancelado")&&a.remove(b)})}Pdv.api.sistema.Gerenciador.habilitarDesabilitarTeclaFinalizadora()},
-select:function(a,b){if(!(!0!=__forcarCancelaSelf&&(1==Pdv.api.sistema.Gerenciador.self&&null==__ip_monitor||!0==__monitor))&&!0!=b.get("desab")&&!__monitor_cliente)Ext.ComponentQuery.query("viewport")[0].setDisabled(!0),checkerTr=Ext.select(a.view.getSelectedNodes()).elements[0],checker=checkerTr.children[checkerTr.children.length-1],checkerCl=Ext.select([checker]),checkerCl.el.dom=checker,x=checkerCl.el.getXY()[0],y=checkerCl.el.getXY()[1],console.log(x),console.log(y),Pdv.api.sistema.Gerenciador.setTooltipCupom(x,
-y,b,a.view).show()},beforedeselect:function(){Ext.ComponentQuery.query("viewport")[0].setDisabled(!1)}},gridconsultacliente:{select:function(a,b){if(!0!=b.data.desab){checkerTr=Ext.select(a.view.getSelectedNodes()).elements[0];checker=checkerTr.children[checkerTr.children.length-1];checkerCl=Ext.select([checker]);checkerCl.el.dom=checker;x=checkerCl.el.getXY()[0];y=checkerCl.el.getXY()[1];var d=Ext.create("Ext.tip.ToolTip",{anchor:"right",anchorToTarget:!1,targetXY:[x+20,y+20],title:"C&oacute;digo: "+
-b.get("c0")+"<br />Nome: "+b.get("c1"),cls:"tooltip-cliente",itemId:"tooltipDetalhesCliente",width:200,layout:"fit",listeners:{hide:function(){a.view.deselect([b])}},items:{xtype:"container",layout:{type:"vbox",align:"center"},itemId:"listaBtCliente",defaults:{width:180,height:70,xtype:"tecla"},items:[{text:"Selecionar",cls:"bt_teclado_vd",handler:function(){d.close();a.view.panel.up("dialogo").close();Pdv.api.nucleo.Comunicador.setCodigoCliente(b.get("chave"))}},{text:"Detalhes",cls:"bt_teclado_c",
-handler:function(){d.close();a.view.panel.up("dialogo").close();Pdv.api.nucleo.Restful.consultaDetalhesCliente(b.get("c0"))}},{text:"Fechar",cls:"bt_teclado_c",handler:function(){d.close()}}]}});setTimeout(function(){d.show()},0.1)}},beforedeselect:function(){Ext.ComponentQuery.query("viewport")[0].setDisabled(!1)}},comanda:{select:function(a,b){Ext.ComponentQuery.query("viewport")[0].setDisabled(!0);checkerTr=Ext.select(a.view.getSelectedNodes()).elements[0];checker=checkerTr.children[checkerTr.children.length-
-1];checkerCl=Ext.select([checker]);checkerCl.el.dom=checker;x=checkerCl.el.getXY()[0];y=checkerCl.el.getXY()[1];Pdv.api.sistema.Gerenciador.setTooltipComanda(x,y,b,a.view).show()},beforedeselect:function(){Ext.ComponentQuery.query("viewport")[0].setDisabled(!1)}},teclaajuda:{click:function(){Pdv.api.nucleo.Comunicador.setAjuda(1)}},teclacomando:{click:function(a){this.tratarTeclaComando(a)}},"#bgImage2":{afterlayout:function(){var a=Ext.get("bgImage2").getWidth(),b=Ext.get("imgSelf2").getWidth();
-setTimeout(function(){leftImg=(a-b)/2;Ext.get("imgSelf2").setStyle("left",leftImg+"px");document.getElementById("bgImage2").style.display="block"},100)}}})},tratarTeclaComando:function(a){switch(a.comando){case "desligarNotificacao":var a=Ext.ComponentQuery.query("#btNotif")[0],b=Ext.ComponentQuery.query("#msgNotif")[0];a.disable();a.removeCls("bt_teclado_v");a.addCls("bt_teclado_c");b.update("");break;case "abrirInterface":window.open(Pdv.api.sistema.Mascara.base64_decode(__interface_monitor),"_blank")}},
-verificaPagamento:function(){void 0!=__btFinalizadora&&setTimeout(function(){Pdv.api.tela.Gerenciador.enviaTeclaFinalizadora()},500);Ext.isEmpty(__btFinalizadora)&&("undefined"!=typeof __gatilho_verifica_pagamento&&null!=__gatilho_verifica_pagamento)&&setTimeout(function(){__gatilho_verifica_pagamento()},500)},navGrid:function(a){var b=a.up("grid"),d;switch(a.direcao){case "baixo":d=[0,50];break;case "cima":d=[0,-50]}b||((gridPagamento=a.up("pdvtelapagamento"))&&(b=gridPagamento.down("grid")),(gridMain=
-a.up("pdvmain"))&&(b=gridMain.down("grid")));b.getView().el.scrollBy(d)},iniciar:function(){Pdv.api.nucleo.Comunicador.getFlagConexaoAberta()||(this.storeConexao=Ext.create("Pdv.store.sistema.Conexao"),this.storeConexao.on("write",function(){this.exibirContagemRegressivaParaConexao()},this),this.storeConexao.on("load",function(){if(0==this.storeConexao.getCount()){var a=Ext.create("Pdv.model.sistema.Conexao",{ip:"127.0.0.1",porta:"8899"});this.storeConexao.add(a);this.storeConexao.sync()}else this.storeConexao.getAt(0).get("ativo")?
-this.exibirContagemRegressivaParaConexao():!Ext.isEmpty(__ip_monitor)&&"https:"!==location.protocol?(a=Ext.create("Pdv.model.sistema.Conexao",{ip:__ip_monitor,porta:__porta_monitor}),this.storeConexao.add(a),this.storeConexao.sync(),this.exibirContagemRegressivaParaConexao()):this.getView("sistema.dialogo.ColetorDadosConexao").create().show()},this),this.storeConexao.load(),Pdv.api.store.Gerenciador.setStoreConexao(this.storeConexao))},abrirMenu:function(a){var b=Pdv.api.sistema.Gerenciador.getTelaMenu(a.codMenu);
-b.setTitle(a.label);b.show()},fecharMenu:function(a){a.up("janelamenu").close()},mudarTemplate:function(a,b){var d=b.data.cod_template;Ext.ComponentQuery.query("dialogo");__monitor_cliente?localStorage.setItem("zantplcorrente_cliente",d):(localStorage.setItem("zantplcorrente",d),localStorage.setItem("zantpldefault",d),localStorage.setItem("zantplmonitorinteracao",d),1E3>d?localStorage.setItem("zantpldefault_touch",d):localStorage.setItem("zantpldefault_self",d));Pdv.api.sistema.Gerenciador.reabrirPagina()},
-mudarOperacaoRemota:function(a,b){var d=b.data.cod_operacaoRemota;Ext.ComponentQuery.query("dialogo");localStorage.setItem("zr-remoto",d);Pdv.api.sistema.Gerenciador.reabrirPagina()},exibirContagemRegressivaParaConexao:function(){dialog=this.getStartup().down("#msgPdvStartup");dialog.show();if(!Ext.isEmpty(__ip_monitor)&&"https:"!==location.protocol)var a=__ip_monitor,b=__porta_monitor;else a=this.storeConexao.getAt(0).get("ip"),b=this.storeConexao.getAt(0).get("porta");Pdv.api.sistema.Gerenciador.verificarSegundoMonitor()&&
-(b=__porta_monitor_cli);dialog.dialogScope={dialog:dialog,count:0,intervalo:null,store:this.storeConexao};updateFn=function(){var d="Tentando conex&atilde;o ao endere&ccedil;o <b>"+Ext.String.format(a+"{0}",!Ext.isEmpty(b)?":"+b:"")+"...</b>";0==this.count%2&&(Pdv.api.nucleo.Comunicador.abrirConexao(a,b),console.log("Tentando conex&atilde;o..."));6==this.count&&(this.count=0);try{this.dialog.down("progressbar").updateProgress(0.2*this.count,d)}catch(e){console.log(e)}this.count++};fn=Ext.bind(updateFn,
-dialog.dialogScope);Pdv.api.nucleo.Comunicador.intervaloConexao=setInterval(fn,1E3)},tratarAutoColeta:function(a){if(a.configurador&&"teclaentrar"==a.xtype){var b=Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva(a.campoDeInput);void 0!=b&&(Pdv.api.nucleo.Comunicador.setCodigoProduto(b.getValue()),b.reset())}else if(a.solicitaPermissao&&Ext.isEmpty(a.permitido))Pdv.api.sistema.Gerenciador.permissaoClickTecla=a,Pdv.api.nucleo.Comunicador.enviarServicoNucleo("AutorizacaoTecla",10,{nfunc:"",nfunc2:"",
-autoriz_default:!Ext.isEmpty(a.autoriz_default)?a.autoriz_default:2,texto:!Ext.isEmpty(a.texto_autoriz)?a.texto_autoriz:""});else{a.solicitaPermissao&&(a.permitido=null);if(!0==Pdv.api.sistema.Gerenciador.getColetaTratada())return Pdv.api.sistema.Gerenciador.setColetaTratada(!1),!0;var d=Pdv.api.sistema.Gerenciador.getConfigAutoColeta(),e=null,b=Pdv.api.sistema.Gerenciador.getTelaCorrente().down('teclado[tipo="comum"]');if(a.multiColeta)this.abrirJanelaMultiColeta(a);else if(a.autoColeta)switch(a.apenasColetaPorCampo&&
-(d="APENAS_POR_LEITURA_DE_INPUT"),d){case "APENAS_POR_COLETOR":this.abrirJanelaAutoColeta(a);break;case "APENAS_POR_LEITURA_DE_INPUT":(d=b.getCampoDeInput())&&(e=d.getValue());"."==e.substring(0,1)&&(e="0"+e);this.enviarEventoDoGatilho(a,e);b.getSeparadorDecimal().setDisabled(!1);d.reset();break;default:if(b)d=b.getCampoDeInput(),e=d.getValue(),"."==e.substring(0,1)&&(e="0"+e),!e||"tecladoPagamento"==b.itemId.trim()?this.abrirJanelaAutoColeta(a):this.enviarEventoDoGatilho(a,e),d.reset(),b.getSeparadorDecimal().setDisabled(!1);
-else{if(200==__template||1200==__template){b=Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#input");if(!Ext.isEmpty(b)&&(e=b.getValue(),!Ext.isEmpty(e))){"."==e.substring(0,1)&&(e="0"+e);this.enviarEventoDoGatilho(a,e);b.reset();break}if(3==a.evento&&"Vendedor"==a.initialConfig.text&&__listar_vendedores){Pdv.api.nucleo.Restful.consultarVendedoresPorLoja();break}}this.abrirJanelaAutoColeta(a)}}else if(void 0==Pdv.api.sistema.Gerenciador.multiColetaCtrl.focused)this.enviarEventoDoGatilho(a);else if(e=
-Pdv.api.sistema.Gerenciador.multiColetaCtrl[e=Pdv.api.sistema.Gerenciador.multiColetaCtrl.focused],void 0!==e&&(void 0!==e.evento||0<=e.evento))a.evento=e.evento,this.enviarEventoDoGatilho(a,e.valor)}},abrirJanelaAutoColeta:function(a,b,d){var e={};Ext.isEmpty(d)&&(d=function(){return!1});Ext.isEmpty(a.autoLabel)||(e.fieldLabel=a.autoLabel);Ext.isEmpty(a.value)||(e.value=a.value);Ext.isEmpty(a.sigilo)||(e.sigilo=a.sigilo);Ext.isEmpty(a.valorInicial)||(e.valorInicial=a.valorInicial);Ext.isEmpty(a.emptyText)||
-(e.emptyText=a.emptyText);e.allowBlank=!0;e.itemId="campoJanelaAutoColeta";if(2E3<=__template&&2100>__template||4E3<=__template&&4100>__template){var f=__componente_novo;if(2006==__template||2007==__template||4E3==__template)f=__template}else f="";var g="",h="";12806==a.fn&&"100"==__template?(g=380,h=295,e.fieldCls="input-input-normal",e.labelClsExtra="label-text-normal"):(g=850,h=550);if(Ext.Array.contains(["2003","2004","2012"],__template.toString())){if(13==a.evento||4==a.evento)g=500,2004==__template&&
-(e.labelClsExtra="label-text-medio");f=__template}2005==__template&&(13==a.evento&&(Pdv.api.sistema.Gerenciador.telaQuantidade=!0),f=2005);if(200==__template||1200==__template)Pdv.api.sistema.Gerenciador.evtoSeparadorDecimal=!0;200==__template&&Ext.Array.contains([3,4,10,11,15],parseInt(a.evento))&&(Pdv.api.sistema.Gerenciador.evtoSeparadorDecimal=!1);1200==__template&&(Pdv.api.sistema.Gerenciador.evtoSeparadorDecimal=!0,Ext.Array.contains([3,4,10,11],parseInt(a.evento))&&(Pdv.api.sistema.Gerenciador.evtoSeparadorDecimal=
-!1),f=__template,Ext.isEmpty(__widthColetor)||(g=__widthColetor),Ext.isEmpty(__heightColetor)||(h=__heightColetor));if(2009==__template||2011==__template||2013==__template)f=__template;Ext.Array.contains(["2000","2014","4000"],__template.toString())&&(g=500);2013==__template&&(h=620);Ext.create("Pdv.view.sistema.dialogo.Coletor"+f,{itemId:"janelaAutoColeta",width:g,height:h,onEnter:{fn:this.enviarEventoDoGatilho,args:[a],escopo:this},campo:e,teclado:{monetario:a.monetario,semAlteracao:a.semAlteracao,
-tipo:b},habilitarTeclaCancelar:!0,onClose:d}).show();setTimeout(function(){try{Ext.is.Android||e.focus()}catch(a){}},100)},abrirJanelaMultiColeta:function(a,b){try{__debug&&console.log("Multi Coleta: Iniciando");if(!Array.isArray(a.itensMultiColeta.itens))throw Error("Necess&aacute;rio enviar itens como array");Pdv.api.sistema.Gerenciador.multiColetaCtrl={};var d="field displayfield campodata textfield visor campoinput".split(" "),e=0;__debug&&(console.log("Multi Coleta: ["+d.join(", ")+"] s&atilde;o os tipos de campos v&aacute;lidos"),
-console.log("Multi Coleta: "+a.itensMultiColeta.itens.length+" elementos no array"));if(0<(e=function m(b){var e=0,f=null,f=Array.isArray(a.evento)?a.evento:(""+a.evento).split(",");for(i in b)if(d.indexOf(b[i].xtype)!=-1){__debug&&console.log("  ===> "+b[i].itemId);Pdv.api.sistema.Gerenciador.multiColetaCtrl[b[i].itemId]={evento:f[e],valor:0};e++}else b[i].items&&(e=e+m(b[i].items));return e}(a.itensMultiColeta.itens)))__debug&&console.log("Multi Coleta: "+e+" campos v&aacute;lidos");else throw Error("Nenhum campo foi encontrado");
-if(a.escopo&&-1!==a.evento.indexOf(29))var f={fn:function(b,d){switch(a.desc){case 1:Pdv.api.nucleo.Comunicador.setDescontoValor(d);break;case 2:Pdv.api.nucleo.Comunicador.setDescontoItem(b,d)}this.gerenciador.tooltipCupom.close();Pdv.api.tela.Gerenciador.setFocusInput();this.view.deselect([this.record])},escopo:a.escopo,args:[a.escopo.record.get("chave")]},g={visorValorTotal:a.escopo.record.data.total},h="valorDesconto";else if(a.escopo&&-1!==a.evento.indexOf(48))f={fn:function(a,b){Pdv.api.nucleo.Comunicador.setAcrescimoValor(b,
-a);this.gerenciador.tooltipCupom.close();Pdv.api.tela.Gerenciador.setFocusInput();this.view.deselect([this.record])},escopo:a.escopo,args:[a.escopo.record.get("chave")]},g={visorValorTotal:a.escopo.record.data.total},h="valorAcrescimo";else var j=Pdv.api.store.Gerenciador.getStoreCupom().data.items,f={fn:function(a,b){var d=Pdv.api.sistema.Gerenciador.multiColetaCtrl,e=Ext.ComponentQuery.query("#janelaAutoMultiColeta")[0],f=this.copiarObj(a,3);f.evento=d[e.campoColeta===null?d.focused:e.campoColeta].evento;
-this.enviarEventoDoGatilho(f,b);Pdv.api.sistema.Gerenciador.setColetaTratada(true)},args:[a],escopo:this},g={visorValorTotal:10==Pdv.api.sistema.Gerenciador.estadoVenda?j[j.length-1].data.total:"#visorLogico10"},h=null;"8,7"==a.evento&&(Pdv.api.sistema.Gerenciador.telaDesconto=!0);Ext.create("widget.multiColetor",{itemId:"janelaAutoMultiColeta",width:800,height:600,resizable:"Touch"!=__PDV,closable:!0,draggable:"Touch"!=__PDV,title:""==a.text?"Multi Coletor":a.text,tecladoInicialVisivel:a.itensMultiColeta.tecladoInicialVisivel,
-habilitarTeclaCancelar:!0,teclado:{monetario:a.monetario},onEnter:f,onClose:b,items:a.itensMultiColeta.itens,tbar:a.itensMultiColeta.tbar,bbar:a.itensMultiColeta.bbar,parametrosGerais:g,campoColeta:h}).show()}catch(k){__debug&&console.log("Multi Coleta: (Erro) "+k.message)}finally{__debug&&console.log("Multi Coleta: Rodando...")}},copiarObj:function(a,b){var d=a instanceof Array?[]:{};for(i in a)a[i]&&"object"==typeof a[i]?0<b&&(d[i]=this.copiarObj(a[i],b-1)):d[i]=a[i];return d},trataFuncaoInterna:function(a,
-b){"undefined"==typeof b&&(b=!0);var d,e=2,f=!1,g="",h=function(){return!1};switch(parseInt(a)){case 12800:case 12801:d="Mercadoria";e=1;break;case 12802:d="Informe nro. pedido, nome, telefone ou CPF do cliente";e=1;break;case 12803:d="Informe c&oacute;digo, nome, telefone ou CPF do cliente";e=1;break;case 12804:d="Comanda";e=2;break;case 12805:""==Pdv.api.sistema.Gerenciador.operadorComandaTemp?d="Operador":(f=!0,d="Senha");e=2;break;case 12806:if(Ext.isEmpty(Pdv.api.sistema.Gerenciador.codComanda)){__mostrarDialogo("Informe um n&uacute;mero de comanda",
-"Status");return}if(""===Pdv.api.sistema.Gerenciador.operadorComanda){__mostrarDialogo("<center>Sem operador Informado.<br>Selecione o bot&atilde;o<br>Troca Operador Comanda<br></center>","Status");return}if(Pdv.api.sistema.Gerenciador.parametroBalanca)""===Pdv.api.sistema.Gerenciador.codMercadoriaComanda?(d="C&oacute;digo mercadoria",e=2):""===Pdv.api.sistema.Gerenciador.qtdComanda&&(Pdv.api.sistema.Gerenciador.produtoPesado?Pdv.api.sistema.Gerenciador.statusBalanca?Pdv.api.sistema.Gerenciador.confirmaPeso&&
-Pdv.api.sistema.Gerenciador.recebeuPeso?(d="Confirmar peso",g=""+Pdv.api.sistema.Gerenciador.pesoBalanca):(d="Inserir peso",g="1"):(d="Inserir peso",g="1"):(d="Qtd",g="1"),e=2,Pdv.api.sistema.Gerenciador.campoEditado=!0);else if(__itemPesadoComanda&&(Ext.isEmpty(Pdv.api.sistema.Gerenciador.codMercadoriaComanda)?(d="C&oacute;digo mercadoria",e=2):(d="Qtd",g="1",e=2,Pdv.api.sistema.Gerenciador.campoEditado=!0)),!__itemPesadoComanda)""===Pdv.api.sistema.Gerenciador.qtdComanda?(d="Qtd",g="1",e=2,Pdv.api.sistema.Gerenciador.campoEditado=
-!0):(d="C&oacute;digo mercadoria",e=2);h=function(){Pdv.api.sistema.Gerenciador.resetaDadosBalancaComanda();return!1};break;case 12807:d="Comanda a liberar";e=2;break;case 12808:""==Pdv.api.sistema.Gerenciador.operadorComandaTemp?d="Supervisor":(f=!0,d="Senha");e=2;break;case 12809:return Ext.ComponentQuery.query("viewport")[0].layout.setActiveItem(2),Ext.ComponentQuery.query("#workspace")[0].layout.setActiveItem(0),Pdv.api.nucleo.Comunicador.enviar('{"cmd":1,"arg":{"ev":19}}',!1),!1;case 12810:d=
-"Informe nro. pedido, nome, telefone ou CPF do cliente";e=1;break;case 12815:d="Digite o nome do produto";e=1;Pdv.api.sistema.Gerenciador.listaMenuBuscaAtiva=!0;Pdv.api.sistema.Gerenciador.fnMenuLista=[];break;case 11:d="Informe telefone do cliente";e=2;break;case 12:d="Informe nome do cliente";e=1;break;case 13:d="Informe CPF do cliente";e=2;break;case 14:d="Informe c&oacute;digo do cliente";e=2;break;case 15:d="Informe o N&uacute;mero do Cart&atilde;o Fidelidade";e=2;break;case 16:d="Informe o RNE/Passaporte";
-e=2;break;default:return!1}d={autoLabel:d,evento:0,sigilo:f,fn:a,monetario:0,valorInicial:g};b&&this.abrirJanelaAutoColeta(d,e,h)},verificaFuncaoInterna:function(a,b){var d=parseInt(b),e=parseInt(a.evento,10);if((12800<=d&&12899>=d||2E4<=d&&21E3>=d)&&15==e){switch(d){case 12898:this.getView("sistema.dialogo.ColetorDadosConexao").create().show();break;case 12897:Pdv.api.nucleo.Restful.pegarTeclas();break;case 2E4:Pdv.api.nucleo.Restful.atualizarInterface();break;case 12888:var f=this.getView("sistema.dialogo.CadastroCliente").create();
-f.preencherEDesabilitarCPF(null,!1,!1);f.show();Ext.getBody().dom.removeEventListener("keydown",Pdv.api.tela.Gerenciador.eventoKeyDown,!0);break;case 12811:Pdv.api.nucleo.Restful.consultarPedidoPorOperador();break;case 12812:Pdv.api.nucleo.Restful.consultaConfig();break;case 12816:Pdv.api.sistema.Gerenciador.abrirPainelPedidoExterno();break;case 12895:window.open(__urlManager,"","toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no");break;case 12890:Ext.isEmpty(Pdv.api.sistema.Gerenciador.urlExterna)||
-(f=Pdv.api.sistema.Gerenciador.urlExterna,Pdv.api.sistema.Gerenciador.urlExterna="",window.open(f,"","toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no"));break;case 12839:Ext.isEmpty(__texto_impressao)||Pdv.api.sistema.Gerenciador.enviarImpressaoPDV(__texto_impressao);break;case 12814:Ext.isEmpty(Pdv.api.sistema.Gerenciador.clienteIdentificado.id)||(Pdv.api.sistema.Gerenciador.clienteIdentificado.emEdicao=!0,Pdv.api.nucleo.Restful.consultaCliente(12814,
-Pdv.api.sistema.Gerenciador.clienteIdentificado.id));break;case 12820:Ext.create("Pdv.view.sistema.dialogo.Msg"+(1200==__template?__template:2E3<__template&&2100>__template||4E3==__template?__template_novo:""),{chave:"telaConsultaTemplate",dialogo:{titulo:["Selecione uma op&ccedil;&atilde;o"],corpo:[]},style:{overflow:"hidden"},autoScroll:!1,cls:"jnl-template-dinamico",camposAdicionais:{xtype:"container",layout:{type:"vbox"},style:{overflow:"hidden"},items:[{xtype:"label",text:"Sua tela criada deve ter o tamanho:",
-style:{fontSize:"16px",padding:"2px"}},{xtype:"label",text:window.innerWidth+"x"+window.innerHeight,width:250,style:{fontSize:"16px",paddingBottom:"10px",textAlign:"center",fontWeight:"bold"}},{xtype:"tecla",text:"PDV Mouse/Touch",height:45,width:250,listeners:{scope:this,click:function(){var a=Ext.ComponentQuery.query('dialogo[chave="telaConsultaTemplate"]')[0];a&&a.close();Pdv.api.nucleo.Restful.consultarTemplates(1)}}},{xtype:"tecla",text:"Self Checkout",height:45,width:250,listeners:{scope:this,
-click:function(){var a=Ext.ComponentQuery.query('dialogo[chave="telaConsultaTemplate"]')[0];a&&a.close();Pdv.api.nucleo.Restful.consultarTemplates(2)}}},{xtype:"tecla",text:"Monitor Cliente",height:45,width:250,listeners:{scope:this,click:function(){var a=Ext.ComponentQuery.query('dialogo[chave="telaConsultaTemplate"]')[0];a&&a.close();Pdv.api.nucleo.Restful.consultarTemplates(3)}}},{xtype:"tecla",text:"Cancelar",height:45,width:250,handler:function(){var a=Ext.ComponentQuery.query('dialogo[chave="telaConsultaTemplate"]')[0];
-a&&a.close()}}]},bbarNucleo:null}).show();break;case 12822:d={cmd:21,arg:{}};d.arg.tipo=2;d.arg.self=1;d.arg.listaMenu=!0;d.arg.habilitarTeclaCancelar=!0;d.arg.chave=12822;d.arg.itemId=12822;d.arg.seletor={};d.arg.seletor.auto_sel=!1;d.arg.seletor.titulo=[];d.arg.seletor.titulo=[["Dividir em quantos pagamentos?"]];d.arg.seletor.rodape=null;d.arg.seletor.numcols=2;d.arg.tamanhoPersonalizado={};d.arg.tamanhoPersonalizado.width=500;d.arg.seletor.colunas=[{id:"c0",largura:400,titulo:"Descricao"}];primeira_vez=
-!1;d.arg.seletor.opcoes=[];for(f=2;f<=__forma_pagamento.length;f++)d.arg.seletor.opcoes.push({chave:f,c0:f+" pagamentos",desab:!1,fn:12822,tip:null});Pdv.api.sistema.Gerenciador.setIgnorarModoSelf(!0);Pdv.api.nucleo.Interpretador.executar(Ext.encode(d));break;case 12823:if(!Ext.isEmpty(__lista_cartoes)){d={cmd:21,arg:{}};d.arg.tipo=2;d.arg.self=1;d.arg.listaMenu=!0;d.arg.habilitarTeclaCancelar=!0;d.arg.chave=12823;d.arg.itemId=12823;d.arg.seletor={};d.arg.seletor.auto_sel=!1;d.arg.seletor.titulo=
-[];d.arg.seletor.titulo=[[""]];d.arg.seletor.rodape=null;d.arg.seletor.numcols=2;d.arg.tamanhoPersonalizado={};d.arg.tamanhoPersonalizado.width=500;d.arg.seletor.colunas=[{id:"c0",largura:400,titulo:"Descricao"}];primeira_vez=!1;d.arg.seletor.opcoes=[];for(f in __lista_cartoes)d.arg.seletor.opcoes.push({chave:__lista_cartoes[f].cod,c0:__lista_cartoes[f].desc,desab:!1,fn:12823,tip:null});Pdv.api.sistema.Gerenciador.setIgnorarModoSelf(!0);Pdv.api.nucleo.Interpretador.executar(Ext.encode(d))}break;case 12824:if(!(__opcoesTemplateDinamico2&
-2))break;Pdv.api.sistema.Gerenciador.codListaAtual+=1;Pdv.api.sistema.Gerenciador.ajustarListaPagamentos(Pdv.api.sistema.Gerenciador.codListaAtual);break;case 12825:if(!(__opcoesTemplateDinamico2&2))break;1<Pdv.api.sistema.Gerenciador.codListaAtual&&(Pdv.api.sistema.Gerenciador.codListaAtual-=1,Pdv.api.sistema.Gerenciador.ajustarListaPagamentos(Pdv.api.sistema.Gerenciador.codListaAtual));break;default:this.trataFuncaoInterna(b)}return!0}if(0==e){switch(parseInt(a.fn,10)){case 12800:case 12801:Pdv.api.nucleo.Restful.consultaMercadoria(a,
-b);break;case 12802:Pdv.api.nucleo.Restful.consultaPedido(a,b);break;case 12803:Pdv.api.nucleo.Restful.consultaCliente(a.fn,b);break;case 12804:Pdv.api.nucleo.Comunicador.enviarServicoNucleo("A00MFPB",3,{narq:0,chave:"A00MFPB",inicio:5028,tam:3});Pdv.api.nucleo.Comunicador.getDadosBalancaComanda();Pdv.api.nucleo.Restful.consultaComanda(a,b);break;case 12805:""==Pdv.api.sistema.Gerenciador.operadorComandaTemp?(Pdv.api.sistema.Gerenciador.operadorComanda=b,Pdv.api.sistema.Gerenciador.operadorComandaTemp=
-b,__myApp.getController("Pdv.controller.Controller").trataFuncaoInterna(12805)):Pdv.api.nucleo.Restful.consultaOperador(a,b);break;case 12806:if(Pdv.api.sistema.Gerenciador.parametroBalanca){if(""===Pdv.api.sistema.Gerenciador.codMercadoriaComanda){if(0==b)return Ext.Msg.alert("Status","Codigo n&atilde;o pode ser 0."),Pdv.api.sistema.Gerenciador.resetaDadosBalancaComanda(),!1;if(__itemPesadoComanda&&2==b.substring(0,1)&&(13==b.length||20==b.length))Pdv.api.sistema.Gerenciador.comandaItemPesado=!0;
-Pdv.api.nucleo.Restful.buscaDadosMercadoria(b)}else if(""===Pdv.api.sistema.Gerenciador.qtdComanda){b=b.replace(",",".");Ext.isNumeric(b)||(b=0);if(0==b)return Ext.Msg.alert("Status","Quantidade n&atilde;o pode ser 0 e deve ser num&eacute;rica."),Pdv.api.sistema.Gerenciador.resetaDadosBalancaComanda(),!1;if(0<Pdv.api.sistema.Gerenciador.qtdMaxima&&b>Pdv.api.sistema.Gerenciador.qtdMaxima)return Ext.Msg.alert("Status","Quantidade n&atilde;o pode ser maior que "+Pdv.api.sistema.Gerenciador.qtdMaxima+
-"."),Pdv.api.sistema.Gerenciador.resetaDadosBalancaComanda(),!1;Pdv.api.sistema.Gerenciador.qtdComanda=b}""!==Pdv.api.sistema.Gerenciador.qtdComanda&&""!==Pdv.api.sistema.Gerenciador.codMercadoriaComanda&&Pdv.api.nucleo.Restful.registrarItem(a)}else{if(""===Pdv.api.sistema.Gerenciador.qtdComanda&&!__itemPesadoComanda||__itemPesadoComanda&&!Ext.isEmpty(Pdv.api.sistema.Gerenciador.codMercadoriaComanda)&&Ext.isEmpty(Pdv.api.sistema.Gerenciador.qtdComanda)){b=b.replace(",",".");Ext.isNumeric(b)||(b=0);
-__itemPesadoComanda&&0==b&&(b=1);if(0==b)return Ext.Msg.alert("Status","Quantidade n&atilde;o pode ser 0 e deve ser num&eacute;rica."),Pdv.api.sistema.Gerenciador.resetaDadosBalancaComanda(),!1;Pdv.api.sistema.Gerenciador.qtdComanda=b}else if(""===Pdv.api.sistema.Gerenciador.codMercadoriaComanda){if(0==b)return Ext.Msg.alert("Status","Codigo n&atilde;o pode ser 0."),Pdv.api.sistema.Gerenciador.resetaDadosBalancaComanda(),!1;if(2==b.substring(0,1)&&(13==b.length||20==b.length)){Pdv.api.sistema.Gerenciador.comandaItemPesado=
-!0;Pdv.api.nucleo.Restful.buscaDadosMercadoria(b);break}Pdv.api.sistema.Gerenciador.codMercadoriaComanda=b}""===Pdv.api.sistema.Gerenciador.qtdComanda||""===Pdv.api.sistema.Gerenciador.codMercadoriaComanda?__myApp.getController("Pdv.controller.Controller").trataFuncaoInterna(12806):Pdv.api.nucleo.Restful.registrarItem(a)}break;case 12807:Pdv.api.nucleo.Restful.liberarComanda(a,b);break;case 12808:""==Pdv.api.sistema.Gerenciador.operadorComandaTemp?(Pdv.api.sistema.Gerenciador.supervisorComanda=b,
-Pdv.api.sistema.Gerenciador.operadorComandaTemp=b,__myApp.getController("Pdv.controller.Controller").trataFuncaoInterna(12808)):Pdv.api.nucleo.Restful.consultaSupervisor(a,b);break;case 12810:Pdv.api.nucleo.Restful.consultaPedidoExterno(a,b);break;case 12815:Pdv.api.sistema.Gerenciador.montarSelectMenuLista(b);break;case 12821:Pdv.api.nucleo.Restful.atualizarTemplate(b);break;default:30>=a.fn&&10<=a.fn&&Pdv.api.nucleo.Restful.consultaCliente(a.fn,b)}return!0}return!1},verificaFuncaoRetorno:function(a,
-b){var d=b.get("c4"),e=b.get("chave"),f=Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#qtd");void 0==f&&(f=Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#visorLogico8"));switch(parseInt(a,10)){case 12800:0<parseInt(d)?(void 0!=f&&!Ext.isEmpty(f.getValue())&&(Pdv.api.nucleo.Comunicador.setQuantidade(f.getValue()),f.setValue("")),Pdv.api.nucleo.Comunicador.setCodigoProduto(e)):Pdv.api.sistema.Gerenciador.confirma().confirm("Estoque","Sem saldo no estoque, deseja vender assim mesmo?",function(a){if("yes"==
-a)void 0!=f&&!Ext.isEmpty(f.getValue())&&(Pdv.api.nucleo.Comunicador.setQuantidade(f.getValue()),f.setValue("")),Pdv.api.nucleo.Comunicador.setCodigoProduto(e);else return!1});break;case 12801:void 0!=f&&!Ext.isEmpty(f.getValue())&&(Pdv.api.nucleo.Comunicador.setQuantidade(f.getValue()),f.setValue(""));Pdv.api.nucleo.Comunicador.setCodigoProduto(e);break;case 12802:case 12810:void 0!=f&&!Ext.isEmpty(f.getValue())&&(Pdv.api.nucleo.Comunicador.setQuantidade(f.getValue()),f.setValue(""));Pdv.api.nucleo.Comunicador.setPedido(e);
-break;case 12803:break;case 12820:return Pdv.api.nucleo.Restful.atualizarTemplate(e),!1;case 12897:Pdv.api.nucleo.Comunicador.setCodigoCliente(e);break;case 12815:Pdv.api.nucleo.Comunicador.setSelecaoMenu(Pdv.api.nucleo.Interpretador.chaveOriginal,-8,Pdv.api.sistema.Gerenciador.historico,1,e,1);Pdv.api.sistema.Gerenciador.mensagemAguarde("Aguarde...","Registrando");break;case 12818:Pdv.api.nucleo.Comunicador.enviar('{"cmd":1,"arg":{"ev":3,"vendedor":"'+e+'"}}',!0);break;case 12822:Pdv.api.sistema.Gerenciador.infoPagamento=
-{};Pdv.api.sistema.Gerenciador.infoPagamento.listaFin=[];Pdv.api.sistema.Gerenciador.infoPagamento.valorPagamento=[];Pdv.api.sistema.Gerenciador.infoPagamento.totalDigitado=0;Pdv.api.sistema.Gerenciador.infoPagamento.qtdFormasPagto=e;d=Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#visorLogico80").value.replace("R$ ","");d=parseFloat(d.replace(".","").replace(",",".").trim());Pdv.api.sistema.Gerenciador.infoPagamento.valorDividido=(d/Pdv.api.sistema.Gerenciador.infoPagamento.qtdFormasPagto).toFixed(2);
-Pdv.api.sistema.Gerenciador.exibirModalFormasPagamento(1);break;case 12823:Pdv.api.nucleo.Comunicador.setPagamento(10*e);break;case 12893:var g=e.split("#");if(1==g[3]){Pdv.api.nucleo.Comunicador.setModificadores(g[0],0,g[1],g[4],g[2]);Pdv.api.nucleo.Comunicador.sincronizarItens();break}g[2]&1?(d="",Ext.Array.contains("2003 2004 2005 2006 2007 2008 2011 2012 2013".split(" "),__template.toString())&&(d=__template),(dialogo=Ext.ComponentQuery.query("dialogo")[0])&&dialogo.close(),Ext.create("Pdv.view.sistema.dialogo.Coletor"+
-d,{campo:{fieldLabel:"Informe o opcional",labelClsExtra:"label-text-grande input-desconto-alterado-label",maxLength:60,customizado:!0},campoAdicional:{xtype:"campoinput",hidden:!0,itemId:"coletorHidden"},teclado:{tipo:1,disabledSimb:!1},onEnter:{fn:function(a){Pdv.api.nucleo.Comunicador.setModificadores(g[0],1,g[1],a,g[2]);Pdv.api.nucleo.Comunicador.sincronizarItens()},escopo:this},habilitarTeclaCancelar:!0,title:"Entre com o dado abaixo"}).show()):(Pdv.api.nucleo.Comunicador.setModificadores(g[0],
-1,g[1],g[4],g[2]),Pdv.api.nucleo.Comunicador.sincronizarItens());break;default:10<=parseInt(a,10)&&30>=parseInt(a,10)&&(console.log("Sucesso na busca online de cliente"),d=b.get("c0"),campo=";"+parseInt(a,10)+";0;"+d+";",Pdv.api.nucleo.Comunicador.setColeta(Pdv.api.sistema.Gerenciador.chaveSeletorTiposDeBusca,-5,campo),Pdv.api.sistema.Gerenciador.chaveSeletorTiposDeBusca=null)}return!0},enviarEventoDoGatilho:function(a,b,d){"undefined"==typeof d&&(d=!1);if(!1!=Pdv.api.sistema.Gerenciador.coletaQtd)return Pdv.api.nucleo.Comunicador.setSelecaoMenu(Pdv.api.sistema.Gerenciador.coletaQtd,
--9,Pdv.api.sistema.Gerenciador.historico,"","",b),Pdv.api.sistema.Gerenciador.mensagemAguarde("Aguarde...","Processando"),Pdv.api.sistema.Gerenciador.coletaQtd=!1,!0;var e=parseInt(b);if((12800<=e&&12899>=e||2E4<=e&&21E3>=e)&&!d&&"teclafuncao"===a.xtype)return Pdv.api.nucleo.Interpretador.teclaFuncaoInterna=a,Pdv.api.nucleo.Interpretador.valColetadoFuncaoInterna=b,Pdv.api.nucleo.Comunicador.enviarServicoNucleo("AutorizacaoFuncaoInterna",10,{nfunc:b,nfunc2:"",autoriz_default:"",texto:""}),!0;if(this.verificaFuncaoInterna(a,
-b))return!0;d=parseInt(a.evento,10);if(33===d||32===d)if(e=Pdv.api.store.Gerenciador.getStoreCupom().last()){for(var f=e.get("chave"),g=e.get("param"),h=!1,j=0;j<g.length;j++)if(0<g[j].acr){h=!0;break}h&&32===d&&(d=parseFloat(e.get("total").trim().replace(",",".").replace(" ","")),b=parseFloat(b.trim().replace(",",".").replace(" ",""))/100,b*=d,d=33)}switch(d){case 2:Pdv.api.nucleo.Comunicador.cancelarCupom();break;case 3:Pdv.api.nucleo.Comunicador.registrarVendedor(b);break;case 4:Pdv.api.nucleo.Comunicador.setCodigoProduto(b);
-break;case 6:Pdv.api.nucleo.Comunicador.setDescontoFuncionario(b);break;case 7:Pdv.api.nucleo.Comunicador.setDescontoPerc(b);break;case 8:Pdv.api.nucleo.Comunicador.setDescontoValor(b);break;case 9:Pdv.api.nucleo.Comunicador.getLeituraBalanca();break;case 10:Pdv.api.nucleo.Comunicador.setCodigoCliente(b);break;case 11:Pdv.api.nucleo.Comunicador.setPedido(b);break;case 12:Pdv.api.nucleo.Comunicador.setPedidoViaArq(b);break;case 13:if(__modoSelf||__opcoesTemplateDinamico&4096)0==b||Ext.isEmpty(b)?Pdv.api.nucleo.Comunicador.getLeituraBalanca():
-Pdv.api.nucleo.Comunicador.setQuantidade(b);break;case 15:Pdv.api.nucleo.Comunicador.setFuncao(b);break;case 16:Pdv.api.nucleo.Comunicador.setTipoVendaEspecial(b);break;case 17:Pdv.api.nucleo.Comunicador.setValor(b);break;case 18:void 0!=a.up("teclado")&&(a=a.up("teclado").getCampoDeInput(),Ext.isObject(a)&&a.setValue(""));Pdv.api.nucleo.Comunicador.limparItem();break;case 19:void 0!=Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#btPrev")&&Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#btPrev").hide();
-3<Pdv.api.sistema.Gerenciador.getTotFinalizadora()&&(!0==__opcoesPagamento&&void 0!=Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#btNext"))&&Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#btNext").show();Pdv.api.nucleo.Comunicador.limparPagamento();break;case 20:Pdv.api.sistema.Gerenciador.setBtnFinalizar(!1);Pdv.api.nucleo.Comunicador.getSubtotal();break;case 32:Pdv.api.nucleo.Comunicador.setAcrescimoPerc(b);break;case 33:Pdv.api.nucleo.Comunicador.setAcrescimoValor(b,f);break;case 34:Pdv.api.nucleo.Comunicador.setAcrescimoAutomatico();
-break;case 38:Pdv.api.nucleo.Comunicador.setAjuda(a.value)}},enviarAcaoMenuLista:function(a){var b=a.tipo,d=a.up("dialogo"),a=Pdv.api.nucleo.Interpretador.chave;switch(b){case 0:b=Pdv.api.sistema.Gerenciador.historico;Pdv.api.nucleo.Interpretador.tratarArgsMenuLista(null,null,b);break;case -1:Pdv.api.nucleo.Comunicador.setSelecaoMenu(a,-1,"","","","");Pdv.api.sistema.Gerenciador.historico="";Pdv.api.nucleo.Interpretador.menuStatus=!1;break;case -7:b=Pdv.api.sistema.Gerenciador.historico;Pdv.api.nucleo.Comunicador.setSelecaoMenu(a,
--7,b,"","","");break;case -9:Pdv.api.sistema.Gerenciador.coletaQtd=a,a={autoLabel:"Quantidade",monetario:0},this.abrirJanelaAutoColeta(a)}d.close();d.destroy()},enviarAcaoDialogo:function(a){var b=a.tipo,d=a.tp,e=a.tec,f=a.up("dialogo").tipo,g=a.up("dialogo"),h=g.chave;if(28===e&&(2015==__template||2016==__template))if(d={tecla:a,tipo:b,tp:d,tec:e,tipoInteracao:f,dialogo:g,chave:h},g.abrirPopupCustom&&"function"===typeof g.abrirPopupCustom){g.abrirPopupCustom(d,this);return}switch(f){case 1:!0==Pdv.api.sistema.Gerenciador.getSelecaoComoBotao()?
-(Pdv.api.sistema.Gerenciador.setSelecaoComoBotao(!1),e=this.retornaTecCerto(e,b),Pdv.api.nucleo.Comunicador.setSelecao(h,e)):Pdv.api.nucleo.Comunicador.setMsg(h,e);27==e&&2004==__template&&this.processarTeclaFuncional({pdvfn:171});break;case 2:case 4:e=this.retornaTecCerto(e,b);Pdv.api.nucleo.Comunicador.setSelecao(h,e);break;case 3:if(e=this.retornaTecCerto(e,b),g instanceof Pdv.view.sistema.dialogo.ColetorMultiploPDV){a=Ext.ComponentQuery.query("campoinput",g);b=[];for(f=0;f<a.length;f++)b[f]=a[f].getValue();
-resultado=JSON.stringify(b);Pdv.api.nucleo.Comunicador.setColeta(h,e,resultado,!0)}else"teclamensageira"===a.xtype&&"Voltar"===a.text&&Pdv.api.sistema.Gerenciador.limparStrBuffer(),b="",Pdv.api.sistema.Gerenciador.tratarBtnOpcoesColeta&&(Pdv.api.sistema.Gerenciador.tratarBtnOpcoesColeta=!1,e=Ext.ComponentQuery.query("campoinput",g),Ext.isEmpty(e)||(b=e[0].getValue()),e=a.tec),Pdv.api.nucleo.Comunicador.setColeta(h,e,b)}g.close();g.destroy();Pdv.api.tela.Gerenciador.setFocusInput()},executarAcaoOriginal:function(a){var b=
-a.tipo,d=a.tec,e=a.dialogo,f=a.chave,g=a.tecla;switch(a.tipoInteracao){case 1:!0==Pdv.api.sistema.Gerenciador.getSelecaoComoBotao()?(Pdv.api.sistema.Gerenciador.setSelecaoComoBotao(!1),d=this.retornaTecCerto(d,b),Pdv.api.nucleo.Comunicador.setSelecao(f,d)):Pdv.api.nucleo.Comunicador.setMsg(f,d);27==d&&2004==__template&&this.processarTeclaFuncional({pdvfn:171});break;case 2:case 4:d=this.retornaTecCerto(d,b);Pdv.api.nucleo.Comunicador.setSelecao(f,d);break;case 3:if(d=this.retornaTecCerto(d,b),e instanceof
-Pdv.view.sistema.dialogo.ColetorMultiploPDV){g=Ext.ComponentQuery.query("campoinput",e);a=[];for(b=0;b<g.length;b++)a[b]=g[b].getValue();resultado=JSON.stringify(a);Pdv.api.nucleo.Comunicador.setColeta(f,d,resultado,!0)}else"teclamensageira"===g.xtype&&"Voltar"===g.text&&Pdv.api.sistema.Gerenciador.limparStrBuffer(),a="",Pdv.api.sistema.Gerenciador.tratarBtnOpcoesColeta&&(Pdv.api.sistema.Gerenciador.tratarBtnOpcoesColeta=!1,d=Ext.ComponentQuery.query("campoinput",e),Ext.isEmpty(d)||(a=d[0].getValue()),
-d=g.tec),Pdv.api.nucleo.Comunicador.setColeta(f,d,a)}e.close();e.destroy();Pdv.api.tela.Gerenciador.setFocusInput()},hasMenuButtons:function(){return 1<Ext.ComponentQuery.query(".teclamensageiramenu").length},getFilteredTextfields:function(){return Ext.ComponentQuery.query(".textfield").filter(function(a){return"Quantidade"===a.fieldLabel&&"textfield"===a.xtype&&1===a.value})},retornaTecCerto:function(a,b){switch(b){case 0:a="-1";break;case 1:a="-2";break;case 2:a="-3";break;case 3:a="-6";break;case 20:case 21:case 22:case 23:case 24:case 25:case 26:case 27:case 28:case 29:a=
-"-"+b}return a},getValorTecla:function(a){var b=a.up("teclado").down("teclaalt"),d=a.up("teclado").down("#teclashift"),e=a.value;a instanceof Pdv.view.componente.tecla.Letra&&(d.pressed?b.pressed?Ext.isArray(a.altValue)&&1==a.altValue.length&&(e=a.altValue[0][1]):e=a.shiftValue:b.pressed&&Ext.isArray(a.altValue)&&1==a.altValue.length&&(e=a.altValue[0][0]));return e},escreverNoCampo:function(a){if(-1!=[200,1200].indexOf(parseInt(__template))&&a.configurador)return this.tecladoConfiguradorNumerico(a),
-!0;if(!(void 0==a.value||Ext.isEmpty(a.value))){var b=a.up('teclado[tipo="comum"]');b&&(input=b.getCampoDeInput());if(void 0!=input){var d=Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("teclaalt");if(d&&!0==d.pressed&&2<=a.altValue.length)this.exibeBotoesAcentuados(a);else if(Ext.isObject(input)||(input=(d=a.up("dialogo"))?d.down(input):a.up("pdvtela").down(input))&&b.setCampoDeInput(input),d=input.getValue(),b=b.getTeclaBackspace(),a=Pdv.api.validacao.VType.decodeHtml(this.getValorTecla(a)),!input.isDirty()&&
-input.valorInicialNoCampo)input.valorInicialNoCampo=!1,input.setValue(a),b&&b.setDisabled(!1);else if("combobox"==input.xtype&&__habilitaTecladoTouchCadCli){Ext.isEmpty(d)&&(d="");var e=Ext.ComponentQuery.query("#coletorHidden")[0],d=d+a;e&&(e.setValue(e.getValue()+a),d=e.getValue());document.getElementById(input.getInputId()).value=d.toUpperCase();input.doRawQuery();b&&b.setDisabled(!1)}else input&&!input.campoBloqueado&&(input instanceof Ext.form.field.Number?input.setValue(10*parseFloat(d)+parseFloat(a)):
-input.setValue(d+a),b&&b.setDisabled(!1))}}},enviarFormaPagamento:function(a,b){if(!0!=b.get("desab")){var d=b.data.chave,e=b.data.nome;if(b.data.coleta){if(2E3<=__template&&2100>__template||4E3==__template){var f=__componente_novo;Ext.Array.contains("2003 2004 2005 2006 2007 2008 2012 4000".split(" "),__template.toString())&&(f=__template)}else f="";f=Ext.create("Pdv.view.sistema.dialogo.Coletor"+f,{campo:{fieldLabel:"Valor",valorInicial:Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#visorLogico80").value},
-teclado:{monetario:1},onEnter:{fn:function(a,b){Pdv.api.store.Gerenciador.getStorePagamentosAceitos().removeAll();Pdv.api.nucleo.Comunicador.setPagamento(a,b)},args:[d]},habilitarTeclaCancelar:!0,title:"Finalizadora: "+e,tbar:[{height:40,flex:1,margin:5,xtype:"textfield",readOnly:!0,labelClsExtra:"label-text",fieldCls:"input-tbar",fieldLabel:"SubTotal",value:Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#visorLogico10").value},{height:40,flex:1,margin:5,xtype:"textfield",readOnly:!0,labelClsExtra:"label-text",
-fieldCls:"input-tbar",fieldLabel:"A pagar",value:Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#visorLogico80").value}]});f.on("show",function(){this.campo.valorInicial=null},f);f.show()}else Pdv.api.nucleo.Comunicador.setPagamento(d,null);a.deselectAll()}},enviarFormaPagamentoBotao:function(a){if(!0==__opcoesPagamento&&(!0==__modoSelf&&(1005==__template||1009==__template))&&!1==Pdv.api.sistema.Gerenciador.getObjWorkSpace().layout.getActiveItem()instanceof Pdv.view.sistema.tela.TelaPagamento)Pdv.api.sistema.Gerenciador.setBtnFinalizar(!0),
-Pdv.api.nucleo.Comunicador.getSubtotal();var b=a.chave;valor=null;coleta=a.coleta;nome=a.text;if(__modoPedido||__modoSelf||a.informaValor)valor="0";else{var d=Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#valorInput");valor=Ext.isEmpty(d)&&(200==__template||1200==__template)?"0":Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#valorInput").value}if(2013==__template&&Pdv.api.sistema.Gerenciador.finalizadoraDesconto[b])valor=Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#visorLogico80").value,
-!Ext.isEmpty(valor)&&valor.length-3==valor.indexOf(",")&&(valor=valor.replace(".","").replace(",",".")),Pdv.api.nucleo.Comunicador.setPagamento(b,valor);else{__modoSelf&&!1==__pagamentoSCTotal&&(valor=Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#visorLogico80").value);if((2003==__template||2013==__template)&&!Ext.isEmpty(a.value))valor=a.value;!Ext.isEmpty(valor)&&valor.length-3==valor.indexOf(",")&&(valor=valor.replace(".","").replace(",","."));if(__modoSelf&&!1==__pagamentoSCTotal)Pdv.api.nucleo.Comunicador.setPagamento(b,
-valor);else if(!Ext.isEmpty(valor)&&""!=valor.trim()&&0!=valor)Pdv.api.nucleo.Comunicador.setPagamento(b,valor);else if(!coleta&&!Ext.isEmpty(valor)&&""!=valor.trim()&&0!=valor)Pdv.api.nucleo.Comunicador.setPagamento(b,valor);else{2E3<=__template&&2100>__template||4E3==__template?(a=__componente_novo,Ext.Array.contains("2003 2004 2005 2006 2007 2008 2011 2012 2013 4000".split(" "),__template.toString())&&(a=__template)):a="";1200==__template&&(a=1200);var e=Pdv.api.sistema.Gerenciador.exige_digitacao_valor_ao_finalizar?
-"":Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#visorLogico80").value.replace("R$ ",""),d=Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#visorLogico10").value.replace("R$ ",""),f=Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#visorLogico80").value.replace("R$ ",""),d=Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#visorLogico10").value.replace("R$ ","");"undefined"!=typeof Ext.ComponentQuery.query("#valorPayCardDesc")[0]&&(null!=Ext.ComponentQuery.query("#valorPayCardDesc")[0]&&b==10*
-__finalizadora_desconto)&&(f=Ext.ComponentQuery.query("#valorPayCardDesc")[0].getValue().replace("R$ ",""),Ext.isEmpty(e)||(e=f));2011==__template&&(e=e.replace("R$","").trim());2012==__template&&(d=d.replace("R$","").trim(),f=f.replace("R$","").trim(),"undefined"!=typeof Pdv.api.sistema.Gerenciador.finalizadoraDesconto[b]&&(f=Pdv.api.sistema.Gerenciador.finalizadoraDesconto[b].total.replace("R$","").trim(),e=Pdv.api.sistema.Gerenciador.finalizadoraDesconto[b].total));a=Ext.create("Pdv.view.sistema.dialogo.Coletor"+
-a,{campo:{fieldLabel:"undefined"!=typeof __mensagem_finalizadora&&!Ext.isEmpty(__mensagem_finalizadora)?__mensagem_finalizadora:"Valor",valorInicial:e},teclado:{monetario:1},onEnter:{fn:function(a,b){__template==2012&&!Ext.isEmpty(b)&&(b=b.replace("R","").slice(0,-2)+"."+b.slice(-2));if(__template==2013&&Ext.isEmpty(b)){b=e.replace(".","").replace(",","");b=b.slice(0,-2)+"."+b.slice(-2)}Pdv.api.nucleo.Comunicador.setPagamento(a,b)},args:[b]},habilitarTeclaCancelar:!0,title:"Finalizadora: "+nome,coletorPay:!0,
-addTec1Tela:Ext.Array.contains(["2006","2008"],__template),tbar:[{height:40,flex:1,margin:5,xtype:"textfield",readOnly:!0,labelClsExtra:"label-text",fieldCls:"input-tbar",fieldLabel:"SubTotal",value:d,hidden:__opcoesTemplateDinamico2&256?!0:!1},{height:40,flex:1,margin:5,xtype:"textfield",readOnly:!0,labelClsExtra:"label-text",fieldCls:"input-tbar",fieldLabel:"A pagar",value:f,cls:"pgto-parcial-vlrtotal"}]});a.on("show",function(){this.campo.valorInicial=null},a);a.show()}}},processarTeclaFuncional:function(a){var b=
-{evento:15};__modoPedido&&1148==a.pdvfn&&(Pdv.api.sistema.Gerenciador.entrouCancelar=!0);this.tratarCamposTecla(a);if(!(__opcoesTemplateDinamico2&2048&&14130==a.pdvfn&&!Pdv.api.sistema.Gerenciador.podeExecutarFuncaoEvento(14130)))if(a.solicitaPermissao&&Ext.isEmpty(a.permitido))Pdv.api.sistema.Gerenciador.permissaoClickTecla=a,Pdv.api.nucleo.Comunicador.enviarServicoNucleo("AutorizacaoTecla",10,{nfunc:"",nfunc2:"",autoriz_default:!Ext.isEmpty(a.autoriz_default)?a.autoriz_default:2,texto:!Ext.isEmpty(a.texto_autoriz)?
-a.texto_autoriz:""});else if(a.solicitaPermissao&&(a.permitido=null),12800<=a.pdvfn&&12899>=a.pdvfn)this.verificaFuncaoInterna(b,a.pdvfn);else{adic=void 0;if((3100<=a.pdvfn&&3199>=a.pdvfn||1170<=a.pdvfn&&1179>=a.pdvfn)&&"pdvtelacomanda"===Ext.ComponentQuery.query("#workspace")[0].layout.getActiveItem().xtype)adic=[{codcampo:"podefechado",conteudo:"1"}];Pdv.api.nucleo.Comunicador.setFuncao(a.pdvfn,adic)}},processarTeclaFinalizadora:function(a){var b=Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#input");
-void 0!=b&&(__valorInputCodigo=b.value,b.setValue(""));__btFinalizadora=a;a.finalizadoraMain&&(Pdv.api.sistema.Gerenciador.clickFinalizadoraMain=!0);Pdv.api.sistema.Gerenciador.mensagemAguarde("Processando...","Aguarde");Pdv.api.nucleo.Comunicador.getSubtotal()},processarTeclaProduto:function(a){Pdv.api.nucleo.Comunicador.setCodigoProduto(a.codprod)},enviarQuantidade:function(a){if(!(9==__template&&!1==__habilitarQuantidade)){var b=Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#input");if(1<a.fator)a=
-a.fator;else{a=b.getValue();if(Ext.isEmpty(a)){Pdv.api.nucleo.Comunicador.getLeituraBalanca();return}"."==a.substring(0,1)&&(a="0"+a)}Pdv.api.nucleo.Comunicador.setQuantidade(a,void 0);b.setValue("")}},bipar:function(a){(Pdv.api.sistema.Gerenciador.getStatusSomTeclas()||!0==a)&&Pdv.api.sistema.Gerenciador.bip.play()},exibeBotoesAcentuados:function(a){var b=0,d=[];!0==Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#teclashift").pressed&&(b=1);for(count=0;count<a.altValue.length;count++)d.push(a.altValue[count][b]);
-Ext.create("Pdv.view.sistema.dialogo.DialogoBotoes",{teclas:d}).show()},enviarColeta:function(a){var b=a.up("dialogo"),d=b.chave;if(b instanceof Pdv.view.sistema.dialogo.Coletor){var e=b.down("campoinput"),f=b.down("tecladonumerico"),g=b.campo.valorInicial,h=e.getValue();b.campo.mascarado&&(h=b.teclado.monetario?(""+h).replace(/\./gi,""):h.replace(/[^a-zA-Z0-9]/g,""))}else if(4E3==__template&&b instanceof Pdv.view.sistema.dialogo.Coletor4000||"widget.coletor"==b.alias)e=b.down("campoinput"),f=b.down("tecladonumerico"),
-g=b.campo.valorInicial,h=e.getValue();else if(-1!=["2000","2002","2014"].indexOf(__template)&&b instanceof eval("Pdv.view.sistema.dialogo.Coletor"+__template)||"widget.coletor"==b.alias)e=b.down("campoinput"),f=b.down("tecladonumerico"),g=b.campo.valorInicial,h=e.getValue();else if(b instanceof Pdv.view.sistema.dialogo.MultiColetor)e=b.down("#"+(null===b.campoColeta?Pdv.api.sistema.Gerenciador.multiColetaCtrl.focused:b.campoColeta)),f=b.down("#"+Pdv.api.sistema.Gerenciador.multiColetaCtrl.focusedKeyboard),
-g=e.valorInicial,h=e.getValue(),a.evento=Pdv.api.sistema.Gerenciador.multiColetaCtrl[e.itemId].evento;else{if(b instanceof Pdv.view.sistema.dialogo.ColetorMultiploPDV){b=Ext.ComponentQuery.query("campoinput",b);e=[];for(g=0;g<b.length;g++)e[g]=b[g].getValue();resultado=JSON.stringify(e);Pdv.api.nucleo.Comunicador.setColeta(d,-5,resultado,!0);Pdv.api.sistema.Gerenciador.getStatusBuffer()&&Pdv.api.sistema.Gerenciador.limparStrBuffer();return!0}throw Error("Tipo de dado n&atilde;o definido.");}void 0==
-f&&"Mouse"==__PDV&&(f=b.down("tecladosimples"));2011==__template&&136==Pdv.api.sistema.Gerenciador.getSituacaoRealPDV()&&(Pdv.api.sistema.Gerenciador.codigoProduto=h);if(g==h&&!1==Pdv.api.sistema.Gerenciador.campoEditado)h="";else if(f){if(b instanceof Pdv.view.sistema.dialogo.MultiColetor&&(f.semAlteracao||0==f.monetario)&&e.dadoNumerico&&e.permitirValorDecimal&&-1!=h.indexOf(","))h=(""+h).replace(/\./gi,"").replace(",",".");if(!(b instanceof Pdv.view.sistema.dialogo.MultiColetor&&(f.semAlteracao||
-0!=f.monetario)&&e.dadoNumerico&&e.permitirValorDecimal&&-1!=h.indexOf(".")))if(f.soNumeros&&(h=(""+h).replace(/[^0-9]/gi,"")),!(f.semAlteracao||0==f.monetario))if(null==f.monetario||void 0==f.monetario){if(a=f.campoDeInput.fieldLabel||"",-1!==a.toUpperCase().indexOf("CPF")||-1!==a.toUpperCase().indexOf("CNPJ"))h=(""+h).replace(/[^0-9]/g,"")}else h=(""+h).replace(/[^a-z0-9., ]/gi,"").replace(/\./gi,"").replace(",",".")}if(e.isValid()&&(Ext.isObject(b.onEnter)?Ext.isFunction(b.onEnter.fn)&&(b.onEnter.escopo=
-Ext.isObject(b.onEnter.escopo)?b.onEnter.escopo:{},b.onEnter.args=Ext.isArray(b.onEnter.args)?b.onEnter.args:[],b.onEnter.dialogo=b,b.onEnter.args.push(h),b.onEnter.fn.apply(b.onEnter.escopo,b.onEnter.args)):(a="-5",Pdv.api.sistema.Gerenciador.tratarBtnOpcoesColeta&&(Pdv.api.sistema.Gerenciador.tratarBtnOpcoesColeta=!1,a=Pdv.api.sistema.Gerenciador.argsInteracao.bbarNucleo[0].tec),"undefined"!=typeof __compatibilidade_coleta_pdv&&!0==__compatibilidade_coleta_pdv&&(Ext.isEmpty(e.value)&&g!=e.value)&&
-(a="-10"),Pdv.api.nucleo.Comunicador.setColeta(d,a,h)),!0!=b.manterTeclado&&b.down("tecladonumerico")&&b.down("tecladonumerico").destroy(),Pdv.api.sistema.Gerenciador.getStatusBuffer()&&Pdv.api.sistema.Gerenciador.limparStrBuffer(),Pdv.api.sistema.Gerenciador.campoEditado=!1,!0!=b.enterPersonalizado))b.close(),b.destroy(),Pdv.api.tela.Gerenciador.setFocusInput()},tratarTiposDeBusca:function(a){var b=Ext.ComponentQuery.query("dialogo").length-1;(dialogo=Ext.ComponentQuery.query("dialogo")[b])&&dialogo.hide();
-a=a.get("chave");if("undefined"==typeof __loja)return Ext.Msg.alert("Status","Loja n&atilde;o est&aacute; configurada"),!1;this.trataFuncaoInterna(a)},enviarSelecao:function(a,b){if(!0!=b.get("desab")&&!Pdv.api.sistema.Gerenciador.selectMultiplo){var d=b.get("chave"),e=b.get("fn"),f=a.view.panel.chave;try{if(void 0!=e&&!Ext.isEmpty(e)&&(12800==e||12801==e)&&!Ext.isEmpty(b.get("imagem")))return}catch(g){}if(void 0!=e&&!Ext.isEmpty(e))isNaN(e)?(this.tratarTiposDeBusca(b),a.view.panel.up("dialogo").close()):
-(Pdv.api.tela.Gerenciador.setFocusInput(),this.verificaFuncaoRetorno(e,b),12803!=e&&a.view.panel.up("dialogo").close());else if(void 0!=d)try{Pdv.api.nucleo.Comunicador.setSelecao(f,d),a.view.panel.up("dialogo").close(),Pdv.api.tela.Gerenciador.setFocusInput()}catch(h){console.log("erro na selecao")}}},enviarSelecaoBtn:function(a){if(Ext.isFunction(a.up))var b=a.up("dialogo"),d=b.down("textfield"),e=a.chave,f=b.chave,g=b.down("textfield");var e=a.chave,h=a.tp,j=a.fech,k="",l="";a.pesavel&&Pdv.api.sistema.Gerenciador.pesoColetadoAutomaticamente&&
-Ext.ComponentQuery.query("#balanca")[0].el.dom.click();this.bipar(!0);if(void 0!=h&&null!=h){f=Pdv.api.nucleo.Interpretador.chave;2==j&&(Pdv.api.nucleo.Interpretador.menuStatus=!0);switch(h){case 1:if("pdvtelacomanda"===Ext.ComponentQuery.query("#workspace")[0].layout.getActiveItem().xtype)if(Pdv.api.sistema.Gerenciador.menuComanda=!0,Pdv.api.sistema.Gerenciador.codMercadoriaComanda=e,Pdv.api.sistema.Gerenciador.qtdComanda=Ext.isEmpty(g)?"":"1"===g.getValue()?"":g.getValue(),""===Pdv.api.sistema.Gerenciador.qtdComanda||
-"0"===Pdv.api.sistema.Gerenciador.qtdComanda)if(Pdv.api.sistema.Gerenciador.parametroBalanca){if(__itemPesadoComanda&&2==e.substring(0,1)&&(13==e.length||20==e.length))Pdv.api.sistema.Gerenciador.comandaItemPesado=!0;Pdv.api.nucleo.Restful.buscaDadosMercadoria(e)}else __myApp.getController("Pdv.controller.Controller").trataFuncaoInterna(12806,!(a.pesavel&&Pdv.api.sistema.Gerenciador.pesoColetadoAutomaticamente));else Pdv.api.nucleo.Restful.registrarItem({evento:0,fn:12806}),g.setValue(0);else k=Pdv.api.sistema.Gerenciador.historico,
-l=Ext.isEmpty(g)?1:g.getValue(),0==j&&(Pdv.api.nucleo.Interpretador.menuStatus=!0),Pdv.api.nucleo.Comunicador.setSelecaoMenu(f,-8,k,1,e,l),d.setValue(1),Pdv.api.sistema.Gerenciador.mensagemAguarde("Aguarde...","Registrando");return!0;case 2:Pdv.api.nucleo.Comunicador.setSelecaoMenu(f,-8,k,2,e,l);break;case 3:Pdv.api.sistema.Gerenciador.textoLista=a.text,retorno=Pdv.api.nucleo.Interpretador.tratarArgsMenuLista(null,e,null),!1==retorno&&Pdv.api.nucleo.Comunicador.setSelecaoMenu(f,-8,k,2,e,l)}b.close()}else if(Ext.isNumber(e))try{Pdv.api.nucleo.Comunicador.setSelecao(f,
-e),b.close()}catch(m){console.log("erro na selecao")}},resizeMultiColetor:function(a,b){var d=0,e=a.down("#mainFrame"),f=a.down("#tecladoColetorAN");for(i in a.dockedItems.items)for(c in a.dockedItems.items[i].items.items)a.dockedItems.items[i].items.items[c].height&&(d+=a.dockedItems.items[i].items.items[c].height);e&&f&&e.setHeight(0.92*(void 0!==b?b:a.getHeight())-(f.hidden?0:f.height)-d)},enviarEnter:function(){if(!(2013==__template&&!Ext.isEmpty(__lista_funcoes)&&__lista_funcoes.CartaoPresente.funcao===
-Pdv.api.sistema.Gerenciador.getSituacaoRealPDV())){if("undefined"!=typeof __gatilho_dialogo&&"undefined"!=typeof __gatilho_teclas)var a=__gatilho_dialogo();else var b=Ext.ComponentQuery.query("dialogo").length-1,a=Ext.ComponentQuery.query("dialogo")[b];if(void 0==a){if(Pdv.api.sistema.Gerenciador.ativadaCapturaUSBProdutoSemInput()&&Pdv.api.sistema.Gerenciador.getStatusBuffer()&&""!=Pdv.api.sistema.Gerenciador.getBuffer())return Pdv.api.nucleo.Comunicador.setpermitir_limpar_item_venda(!1),b=Pdv.api.sistema.Gerenciador.getBuffer(),
-Pdv.api.sistema.Gerenciador.limparArrBuffer(),4E3<=__template&&4999>=__template&&"adicionarcomanda"==Pdv.api.sistema.Gerenciador.getTelaCorrente().xtype?(Pdv.api.sistema.Gerenciador.mensagemAguarde("Aguarde..."),Pdv.api.nucleo.Comunicador.enviar('{"cmd":1,"arg":{"ev":35,"comanda":"'+b[0]+'"}}')):Pdv.api.nucleo.Comunicador.setCodigoProduto(b),!0;Pdv.api.tela.Gerenciador.setFocusInput();return!0}var d=a.down("teclamensageira"),b=a.down("teclaentrar");if(a&&void 0==b&&void 0!=d){if(__desativaTeclaEnterMercadoriaNaoEncontrada&&
-a.body&&a.body.dom&&a.body.dom.textContent){var e=a.body.dom.textContent;if(""!==e.trim()&&-1!==e.indexOf("PDV00003"))return}d.fireEvent("click",d)}Pdv.api.sistema.Gerenciador.getStatusBuffer()&&(a&&b)&&(d=Pdv.api.sistema.Gerenciador.getBuffer(),0<d.length&&(valor=d[0],a=a.down("campoinput"),void 0!=a&&(""!=Pdv.api.sistema.Gerenciador.getStrBuffer()&&Pdv.api.sistema.Gerenciador.getStrBuffer()!=Pdv.api.sistema.Gerenciador.oldStrBuffer)&&(a.setValue(Pdv.api.sistema.Gerenciador.getStrBuffer()),Pdv.api.sistema.Gerenciador.oldStrBuffer=
-Pdv.api.sistema.Gerenciador.getStrBuffer()),Pdv.api.sistema.Gerenciador.removerPrimeiroBuffer()),void 0!=b&&b.fireEvent("click",b))}},tratarCampoColetaCustomizada:function(a){if(void 0!=a.value)try{if(!Ext.isEmpty(a.maxLength)&&a.value.length>a.maxLength){var b=a.getValue();a.setValue(b.substring(0,b.length-1))}switch(a.tipoDado){case 1:a.setValue(Pdv.api.validacao.VType.maskDate(a.getValue()));break;case 2:a.setValue(Pdv.api.validacao.VType.maskFone(a.getValue()));break;case 3:a.setValue(Pdv.api.validacao.VType.maskCelular(a.getValue()))}}catch(d){}},
-tecladoConfiguradorNumerico:function(a){if(!(void 0==a.value||Ext.isEmpty(a.value))){var b=Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva(a.campoDeInput);if(void 0!=b){var d=b.getValue();b.setValue(d+a.value)}}},tratarCamposTecla:function(a){a.opcoes&1&&(Pdv.api.sistema.Gerenciador.exibirSubMenu=!1);12890==a.pdvfn&&(!Ext.isEmpty(a.indiceURL)&&!Ext.isEmpty(__urls_externas[a.indiceURL]))&&(Pdv.api.sistema.Gerenciador.urlExterna=__urls_externas[a.indiceURL])}});
+Ext.define("Pdv.controller.Controller", {
+    extend: "Ext.app.Controller",
+    alias: "widget.controller",
+    requires: ["Pdv.api.nucleo.Comunicador", "Pdv.api.store.Gerenciador", "Pdv.api.sistema.Mascara", "Pdv.store.componente.FormasPagamentos"],
+    stores: ["sistema.Conexao"],
+    models: ["sistema.Conexao"],
+    views: "sistema.dialogo.ColetorDadosConexao sistema.dialogo.Coletor sistema.dialogo.MultiColetor sistema.dialogo.Msg sistema.dialogo.CadastroCliente sistema.dialogo.AjusteCliente".split(" "),
+    refs: [{
+        ref: "startup",
+        selector: "pdvstartup"
+    }],
+    bloquearCtrlJ: function(a) {
+        var b = a.keyCode;
+        a.ctrlKey && 74 == b && (a.keyCode = 0, a.returnValue = !1)
+    },
+    init: function() {
+        this.control({
+            "tecladodata datepicker": {
+                select: function(a, b) {
+                    var d = new Date(b),
+                        e = null,
+                        f = a.up("window");
+                    if (void 0 != f) {
+                        var g = f.down("campoinput"),
+                            e = d.getDate() + "/" + d.getMonth() + "/" + d.getFullYear();
+                        console.log(f);
+                        g.setValue(e)
+                    }
+                }
+            },
+            viewport: {
+                afterrender: function() {
+                    var a = Ext.getBody(),
+                        b = this,
+                        d = !1;
+                    "caedu" !== __template && ("Touch" == __PDV && !0 != __modoPedido && !0 != __modoSelf && !0 != Pdv.api.sistema.Gerenciador.checkMonitor() &&
+                        !0 != Pdv.api.sistema.Gerenciador.verificarSegundoMonitor() && 200 != __template && 1200 != __template) && (teclado = Pdv.api.sistema.Gerenciador.getTelaCorrente().down('teclado[tipo="comum"]'), campo = teclado.getCampoDeInput(), tcEntrar = teclado.down("teclaentrar"));
+                    a.dom.addEventListener("keypress", function(a) {
+                        Pdv.api.sistema.Gerenciador.validarLeituraUSB(a) || Pdv.api.sistema.Gerenciador.enviarCodigoTecla(a.keyCode)
+                    });
+                    Pdv.api.tela.Gerenciador.eventoKeyDown = function(a) {
+                        if (Pdv.api.sistema.Gerenciador.validarLeituraUSB(a)) {
+                            Pdv.api.sistema.Gerenciador.enviarCodigoLido(a);
+                            return true
+                        }
+                        var f = typeof Ext.ComponentQuery.query("#cpf_consulta")[0] == "undefined" ? false : true;
+                        if (Pdv.api.sistema.Gerenciador.getTelaCorrente().disabled == true && f == true) {
+                            a.keyCode = 0;
+                            a.returnValue = false
+                        }
+                        b.bloquearCtrlJ(a);
+                        Pdv.api.tela.Gerenciador.desabilitaFsBrowser(a);
+                        if (Pdv.api.sistema.Gerenciador.sistemaEmInteracao == true && a.keyCode >= 112 && a.keyCode <= 123 && __template !== "caedu") return false;
+                        if (typeof __gatilho_teclas != "undefined" && __gatilho_teclas != null && __gatilho_teclas(a) == true) return true; /* VERSAO_JJM=v4 */ /* === [@JJMoratelli] setas laterais nos botoes + Esc no coletor sem teclamensageira ===   Esc: age SO onde o tratamento nativo (case 27) comprovadamente nao age -   dialogo com campo de digitacao, nenhum teclamensageira vivo e um unico   botao na toolbar. Havendo teclamensageira, o nativo cuida e este bloco   nao entra. Acionamento por fireHandler porque botao xtype "tecla" usa   handler inline, que fireEvent("click") nao executa. */
+                        try {
+                            if (__habilita_setas_opcoes && (a.keyCode == 37 || a.keyCode == 39 || a.keyCode == 13 || a.keyCode == 38 || a.keyCode == 40 || a.keyCode == 27)) {
+                                var _dl = Ext.ComponentQuery.query("dialogo{isVisible(true)}");
+                                if (!Ext.isEmpty(_dl)) {
+                                    var _dg = _dl[_dl.length - 1],
+                                        _tb = _dg.down("toolbar");
+                                    if (_tb) {
+                                        var _bt = _tb.query("component{isVisible(true)}").filter(function(c) {
+                                            return c.xtype !== "tbfill" && c.xtype !== "tbspacer" && c.xtype !== "tbseparator" && !c.disabled
+                                        });
+                                        var _G = Pdv.api.sistema.Gerenciador;
+                                        if (_G.dlgSeletor !== _dg.id) {
+                                            _G.dlgSeletor = _dg.id;
+                                            _G.colSeletor = null
+                                        }
+                                        var _pt = function() {
+                                            _bt.forEach(function(b, i) {
+                                                b.el.dom.classList.toggle("selecionado-seta-botao", i === _G.colSeletor)
+                                            })
+                                        };
+                                        var _ac = function(b) {
+                                            b.el.dom.classList.remove("selecionado-seta-botao");
+                                            Ext.isFunction(b.fireHandler) ? b.fireHandler() : b.fireEvent("click", b)
+                                        };
+                                        if (a.keyCode == 27) {
+                                            var _esc = (typeof __desativaTeclaEscDialogo == "undefined" || !__desativaTeclaEscDialogo) && _dg.campo !== undefined && Ext.ComponentQuery.query("teclamensageira").length === 0 && _bt.length == 1;
+                                            if (_esc) {
+                                                _G.colSeletor = null;
+                                                _G.dlgSeletor = null;
+                                                _ac(_bt[0]);
+                                                return true
+                                            }
+                                        } else if (_bt.length > 1) {
+                                            if (a.keyCode == 38 || a.keyCode == 40) {
+                                                if (_G.colSeletor != null) {
+                                                    _G.colSeletor = null;
+                                                    _pt()
+                                                }
+                                            } else {
+                                                var _ps = a.keyCode == 39 ? 1 : a.keyCode == 37 ? -1 : 0;
+                                                if (_ps) {
+                                                    _G.colSeletor = _G.colSeletor == null ? (_ps > 0 ? 0 : _bt.length - 1) : (_G.colSeletor + _ps + _bt.length) % _bt.length;
+                                                    _pt();
+                                                    return true
+                                                }
+                                                if (a.keyCode == 13 && _G.colSeletor != null && _bt[_G.colSeletor]) {
+                                                    var _b = _bt[_G.colSeletor];
+                                                    _G.colSeletor = null;
+                                                    _G.dlgSeletor = null;
+                                                    _ac(_b);
+                                                    return true
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        } catch (_e) {} /* === fim === */
+                        try {
+                            if (__habilita_setas_opcoes &&
+                                (a.keyCode == 38 || a.keyCode == 40) && !Ext.isEmpty(Ext.ComponentQuery.query("dialogo")) && !Ext.isEmpty(Ext.ComponentQuery.query("dialogo")[0].seletor.opcoes) && Ext.ComponentQuery.query("dialogo")[0].seletor.opcoes.length > 0) {
+                                for (var g, f = 0; f < 4; f++)
+                                    if (document.getElementById("row_" + f) !== null) {
+                                        g = "row_" + f;
+                                        break
+                                    } var h = "row_" + Pdv.api.sistema.Gerenciador.rowSeletor,
+                                    j = document.getElementById(g).closest(".x-grid-view").id,
+                                    k = document.getElementById(h),
+                                    l = Ext.ComponentQuery.query("dialogo")[0].seletor.opcoes.length;
+                                if (a.keyCode ==
+                                    38) {
+                                    Pdv.api.sistema.Gerenciador.rowSeletor = Pdv.api.sistema.Gerenciador.rowSeletor - 1;
+                                    if (Pdv.api.sistema.Gerenciador.rowSeletor < f) Pdv.api.sistema.Gerenciador.rowSeletor = f;
+                                    Pdv.api.sistema.Gerenciador.rowSeletor % 4 == 0 && Pdv.api.sistema.Gerenciador.rowSeletor < l - 3 && document.getElementById(j).scrollBy(0, -135)
+                                }
+                                if (a.keyCode == 40) {
+                                    Pdv.api.sistema.Gerenciador.rowSeletor = Pdv.api.sistema.Gerenciador.rowSeletor == null ? f : Pdv.api.sistema.Gerenciador.rowSeletor + 1;
+                                    Pdv.api.sistema.Gerenciador.rowSeletor % 3 == 0 && Pdv.api.sistema.Gerenciador.rowSeletor >
+                                        0 && document.getElementById(j).scrollBy(0, 135);
+                                    Pdv.api.sistema.Gerenciador.rowSeletor >= l - 1 && document.getElementById(j).scroll(0, document.getElementById(j).scrollHeight)
+                                }
+                                var h = "row_" + Pdv.api.sistema.Gerenciador.rowSeletor,
+                                    m = document.getElementById(h);
+                                Ext.isEmpty(k) || k.closest("tr").classList.toggle("selecionado-seta");
+                                if (Ext.isEmpty(m)) {
+                                    if (a.keyCode == 40) {
+                                        Pdv.api.sistema.Gerenciador.rowSeletor = Pdv.api.sistema.Gerenciador.rowSeletor - 1;
+                                        k.closest("tr").classList.toggle("selecionado-seta")
+                                    }
+                                } else m.closest("tr").classList.toggle("selecionado-seta")
+                            }
+                            if (__habilita_setas_opcoes &&
+                                a.keyCode == 13 && !Ext.isEmpty(Ext.ComponentQuery.query("dialogo")) && (!Ext.isEmpty(Ext.ComponentQuery.query("dialogo")[0].seletor.opcoes) && Ext.ComponentQuery.query("dialogo")[0].seletor.opcoes.length > 0) && Pdv.api.sistema.Gerenciador.rowSeletor >= 0) {
+                                h = "row_" + Pdv.api.sistema.Gerenciador.rowSeletor;
+                                document.getElementById(h).closest("tr").click();
+                                return
+                            }
+                        } catch (n) {}
+                        Pdv.api.tela.Gerenciador.gerenciarTeclaAtalhoFinalizadora(a);
+                        switch (a.keyCode) {
+                            case 112:
+                                d = Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#teclaF1");
+                                break;
+                            case 113:
+                                d = Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#teclaF2");
+                                break;
+                            case 114:
+                                d = Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#teclaF3");
+                                break;
+                            case 115:
+                                d = Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#teclaF4");
+                                break;
+                            case 116:
+                                d = Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#teclaF5");
+                                break;
+                            case 117:
+                                d = Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#teclaF6");
+                                break;
+                            case 118:
+                                d = Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#teclaF7");
+                                break;
+                            case 119:
+                                d = Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#teclaF8");
+                                break;
+                            case 120:
+                                d = Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#teclaF9");
+                                break;
+                            case 121:
+                                d = Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#teclaF10");
+                                break;
+                            case 122:
+                                d = Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#teclaF11");
+                                break;
+                            case 123:
+                                d = Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#teclaF12");
+                                break;
+                            case 8:
+                                Pdv.api.sistema.Gerenciador.getStatusBuffer() && Pdv.api.sistema.Gerenciador.backspaceBuffer();
+                                break;
+                            case 9:
+                                if (Pdv.api.tela.Gerenciador.getStatusFocus()) {
+                                    g = Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#qtd");
+                                    Pdv.api.tela.Gerenciador.setFocusInput(g)
+                                } else Pdv.api.tela.Gerenciador.setFocusInput();
+                                break;
+                            case 13:
+                                Pdv.api.sistema.Gerenciador.getTeclaPeriferia() == 0 && (Pdv.api.sistema.Gerenciador.getStatusBuffer() ? setTimeout(function() {
+                                    Pdv.api.sistema.Gerenciador.armazenarBuffer();
+                                    b.enviarEnter()
+                                }, 800) : b.enviarEnter());
+                                break;
+                            case 27:
+                                g = null;
+                                g = Pdv.api.tela.Gerenciador.setFocusInput();
+                                g != true && g != void 0 && g.setValue("");
+                                g = Ext.ComponentQuery.query("dialogo").length - 1;
+                                if (h = Ext.ComponentQuery.query("dialogo")[g]) {
+                                    if (__desativaTeclaEscDialogo) return;
+                                    if ((g = Ext.ComponentQuery.query("teclamensageira")) && g.length == 1) void 0 != g[0] && g[0].fireEvent("click", g[0]);
+                                    else if (g.length > 1) g[0].focus();
+                                    else if (void 0 == h.campo) {
+                                        if (Pdv.api.sistema.Gerenciador.chaveSeletorTiposDeBusca != null && Pdv.api.sistema.Gerenciador.exibirErroTipoBusca === false) {
+                                            Pdv.api.nucleo.Comunicador.setColeta(Pdv.api.sistema.Gerenciador.chaveSeletorTiposDeBusca, -1, "");
+                                            Pdv.api.sistema.Gerenciador.chaveSeletorTiposDeBusca = null
+                                        }
+                                        if (Pdv.api.sistema.Gerenciador.exibirErroTipoBusca) Pdv.api.sistema.Gerenciador.exibirErroTipoBusca =
+                                            false;
+                                        h.close();
+                                        Pdv.api.tela.Gerenciador.setFocusInput()
+                                    }
+                                } else {
+                                    if (Pdv.api.sistema.Gerenciador.limparPagamento && Pdv.api.nucleo.Interpretador.estadoCorrente == 11) {
+                                        Pdv.api.nucleo.Comunicador.limparPagamento();
+                                        return
+                                    }
+                                    Pdv.api.nucleo.Comunicador.limparItem()
+                                }
+                        }
+                        if (d != false && (d.constructor === Object || typeof d === "object") && Pdv.api.sistema.Gerenciador.functionKeysEnabled) {
+                            d.fireEvent("click", d);
+                            d = false;
+                            if (a.keyCode != 113)
+                                if (a = Ext.WindowManager.getActive()) {
+                                    Pdv.api.sistema.Gerenciador.functionKeysEnabled = false;
+                                    a.on("close", function() {
+                                        Pdv.api.sistema.Gerenciador.functionKeysEnabled = true
+                                    })
+                                }
+                        }
+                    };
+                    a.dom.addEventListener("keydown", Pdv.api.tela.Gerenciador.eventoKeyDown, !0)
+                }
+            },
+            "#qtd": {
+                blur: function(a) {
+                    var b = a.getValue().replace(",", ".");
+                    a.setValue(b);
+                    Ext.isNumeric(b) || a.setValue("")
+                },
+                focus: function(a) {
+                    a.selectText()
+                }
+            },
+            window: {
+                close: function() {
+                    Pdv.api.tela.Gerenciador.setFocusInput();
+                    Pdv.api.sistema.Gerenciador.setForceSituacaoPDV(0);
+                    Pdv.api.sistema.Gerenciador.setSelecaoComoBotao(!1);
+                    Pdv.api.sistema.Gerenciador.setHabilitarBotaoFecharTopo(!1);
+                    if (200 == __template || 1200 == __template) Pdv.api.sistema.Gerenciador.evtoSeparadorDecimal = !0
+                },
+                hide: function() {
+                    Pdv.api.tela.Gerenciador.setFocusInput();
+                    Pdv.api.sistema.Gerenciador.setForceSituacaoPDV(0);
+                    Pdv.api.sistema.Gerenciador.setSelecaoComoBotao(!1);
+                    Pdv.api.sistema.Gerenciador.setHabilitarBotaoFecharTopo(!1)
+                }
+            },
+            tooltip: {
+                close: function() {
+                    Pdv.api.tela.Gerenciador.setFocusInput()
+                },
+                hide: function() {
+                    Pdv.api.tela.Gerenciador.setFocusInput()
+                }
+            },
+            "#visorColetor": {
+                change: function(a) {
+                    Pdv.api.sistema.Gerenciador.campoEditado = !0;
+                    if ("combobox" == a.xtype && __habilitaTecladoTouchCadCli) {
+                        var b = Ext.ComponentQuery.query("#coletorHidden")[0];
+                        b && b.setValue(a.getValue())
+                    }
+                    a.tratarDisabled && (b = Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("teclaentrar"), !Ext.isEmpty(a.getValue()) && !Ext.isEmpty(b) ? b.setDisabled(!1) : b.setDisabled(!0))
+                },
+                blur: function(a) {
+                    if ("combobox" == a.xtype && __habilitaTecladoTouchCadCli) {
+                        var b = Ext.ComponentQuery.query("#coletorHidden")[0];
+                        b && (document.getElementById(a.getInputId()).value = b.getValue())
+                    }
+                }
+            },
+            "#teclaAtividade": {
+                click: Pdv.api.nucleo.Comunicador.setAtividade
+            },
+            teclaletraselecao: {
+                click: function(a) {
+                    var b = a.up("dialogobotoes"),
+                        d = Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#visorColetor");
+                    d.setValue(d.getValue().substring(0, d.getValue().length) + Pdv.api.validacao.VType.decodeHtml(a.value));
+                    if ("combobox" == d.xtype && __habilitaTecladoTouchCadCli) {
+                        var e = Ext.ComponentQuery.query("#coletorHidden")[0];
+                        e && (e.setValue(e.getValue() + Pdv.api.validacao.VType.decodeHtml(a.value)), document.getElementById(d.getInputId()).value = e.getValue(), d.doRawQuery())
+                    }
+                    b.destroy()
+                }
+            },
+            "#teclaMudarTemplate": {
+                click: function() {
+                    Ext.create("Pdv.view.sistema.dialogo.Template").show()
+                }
+            },
+            "#teclaMudarOperacaoRemota": {
+                click: function() {
+                    Ext.create("Pdv.view.sistema.dialogo.OperacaoRemota").show()
+                }
+            },
+            "#descontoValorItem": {
+                click: function(a) {
+                    "undefined" != typeof __gatilho_descontoValorItem && null != __gatilho_descontoValorItem ? __gatilho_descontoValorItem(a) : (Pdv.api.sistema.Gerenciador.telaDesconto = !0, a.evento = [29, 29], a.autoColeta = !0, a.monetario = 2, a.multiColeta = !0, a.itensMultiColeta = {
+                        tecladoInicialVisivel: !0,
+                        tbar: [{
+                            xtype: "label",
+                            itemId: "visorValorTotal",
+                            flex: 1,
+                            margin: "0 10 10 5",
+                            cls: "label-text-subtotal lbl-desc",
+                            style: "float:right !important; margin-right: 20px;",
+                            text: "Valor Bruto: "
+                        }, {
+                            xtype: "label",
+                            itemId: "visorValorDesconto",
+                            flex: 1,
+                            margin: "0 10 10 5",
+                            cls: "label-text-subtotal lbl-desc",
+                            style: "float:right !important; margin-right: 20px;",
+                            text: "Valor Liquido: "
+                        }],
+                        itens: [{
+                                xtype: "campoinput",
+                                itemId: "valorDesconto",
+                                labelAlign: "top",
+                                fieldLabel: "Desconto Valor",
+                                allowBlank: !0,
+                                msgTarget: "under",
+                                margin: "0 10 10 5",
+                                dadoNumerico: !0,
+                                monetario: 2,
+                                disposicaoNumerica: "padrao",
+                                permitirValorDecimal: !0,
+                                usarDuploZero: !0,
+                                valorInicial: null,
+                                width: "98%",
+                                style: "float:right !important; margin-right: 20px;",
+                                labelClsExtra: "label-text-subtotal label-desconto",
+                                fieldCls: "input-sub-total",
+                                listeners: {
+                                    focus: function(a) {
+                                        a.inputEl.addCls("input-desconto-alterado");
+                                        a.labelEl.addCls("input-desconto-alterado-label")
+                                    },
+                                    blur: function(a) {
+                                        a.inputEl.removeCls("input-desconto-alterado");
+                                        a.labelEl.removeCls("input-desconto-alterado-label")
+                                    }
+                                }
+                            },
+                            {
+                                xtype: "campoinput",
+                                itemId: "percentualDesconto",
+                                labelAlign: "top",
+                                fieldLabel: "Desconto %",
+                                allowBlank: !0,
+                                msgTarget: "under",
+                                margin: "0 10 10 5",
+                                dadoNumerico: !0,
+                                monetario: 0,
+                                disposicaoNumerica: "padrao",
+                                permitirValorDecimal: !0,
+                                usarDuploZero: !0,
+                                valorInicial: null,
+                                width: "98%",
+                                style: "float:right !important; margin-right: 20px;",
+                                labelClsExtra: "label-text-subtotal label-desconto",
+                                fieldCls: "input-sub-total",
+                                listeners: {
+                                    focus: function(a) {
+                                        a.inputEl.addCls("input-desconto-alterado");
+                                        a.labelEl.addCls("input-desconto-alterado-label")
+                                    },
+                                    blur: function(a) {
+                                        a.inputEl.removeCls("input-desconto-alterado");
+                                        a.labelEl.removeCls("input-desconto-alterado-label")
+                                    }
+                                }
+                            }
+                        ]
+                    }, this.abrirJanelaMultiColeta(a))
+                }
+            },
+            "#acrescimoValorItem": {
+                click: function(a) {
+                    Pdv.api.sistema.Gerenciador.telaDesconto = !1;
+                    a.evento = [48, 33];
+                    a.autoColeta = !0;
+                    a.monetario = 2;
+                    a.multiColeta = !0;
+                    a.itensMultiColeta = {
+                        tecladoInicialVisivel: !0,
+                        tbar: [{
+                            xtype: "label",
+                            itemId: "visorValorTotal",
+                            flex: 1,
+                            margin: "0 10 10 5",
+                            cls: "label-text-subtotal lbl-desc",
+                            style: "float:right !important; margin-right: 20px;",
+                            text: "Valor Bruto: "
+                        }, {
+                            xtype: "label",
+                            itemId: "visorValorAcrescimo",
+                            flex: 1,
+                            margin: "0 10 10 5",
+                            cls: "label-text-subtotal lbl-desc",
+                            style: "float:right !important; margin-right: 20px;",
+                            text: "Valor Liquido: "
+                        }],
+                        itens: [{
+                            xtype: "campoinput",
+                            itemId: "valorAcrescimo",
+                            labelAlign: "top",
+                            fieldLabel: "Acrescimo Valor",
+                            allowBlank: !0,
+                            msgTarget: "under",
+                            margin: "0 10 10 5",
+                            dadoNumerico: !0,
+                            monetario: 2,
+                            disposicaoNumerica: "padrao",
+                            permitirValorDecimal: !0,
+                            usarDuploZero: !0,
+                            valorInicial: null,
+                            width: "98%",
+                            style: "float:right !important; margin-right: 20px;",
+                            labelClsExtra: "label-text-subtotal label-desconto",
+                            fieldCls: "input-sub-total",
+                            listeners: {
+                                focus: function(a) {
+                                    a.inputEl.addCls("input-desconto-alterado");
+                                    a.labelEl.addCls("input-desconto-alterado-label")
+                                },
+                                blur: function(a) {
+                                    a.inputEl.removeCls("input-desconto-alterado");
+                                    a.labelEl.removeCls("input-desconto-alterado-label")
+                                }
+                            }
+                        }, {
+                            xtype: "campoinput",
+                            itemId: "percentualAcrescimo",
+                            labelAlign: "top",
+                            fieldLabel: "Acrescimo %",
+                            allowBlank: !0,
+                            msgTarget: "under",
+                            margin: "0 10 10 5",
+                            dadoNumerico: !0,
+                            monetario: 0,
+                            disposicaoNumerica: "padrao",
+                            permitirValorDecimal: !0,
+                            usarDuploZero: !0,
+                            valorInicial: null,
+                            width: "98%",
+                            style: "float:right !important; margin-right: 20px;",
+                            labelClsExtra: "label-text-subtotal label-desconto",
+                            fieldCls: "input-sub-total",
+                            listeners: {
+                                focus: function(a) {
+                                    a.inputEl.addCls("input-desconto-alterado");
+                                    a.labelEl.addCls("input-desconto-alterado-label")
+                                },
+                                blur: function(a) {
+                                    a.inputEl.removeCls("input-desconto-alterado");
+                                    a.labelEl.removeCls("input-desconto-alterado-label")
+                                }
+                            }
+                        }]
+                    };
+                    this.abrirJanelaMultiColeta(a)
+                }
+            },
+            "#modificadorItem": {
+                click: function(a) {
+                    a.escopo.gerenciador.tooltipCupom.close();
+                    Pdv.api.tela.Gerenciador.setFocusInput();
+                    a.escopo.view.deselect([a.escopo.record]);
+                    Ext.isDefined(a.listaModificadores) && Ext.isDefined(a.chaveItem) && Pdv.api.sistema.Gerenciador.montarSelectModificadores(a.chaveItem, a.listaModificadores)
+                }
+            },
+            "#cancelarItem": {
+                click: function(a) {
+                    Pdv.api.nucleo.Comunicador.cancelarItem(a.escopo.record.get("chave"));
+                    a.escopo.gerenciador.tooltipCupom.close();
+                    Pdv.api.tela.Gerenciador.setFocusInput();
+                    a.escopo.view.deselect([a.escopo.record]);
+                    Pdv.api.sistema.Gerenciador.bloquearAutoScrollCupom(!0)
+                }
+            },
+            "#fecharTooltipCupom": {
+                click: function(a) {
+                    a.escopo.gerenciador.tooltipCupom.close();
+                    Pdv.api.tela.Gerenciador.setFocusInput();
+                    a.escopo.view.deselect([a.escopo.record])
+                }
+            },
+            "#cancelarItemComanda": {
+                click: function(a) {
+                    a.escopo.gerenciador.tooltipComanda.close();
+                    Pdv.api.sistema.Gerenciador.teclaCancelar = a;
+                    Pdv.api.tela.Gerenciador.setFocusInput();
+                    a.escopo.view.deselect([a.escopo.record]);
+                    __cancelarItemComandaSupervisor ? Pdv.api.nucleo.Comunicador.enviarServicoNucleo("AutorizacaoCancelaItemComanda", 10, {
+                        nfunc: "",
+                        nfunc2: "",
+                        autoriz_default: 2,
+                        texto: ""
+                    }) : Pdv.api.nucleo.Restful.cancelarItem(a.escopo.record.get("cod_pedido_item"))
+                }
+            },
+            "#fecharTooltipComanda": {
+                click: function(a) {
+                    a.escopo.gerenciador.tooltipComanda.close();
+                    Pdv.api.tela.Gerenciador.setFocusInput();
+                    a.escopo.view.deselect([a.escopo.record])
+                }
+            },
+            "#msgPdvStartup": {},
+            "#novaConexao": {
+                click: function(a) {
+                    clearInterval(Pdv.api.nucleo.Comunicador.intervaloConexao);
+                    msg = a.up("#msgPdvStartup");
+                    msg.hide();
+                    this.getView("sistema.dialogo.ColetorDadosConexao").create({
+                        dialogo: msg
+                    }).show();
+                    intervalo = msg.dialogScope.intervalo;
+                    clearInterval(intervalo)
+                }
+            },
+            "#porta": {
+                focus: function(a) {
+                    (a = a.up("dialogo").down("teclaseparadordecimal")) && a.setDisabled(!1)
+                }
+            },
+            "#btFecharDialogo": {
+                click: function() {
+                    !1 != Pdv.api.sistema.Gerenciador.coletaQtd && Pdv.api.nucleo.Interpretador.tratarArgsMenuLista(null, null, Pdv.api.sistema.Gerenciador.historico)
+                }
+            },
+            teclaalt: {
+                click: function(a) {
+                    var b = a.up("teclado").query("teclalocal");
+                    if (a.pressed)
+                        for (var d in b) void 0 == b[d].altValue ? b[d] !== a && b[d].setDisabled(!0) : (teclaText =
+                            Pdv.view.componente.teclado.Alfanumerico.getTextSensivelContexto(b[d]), b[d].setText(teclaText));
+                    else
+                        for (d in b) void 0 == b[d].altValue ? b[d] !== a && b[d].setDisabled(!1) : (teclaText = Pdv.view.componente.teclado.Alfanumerico.getTextSensivelContexto(b[d]), b[d].setText(teclaText))
+                }
+            },
+            "#teclashift": {
+                click: function(a) {
+                    var b = a.up("teclado"),
+                        d = b.query("teclalocal"),
+                        b = b.down("teclaalt");
+                    if (a.pressed)
+                        for (var e in d) d[e] instanceof Pdv.view.componente.tecla.Letra ? (teclaText = Pdv.view.componente.teclado.Alfanumerico.getTextSensivelContexto(d[e]),
+                            d[e].setText(teclaText)) : d[e].setDisabled(!0);
+                    else
+                        for (e in d) d[e] instanceof Pdv.view.componente.tecla.Letra ? (teclaText = Pdv.view.componente.teclado.Alfanumerico.getTextSensivelContexto(d[e]), d[e].setText(teclaText)) : d[e].setDisabled(!1);
+                    b.setDisabled(!1)
+                }
+            },
+            "coletor tecladonumerico teclaseparadordecimal": {
+                click: function(a) {
+                    teclado = a.up("tecladonumerico");
+                    a.setDisabled(!0);
+                    teclado.contadorClick = 0;
+                    teclasNumericas = teclado.query('tecla[grupo="numerico"]');
+                    for (var b in teclasNumericas) teclasNumericas[b].setDisabled(!1)
+                }
+            },
+            "coletor tecladonumerico teclabackspace": {
+                click: function(a) {
+                    var b = a.up("tecladonumerico"),
+                        a = "" + b.getCampoDeInput().getValue(),
+                        d = b.getSeparadorDecimal(),
+                        e = 2E3 <= __template && 2100 > __template || 4E3 == __template || !Pdv.api.sistema.Gerenciador.evtoSeparadorDecimal || (200 == __template || 1200 == __template) && Ext.isEmpty(d) ? "." : d.getCaractereSeparador(),
+                        f = ("" + a).substr(("" + a).length - 1, 1),
+                        g = b.casasAntesDoSeparador,
+                        b = b.query('tecla[grupo="numerico"]');
+                    if (f == e) {
+                        if (g == a.substr(0, a.search(RegExp("\\" + e))).length && b)
+                            for (var h in b) b[h].setDisabled(!0);
+                        d.setDisabled(!1)
+                    } else if (posicaoCaractereSeparador = a.search(RegExp("\\" + e)), -1 == posicaoCaractereSeparador && b)
+                        for (h in b) b[h].setDisabled(!1)
+                }
+            },
+            "coletor tecladonumerico teclalimpar": {
+                click: function(a) {
+                    var b = a.up("tecladonumerico"),
+                        a = b.getCampoDeInput();
+                    (a.getValue() || a.getRawValue()) && a.setValue("");
+                    if (b = b.query('tecla[grupo="numerico"]'))
+                        for (var d in b) b[d].setDisabled(!1);
+                    a.bloquearCampo(!1)
+                }
+            },
+            "coletor tecladosimples teclabackspace": {
+                click: function(a) {
+                    a.up("tecladosimples").getCampoDeInput().setValue("");
+                    Pdv.api.sistema.Gerenciador.getStatusBuffer() && Pdv.api.sistema.Gerenciador.limparStrBuffer()
+                }
+            },
+            tecladuplozero: {
+                click: function(a) {
+                    if (-1 != [200, 1200].indexOf(parseInt(__template)) && a.configurador)(a = Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva(a.campoDeInput)) && a.setValue(a.getValue() + "00");
+                    else {
+                        var b = a.up("tecladonumerico"),
+                            a = b.getCampoDeInput();
+                        a.getValue();
+                        a = b.query('teclanumeral[value="0"]')[0];
+                        a.isDisabled() || (a.fireEvent("click", a), a.isDisabled() || a.fireEvent("click", a))
+                    }
+                }
+            },
+            "coletor tecladonumerico teclanumeral": {
+                click: function(a) {
+                    if (teclado =
+                        a.up("tecladonumerico")) {
+                        var a = teclado.getCampoDeInput(),
+                            b = teclado.casasAntesDoSeparador,
+                            d = teclado.monetario,
+                            e = teclado.precisaoDecimal,
+                            f = teclado.getSeparadorDecimal(),
+                            g = 2E3 <= __template && 2100 > __template || 4E3 == __template || !Pdv.api.sistema.Gerenciador.evtoSeparadorDecimal || (200 == __template || 1200 == __template) && Ext.isEmpty(f) ? "." : f.getCaractereSeparador(),
+                            h = "" + a.getValue();
+                        if (a.isDirty() || !a.valorInicialNoCampo)
+                            if (2 == d) try {
+                                teclado.down("teclaseparadordecimal").setDisabled(!0)
+                            } catch (j) {} else if (b || e)
+                                if (arrAux =
+                                    h.split(g), numeroDeCaracteresAntes = arrAux[0].length + 1, numeroDeCaracteresDepois = arrAux[1] ? arrAux[1].length : 0, caractereSeparadorNoValor = h.charAt(b - 1), numeroDeCaracteresAntes == b)
+                                    if (caractereSeparadorNoValor != g) {
+                                        teclasNumericas = teclado.query('tecla[grupo="numerico"]');
+                                        for (var k in teclasNumericas) teclasNumericas[k].setDisabled(!0);
+                                        (2E3 > __template && 2100 <= __template || 4E3 == __template) && f.setDisabled(!1)
+                                    } else numeroDeCaracteresDepois == e && a.bloquearCampo(!0);
+                        else 0 != e && numeroDeCaracteresDepois == e && a.bloquearCampo(!0)
+                    }
+                }
+            },
+            "#tecladoPagamento teclanumeral": {
+                click: function(a) {
+                    teclado = a.up("tecladonumerico");
+                    a = teclado.getCampoDeInput();
+                    a.value == Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#visorLogico80").value && !0 == Pdv.api.sistema.Gerenciador.getZeraInput() && (a.setValue(0), Pdv.api.sistema.Gerenciador.setZeraInput(!1))
+                }
+            },
+            "#tecladoPagamento": {
+                afterlayout: function() {
+                    Pdv.api.sistema.Gerenciador.setZeraInput(!0)
+                }
+            },
+            teclainfo: {
+                click: function(a) {
+                    var b = void 0 != a.tip.titulo ? a.tip.titulo.join("<br />") : "",
+                        d = void 0 != a.tip.corpo ?
+                        a.tip.corpo.join("<br />") : "",
+                        e = void 0 != a.tip.rodape ? a.tip.rodape.join(" ") : "",
+                        f = Ext.create("Ext.tip.ToolTip", {
+                            title: b,
+                            autoHide: !1,
+                            cls: "tip-ajuda",
+                            html: d + "<br /><br />" + e,
+                            closeAction: "destroy",
+                            dockedItems: [{
+                                xtype: "toolbar",
+                                style: "border: none !important",
+                                dock: "bottom",
+                                height: 40,
+                                items: ["->", {
+                                    text: "Fechar",
+                                    xtype: "button",
+                                    width: 90,
+                                    height: 35,
+                                    scope: this,
+                                    handler: function() {
+                                        f.close();
+                                        Pdv.api.tela.Gerenciador.setFocusInput()
+                                    }
+                                }, "->"]
+                            }]
+                        });
+                    f.show();
+                    f.alignTo(a, "br-tl")
+                }
+            },
+            "coletadadoscon teclaentrar": {
+                click: function(a) {
+                    var a =
+                        a.up("coletadadoscon"),
+                        b = a.down("form");
+                    if (b && (b = b.getForm(), b.isValid())) valores = b.getValues(), this.storeConexao || (this.storeConexao = Ext.create("Pdv.store.sistema.Conexao")), 0 != this.storeConexao.getCount() && (localStorage.removeItem("zanlink"), this.storeConexao = Ext.create("Pdv.store.sistema.Conexao")), this.storeConexao.add(Ext.create("Pdv.model.sistema.Conexao", {
+                        ip: valores.ip,
+                        porta: valores.porta
+                    })), this.storeConexao.sync(), Pdv.api.store.Gerenciador.setStoreConexao(this.storeConexao), a.close()
+                }
+            },
+            coletadadoscon: {
+                hide: this.exibirContagemRegressivaParaConexao
+            },
+            "#campoInputIP": {
+                focus: function(a) {
+                    (a = a.up("dialogo").down("teclaseparadordecimal")) && a.setDisabled(!1)
+                },
+                change: function(a, b) {
+                    if ("." != b && (a.up("dialogo").down('teclado[tipo="comum"]').getTeclaBackspace().setDisabled(!1), arr = b.split("."), 2 < b.length)) {
+                        if (Ext.isArray(arr) && (retorno = ("" + arr[arr.length - 1]).match(/[0-9]{3}/), 4 == arr.length)) {
+                            3 == arr[arr.length - 1].length && (a.markInvalid("IP inv&aacute;lido"), a.bloquearCampo(!0));
+                            return
+                        }
+                        retorno && a.setRawValue(b + ".")
+                    }
+                }
+            },
+            "dialogo campoinput": {
+                focus: function(a) {
+                    a.customizado &&
+                        this.tratarCampoColetaCustomizada(a);
+                    if (void 0 != a.value) try {
+                        var b = Pdv.api.sistema.Gerenciador.argsInteracao.form.coletas[0].classe.atributos.antes,
+                            d = Pdv.api.sistema.Gerenciador.argsInteracao.form.coletas[0].classe.atributos.depois,
+                            e = Pdv.api.sistema.Gerenciador.argsInteracao.form.coletas[0].classe.atributos.monetario;
+                        if (a.value.length > Pdv.api.sistema.Gerenciador.argsInteracao.form.coletas[0].classe.atributos.tamanho) {
+                            var f = a.getValue();
+                            a.setValue(f.substring(0, f.length - 1))
+                        } else 0 < b && (0 <= d && 0 != e) &&
+                            (a.maxLength = b + d + 1 + (b / 3 | 0))
+                    } catch (g) {}
+                    b = a.up("dialogo");
+                    if ("multiColetor" != b.xtype && "coletorMultiploPDV" != b.xtype) {
+                        if (teclado = a.up("dialogo").down('teclado[tipo="comum"]')) return teclado.setCampoDeInput(a), teclado.getCampoDeInput() && (b = teclado.getTeclaBackspace()) && b.setDisabled(!1), Pdv.api.sistema.Gerenciador.getStatusBuffer() ? a.blur() : (valor = a.getValue(), a.reset(), a.setValue(valor)), !1
+                    } else "coletorMultiploPDV" == b.xtype && Pdv.api.sistema.Gerenciador.setCampoAtivoMultiColeta(a)
+                },
+                change: function(a,
+                    b) {
+                    Pdv.api.nucleo.Comunicador.enviarInfoAtividade();
+                    "undefined" != typeof __gatilho_input_coletor && "undefined" != typeof __gatilho_input_coletor && __gatilho_input_coletor();
+                    a.customizado && this.tratarCampoColetaCustomizada(a);
+                    try {
+                        if (void 0 != a.value && a.value.length > Pdv.api.sistema.Gerenciador.argsInteracao.form.coletas[0].classe.atributos.tamanho) {
+                            var d = a.getValue();
+                            a.setValue(d.substring(0, d.length - 1))
+                        }
+                    } catch (e) {}
+                    if (teclado = a.up("dialogo").down('teclado[tipo="comum"]')) {
+                        Ext.isEmpty(b) && a.clearInvalid();
+                        0 < parseInt(teclado.monetario, 10) ? Pdv.api.sistema.Mascara.mascaraMonetario(a) : 0 == teclado.tipoColeta && Pdv.api.sistema.Mascara.numerico(a);
+                        switch (teclado.tipoColeta) {
+                            case 2:
+                                a.setValue(Pdv.api.validacao.VType.maskDate(a.getValue(), !1));
+                                break;
+                            case 3:
+                                a.setValue(Pdv.api.validacao.VType.maskDate(a.getValue(), !0));
+                                break;
+                            case 4:
+                                a.setValue(Pdv.api.validacao.VType.maskCelular(a.getValue()));
+                                break;
+                            case 5:
+                                Pdv.api.validacao.VType.maskCEP(a);
+                                break;
+                            case 6:
+                                a.setValue(Pdv.api.validacao.VType.montarMascaraCPFCNPJ(a.getValue()))
+                        }
+                        Ext.is.Android ||
+                            a.focus()
+                    }
+                    a.tratarDisabled && (d = Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("teclaentrar"), !Ext.isEmpty(a.getValue()) && !Ext.isEmpty(d) ? d.setDisabled(!1) : d.setDisabled(!0));
+                    d = teclado.getTeclaLimpar();
+                    Ext.isEmpty(d) || (Ext.isEmpty(a.getValue()) ? d.setDisabled(!0) : d.setDisabled(!1))
+                }
+            },
+            "dialogo combobox": {
+                focus: function(a) {
+                    this.tratarCampoColetaCustomizada(a)
+                },
+                change: function(a) {
+                    this.tratarCampoColetaCustomizada(a)
+                }
+            },
+            "#visorLogico80": {
+                change: function() {
+                    1 == Pdv.api.sistema.Gerenciador.self || __pagamentoSCTotal ||
+                        Pdv.api.sistema.Gerenciador.setarValorInputParaVisor80()
+                }
+            },
+            "#visorLogico10": {
+                change: function() {
+                    Pdv.api.sistema.Gerenciador.setAtualizarVisores(!0)
+                }
+            },
+            "campoinput[itemId=valorInput]": {
+                change: function(a) {
+                    Pdv.api.sistema.Mascara.mascaraMonetario(a)
+                }
+            },
+            "campoinput[itemId=valorInput]": {
+                change: function(a, b) {
+                    teclado = Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#tecladoPagamento");
+                    Ext.isEmpty(b) && (a.clearInvalid(), null !== teclado && void 0 != teclado && teclado.getTeclaBackspace().setDisabled(!0), Ext.isEmpty(b) ?
+                        Ext.isEmpty(teclado) || teclado.getTeclaBackspace().setDisabled(!0) : teclado.getTeclaBackspace().setDisabled(!1));
+                    null !== teclado && (void 0 != teclado && null !== teclado.monetario && void 0 !== teclado.monetario && 0 < parseInt(teclado.monetario, 10)) && Pdv.api.sistema.Mascara.mascaraMonetario(a)
+                }
+            },
+            "#telaDetalhesCliente": {
+                close: function() {
+                    args = Pdv.api.sistema.Gerenciador.getArgsInteracao();
+                    Pdv.api.nucleo.Interpretador.iniciarInteracao(args)
+                }
+            },
+            teclasimbolo: {
+                click: this.exibeBotoesAcentuados
+            },
+            coletor: {
+                show: function(a) {
+                    Ext.Function.defer(function() {
+                        if (!Pdv.api.sistema.Gerenciador.getStatusBuffer()) {
+                            try {
+                                a.down("campoinput").focus()
+                            } catch (b) {}
+                            if ("undefined" !=
+                                Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#tela_cadastro_cliente") && "caedu" == __template) {
+                                var d = a.down("campoinput").getValue();
+                                a.down("campoinput").setValue("");
+                                a.down("campoinput").setValue(d)
+                            }
+                        }
+                    }, 100)
+                }
+            },
+            multiColetor: {
+                afterrender: function(a) {
+                    var b = "field displayfield campodata textfield visor campoinput".split(" "),
+                        d = function f(a) {
+                            for (i in a) {
+                                if (-1 != b.indexOf(a[i].xtype)) return a[i].focus(!1, 100), __debug && console.log("Multi Coleta: Focando o cmapo " + a[i].itemId), !0;
+                                a[i].items && f(a[i].items)
+                            }
+                            return !1
+                        };
+                    !0 === a.tecladoInicialVisivel && d(a.down("#mainFrame").items.items)
+                },
+                close: function() {
+                    Pdv.api.sistema.Gerenciador.multiColetaCtrl = {};
+                    __debug && console.log("Multi Coleta: Encerrando")
+                },
+                resize: function(a, b, d) {
+                    this.resizeMultiColetor(a, d)
+                }
+            },
+            "multiColetor campoinput": {
+                change: function(a, b) {
+                    Pdv.api.sistema.Gerenciador.multiColetaCtrl[a.itemId].valor = b
+                },
+                focus: function(a) {
+                    Pdv.api.sistema.Gerenciador.multiColetaCtrl.focused = a.itemId;
+                    if (a && "Touch" == __PDV) {
+                        var b = a.up("window"),
+                            d = b.down("#tecladoColetorAN");
+                        if (d) {
+                            if (a.dadoNumerico) {
+                                var e =
+                                    b.down("#tecladoColetorN"),
+                                    f = d;
+                                e.monetario = a.monetario
+                            } else e = d, f = b.down("#tecladoColetorN");
+                            f && f.setVisible(!1);
+                            e && (Pdv.api.sistema.Gerenciador.multiColetaCtrl.focusedKeyboard = e.itemId, e.setVisible(!0), e.setCampoDeInput(a), a = b.down("#mainFrame"), a.oldFucusedControl != e.itemId && ("" !== a.oldFucusedControl && ("tecladoColetorAN" == e.itemId ? a.setHeight(a.height - d.height) : "tecladoColetorN" == e.itemId && a.setHeight(a.height + d.height)), a.oldFucusedControl = e.itemId));
+                            this.resizeMultiColetor(b)
+                        }
+                    }
+                }
+            },
+            "multiColetor label[itemId=visorValorTotal]": {
+                afterrender: function(a) {
+                    var b =
+                        a.up("multiColetor").parametrosGerais,
+                        d = 0;
+                    if (b.visorValorTotal) {
+                        if (-1 == b.visorValorTotal.indexOf("#")) a.setText("Valor Bruto: " + (d = b.visorValorTotal));
+                        else if (void 0 !== (cmp = Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva(b.visorValorTotal))) a.setText("Valor Bruto: " + (d = cmp.getValue()));
+                        setTimeout(function() {
+                            a.up("window").down("#visorValorDesconto").setText("Valor Liquido: " + d)
+                        }, 500)
+                    }
+                }
+            },
+            "multiColetor campoinput[itemId=valorDesconto]": {
+                change: function(a, b) {
+                    var d = a.up("window"),
+                        e = d.down("#valorDesconto"),
+                        f = d.down("#percentualDesconto"),
+                        g = teclado.getSeparadorDecimal();
+                    e.setRawValue(e.getValue().trim().replace(".", ""));
+                    var h = e.getValue().replace(".", "").replace(".", "").replace(".", ""),
+                        h = h.trim().replace(",", ".").replace(" ", ""),
+                        h = "" == h ? parseFloat(b.replace(",", ".")) : h;
+                    0 === parseFloat(h) && "" === f.getValue().trim() && g.setDisabled(!1);
+                    if (isNaN(h)) e.setRawValue(""), f.setRawValue("");
+                    else {
+                        var j = d.down("#visorValorTotal"),
+                            d = d.down("#visorValorDesconto"),
+                            g = "0" == b ? 0 : 2,
+                            j = parseFloat(("" + j.text.split(":")[1]).trim().replace(".",
+                                "").replace(",", ".")),
+                            k = 100 - 100 * (j - h) / j;
+                        d.setText("Valor Liquido: " + (0 == h ? "" : Pdv.api.sistema.Gerenciador.formatarMoeda(j - h, 2, ",", ".")));
+                        f.setRawValue(0 == h ? "" : Ext.Number.toFixed(k, g).replace(".", ","));
+                        e.setRawValue(h.trim().replace(".", ","))
+                    }
+                }
+            },
+            "multiColetor campoinput[itemId=percentualDesconto]": {
+                change: function(a, b) {
+                    var d = a.up("window"),
+                        e = d.down("#percentualDesconto"),
+                        f = d.down("#valorDesconto"),
+                        g = e.getValue().trim().replace(",", ".").replace(" ", "").replace(" ", ""),
+                        h = teclado.getSeparadorDecimal();
+                    e.setRawValue(e.getValue().trim().replace(".", ""));
+                    g = "" == g ? parseFloat(b.replace(",", ".")) : g;
+                    if (isNaN(g)) f.setRawValue(""), e.setRawValue(""), h.setDisabled(!1);
+                    else {
+                        var j = d.down("#visorValorTotal"),
+                            d = d.down("#visorValorDesconto"),
+                            h = "0" == b ? 0 : 2,
+                            j = parseFloat(("" + j.text.split(":")[1]).trim().replace(".", "").replace(",", ".")),
+                            k = j * g / 100;
+                        d.setText("Valor Liquido: " + (0 == g ? "" : Pdv.api.sistema.Gerenciador.formatarMoeda(j - k, 2, ",", ".")));
+                        f.setRawValue(0 == g ? "" : Ext.Number.toFixed(k, h).replace(".", ","));
+                        e.setRawValue(g.trim().replace(".",
+                            ","))
+                    }
+                }
+            },
+            "multiColetor campoinput[itemId=valorAcrescimo]": {
+                change: function(a, b) {
+                    var d = a.up("window"),
+                        e = d.down("#valorAcrescimo"),
+                        f = d.down("#percentualAcrescimo"),
+                        g = teclado.getSeparadorDecimal();
+                    e.setRawValue(e.getValue().trim().replace(".", ""));
+                    var h = e.getValue().replace(".", "").replace(".", "").replace(".", ""),
+                        h = h.trim().replace(",", ".").replace(" ", ""),
+                        h = "" == h ? parseFloat(b.replace(",", ".")) : h;
+                    0 === parseFloat(h) && "" === f.getValue().trim() && g.setDisabled(!1);
+                    if (isNaN(h)) e.setRawValue(""), f.setRawValue("");
+                    else {
+                        var j = d.down("#visorValorTotal"),
+                            d = d.down("#visorValorAcrescimo"),
+                            g = "0" == b ? 0 : 2,
+                            j = parseFloat(("" + j.text.split(":")[1]).trim().replace(".", "").replace(",", ".")),
+                            k = 100 * (h / j);
+                        d.setText("Valor Liquido: " + (0 == h ? "" : Pdv.api.sistema.Gerenciador.formatarMoeda(j + 1 * h, 2, ",", ".")));
+                        f.setRawValue(0 == h ? "" : Ext.Number.toFixed(k, g).replace(".", ","));
+                        e.setRawValue(h.trim().replace(".", ","))
+                    }
+                }
+            },
+            "multiColetor campoinput[itemId=percentualAcrescimo]": {
+                change: function(a, b) {
+                    var d = a.up("window"),
+                        e = d.down("#percentualAcrescimo"),
+                        f = d.down("#valorAcrescimo"),
+                        g = e.getValue().trim().replace(",", ".").replace(" ", "").replace(" ", ""),
+                        h = teclado.getSeparadorDecimal();
+                    e.setRawValue(e.getValue().trim().replace(".", ""));
+                    g = "" == g ? parseFloat(b.replace(",", ".")) : g;
+                    if (isNaN(g)) f.setRawValue(""), e.setRawValue(""), h.setDisabled(!1);
+                    else {
+                        var j = d.down("#visorValorTotal"),
+                            d = d.down("#visorValorAcrescimo"),
+                            h = "0" == b ? 0 : 2,
+                            j = parseFloat(("" + j.text.split(":")[1]).trim().replace(".", "").replace(",", ".")),
+                            k = j * g / 100;
+                        d.setText("Valor Liquido: " + (0 == g ? "" : Pdv.api.sistema.Gerenciador.formatarMoeda(j +
+                            k, 2, ",", ".")));
+                        f.setRawValue(0 == g ? "" : Ext.Number.toFixed(k, h).replace(".", ","));
+                        e.setRawValue(g.trim().replace(".", ","))
+                    }
+                }
+            },
+            "multiColetor tecladonumerico teclaseparadordecimal": {
+                click: function(a) {
+                    teclado = a.up("tecladonumerico");
+                    a.setDisabled(!0);
+                    teclado.contadorClick = 0;
+                    teclasNumericas = teclado.query('tecla[grupo="numerico"]');
+                    for (var b in teclasNumericas) teclasNumericas[b].setDisabled(!1)
+                }
+            },
+            "multiColetor tecladonumerico teclabackspace": {
+                click: function(a) {
+                    var b = a.up("tecladonumerico"),
+                        a = "" + b.getCampoDeInput().getValue(),
+                        d = b.getSeparadorDecimal(),
+                        e = 2E3 <= __template && 2100 > __template || 4E3 == __template || !Pdv.api.sistema.Gerenciador.evtoSeparadorDecimal || (200 == __template || 1200 == __template) && Ext.isEmpty(d) ? "." : d.getCaractereSeparador(),
+                        f = ("" + a).substr(("" + a).length - 1, 1),
+                        g = b.casasAntesDoSeparador,
+                        b = b.query('tecla[grupo="numerico"]');
+                    if (f == e) {
+                        if (g == a.substr(0, a.search(RegExp("\\" + e))).length && b)
+                            for (var h in b) b[h].setDisabled(!0);
+                        d.setDisabled(!1)
+                    } else if (posicaoCaractereSeparador = a.search(RegExp("\\" + e)), -1 == posicaoCaractereSeparador &&
+                        b)
+                        for (h in b) b[h].setDisabled(!1)
+                }
+            },
+            "multiColetor teclaentrar": {
+                click: this.enviarColeta
+            },
+            "multiColetor tecladonumerico teclalimpar": {
+                click: function(a) {
+                    var b = a.up("tecladonumerico"),
+                        a = b.getCampoDeInput();
+                    (a.getValue() || a.getRawValue()) && a.setValue("");
+                    if (b = b.query('tecla[grupo="numerico"]'))
+                        for (var d in b) b[d].setDisabled(!1);
+                    a.bloquearCampo(!1)
+                }
+            },
+            campoinput: {
+                change: function(a, b) {
+                    if ("Touch" == __PDV) {
+                        if (void 0 != b && Ext.isEmpty(b)) {
+                            if (!Pdv.api.sistema.Gerenciador.getTecladoTouchForcado() && (2E3 > __template &&
+                                    2100 <= __template || "caedu" == __template || 4E3 == __template)) a && a.valorInicial ? a.setValue(a.valorInicial) : a && a.originalValue && a.setValue(a.originalValue), a.valorInicialNoCampo = !0;
+                            "caedu" == __template && (a.valorInicialNoCampo = !0)
+                        }
+                    } else Pdv.api.sistema.Gerenciador.getNaoPermitirFocarAgora() || Ext.is.Android || a.focus()
+                },
+                keydown: function(a, b) {
+                    if (2013 == __template && Ext.isEmpty(Pdv.api.sistema.Gerenciador.retornarTelaDialogo()) && !Ext.isEmpty(Ext.ComponentQuery.query("#workspace")[0].down("#telaGenerica")) && 13 ==
+                        b.keyCode && !Ext.isEmpty(a.getValue())) !Ext.isEmpty(Pdv.api.sistema.Gerenciador.argsInteracao) && !Ext.isEmpty(Pdv.api.sistema.Gerenciador.argsInteracao.chave) && Pdv.api.nucleo.Comunicador.setColeta(Pdv.api.sistema.Gerenciador.argsInteracao.chave, -5, a.getValue()), validarEstadoVenda();
+                    else {
+                        var d = a.up("dialogo");
+                        if (void 0 != d && d instanceof Pdv.view.sistema.dialogo.ColetorMultiploPDV) return !0;
+                        if (!0 == Pdv.api.sistema.Gerenciador.sistemaEmInteracao && 112 <= b.keyCode && 123 >= b.keyCode) return !1;
+                        switch (b.keyCode) {
+                            case 13:
+                                var e =
+                                    a.getValue(),
+                                    f = Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#qtd");
+                                void 0 == f ? Pdv.api.sistema.Gerenciador.getUsarCampoQuantidade() && (f = Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#visorLogico8")) : void 0 == f && (f = Pdv.api.sistema.Gerenciador.multiColetaCtrl[campo.itemId].valor);
+                                if (0 == Pdv.api.sistema.Gerenciador.getTeclaPeriferia()) {
+                                    if (d) d = d.down("teclaentrar"), void 0 != d && !Ext.isEmpty(e) && (d.fireEvent("click", d), this.enviarEventoDoGatilho(d, e));
+                                    else {
+                                        d = {
+                                            evento: 4
+                                        };
+                                        if ("campoinput" != a.xtype || Ext.isEmpty(e) ||
+                                            "valorInput" == a.itemId || "qtd" == a.itemId) return !0;
+                                        null === f || void 0 === f ? Pdv.api.nucleo.Comunicador.setQuantidade(1) : !Ext.isEmpty(f.getValue()) && "Mouse" == __PDV && (Pdv.api.nucleo.Comunicador.setQuantidade(f.getValue()), f.setValue(""));
+                                        this.enviarEventoDoGatilho(d, e)
+                                    }
+                                    a.setValue()
+                                }
+                                e = Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#qtd101");
+                                void 0 != e && e.setValue("")
+                        }
+                    }
+                },
+                keypress: function(a, b) {
+                    if (0 != Pdv.api.sistema.Gerenciador.getForcarEnvioTeclaPerifInputMercadoria() && (Pdv.api.sistema.Gerenciador.setStatusBuffer(!0),
+                            Pdv.api.sistema.Gerenciador.setTeclaPeriferia(1), 8 != b.keyCode)) return Pdv.api.sistema.Gerenciador.setFocadoInputTelaMainPDV(!0), b.preventDefault(), b.cancelBubble = !0, b.keyCode = 0, !1
+                },
+                blur: function() {
+                    0 != Pdv.api.sistema.Gerenciador.getForcarEnvioTeclaPerifInputMercadoria() && !0 == Pdv.api.sistema.Gerenciador.getFocadoInputTelaMainPDV() && (Pdv.api.sistema.Gerenciador.setFocadoInputTelaMainPDV(!1), Pdv.api.sistema.Gerenciador.limparStrBuffer())
+                }
+            },
+            teclafuncao: {
+                click: function(a) {
+                    if (15 == a.evento) {
+                        var b = Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("campoinput");
+                        if (void 0 == b) return !0;
+                        var d = b.getValue();
+                        if (!Ext.isEmpty(d) && Ext.isNumeric(d)) return this.enviarEventoDoGatilho(a, d), b.setValue(""), !1
+                    }
+                }
+            },
+            "#input": {
+                focus: function(a) {
+                    Pdv.api.sistema.Gerenciador.sistemaEmInteracao && a.blur();
+                    Pdv.api.tela.Gerenciador.setStatusFocus(!0)
+                },
+                blur: function() {
+                    Pdv.api.tela.Gerenciador.setStatusFocus(!1)
+                }
+            },
+            pdvstartup: {
+                activate: this.iniciar
+            },
+            "coletor teclaentrar": {
+                click: function(a) {
+                    136 == Pdv.api.sistema.Gerenciador.getSituacaoRealPDV() && __validarCodProdutoLido & 2 ? setTimeout(function() {
+                            __myApp.getController("Pdv.controller.Controller").enviarColeta(a)
+                        },
+                        350) : this.enviarColeta(a)
+                }
+            },
+            "coletorMultiploPDV teclaentrar": {
+                click: this.enviarColeta
+            },
+            gridgeral: {
+                itemclick: function(a, b) {
+                    a.up("grid").getSelectionModel().select([b])
+                }
+            },
+            gridseletor: {
+                select: this.enviarSelecao
+            },
+            teclaseletora: {
+                click: this.enviarSelecaoBtn
+            },
+            teclapagamento: {
+                click: this.enviarFormaPagamentoBotao
+            },
+            teclaquantidade: {
+                click: this.enviarQuantidade
+            },
+            teclabackspace: {
+                click: function(a) {
+                    if (-1 != [200, 1200].indexOf(parseInt(__template)) && a.configurador) {
+                        var b = Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva(a.campoDeInput);
+                        if (a = b.getValue() || b.getRawValue()) a = ("" + a).substr(0, ("" + a).length - 1), b.setValue(a)
+                    } else {
+                        teclado = a.up('teclado[tipo="comum"]');
+                        b = teclado.getCampoDeInput();
+                        Ext.isObject(b) || (b = (dialogo = a.up("dialogo")) ? dialogo.down(b) : a.up("pdvtela").down(b));
+                        if (b) {
+                            if ("combobox" == b.xtype && __habilitaTecladoTouchCadCli) {
+                                if (a = Ext.ComponentQuery.query("#coletorHidden")[0]) document.getElementById(b.getInputId()).value = "", a.setValue("");
+                                return
+                            }
+                            if (a = b.getValue() || b.getRawValue()) a = ("" + a).substr(0, ("" + a).length - 1), b.setValue(a);
+                            b.bloquearCampo(!1)
+                        }!0 == Pdv.api.sistema.Gerenciador.getZeraInput() && Pdv.api.sistema.Gerenciador.setZeraInput(!1)
+                    }
+                }
+            },
+            formaspagamento: {
+                select: this.enviarFormaPagamento
+            },
+            listatemplate: {
+                select: this.mudarTemplate
+            },
+            listaoperacaoRemota: {
+                select: this.mudarOperacaoRemota
+            },
+            "janelamenu teclafuncional": {
+                click: this.fecharMenu
+            },
+            menu: {
+                click: function() {
+                    var a = Ext.ComponentQuery.query("menu");
+                    Ext.Array.each(a, function(a) {
+                        a.hide()
+                    })
+                }
+            },
+            "janelamenu teclagatilho": {
+                click: this.fecharMenu
+            },
+            teclafuncional: {
+                click: this.processarTeclaFuncional
+            },
+            teclafinalizadora: {
+                click: this.processarTeclaFinalizadora
+            },
+            teclaproduto: {
+                click: this.processarTeclaProduto
+            },
+            teclagatilho: {
+                click: this.tratarAutoColeta
+            },
+            teclalocal: {
+                click: this.escreverNoCampo
+            },
+            teclamensageira: {
+                click: this.enviarAcaoDialogo
+            },
+            teclamensageiramenu: {
+                click: this.enviarAcaoMenuLista
+            },
+            teclamenu: {
+                click: this.abrirMenu
+            },
+            button: {
+                click: this.bipar
+            },
+            textfield: {
+                focus: this.bipar
+            },
+            "#teclaBaixo": {
+                click: this.navGrid
+            },
+            "#teclaCima": {
+                click: this.navGrid
+            },
+            teclanumeralConfig: {
+                click: this.tecladoConfiguradorNumerico
+            },
+            pdvtelapagamento: {
+                show: this.verificaPagamento,
+                afterlayout: function() {}
+            },
+            "#janelaAutoColeta": {
+                show: function() {
+                    setTimeout(function() {
+                        try {
+                            campoColeta = Ext.ComponentQuery.query("#campoJanelaAutoColeta")[0], void 0 != campoColeta && Ext.ComponentQuery.query("#campoJanelaAutoColeta")[0].focus(!0)
+                        } catch (a) {}
+                    }, 500)
+                }
+            },
+            "#valorInput": {
+                afterrender: function() {
+                    Pdv.api.sistema.Gerenciador.getNaoPermitirFocarAgora() || Ext.ComponentQuery.query("#valorInput")[0].focus(!0)
+                }
+            },
+            cupom: {
+                afterlayout: function() {
+                    if (2007 != __template) {
+                        var a =
+                            Pdv.api.store.Gerenciador.getStoreCupom();
+                        a.each(function(b) {
+                            void 0 != b && !0 == b.get("agrupado") && !0 == b.get("cancelado") && a.remove(b)
+                        })
+                    }
+                    Pdv.api.sistema.Gerenciador.habilitarDesabilitarTeclaFinalizadora()
+                },
+                select: function(a, b) {
+                    if (2005 == __template || __trataModificadores && 200 == __template || __opcoesTemplateDinamico & 32768) {
+                        if (!1 == Pdv.api.sistema.Gerenciador.clickItem) {
+                            a.view.deselect([b]);
+                            return
+                        }
+                        Pdv.api.sistema.Gerenciador.clickItem = !1
+                    }
+                    if (!(!0 != __forcarCancelaSelf && (1 == Pdv.api.sistema.Gerenciador.self && null ==
+                            __ip_monitor || !0 == Pdv.api.sistema.Gerenciador.checkMonitor()))) {
+                        if (Pdv.api.tela.Gerenciador.getImagemClick() && (Pdv.api.tela.Gerenciador.setImagemClick(!1), b.data.img.nome)) {
+                            var d = Ext.create("Ext.container.Container", {
+                                scrollable: !0,
+                                items: [{
+                                    xtype: "image",
+                                    style: "padding:10%; width: auto; height: auto; max-width:100%; max-height:100%; display: block; margin:auto;",
+                                    src: "resources/imagens/" + b.data.img.nome
+                                }]
+                            });
+                            Ext.create("Ext.window.Window", {
+                                closeAction: "destroy",
+                                width: 400,
+                                height: 400,
+                                resizable: !1,
+                                closable: !0,
+                                draggable: !0,
+                                layout: "card",
+                                title: b.data.descricao,
+                                style: "padding:1%",
+                                items: [d],
+                                listeners: {
+                                    close: function() {
+                                        Pdv.api.tela.Gerenciador.setFocusInput();
+                                        a.view.deselect([b])
+                                    }
+                                }
+                            }).show();
+                            Ext.ComponentQuery.query("viewport")[0].setDisabled(!0);
+                            return
+                        }!0 != b.get("desab") && !Pdv.api.sistema.Gerenciador.verificarSegundoMonitor() && (Ext.ComponentQuery.query("viewport")[0].setDisabled(!0), checkerTr = Ext.select(a.view.getSelectedNodes()).elements[0], checker = checkerTr.children[checkerTr.children.length - 1], checkerCl =
+                            Ext.select([checker]), checkerCl.el.dom = checker, x = checkerCl.el.getXY()[0], y = checkerCl.el.getXY()[1], Pdv.api.sistema.Gerenciador.setTooltipCupom(x, y, b, a.view).show())
+                    }
+                },
+                beforedeselect: function() {
+                    Ext.ComponentQuery.query("viewport")[0].setDisabled(!1)
+                }
+            },
+            cupomrfid: {
+                afterlayout: function() {
+                    if (2007 != __template) {
+                        var a = Pdv.api.store.Gerenciador.getStoreCupom();
+                        a.each(function(b) {
+                            void 0 != b && !0 == b.get("agrupado") && !0 == b.get("cancelado") && a.remove(b)
+                        })
+                    }
+                    Pdv.api.sistema.Gerenciador.habilitarDesabilitarTeclaFinalizadora()
+                },
+                select: function(a, b) {
+                    if (!(!0 != __forcarCancelaSelf && (1 == Pdv.api.sistema.Gerenciador.self && null == __ip_monitor || !0 == __monitor)) && !0 != b.get("desab") && !__monitor_cliente) Ext.ComponentQuery.query("viewport")[0].setDisabled(!0), checkerTr = Ext.select(a.view.getSelectedNodes()).elements[0], checker = checkerTr.children[checkerTr.children.length - 1], checkerCl = Ext.select([checker]), checkerCl.el.dom = checker, x = checkerCl.el.getXY()[0], y = checkerCl.el.getXY()[1], console.log(x), console.log(y), Pdv.api.sistema.Gerenciador.setTooltipCupom(x,
+                        y, b, a.view).show()
+                },
+                beforedeselect: function() {
+                    Ext.ComponentQuery.query("viewport")[0].setDisabled(!1)
+                }
+            },
+            gridconsultacliente: {
+                select: function(a, b) {
+                    if (!0 != b.data.desab) {
+                        checkerTr = Ext.select(a.view.getSelectedNodes()).elements[0];
+                        checker = checkerTr.children[checkerTr.children.length - 1];
+                        checkerCl = Ext.select([checker]);
+                        checkerCl.el.dom = checker;
+                        x = checkerCl.el.getXY()[0];
+                        y = checkerCl.el.getXY()[1];
+                        var d = Ext.create("Ext.tip.ToolTip", {
+                            anchor: "right",
+                            anchorToTarget: !1,
+                            targetXY: [x + 20, y + 20],
+                            title: "C&oacute;digo: " +
+                                b.get("c0") + "<br />Nome: " + b.get("c1"),
+                            cls: "tooltip-cliente",
+                            itemId: "tooltipDetalhesCliente",
+                            width: 200,
+                            layout: "fit",
+                            listeners: {
+                                hide: function() {
+                                    a.view.deselect([b])
+                                }
+                            },
+                            items: {
+                                xtype: "container",
+                                layout: {
+                                    type: "vbox",
+                                    align: "center"
+                                },
+                                itemId: "listaBtCliente",
+                                defaults: {
+                                    width: 180,
+                                    height: 70,
+                                    xtype: "tecla"
+                                },
+                                items: [{
+                                    text: "Selecionar",
+                                    cls: "bt_teclado_vd",
+                                    handler: function() {
+                                        d.close();
+                                        a.view.panel.up("dialogo").close();
+                                        Pdv.api.nucleo.Comunicador.setCodigoCliente(b.get("chave"))
+                                    }
+                                }, {
+                                    text: "Detalhes",
+                                    cls: "bt_teclado_c",
+                                    handler: function() {
+                                        d.close();
+                                        a.view.panel.up("dialogo").close();
+                                        Pdv.api.nucleo.Restful.consultaDetalhesCliente(b.get("c0"))
+                                    }
+                                }, {
+                                    text: "Fechar",
+                                    cls: "bt_teclado_c",
+                                    handler: function() {
+                                        d.close()
+                                    }
+                                }]
+                            }
+                        });
+                        setTimeout(function() {
+                            d.show()
+                        }, 0.1)
+                    }
+                },
+                beforedeselect: function() {
+                    Ext.ComponentQuery.query("viewport")[0].setDisabled(!1)
+                }
+            },
+            comanda: {
+                select: function(a, b) {
+                    Ext.ComponentQuery.query("viewport")[0].setDisabled(!0);
+                    checkerTr = Ext.select(a.view.getSelectedNodes()).elements[0];
+                    checker = checkerTr.children[checkerTr.children.length -
+                        1];
+                    checkerCl = Ext.select([checker]);
+                    checkerCl.el.dom = checker;
+                    x = checkerCl.el.getXY()[0];
+                    y = checkerCl.el.getXY()[1];
+                    Pdv.api.sistema.Gerenciador.setTooltipComanda(x, y, b, a.view).show()
+                },
+                beforedeselect: function() {
+                    Ext.ComponentQuery.query("viewport")[0].setDisabled(!1)
+                }
+            },
+            teclaajuda: {
+                click: function() {
+                    Pdv.api.nucleo.Comunicador.setAjuda(1)
+                }
+            },
+            teclacomando: {
+                click: function(a) {
+                    this.tratarTeclaComando(a)
+                }
+            },
+            "#bgImage2": {
+                afterlayout: function() {
+                    var a = Ext.get("bgImage2").getWidth(),
+                        b = Ext.get("imgSelf2").getWidth();
+                    setTimeout(function() {
+                        leftImg = (a - b) / 2;
+                        Ext.get("imgSelf2").setStyle("left", leftImg + "px");
+                        document.getElementById("bgImage2").style.display = "block"
+                    }, 100)
+                }
+            }
+        })
+    },
+    tratarTeclaComando: function(a) {
+        switch (a.comando) {
+            case "desligarNotificacao":
+                var a = Ext.ComponentQuery.query("#btNotif")[0],
+                    b = Ext.ComponentQuery.query("#msgNotif")[0];
+                a.disable();
+                a.removeCls("bt_teclado_v");
+                a.addCls("bt_teclado_c");
+                b.update("");
+                break;
+            case "abrirInterface":
+                window.open(Pdv.api.sistema.Mascara.base64_decode(__interface_monitor), "_blank")
+        }
+    },
+    verificaPagamento: function() {
+        void 0 != __btFinalizadora && setTimeout(function() {
+            Pdv.api.tela.Gerenciador.enviaTeclaFinalizadora()
+        }, 500);
+        Ext.isEmpty(__btFinalizadora) && ("undefined" != typeof __gatilho_verifica_pagamento && null != __gatilho_verifica_pagamento) && setTimeout(function() {
+            __gatilho_verifica_pagamento()
+        }, 500)
+    },
+    navGrid: function(a) {
+        var b = a.up("grid"),
+            d;
+        switch (a.direcao) {
+            case "baixo":
+                d = [0, 50];
+                break;
+            case "cima":
+                d = [0, -50]
+        }
+        b || ((gridPagamento = a.up("pdvtelapagamento")) && (b = gridPagamento.down("grid")), (gridMain =
+            a.up("pdvmain")) && (b = gridMain.down("grid")));
+        b.getView().el.scrollBy(d)
+    },
+    iniciar: function() {
+        Pdv.api.nucleo.Comunicador.getFlagConexaoAberta() || (this.storeConexao = Ext.create("Pdv.store.sistema.Conexao"), this.storeConexao.on("write", function() {
+            this.exibirContagemRegressivaParaConexao()
+        }, this), this.storeConexao.on("load", function() {
+            if (0 == this.storeConexao.getCount()) {
+                var a = Ext.create("Pdv.model.sistema.Conexao", {
+                    ip: "127.0.0.1",
+                    porta: "8899"
+                });
+                this.storeConexao.add(a);
+                this.storeConexao.sync()
+            } else this.storeConexao.getAt(0).get("ativo") ?
+                this.exibirContagemRegressivaParaConexao() : !Ext.isEmpty(__ip_monitor) && "https:" !== location.protocol ? (a = Ext.create("Pdv.model.sistema.Conexao", {
+                    ip: __ip_monitor,
+                    porta: __porta_monitor
+                }), this.storeConexao.add(a), this.storeConexao.sync(), this.exibirContagemRegressivaParaConexao()) : this.getView("sistema.dialogo.ColetorDadosConexao").create().show()
+        }, this), this.storeConexao.load(), Pdv.api.store.Gerenciador.setStoreConexao(this.storeConexao))
+    },
+    abrirMenu: function(a) {
+        var b = Pdv.api.sistema.Gerenciador.getTelaMenu(a.codMenu);
+        b.setTitle(a.label);
+        b.show()
+    },
+    fecharMenu: function(a) {
+        a.up("janelamenu").close()
+    },
+    mudarTemplate: function(a, b) {
+        var d = b.data.cod_template;
+        Ext.ComponentQuery.query("dialogo");
+        __monitor_cliente ? localStorage.setItem("zantplcorrente_cliente", d) : (localStorage.setItem("zantplcorrente", d), localStorage.setItem("zantpldefault", d), localStorage.setItem("zantplmonitorinteracao", d), 1E3 > d ? localStorage.setItem("zantpldefault_touch", d) : localStorage.setItem("zantpldefault_self", d));
+        Pdv.api.sistema.Gerenciador.reabrirPagina()
+    },
+    mudarOperacaoRemota: function(a, b) {
+        var d = b.data.cod_operacaoRemota;
+        Ext.ComponentQuery.query("dialogo");
+        localStorage.setItem("zr-remoto", d);
+        Pdv.api.sistema.Gerenciador.reabrirPagina()
+    },
+    exibirContagemRegressivaParaConexao: function() {
+        dialog = this.getStartup().down("#msgPdvStartup");
+        dialog.show();
+        if (!Ext.isEmpty(__ip_monitor) && "https:" !== location.protocol) var a = __ip_monitor,
+            b = __porta_monitor;
+        else a = this.storeConexao.getAt(0).get("ip"), b = this.storeConexao.getAt(0).get("porta");
+        Pdv.api.sistema.Gerenciador.verificarSegundoMonitor() &&
+            (b = __porta_monitor_cli);
+        dialog.dialogScope = {
+            dialog: dialog,
+            count: 0,
+            intervalo: null,
+            store: this.storeConexao
+        };
+        updateFn = function() {
+            var d = "Tentando conex&atilde;o ao endere&ccedil;o <b>" + Ext.String.format(a + "{0}", !Ext.isEmpty(b) ? ":" + b : "") + "...</b>";
+            0 == this.count % 2 && (Pdv.api.nucleo.Comunicador.abrirConexao(a, b), console.log("Tentando conex&atilde;o..."));
+            6 == this.count && (this.count = 0);
+            try {
+                this.dialog.down("progressbar").updateProgress(0.2 * this.count, d)
+            } catch (e) {
+                console.log(e)
+            }
+            this.count++
+        };
+        fn = Ext.bind(updateFn,
+            dialog.dialogScope);
+        Pdv.api.nucleo.Comunicador.intervaloConexao = setInterval(fn, 1E3)
+    },
+    tratarAutoColeta: function(a) {
+        if (a.configurador && "teclaentrar" == a.xtype) {
+            var b = Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva(a.campoDeInput);
+            void 0 != b && (Pdv.api.nucleo.Comunicador.setCodigoProduto(b.getValue()), b.reset())
+        } else if (a.solicitaPermissao && Ext.isEmpty(a.permitido)) Pdv.api.sistema.Gerenciador.permissaoClickTecla = a, Pdv.api.nucleo.Comunicador.enviarServicoNucleo("AutorizacaoTecla", 10, {
+            nfunc: "",
+            nfunc2: "",
+            autoriz_default: !Ext.isEmpty(a.autoriz_default) ? a.autoriz_default : 2,
+            texto: !Ext.isEmpty(a.texto_autoriz) ? a.texto_autoriz : ""
+        });
+        else {
+            a.solicitaPermissao && (a.permitido = null);
+            if (!0 == Pdv.api.sistema.Gerenciador.getColetaTratada()) return Pdv.api.sistema.Gerenciador.setColetaTratada(!1), !0;
+            var d = Pdv.api.sistema.Gerenciador.getConfigAutoColeta(),
+                e = null,
+                b = Pdv.api.sistema.Gerenciador.getTelaCorrente().down('teclado[tipo="comum"]');
+            if (a.multiColeta) this.abrirJanelaMultiColeta(a);
+            else if (a.autoColeta) switch (a.apenasColetaPorCampo &&
+                    (d = "APENAS_POR_LEITURA_DE_INPUT"), d) {
+                    case "APENAS_POR_COLETOR":
+                        this.abrirJanelaAutoColeta(a);
+                        break;
+                    case "APENAS_POR_LEITURA_DE_INPUT":
+                        (d = b.getCampoDeInput()) && (e = d.getValue());
+                        "." == e.substring(0, 1) && (e = "0" + e);
+                        this.enviarEventoDoGatilho(a, e);
+                        b.getSeparadorDecimal().setDisabled(!1);
+                        d.reset();
+                        break;
+                    default:
+                        if (b) d = b.getCampoDeInput(), e = d.getValue(), "." == e.substring(0, 1) && (e = "0" + e), !e || "tecladoPagamento" == b.itemId.trim() ? this.abrirJanelaAutoColeta(a) : this.enviarEventoDoGatilho(a, e), d.reset(), b.getSeparadorDecimal().setDisabled(!1);
+                        else {
+                            if (200 == __template || 1200 == __template) {
+                                b = Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#input");
+                                if (!Ext.isEmpty(b) && (e = b.getValue(), !Ext.isEmpty(e))) {
+                                    "." == e.substring(0, 1) && (e = "0" + e);
+                                    this.enviarEventoDoGatilho(a, e);
+                                    b.reset();
+                                    break
+                                }
+                                if (3 == a.evento && "Vendedor" == a.initialConfig.text && __listar_vendedores) {
+                                    Pdv.api.nucleo.Restful.consultarVendedoresPorLoja();
+                                    break
+                                }
+                            }
+                            this.abrirJanelaAutoColeta(a)
+                        }
+                } else if (void 0 == Pdv.api.sistema.Gerenciador.multiColetaCtrl.focused) this.enviarEventoDoGatilho(a);
+                else if (e =
+                Pdv.api.sistema.Gerenciador.multiColetaCtrl[e = Pdv.api.sistema.Gerenciador.multiColetaCtrl.focused], void 0 !== e && (void 0 !== e.evento || 0 <= e.evento)) a.evento = e.evento, this.enviarEventoDoGatilho(a, e.valor)
+        }
+    },
+    abrirJanelaAutoColeta: function(a, b, d) {
+        var e = {};
+        Ext.isEmpty(d) && (d = function() {
+            return !1
+        });
+        Ext.isEmpty(a.autoLabel) || (e.fieldLabel = a.autoLabel);
+        Ext.isEmpty(a.value) || (e.value = a.value);
+        Ext.isEmpty(a.sigilo) || (e.sigilo = a.sigilo);
+        Ext.isEmpty(a.valorInicial) || (e.valorInicial = a.valorInicial);
+        Ext.isEmpty(a.emptyText) ||
+            (e.emptyText = a.emptyText);
+        e.allowBlank = !0;
+        e.itemId = "campoJanelaAutoColeta";
+        if (2E3 <= __template && 2100 > __template || 4E3 <= __template && 4100 > __template) {
+            var f = __componente_novo;
+            if (2006 == __template || 2007 == __template || 4E3 == __template) f = __template
+        } else f = "";
+        var g = "",
+            h = "";
+        12806 == a.fn && "100" == __template ? (g = 380, h = 295, e.fieldCls = "input-input-normal", e.labelClsExtra = "label-text-normal") : (g = 850, h = 550);
+        if (Ext.Array.contains(["2003", "2004", "2012"], __template.toString())) {
+            if (13 == a.evento || 4 == a.evento) g = 500, 2004 == __template &&
+                (e.labelClsExtra = "label-text-medio");
+            f = __template
+        }
+        2005 == __template && (13 == a.evento && (Pdv.api.sistema.Gerenciador.telaQuantidade = !0), f = 2005);
+        if (200 == __template || 1200 == __template) Pdv.api.sistema.Gerenciador.evtoSeparadorDecimal = !0;
+        200 == __template && Ext.Array.contains([3, 4, 10, 11, 15], parseInt(a.evento)) && (Pdv.api.sistema.Gerenciador.evtoSeparadorDecimal = !1);
+        1200 == __template && (Pdv.api.sistema.Gerenciador.evtoSeparadorDecimal = !0, Ext.Array.contains([3, 4, 10, 11], parseInt(a.evento)) && (Pdv.api.sistema.Gerenciador.evtoSeparadorDecimal = !1), f = __template, Ext.isEmpty(__widthColetor) || (g = __widthColetor), Ext.isEmpty(__heightColetor) || (h = __heightColetor));
+        if (2009 == __template || 2011 == __template || 2013 == __template) f = __template;
+        Ext.Array.contains(["2000", "2014", "4000"], __template.toString()) && (g = 500);
+        2013 == __template && (h = 620);
+        Ext.create("Pdv.view.sistema.dialogo.Coletor" + f, {
+            itemId: "janelaAutoColeta",
+            width: g,
+            height: h,
+            onEnter: {
+                fn: this.enviarEventoDoGatilho,
+                args: [a],
+                escopo: this
+            },
+            campo: e,
+            teclado: {
+                monetario: a.monetario,
+                semAlteracao: a.semAlteracao,
+                tipo: b
+            },
+            habilitarTeclaCancelar: !0,
+            onClose: d
+        }).show();
+        setTimeout(function() {
+            try {
+                Ext.is.Android || e.focus()
+            } catch (a) {}
+        }, 100)
+    },
+    abrirJanelaMultiColeta: function(a, b) {
+        try {
+            __debug && console.log("Multi Coleta: Iniciando");
+            if (!Array.isArray(a.itensMultiColeta.itens)) throw Error("Necess&aacute;rio enviar itens como array");
+            Pdv.api.sistema.Gerenciador.multiColetaCtrl = {};
+            var d = "field displayfield campodata textfield visor campoinput".split(" "),
+                e = 0;
+            __debug && (console.log("Multi Coleta: [" + d.join(", ") + "] s&atilde;o os tipos de campos v&aacute;lidos"),
+                console.log("Multi Coleta: " + a.itensMultiColeta.itens.length + " elementos no array"));
+            if (0 < (e = function m(b) {
+                    var e = 0,
+                        f = null,
+                        f = Array.isArray(a.evento) ? a.evento : ("" + a.evento).split(",");
+                    for (i in b)
+                        if (d.indexOf(b[i].xtype) != -1) {
+                            __debug && console.log("  ===> " + b[i].itemId);
+                            Pdv.api.sistema.Gerenciador.multiColetaCtrl[b[i].itemId] = {
+                                evento: f[e],
+                                valor: 0
+                            };
+                            e++
+                        } else b[i].items && (e = e + m(b[i].items));
+                    return e
+                }(a.itensMultiColeta.itens))) __debug && console.log("Multi Coleta: " + e + " campos v&aacute;lidos");
+            else throw Error("Nenhum campo foi encontrado");
+            if (a.escopo && -1 !== a.evento.indexOf(29)) var f = {
+                    fn: function(b, d) {
+                        switch (a.desc) {
+                            case 1:
+                                Pdv.api.nucleo.Comunicador.setDescontoValor(d);
+                                break;
+                            case 2:
+                                Pdv.api.nucleo.Comunicador.setDescontoItem(b, d)
+                        }
+                        this.gerenciador.tooltipCupom.close();
+                        Pdv.api.tela.Gerenciador.setFocusInput();
+                        this.view.deselect([this.record])
+                    },
+                    escopo: a.escopo,
+                    args: [a.escopo.record.get("chave")]
+                },
+                g = {
+                    visorValorTotal: a.escopo.record.data.total
+                },
+                h = "valorDesconto";
+            else if (a.escopo && -1 !== a.evento.indexOf(48)) f = {
+                fn: function(a, b) {
+                    Pdv.api.nucleo.Comunicador.setAcrescimoValor(b,
+                        a);
+                    this.gerenciador.tooltipCupom.close();
+                    Pdv.api.tela.Gerenciador.setFocusInput();
+                    this.view.deselect([this.record])
+                },
+                escopo: a.escopo,
+                args: [a.escopo.record.get("chave")]
+            }, g = {
+                visorValorTotal: a.escopo.record.data.total
+            }, h = "valorAcrescimo";
+            else var j = Pdv.api.store.Gerenciador.getStoreCupom().data.items,
+                f = {
+                    fn: function(a, b) {
+                        var d = Pdv.api.sistema.Gerenciador.multiColetaCtrl,
+                            e = Ext.ComponentQuery.query("#janelaAutoMultiColeta")[0],
+                            f = this.copiarObj(a, 3);
+                        f.evento = d[e.campoColeta === null ? d.focused : e.campoColeta].evento;
+                        this.enviarEventoDoGatilho(f, b);
+                        Pdv.api.sistema.Gerenciador.setColetaTratada(true)
+                    },
+                    args: [a],
+                    escopo: this
+                },
+                g = {
+                    visorValorTotal: 10 == Pdv.api.sistema.Gerenciador.estadoVenda ? j[j.length - 1].data.total : "#visorLogico10"
+                },
+                h = null;
+            "8,7" == a.evento && (Pdv.api.sistema.Gerenciador.telaDesconto = !0);
+            Ext.create("widget.multiColetor", {
+                itemId: "janelaAutoMultiColeta",
+                width: 800,
+                height: 600,
+                resizable: "Touch" != __PDV,
+                closable: !0,
+                draggable: "Touch" != __PDV,
+                title: "" == a.text ? "Multi Coletor" : a.text,
+                tecladoInicialVisivel: a.itensMultiColeta.tecladoInicialVisivel,
+                habilitarTeclaCancelar: !0,
+                teclado: {
+                    monetario: a.monetario
+                },
+                onEnter: f,
+                onClose: b,
+                items: a.itensMultiColeta.itens,
+                tbar: a.itensMultiColeta.tbar,
+                bbar: a.itensMultiColeta.bbar,
+                parametrosGerais: g,
+                campoColeta: h
+            }).show()
+        } catch (k) {
+            __debug && console.log("Multi Coleta: (Erro) " + k.message)
+        } finally {
+            __debug && console.log("Multi Coleta: Rodando...")
+        }
+    },
+    copiarObj: function(a, b) {
+        var d = a instanceof Array ? [] : {};
+        for (i in a) a[i] && "object" == typeof a[i] ? 0 < b && (d[i] = this.copiarObj(a[i], b - 1)) : d[i] = a[i];
+        return d
+    },
+    trataFuncaoInterna: function(a,
+        b) {
+        "undefined" == typeof b && (b = !0);
+        var d, e = 2,
+            f = !1,
+            g = "",
+            h = function() {
+                return !1
+            };
+        switch (parseInt(a)) {
+            case 12800:
+            case 12801:
+                d = "Mercadoria";
+                e = 1;
+                break;
+            case 12802:
+                d = "Informe nro. pedido, nome, telefone ou CPF do cliente";
+                e = 1;
+                break;
+            case 12803:
+                d = "Informe c&oacute;digo, nome, telefone ou CPF do cliente";
+                e = 1;
+                break;
+            case 12804:
+                d = "Comanda";
+                e = 2;
+                break;
+            case 12805:
+                "" == Pdv.api.sistema.Gerenciador.operadorComandaTemp ? d = "Operador" : (f = !0, d = "Senha");
+                e = 2;
+                break;
+            case 12806:
+                if (Ext.isEmpty(Pdv.api.sistema.Gerenciador.codComanda)) {
+                    __mostrarDialogo("Informe um n&uacute;mero de comanda",
+                        "Status");
+                    return
+                }
+                if ("" === Pdv.api.sistema.Gerenciador.operadorComanda) {
+                    __mostrarDialogo("<center>Sem operador Informado.<br>Selecione o bot&atilde;o<br>Troca Operador Comanda<br></center>", "Status");
+                    return
+                }
+                if (Pdv.api.sistema.Gerenciador.parametroBalanca) "" === Pdv.api.sistema.Gerenciador.codMercadoriaComanda ? (d = "C&oacute;digo mercadoria", e = 2) : "" === Pdv.api.sistema.Gerenciador.qtdComanda && (Pdv.api.sistema.Gerenciador.produtoPesado ? Pdv.api.sistema.Gerenciador.statusBalanca ? Pdv.api.sistema.Gerenciador.confirmaPeso &&
+                    Pdv.api.sistema.Gerenciador.recebeuPeso ? (d = "Confirmar peso", g = "" + Pdv.api.sistema.Gerenciador.pesoBalanca) : (d = "Inserir peso", g = "1") : (d = "Inserir peso", g = "1") : (d = "Qtd", g = "1"), e = 2, Pdv.api.sistema.Gerenciador.campoEditado = !0);
+                else if (__itemPesadoComanda && (Ext.isEmpty(Pdv.api.sistema.Gerenciador.codMercadoriaComanda) ? (d = "C&oacute;digo mercadoria", e = 2) : (d = "Qtd", g = "1", e = 2, Pdv.api.sistema.Gerenciador.campoEditado = !0)), !__itemPesadoComanda) "" === Pdv.api.sistema.Gerenciador.qtdComanda ? (d = "Qtd", g = "1", e = 2, Pdv.api.sistema.Gerenciador.campoEditado = !0) : (d = "C&oacute;digo mercadoria", e = 2);
+                h = function() {
+                    Pdv.api.sistema.Gerenciador.resetaDadosBalancaComanda();
+                    return !1
+                };
+                break;
+            case 12807:
+                d = "Comanda a liberar";
+                e = 2;
+                break;
+            case 12808:
+                "" == Pdv.api.sistema.Gerenciador.operadorComandaTemp ? d = "Supervisor" : (f = !0, d = "Senha");
+                e = 2;
+                break;
+            case 12809:
+                return Ext.ComponentQuery.query("viewport")[0].layout.setActiveItem(2), Ext.ComponentQuery.query("#workspace")[0].layout.setActiveItem(0), Pdv.api.nucleo.Comunicador.enviar('{"cmd":1,"arg":{"ev":19}}', !1), !1;
+            case 12810:
+                d =
+                    "Informe nro. pedido, nome, telefone ou CPF do cliente";
+                e = 1;
+                break;
+            case 12815:
+                d = "Digite o nome do produto";
+                e = 1;
+                Pdv.api.sistema.Gerenciador.listaMenuBuscaAtiva = !0;
+                Pdv.api.sistema.Gerenciador.fnMenuLista = [];
+                break;
+            case 11:
+                d = "Informe telefone do cliente";
+                e = 2;
+                break;
+            case 12:
+                d = "Informe nome do cliente";
+                e = 1;
+                break;
+            case 13:
+                d = "Informe CPF do cliente";
+                e = 2;
+                break;
+            case 14:
+                d = "Informe c&oacute;digo do cliente";
+                e = 2;
+                break;
+            case 15:
+                d = "Informe o N&uacute;mero do Cart&atilde;o Fidelidade";
+                e = 2;
+                break;
+            case 16:
+                d = "Informe o RNE/Passaporte";
+                e = 2;
+                break;
+            default:
+                return !1
+        }
+        d = {
+            autoLabel: d,
+            evento: 0,
+            sigilo: f,
+            fn: a,
+            monetario: 0,
+            valorInicial: g
+        };
+        b && this.abrirJanelaAutoColeta(d, e, h)
+    },
+    verificaFuncaoInterna: function(a, b) {
+        var d = parseInt(b),
+            e = parseInt(a.evento, 10);
+        if ((12800 <= d && 12899 >= d || 2E4 <= d && 21E3 >= d) && 15 == e) {
+            switch (d) {
+                case 12898:
+                    this.getView("sistema.dialogo.ColetorDadosConexao").create().show();
+                    break;
+                case 12897:
+                    Pdv.api.nucleo.Restful.pegarTeclas();
+                    break;
+                case 2E4:
+                    Pdv.api.nucleo.Restful.atualizarInterface();
+                    break;
+                case 12888:
+                    var f = this.getView("sistema.dialogo.CadastroCliente").create();
+                    f.preencherEDesabilitarCPF(null, !1, !1);
+                    f.show();
+                    Ext.getBody().dom.removeEventListener("keydown", Pdv.api.tela.Gerenciador.eventoKeyDown, !0);
+                    break;
+                case 12811:
+                    Pdv.api.nucleo.Restful.consultarPedidoPorOperador();
+                    break;
+                case 12812:
+                    Pdv.api.nucleo.Restful.consultaConfig();
+                    break;
+                case 12816:
+                    Pdv.api.sistema.Gerenciador.abrirPainelPedidoExterno();
+                    break;
+                case 12895:
+                    window.open(__urlManager, "", "toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no");
+                    break;
+                case 12890:
+                    Ext.isEmpty(Pdv.api.sistema.Gerenciador.urlExterna) ||
+                        (f = Pdv.api.sistema.Gerenciador.urlExterna, Pdv.api.sistema.Gerenciador.urlExterna = "", window.open(f, "", "toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no"));
+                    break;
+                case 12839:
+                    Ext.isEmpty(__texto_impressao) || Pdv.api.sistema.Gerenciador.enviarImpressaoPDV(__texto_impressao);
+                    break;
+                case 12814:
+                    Ext.isEmpty(Pdv.api.sistema.Gerenciador.clienteIdentificado.id) || (Pdv.api.sistema.Gerenciador.clienteIdentificado.emEdicao = !0, Pdv.api.nucleo.Restful.consultaCliente(12814,
+                        Pdv.api.sistema.Gerenciador.clienteIdentificado.id));
+                    break;
+                case 12820:
+                    Ext.create("Pdv.view.sistema.dialogo.Msg" + (1200 == __template ? __template : 2E3 < __template && 2100 > __template || 4E3 == __template ? __template_novo : ""), {
+                        chave: "telaConsultaTemplate",
+                        dialogo: {
+                            titulo: ["Selecione uma op&ccedil;&atilde;o"],
+                            corpo: []
+                        },
+                        style: {
+                            overflow: "hidden"
+                        },
+                        autoScroll: !1,
+                        cls: "jnl-template-dinamico",
+                        camposAdicionais: {
+                            xtype: "container",
+                            layout: {
+                                type: "vbox"
+                            },
+                            style: {
+                                overflow: "hidden"
+                            },
+                            items: [{
+                                xtype: "label",
+                                text: "Sua tela criada deve ter o tamanho:",
+                                style: {
+                                    fontSize: "16px",
+                                    padding: "2px"
+                                }
+                            }, {
+                                xtype: "label",
+                                text: window.innerWidth + "x" + window.innerHeight,
+                                width: 250,
+                                style: {
+                                    fontSize: "16px",
+                                    paddingBottom: "10px",
+                                    textAlign: "center",
+                                    fontWeight: "bold"
+                                }
+                            }, {
+                                xtype: "tecla",
+                                text: "PDV Mouse/Touch",
+                                height: 45,
+                                width: 250,
+                                listeners: {
+                                    scope: this,
+                                    click: function() {
+                                        var a = Ext.ComponentQuery.query('dialogo[chave="telaConsultaTemplate"]')[0];
+                                        a && a.close();
+                                        Pdv.api.nucleo.Restful.consultarTemplates(1)
+                                    }
+                                }
+                            }, {
+                                xtype: "tecla",
+                                text: "Self Checkout",
+                                height: 45,
+                                width: 250,
+                                listeners: {
+                                    scope: this,
+                                    click: function() {
+                                        var a = Ext.ComponentQuery.query('dialogo[chave="telaConsultaTemplate"]')[0];
+                                        a && a.close();
+                                        Pdv.api.nucleo.Restful.consultarTemplates(2)
+                                    }
+                                }
+                            }, {
+                                xtype: "tecla",
+                                text: "Monitor Cliente",
+                                height: 45,
+                                width: 250,
+                                listeners: {
+                                    scope: this,
+                                    click: function() {
+                                        var a = Ext.ComponentQuery.query('dialogo[chave="telaConsultaTemplate"]')[0];
+                                        a && a.close();
+                                        Pdv.api.nucleo.Restful.consultarTemplates(3)
+                                    }
+                                }
+                            }, {
+                                xtype: "tecla",
+                                text: "Cancelar",
+                                height: 45,
+                                width: 250,
+                                handler: function() {
+                                    var a = Ext.ComponentQuery.query('dialogo[chave="telaConsultaTemplate"]')[0];
+                                    a && a.close()
+                                }
+                            }]
+                        },
+                        bbarNucleo: null
+                    }).show();
+                    break;
+                case 12822:
+                    d = {
+                        cmd: 21,
+                        arg: {}
+                    };
+                    d.arg.tipo = 2;
+                    d.arg.self = 1;
+                    d.arg.listaMenu = !0;
+                    d.arg.habilitarTeclaCancelar = !0;
+                    d.arg.chave = 12822;
+                    d.arg.itemId = 12822;
+                    d.arg.seletor = {};
+                    d.arg.seletor.auto_sel = !1;
+                    d.arg.seletor.titulo = [];
+                    d.arg.seletor.titulo = [
+                        ["Dividir em quantos pagamentos?"]
+                    ];
+                    d.arg.seletor.rodape = null;
+                    d.arg.seletor.numcols = 2;
+                    d.arg.tamanhoPersonalizado = {};
+                    d.arg.tamanhoPersonalizado.width = 500;
+                    d.arg.seletor.colunas = [{
+                        id: "c0",
+                        largura: 400,
+                        titulo: "Descricao"
+                    }];
+                    primeira_vez = !1;
+                    d.arg.seletor.opcoes = [];
+                    for (f = 2; f <= __forma_pagamento.length; f++) d.arg.seletor.opcoes.push({
+                        chave: f,
+                        c0: f + " pagamentos",
+                        desab: !1,
+                        fn: 12822,
+                        tip: null
+                    });
+                    Pdv.api.sistema.Gerenciador.setIgnorarModoSelf(!0);
+                    Pdv.api.nucleo.Interpretador.executar(Ext.encode(d));
+                    break;
+                case 12823:
+                    if (!Ext.isEmpty(__lista_cartoes)) {
+                        d = {
+                            cmd: 21,
+                            arg: {}
+                        };
+                        d.arg.tipo = 2;
+                        d.arg.self = 1;
+                        d.arg.listaMenu = !0;
+                        d.arg.habilitarTeclaCancelar = !0;
+                        d.arg.chave = 12823;
+                        d.arg.itemId = 12823;
+                        d.arg.seletor = {};
+                        d.arg.seletor.auto_sel = !1;
+                        d.arg.seletor.titulo = [];
+                        d.arg.seletor.titulo = [
+                            [""]
+                        ];
+                        d.arg.seletor.rodape = null;
+                        d.arg.seletor.numcols = 2;
+                        d.arg.tamanhoPersonalizado = {};
+                        d.arg.tamanhoPersonalizado.width = 500;
+                        d.arg.seletor.colunas = [{
+                            id: "c0",
+                            largura: 400,
+                            titulo: "Descricao"
+                        }];
+                        primeira_vez = !1;
+                        d.arg.seletor.opcoes = [];
+                        for (f in __lista_cartoes) d.arg.seletor.opcoes.push({
+                            chave: __lista_cartoes[f].cod,
+                            c0: __lista_cartoes[f].desc,
+                            desab: !1,
+                            fn: 12823,
+                            tip: null
+                        });
+                        Pdv.api.sistema.Gerenciador.setIgnorarModoSelf(!0);
+                        Pdv.api.nucleo.Interpretador.executar(Ext.encode(d))
+                    }
+                    break;
+                case 12824:
+                    if (!(__opcoesTemplateDinamico2 &
+                            2)) break;
+                    Pdv.api.sistema.Gerenciador.codListaAtual += 1;
+                    Pdv.api.sistema.Gerenciador.ajustarListaPagamentos(Pdv.api.sistema.Gerenciador.codListaAtual);
+                    break;
+                case 12825:
+                    if (!(__opcoesTemplateDinamico2 & 2)) break;
+                    1 < Pdv.api.sistema.Gerenciador.codListaAtual && (Pdv.api.sistema.Gerenciador.codListaAtual -= 1, Pdv.api.sistema.Gerenciador.ajustarListaPagamentos(Pdv.api.sistema.Gerenciador.codListaAtual));
+                    break;
+                default:
+                    this.trataFuncaoInterna(b)
+            }
+            return !0
+        }
+        if (0 == e) {
+            switch (parseInt(a.fn, 10)) {
+                case 12800:
+                case 12801:
+                    Pdv.api.nucleo.Restful.consultaMercadoria(a,
+                        b);
+                    break;
+                case 12802:
+                    Pdv.api.nucleo.Restful.consultaPedido(a, b);
+                    break;
+                case 12803:
+                    Pdv.api.nucleo.Restful.consultaCliente(a.fn, b);
+                    break;
+                case 12804:
+                    Pdv.api.nucleo.Comunicador.enviarServicoNucleo("A00MFPB", 3, {
+                        narq: 0,
+                        chave: "A00MFPB",
+                        inicio: 5028,
+                        tam: 3
+                    });
+                    Pdv.api.nucleo.Comunicador.getDadosBalancaComanda();
+                    Pdv.api.nucleo.Restful.consultaComanda(a, b);
+                    break;
+                case 12805:
+                    "" == Pdv.api.sistema.Gerenciador.operadorComandaTemp ? (Pdv.api.sistema.Gerenciador.operadorComanda = b, Pdv.api.sistema.Gerenciador.operadorComandaTemp =
+                        b, __myApp.getController("Pdv.controller.Controller").trataFuncaoInterna(12805)) : Pdv.api.nucleo.Restful.consultaOperador(a, b);
+                    break;
+                case 12806:
+                    if (Pdv.api.sistema.Gerenciador.parametroBalanca) {
+                        if ("" === Pdv.api.sistema.Gerenciador.codMercadoriaComanda) {
+                            if (0 == b) return Ext.Msg.alert("Status", "Codigo n&atilde;o pode ser 0."), Pdv.api.sistema.Gerenciador.resetaDadosBalancaComanda(), !1;
+                            if (__itemPesadoComanda && 2 == b.substring(0, 1) && (13 == b.length || 20 == b.length)) Pdv.api.sistema.Gerenciador.comandaItemPesado = !0;
+                            Pdv.api.nucleo.Restful.buscaDadosMercadoria(b)
+                        } else if ("" === Pdv.api.sistema.Gerenciador.qtdComanda) {
+                            b = b.replace(",", ".");
+                            Ext.isNumeric(b) || (b = 0);
+                            if (0 == b) return Ext.Msg.alert("Status", "Quantidade n&atilde;o pode ser 0 e deve ser num&eacute;rica."), Pdv.api.sistema.Gerenciador.resetaDadosBalancaComanda(), !1;
+                            if (0 < Pdv.api.sistema.Gerenciador.qtdMaxima && b > Pdv.api.sistema.Gerenciador.qtdMaxima) return Ext.Msg.alert("Status", "Quantidade n&atilde;o pode ser maior que " + Pdv.api.sistema.Gerenciador.qtdMaxima +
+                                "."), Pdv.api.sistema.Gerenciador.resetaDadosBalancaComanda(), !1;
+                            Pdv.api.sistema.Gerenciador.qtdComanda = b
+                        }
+                        "" !== Pdv.api.sistema.Gerenciador.qtdComanda && "" !== Pdv.api.sistema.Gerenciador.codMercadoriaComanda && Pdv.api.nucleo.Restful.registrarItem(a)
+                    } else {
+                        if ("" === Pdv.api.sistema.Gerenciador.qtdComanda && !__itemPesadoComanda || __itemPesadoComanda && !Ext.isEmpty(Pdv.api.sistema.Gerenciador.codMercadoriaComanda) && Ext.isEmpty(Pdv.api.sistema.Gerenciador.qtdComanda)) {
+                            b = b.replace(",", ".");
+                            Ext.isNumeric(b) || (b = 0);
+                            __itemPesadoComanda && 0 == b && (b = 1);
+                            if (0 == b) return Ext.Msg.alert("Status", "Quantidade n&atilde;o pode ser 0 e deve ser num&eacute;rica."), Pdv.api.sistema.Gerenciador.resetaDadosBalancaComanda(), !1;
+                            Pdv.api.sistema.Gerenciador.qtdComanda = b
+                        } else if ("" === Pdv.api.sistema.Gerenciador.codMercadoriaComanda) {
+                            if (0 == b) return Ext.Msg.alert("Status", "Codigo n&atilde;o pode ser 0."), Pdv.api.sistema.Gerenciador.resetaDadosBalancaComanda(), !1;
+                            if (2 == b.substring(0, 1) && (13 == b.length || 20 == b.length)) {
+                                Pdv.api.sistema.Gerenciador.comandaItemPesado = !0;
+                                Pdv.api.nucleo.Restful.buscaDadosMercadoria(b);
+                                break
+                            }
+                            Pdv.api.sistema.Gerenciador.codMercadoriaComanda = b
+                        }
+                        "" === Pdv.api.sistema.Gerenciador.qtdComanda || "" === Pdv.api.sistema.Gerenciador.codMercadoriaComanda ? __myApp.getController("Pdv.controller.Controller").trataFuncaoInterna(12806) : Pdv.api.nucleo.Restful.registrarItem(a)
+                    }
+                    break;
+                case 12807:
+                    Pdv.api.nucleo.Restful.liberarComanda(a, b);
+                    break;
+                case 12808:
+                    "" == Pdv.api.sistema.Gerenciador.operadorComandaTemp ? (Pdv.api.sistema.Gerenciador.supervisorComanda = b,
+                        Pdv.api.sistema.Gerenciador.operadorComandaTemp = b, __myApp.getController("Pdv.controller.Controller").trataFuncaoInterna(12808)) : Pdv.api.nucleo.Restful.consultaSupervisor(a, b);
+                    break;
+                case 12810:
+                    Pdv.api.nucleo.Restful.consultaPedidoExterno(a, b);
+                    break;
+                case 12815:
+                    Pdv.api.sistema.Gerenciador.montarSelectMenuLista(b);
+                    break;
+                case 12821:
+                    Pdv.api.nucleo.Restful.atualizarTemplate(b);
+                    break;
+                default:
+                    30 >= a.fn && 10 <= a.fn && Pdv.api.nucleo.Restful.consultaCliente(a.fn, b)
+            }
+            return !0
+        }
+        return !1
+    },
+    verificaFuncaoRetorno: function(a,
+        b) {
+        var d = b.get("c4"),
+            e = b.get("chave"),
+            f = Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#qtd");
+        void 0 == f && (f = Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#visorLogico8"));
+        switch (parseInt(a, 10)) {
+            case 12800:
+                0 < parseInt(d) ? (void 0 != f && !Ext.isEmpty(f.getValue()) && (Pdv.api.nucleo.Comunicador.setQuantidade(f.getValue()), f.setValue("")), Pdv.api.nucleo.Comunicador.setCodigoProduto(e)) : Pdv.api.sistema.Gerenciador.confirma().confirm("Estoque", "Sem saldo no estoque, deseja vender assim mesmo?", function(a) {
+                    if ("yes" ==
+                        a) void 0 != f && !Ext.isEmpty(f.getValue()) && (Pdv.api.nucleo.Comunicador.setQuantidade(f.getValue()), f.setValue("")), Pdv.api.nucleo.Comunicador.setCodigoProduto(e);
+                    else return !1
+                });
+                break;
+            case 12801:
+                void 0 != f && !Ext.isEmpty(f.getValue()) && (Pdv.api.nucleo.Comunicador.setQuantidade(f.getValue()), f.setValue(""));
+                Pdv.api.nucleo.Comunicador.setCodigoProduto(e);
+                break;
+            case 12802:
+            case 12810:
+                void 0 != f && !Ext.isEmpty(f.getValue()) && (Pdv.api.nucleo.Comunicador.setQuantidade(f.getValue()), f.setValue(""));
+                Pdv.api.nucleo.Comunicador.setPedido(e);
+                break;
+            case 12803:
+                break;
+            case 12820:
+                return Pdv.api.nucleo.Restful.atualizarTemplate(e), !1;
+            case 12897:
+                Pdv.api.nucleo.Comunicador.setCodigoCliente(e);
+                break;
+            case 12815:
+                Pdv.api.nucleo.Comunicador.setSelecaoMenu(Pdv.api.nucleo.Interpretador.chaveOriginal, -8, Pdv.api.sistema.Gerenciador.historico, 1, e, 1);
+                Pdv.api.sistema.Gerenciador.mensagemAguarde("Aguarde...", "Registrando");
+                break;
+            case 12818:
+                Pdv.api.nucleo.Comunicador.enviar('{"cmd":1,"arg":{"ev":3,"vendedor":"' + e + '"}}', !0);
+                break;
+            case 12822:
+                Pdv.api.sistema.Gerenciador.infoPagamento = {};
+                Pdv.api.sistema.Gerenciador.infoPagamento.listaFin = [];
+                Pdv.api.sistema.Gerenciador.infoPagamento.valorPagamento = [];
+                Pdv.api.sistema.Gerenciador.infoPagamento.totalDigitado = 0;
+                Pdv.api.sistema.Gerenciador.infoPagamento.qtdFormasPagto = e;
+                d = Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#visorLogico80").value.replace("R$ ", "");
+                d = parseFloat(d.replace(".", "").replace(",", ".").trim());
+                Pdv.api.sistema.Gerenciador.infoPagamento.valorDividido = (d / Pdv.api.sistema.Gerenciador.infoPagamento.qtdFormasPagto).toFixed(2);
+                Pdv.api.sistema.Gerenciador.exibirModalFormasPagamento(1);
+                break;
+            case 12823:
+                Pdv.api.nucleo.Comunicador.setPagamento(10 * e);
+                break;
+            case 12893:
+                var g = e.split("#");
+                if (1 == g[3]) {
+                    Pdv.api.nucleo.Comunicador.setModificadores(g[0], 0, g[1], g[4], g[2]);
+                    Pdv.api.nucleo.Comunicador.sincronizarItens();
+                    break
+                }
+                g[2] & 1 ? (d = "", Ext.Array.contains("2003 2004 2005 2006 2007 2008 2011 2012 2013".split(" "), __template.toString()) && (d = __template), (dialogo = Ext.ComponentQuery.query("dialogo")[0]) && dialogo.close(), Ext.create("Pdv.view.sistema.dialogo.Coletor" +
+                    d, {
+                        campo: {
+                            fieldLabel: "Informe o opcional",
+                            labelClsExtra: "label-text-grande input-desconto-alterado-label",
+                            maxLength: 60,
+                            customizado: !0
+                        },
+                        campoAdicional: {
+                            xtype: "campoinput",
+                            hidden: !0,
+                            itemId: "coletorHidden"
+                        },
+                        teclado: {
+                            tipo: 1,
+                            disabledSimb: !1
+                        },
+                        onEnter: {
+                            fn: function(a) {
+                                Pdv.api.nucleo.Comunicador.setModificadores(g[0], 1, g[1], a, g[2]);
+                                Pdv.api.nucleo.Comunicador.sincronizarItens()
+                            },
+                            escopo: this
+                        },
+                        habilitarTeclaCancelar: !0,
+                        title: "Entre com o dado abaixo"
+                    }).show()) : (Pdv.api.nucleo.Comunicador.setModificadores(g[0],
+                    1, g[1], g[4], g[2]), Pdv.api.nucleo.Comunicador.sincronizarItens());
+                break;
+            default:
+                10 <= parseInt(a, 10) && 30 >= parseInt(a, 10) && (console.log("Sucesso na busca online de cliente"), d = b.get("c0"), campo = ";" + parseInt(a, 10) + ";0;" + d + ";", Pdv.api.nucleo.Comunicador.setColeta(Pdv.api.sistema.Gerenciador.chaveSeletorTiposDeBusca, -5, campo), Pdv.api.sistema.Gerenciador.chaveSeletorTiposDeBusca = null)
+        }
+        return !0
+    },
+    enviarEventoDoGatilho: function(a, b, d) {
+        "undefined" == typeof d && (d = !1);
+        if (!1 != Pdv.api.sistema.Gerenciador.coletaQtd) return Pdv.api.nucleo.Comunicador.setSelecaoMenu(Pdv.api.sistema.Gerenciador.coletaQtd,
+            -9, Pdv.api.sistema.Gerenciador.historico, "", "", b), Pdv.api.sistema.Gerenciador.mensagemAguarde("Aguarde...", "Processando"), Pdv.api.sistema.Gerenciador.coletaQtd = !1, !0;
+        var e = parseInt(b);
+        if ((12800 <= e && 12899 >= e || 2E4 <= e && 21E3 >= e) && !d && "teclafuncao" === a.xtype) return Pdv.api.nucleo.Interpretador.teclaFuncaoInterna = a, Pdv.api.nucleo.Interpretador.valColetadoFuncaoInterna = b, Pdv.api.nucleo.Comunicador.enviarServicoNucleo("AutorizacaoFuncaoInterna", 10, {
+            nfunc: b,
+            nfunc2: "",
+            autoriz_default: "",
+            texto: ""
+        }), !0;
+        if (this.verificaFuncaoInterna(a,
+                b)) return !0;
+        d = parseInt(a.evento, 10);
+        if (33 === d || 32 === d)
+            if (e = Pdv.api.store.Gerenciador.getStoreCupom().last()) {
+                for (var f = e.get("chave"), g = e.get("param"), h = !1, j = 0; j < g.length; j++)
+                    if (0 < g[j].acr) {
+                        h = !0;
+                        break
+                    } h && 32 === d && (d = parseFloat(e.get("total").trim().replace(",", ".").replace(" ", "")), b = parseFloat(b.trim().replace(",", ".").replace(" ", "")) / 100, b *= d, d = 33)
+            } switch (d) {
+            case 2:
+                Pdv.api.nucleo.Comunicador.cancelarCupom();
+                break;
+            case 3:
+                Pdv.api.nucleo.Comunicador.registrarVendedor(b);
+                break;
+            case 4:
+                Pdv.api.nucleo.Comunicador.setCodigoProduto(b);
+                break;
+            case 6:
+                Pdv.api.nucleo.Comunicador.setDescontoFuncionario(b);
+                break;
+            case 7:
+                Pdv.api.nucleo.Comunicador.setDescontoPerc(b);
+                break;
+            case 8:
+                Pdv.api.nucleo.Comunicador.setDescontoValor(b);
+                break;
+            case 9:
+                Pdv.api.nucleo.Comunicador.getLeituraBalanca();
+                break;
+            case 10:
+                Pdv.api.nucleo.Comunicador.setCodigoCliente(b);
+                break;
+            case 11:
+                Pdv.api.nucleo.Comunicador.setPedido(b);
+                break;
+            case 12:
+                Pdv.api.nucleo.Comunicador.setPedidoViaArq(b);
+                break;
+            case 13:
+                if (__modoSelf || __opcoesTemplateDinamico & 4096) 0 == b || Ext.isEmpty(b) ? Pdv.api.nucleo.Comunicador.getLeituraBalanca() :
+                    Pdv.api.nucleo.Comunicador.setQuantidade(b);
+                break;
+            case 15:
+                Pdv.api.nucleo.Comunicador.setFuncao(b);
+                break;
+            case 16:
+                Pdv.api.nucleo.Comunicador.setTipoVendaEspecial(b);
+                break;
+            case 17:
+                Pdv.api.nucleo.Comunicador.setValor(b);
+                break;
+            case 18:
+                void 0 != a.up("teclado") && (a = a.up("teclado").getCampoDeInput(), Ext.isObject(a) && a.setValue(""));
+                Pdv.api.nucleo.Comunicador.limparItem();
+                break;
+            case 19:
+                void 0 != Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#btPrev") && Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#btPrev").hide();
+                3 < Pdv.api.sistema.Gerenciador.getTotFinalizadora() && (!0 == __opcoesPagamento && void 0 != Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#btNext")) && Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#btNext").show();
+                Pdv.api.nucleo.Comunicador.limparPagamento();
+                break;
+            case 20:
+                Pdv.api.sistema.Gerenciador.setBtnFinalizar(!1);
+                Pdv.api.nucleo.Comunicador.getSubtotal();
+                break;
+            case 32:
+                Pdv.api.nucleo.Comunicador.setAcrescimoPerc(b);
+                break;
+            case 33:
+                Pdv.api.nucleo.Comunicador.setAcrescimoValor(b, f);
+                break;
+            case 34:
+                Pdv.api.nucleo.Comunicador.setAcrescimoAutomatico();
+                break;
+            case 38:
+                Pdv.api.nucleo.Comunicador.setAjuda(a.value)
+        }
+    },
+    enviarAcaoMenuLista: function(a) {
+        var b = a.tipo,
+            d = a.up("dialogo"),
+            a = Pdv.api.nucleo.Interpretador.chave;
+        switch (b) {
+            case 0:
+                b = Pdv.api.sistema.Gerenciador.historico;
+                Pdv.api.nucleo.Interpretador.tratarArgsMenuLista(null, null, b);
+                break;
+            case -1:
+                Pdv.api.nucleo.Comunicador.setSelecaoMenu(a, -1, "", "", "", "");
+                Pdv.api.sistema.Gerenciador.historico = "";
+                Pdv.api.nucleo.Interpretador.menuStatus = !1;
+                break;
+            case -7:
+                b = Pdv.api.sistema.Gerenciador.historico;
+                Pdv.api.nucleo.Comunicador.setSelecaoMenu(a,
+                    -7, b, "", "", "");
+                break;
+            case -9:
+                Pdv.api.sistema.Gerenciador.coletaQtd = a, a = {
+                    autoLabel: "Quantidade",
+                    monetario: 0
+                }, this.abrirJanelaAutoColeta(a)
+        }
+        d.close();
+        d.destroy()
+    },
+    enviarAcaoDialogo: function(a) {
+        var b = a.tipo,
+            d = a.tp,
+            e = a.tec,
+            f = a.up("dialogo").tipo,
+            g = a.up("dialogo"),
+            h = g.chave;
+        if (28 === e && (2015 == __template || 2016 == __template))
+            if (d = {
+                    tecla: a,
+                    tipo: b,
+                    tp: d,
+                    tec: e,
+                    tipoInteracao: f,
+                    dialogo: g,
+                    chave: h
+                }, g.abrirPopupCustom && "function" === typeof g.abrirPopupCustom) {
+                g.abrirPopupCustom(d, this);
+                return
+            } switch (f) {
+            case 1:
+                !0 == Pdv.api.sistema.Gerenciador.getSelecaoComoBotao() ?
+                    (Pdv.api.sistema.Gerenciador.setSelecaoComoBotao(!1), e = this.retornaTecCerto(e, b), Pdv.api.nucleo.Comunicador.setSelecao(h, e)) : Pdv.api.nucleo.Comunicador.setMsg(h, e);
+                27 == e && 2004 == __template && this.processarTeclaFuncional({
+                    pdvfn: 171
+                });
+                break;
+            case 2:
+            case 4:
+                e = this.retornaTecCerto(e, b);
+                Pdv.api.nucleo.Comunicador.setSelecao(h, e);
+                break;
+            case 3:
+                if (e = this.retornaTecCerto(e, b), g instanceof Pdv.view.sistema.dialogo.ColetorMultiploPDV) {
+                    a = Ext.ComponentQuery.query("campoinput", g);
+                    b = [];
+                    for (f = 0; f < a.length; f++) b[f] = a[f].getValue();
+                    resultado = JSON.stringify(b);
+                    Pdv.api.nucleo.Comunicador.setColeta(h, e, resultado, !0)
+                } else "teclamensageira" === a.xtype && "Voltar" === a.text && Pdv.api.sistema.Gerenciador.limparStrBuffer(), b = "", Pdv.api.sistema.Gerenciador.tratarBtnOpcoesColeta && (Pdv.api.sistema.Gerenciador.tratarBtnOpcoesColeta = !1, e = Ext.ComponentQuery.query("campoinput", g), Ext.isEmpty(e) || (b = e[0].getValue()), e = a.tec), Pdv.api.nucleo.Comunicador.setColeta(h, e, b)
+        }
+        g.close();
+        g.destroy();
+        Pdv.api.tela.Gerenciador.setFocusInput()
+    },
+    executarAcaoOriginal: function(a) {
+        var b =
+            a.tipo,
+            d = a.tec,
+            e = a.dialogo,
+            f = a.chave,
+            g = a.tecla;
+        switch (a.tipoInteracao) {
+            case 1:
+                !0 == Pdv.api.sistema.Gerenciador.getSelecaoComoBotao() ? (Pdv.api.sistema.Gerenciador.setSelecaoComoBotao(!1), d = this.retornaTecCerto(d, b), Pdv.api.nucleo.Comunicador.setSelecao(f, d)) : Pdv.api.nucleo.Comunicador.setMsg(f, d);
+                27 == d && 2004 == __template && this.processarTeclaFuncional({
+                    pdvfn: 171
+                });
+                break;
+            case 2:
+            case 4:
+                d = this.retornaTecCerto(d, b);
+                Pdv.api.nucleo.Comunicador.setSelecao(f, d);
+                break;
+            case 3:
+                if (d = this.retornaTecCerto(d, b), e instanceof Pdv.view.sistema.dialogo.ColetorMultiploPDV) {
+                    g = Ext.ComponentQuery.query("campoinput", e);
+                    a = [];
+                    for (b = 0; b < g.length; b++) a[b] = g[b].getValue();
+                    resultado = JSON.stringify(a);
+                    Pdv.api.nucleo.Comunicador.setColeta(f, d, resultado, !0)
+                } else "teclamensageira" === g.xtype && "Voltar" === g.text && Pdv.api.sistema.Gerenciador.limparStrBuffer(), a = "", Pdv.api.sistema.Gerenciador.tratarBtnOpcoesColeta && (Pdv.api.sistema.Gerenciador.tratarBtnOpcoesColeta = !1, d = Ext.ComponentQuery.query("campoinput", e), Ext.isEmpty(d) || (a = d[0].getValue()),
+                    d = g.tec), Pdv.api.nucleo.Comunicador.setColeta(f, d, a)
+        }
+        e.close();
+        e.destroy();
+        Pdv.api.tela.Gerenciador.setFocusInput()
+    },
+    hasMenuButtons: function() {
+        return 1 < Ext.ComponentQuery.query(".teclamensageiramenu").length
+    },
+    getFilteredTextfields: function() {
+        return Ext.ComponentQuery.query(".textfield").filter(function(a) {
+            return "Quantidade" === a.fieldLabel && "textfield" === a.xtype && 1 === a.value
+        })
+    },
+    retornaTecCerto: function(a, b) {
+        switch (b) {
+            case 0:
+                a = "-1";
+                break;
+            case 1:
+                a = "-2";
+                break;
+            case 2:
+                a = "-3";
+                break;
+            case 3:
+                a = "-6";
+                break;
+            case 20:
+            case 21:
+            case 22:
+            case 23:
+            case 24:
+            case 25:
+            case 26:
+            case 27:
+            case 28:
+            case 29:
+                a =
+                    "-" + b
+        }
+        return a
+    },
+    getValorTecla: function(a) {
+        var b = a.up("teclado").down("teclaalt"),
+            d = a.up("teclado").down("#teclashift"),
+            e = a.value;
+        a instanceof Pdv.view.componente.tecla.Letra && (d.pressed ? b.pressed ? Ext.isArray(a.altValue) && 1 == a.altValue.length && (e = a.altValue[0][1]) : e = a.shiftValue : b.pressed && Ext.isArray(a.altValue) && 1 == a.altValue.length && (e = a.altValue[0][0]));
+        return e
+    },
+    escreverNoCampo: function(a) {
+        if (-1 != [200, 1200].indexOf(parseInt(__template)) && a.configurador) return this.tecladoConfiguradorNumerico(a),
+            !0;
+        if (!(void 0 == a.value || Ext.isEmpty(a.value))) {
+            var b = a.up('teclado[tipo="comum"]');
+            b && (input = b.getCampoDeInput());
+            if (void 0 != input) {
+                var d = Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("teclaalt");
+                if (d && !0 == d.pressed && 2 <= a.altValue.length) this.exibeBotoesAcentuados(a);
+                else if (Ext.isObject(input) || (input = (d = a.up("dialogo")) ? d.down(input) : a.up("pdvtela").down(input)) && b.setCampoDeInput(input), d = input.getValue(), b = b.getTeclaBackspace(), a = Pdv.api.validacao.VType.decodeHtml(this.getValorTecla(a)), !input.isDirty() &&
+                    input.valorInicialNoCampo) input.valorInicialNoCampo = !1, input.setValue(a), b && b.setDisabled(!1);
+                else if ("combobox" == input.xtype && __habilitaTecladoTouchCadCli) {
+                    Ext.isEmpty(d) && (d = "");
+                    var e = Ext.ComponentQuery.query("#coletorHidden")[0],
+                        d = d + a;
+                    e && (e.setValue(e.getValue() + a), d = e.getValue());
+                    document.getElementById(input.getInputId()).value = d.toUpperCase();
+                    input.doRawQuery();
+                    b && b.setDisabled(!1)
+                } else input && !input.campoBloqueado && (input instanceof Ext.form.field.Number ? input.setValue(10 * parseFloat(d) + parseFloat(a)) :
+                    input.setValue(d + a), b && b.setDisabled(!1))
+            }
+        }
+    },
+    enviarFormaPagamento: function(a, b) {
+        if (!0 != b.get("desab")) {
+            var d = b.data.chave,
+                e = b.data.nome;
+            if (b.data.coleta) {
+                if (2E3 <= __template && 2100 > __template || 4E3 == __template) {
+                    var f = __componente_novo;
+                    Ext.Array.contains("2003 2004 2005 2006 2007 2008 2012 4000".split(" "), __template.toString()) && (f = __template)
+                } else f = "";
+                f = Ext.create("Pdv.view.sistema.dialogo.Coletor" + f, {
+                    campo: {
+                        fieldLabel: "Valor",
+                        valorInicial: Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#visorLogico80").value
+                    },
+                    teclado: {
+                        monetario: 1
+                    },
+                    onEnter: {
+                        fn: function(a, b) {
+                            Pdv.api.store.Gerenciador.getStorePagamentosAceitos().removeAll();
+                            Pdv.api.nucleo.Comunicador.setPagamento(a, b)
+                        },
+                        args: [d]
+                    },
+                    habilitarTeclaCancelar: !0,
+                    title: "Finalizadora: " + e,
+                    tbar: [{
+                        height: 40,
+                        flex: 1,
+                        margin: 5,
+                        xtype: "textfield",
+                        readOnly: !0,
+                        labelClsExtra: "label-text",
+                        fieldCls: "input-tbar",
+                        fieldLabel: "SubTotal",
+                        value: Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#visorLogico10").value
+                    }, {
+                        height: 40,
+                        flex: 1,
+                        margin: 5,
+                        xtype: "textfield",
+                        readOnly: !0,
+                        labelClsExtra: "label-text",
+                        fieldCls: "input-tbar",
+                        fieldLabel: "A pagar",
+                        value: Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#visorLogico80").value
+                    }]
+                });
+                f.on("show", function() {
+                    this.campo.valorInicial = null
+                }, f);
+                f.show()
+            } else Pdv.api.nucleo.Comunicador.setPagamento(d, null);
+            a.deselectAll()
+        }
+    },
+    enviarFormaPagamentoBotao: function(a) {
+        if (!0 == __opcoesPagamento && (!0 == __modoSelf && (1005 == __template || 1009 == __template)) && !1 == Pdv.api.sistema.Gerenciador.getObjWorkSpace().layout.getActiveItem() instanceof Pdv.view.sistema.tela.TelaPagamento) Pdv.api.sistema.Gerenciador.setBtnFinalizar(!0),
+            Pdv.api.nucleo.Comunicador.getSubtotal();
+        var b = a.chave;
+        valor = null;
+        coleta = a.coleta;
+        nome = a.text;
+        if (__modoPedido || __modoSelf || a.informaValor) valor = "0";
+        else {
+            var d = Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#valorInput");
+            valor = Ext.isEmpty(d) && (200 == __template || 1200 == __template) ? "0" : Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#valorInput").value
+        }
+        if (2013 == __template && Pdv.api.sistema.Gerenciador.finalizadoraDesconto[b]) valor = Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#visorLogico80").value,
+            !Ext.isEmpty(valor) && valor.length - 3 == valor.indexOf(",") && (valor = valor.replace(".", "").replace(",", ".")), Pdv.api.nucleo.Comunicador.setPagamento(b, valor);
+        else {
+            __modoSelf && !1 == __pagamentoSCTotal && (valor = Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#visorLogico80").value);
+            if ((2003 == __template || 2013 == __template) && !Ext.isEmpty(a.value)) valor = a.value;
+            !Ext.isEmpty(valor) && valor.length - 3 == valor.indexOf(",") && (valor = valor.replace(".", "").replace(",", "."));
+            if (__modoSelf && !1 == __pagamentoSCTotal) Pdv.api.nucleo.Comunicador.setPagamento(b,
+                valor);
+            else if (!Ext.isEmpty(valor) && "" != valor.trim() && 0 != valor) Pdv.api.nucleo.Comunicador.setPagamento(b, valor);
+            else if (!coleta && !Ext.isEmpty(valor) && "" != valor.trim() && 0 != valor) Pdv.api.nucleo.Comunicador.setPagamento(b, valor);
+            else {
+                2E3 <= __template && 2100 > __template || 4E3 == __template ? (a = __componente_novo, Ext.Array.contains("2003 2004 2005 2006 2007 2008 2011 2012 2013 4000".split(" "), __template.toString()) && (a = __template)) : a = "";
+                1200 == __template && (a = 1200);
+                var e = Pdv.api.sistema.Gerenciador.exige_digitacao_valor_ao_finalizar ?
+                    "" : Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#visorLogico80").value.replace("R$ ", ""),
+                    d = Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#visorLogico10").value.replace("R$ ", ""),
+                    f = Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#visorLogico80").value.replace("R$ ", ""),
+                    d = Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#visorLogico10").value.replace("R$ ", "");
+                "undefined" != typeof Ext.ComponentQuery.query("#valorPayCardDesc")[0] && (null != Ext.ComponentQuery.query("#valorPayCardDesc")[0] && b == 10 *
+                    __finalizadora_desconto) && (f = Ext.ComponentQuery.query("#valorPayCardDesc")[0].getValue().replace("R$ ", ""), Ext.isEmpty(e) || (e = f));
+                2011 == __template && (e = e.replace("R$", "").trim());
+                2012 == __template && (d = d.replace("R$", "").trim(), f = f.replace("R$", "").trim(), "undefined" != typeof Pdv.api.sistema.Gerenciador.finalizadoraDesconto[b] && (f = Pdv.api.sistema.Gerenciador.finalizadoraDesconto[b].total.replace("R$", "").trim(), e = Pdv.api.sistema.Gerenciador.finalizadoraDesconto[b].total));
+                a = Ext.create("Pdv.view.sistema.dialogo.Coletor" +
+                    a, {
+                        campo: {
+                            fieldLabel: "undefined" != typeof __mensagem_finalizadora && !Ext.isEmpty(__mensagem_finalizadora) ? __mensagem_finalizadora : "Valor",
+                            valorInicial: e
+                        },
+                        teclado: {
+                            monetario: 1
+                        },
+                        onEnter: {
+                            fn: function(a, b) {
+                                __template == 2012 && !Ext.isEmpty(b) && (b = b.replace("R", "").slice(0, -2) + "." + b.slice(-2));
+                                if (__template == 2013 && Ext.isEmpty(b)) {
+                                    b = e.replace(".", "").replace(",", "");
+                                    b = b.slice(0, -2) + "." + b.slice(-2)
+                                }
+                                Pdv.api.nucleo.Comunicador.setPagamento(a, b)
+                            },
+                            args: [b]
+                        },
+                        habilitarTeclaCancelar: !0,
+                        title: "Finalizadora: " + nome,
+                        coletorPay: !0,
+                        addTec1Tela: Ext.Array.contains(["2006", "2008"], __template),
+                        tbar: [{
+                            height: 40,
+                            flex: 1,
+                            margin: 5,
+                            xtype: "textfield",
+                            readOnly: !0,
+                            labelClsExtra: "label-text",
+                            fieldCls: "input-tbar",
+                            fieldLabel: "SubTotal",
+                            value: d,
+                            hidden: __opcoesTemplateDinamico2 & 256 ? !0 : !1
+                        }, {
+                            height: 40,
+                            flex: 1,
+                            margin: 5,
+                            xtype: "textfield",
+                            readOnly: !0,
+                            labelClsExtra: "label-text",
+                            fieldCls: "input-tbar",
+                            fieldLabel: "A pagar",
+                            value: f,
+                            cls: "pgto-parcial-vlrtotal"
+                        }]
+                    });
+                a.on("show", function() {
+                    this.campo.valorInicial = null
+                }, a);
+                a.show()
+            }
+        }
+    },
+    processarTeclaFuncional: function(a) {
+        var b = {
+            evento: 15
+        };
+        __modoPedido && 1148 == a.pdvfn && (Pdv.api.sistema.Gerenciador.entrouCancelar = !0);
+        this.tratarCamposTecla(a);
+        if (!(__opcoesTemplateDinamico2 & 2048 && 14130 == a.pdvfn && !Pdv.api.sistema.Gerenciador.podeExecutarFuncaoEvento(14130)))
+            if (a.solicitaPermissao && Ext.isEmpty(a.permitido)) Pdv.api.sistema.Gerenciador.permissaoClickTecla = a, Pdv.api.nucleo.Comunicador.enviarServicoNucleo("AutorizacaoTecla", 10, {
+                nfunc: "",
+                nfunc2: "",
+                autoriz_default: !Ext.isEmpty(a.autoriz_default) ? a.autoriz_default : 2,
+                texto: !Ext.isEmpty(a.texto_autoriz) ?
+                    a.texto_autoriz : ""
+            });
+            else if (a.solicitaPermissao && (a.permitido = null), 12800 <= a.pdvfn && 12899 >= a.pdvfn) this.verificaFuncaoInterna(b, a.pdvfn);
+        else {
+            adic = void 0;
+            if ((3100 <= a.pdvfn && 3199 >= a.pdvfn || 1170 <= a.pdvfn && 1179 >= a.pdvfn) && "pdvtelacomanda" === Ext.ComponentQuery.query("#workspace")[0].layout.getActiveItem().xtype) adic = [{
+                codcampo: "podefechado",
+                conteudo: "1"
+            }];
+            Pdv.api.nucleo.Comunicador.setFuncao(a.pdvfn, adic)
+        }
+    },
+    processarTeclaFinalizadora: function(a) {
+        var b = Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#input");
+        void 0 != b && (__valorInputCodigo = b.value, b.setValue(""));
+        __btFinalizadora = a;
+        a.finalizadoraMain && (Pdv.api.sistema.Gerenciador.clickFinalizadoraMain = !0);
+        Pdv.api.sistema.Gerenciador.mensagemAguarde("Processando...", "Aguarde");
+        Pdv.api.nucleo.Comunicador.getSubtotal()
+    },
+    processarTeclaProduto: function(a) {
+        Pdv.api.nucleo.Comunicador.setCodigoProduto(a.codprod)
+    },
+    enviarQuantidade: function(a) {
+        if (!(9 == __template && !1 == __habilitarQuantidade)) {
+            var b = Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#input");
+            if (1 < a.fator) a =
+                a.fator;
+            else {
+                a = b.getValue();
+                if (Ext.isEmpty(a)) {
+                    Pdv.api.nucleo.Comunicador.getLeituraBalanca();
+                    return
+                }
+                "." == a.substring(0, 1) && (a = "0" + a)
+            }
+            Pdv.api.nucleo.Comunicador.setQuantidade(a, void 0);
+            b.setValue("")
+        }
+    },
+    bipar: function(a) {
+        (Pdv.api.sistema.Gerenciador.getStatusSomTeclas() || !0 == a) && Pdv.api.sistema.Gerenciador.bip.play()
+    },
+    exibeBotoesAcentuados: function(a) {
+        var b = 0,
+            d = [];
+        !0 == Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva("#teclashift").pressed && (b = 1);
+        for (count = 0; count < a.altValue.length; count++) d.push(a.altValue[count][b]);
+        Ext.create("Pdv.view.sistema.dialogo.DialogoBotoes", {
+            teclas: d
+        }).show()
+    },
+    enviarColeta: function(a) {
+        var b = a.up("dialogo"),
+            d = b.chave;
+        if (b instanceof Pdv.view.sistema.dialogo.Coletor) {
+            var e = b.down("campoinput"),
+                f = b.down("tecladonumerico"),
+                g = b.campo.valorInicial,
+                h = e.getValue();
+            b.campo.mascarado && (h = b.teclado.monetario ? ("" + h).replace(/\./gi, "") : h.replace(/[^a-zA-Z0-9]/g, ""))
+        } else if (4E3 == __template && b instanceof Pdv.view.sistema.dialogo.Coletor4000 || "widget.coletor" == b.alias) e = b.down("campoinput"), f = b.down("tecladonumerico"),
+            g = b.campo.valorInicial, h = e.getValue();
+        else if (-1 != ["2000", "2002", "2014"].indexOf(__template) && b instanceof eval("Pdv.view.sistema.dialogo.Coletor" + __template) || "widget.coletor" == b.alias) e = b.down("campoinput"), f = b.down("tecladonumerico"), g = b.campo.valorInicial, h = e.getValue();
+        else if (b instanceof Pdv.view.sistema.dialogo.MultiColetor) e = b.down("#" + (null === b.campoColeta ? Pdv.api.sistema.Gerenciador.multiColetaCtrl.focused : b.campoColeta)), f = b.down("#" + Pdv.api.sistema.Gerenciador.multiColetaCtrl.focusedKeyboard),
+            g = e.valorInicial, h = e.getValue(), a.evento = Pdv.api.sistema.Gerenciador.multiColetaCtrl[e.itemId].evento;
+        else {
+            if (b instanceof Pdv.view.sistema.dialogo.ColetorMultiploPDV) {
+                b = Ext.ComponentQuery.query("campoinput", b);
+                e = [];
+                for (g = 0; g < b.length; g++) e[g] = b[g].getValue();
+                resultado = JSON.stringify(e);
+                Pdv.api.nucleo.Comunicador.setColeta(d, -5, resultado, !0);
+                Pdv.api.sistema.Gerenciador.getStatusBuffer() && Pdv.api.sistema.Gerenciador.limparStrBuffer();
+                return !0
+            }
+            throw Error("Tipo de dado n&atilde;o definido.");
+        }
+        void 0 ==
+            f && "Mouse" == __PDV && (f = b.down("tecladosimples"));
+        2011 == __template && 136 == Pdv.api.sistema.Gerenciador.getSituacaoRealPDV() && (Pdv.api.sistema.Gerenciador.codigoProduto = h);
+        if (g == h && !1 == Pdv.api.sistema.Gerenciador.campoEditado) h = "";
+        else if (f) {
+            if (b instanceof Pdv.view.sistema.dialogo.MultiColetor && (f.semAlteracao || 0 == f.monetario) && e.dadoNumerico && e.permitirValorDecimal && -1 != h.indexOf(",")) h = ("" + h).replace(/\./gi, "").replace(",", ".");
+            if (!(b instanceof Pdv.view.sistema.dialogo.MultiColetor && (f.semAlteracao ||
+                    0 != f.monetario) && e.dadoNumerico && e.permitirValorDecimal && -1 != h.indexOf(".")))
+                if (f.soNumeros && (h = ("" + h).replace(/[^0-9]/gi, "")), !(f.semAlteracao || 0 == f.monetario))
+                    if (null == f.monetario || void 0 == f.monetario) {
+                        if (a = f.campoDeInput.fieldLabel || "", -1 !== a.toUpperCase().indexOf("CPF") || -1 !== a.toUpperCase().indexOf("CNPJ")) h = ("" + h).replace(/[^0-9]/g, "")
+                    } else h = ("" + h).replace(/[^a-z0-9., ]/gi, "").replace(/\./gi, "").replace(",", ".")
+        }
+        if (e.isValid() && (Ext.isObject(b.onEnter) ? Ext.isFunction(b.onEnter.fn) && (b.onEnter.escopo =
+                Ext.isObject(b.onEnter.escopo) ? b.onEnter.escopo : {}, b.onEnter.args = Ext.isArray(b.onEnter.args) ? b.onEnter.args : [], b.onEnter.dialogo = b, b.onEnter.args.push(h), b.onEnter.fn.apply(b.onEnter.escopo, b.onEnter.args)) : (a = "-5", Pdv.api.sistema.Gerenciador.tratarBtnOpcoesColeta && (Pdv.api.sistema.Gerenciador.tratarBtnOpcoesColeta = !1, a = Pdv.api.sistema.Gerenciador.argsInteracao.bbarNucleo[0].tec), "undefined" != typeof __compatibilidade_coleta_pdv && !0 == __compatibilidade_coleta_pdv && (Ext.isEmpty(e.value) && g != e.value) &&
+                (a = "-10"), Pdv.api.nucleo.Comunicador.setColeta(d, a, h)), !0 != b.manterTeclado && b.down("tecladonumerico") && b.down("tecladonumerico").destroy(), Pdv.api.sistema.Gerenciador.getStatusBuffer() && Pdv.api.sistema.Gerenciador.limparStrBuffer(), Pdv.api.sistema.Gerenciador.campoEditado = !1, !0 != b.enterPersonalizado)) b.close(), b.destroy(), Pdv.api.tela.Gerenciador.setFocusInput()
+    },
+    tratarTiposDeBusca: function(a) {
+        var b = Ext.ComponentQuery.query("dialogo").length - 1;
+        (dialogo = Ext.ComponentQuery.query("dialogo")[b]) && dialogo.hide();
+        a = a.get("chave");
+        if ("undefined" == typeof __loja) return Ext.Msg.alert("Status", "Loja n&atilde;o est&aacute; configurada"), !1;
+        this.trataFuncaoInterna(a)
+    },
+    enviarSelecao: function(a, b) {
+        if (!0 != b.get("desab") && !Pdv.api.sistema.Gerenciador.selectMultiplo) {
+            var d = b.get("chave"),
+                e = b.get("fn"),
+                f = a.view.panel.chave;
+            try {
+                if (void 0 != e && !Ext.isEmpty(e) && (12800 == e || 12801 == e) && !Ext.isEmpty(b.get("imagem"))) return
+            } catch (g) {}
+            if (void 0 != e && !Ext.isEmpty(e)) isNaN(e) ? (this.tratarTiposDeBusca(b), a.view.panel.up("dialogo").close()) :
+                (Pdv.api.tela.Gerenciador.setFocusInput(), this.verificaFuncaoRetorno(e, b), 12803 != e && a.view.panel.up("dialogo").close());
+            else if (void 0 != d) try {
+                Pdv.api.nucleo.Comunicador.setSelecao(f, d), a.view.panel.up("dialogo").close(), Pdv.api.tela.Gerenciador.setFocusInput()
+            } catch (h) {
+                console.log("erro na selecao")
+            }
+        }
+    },
+    enviarSelecaoBtn: function(a) {
+        if (Ext.isFunction(a.up)) var b = a.up("dialogo"),
+            d = b.down("textfield"),
+            e = a.chave,
+            f = b.chave,
+            g = b.down("textfield");
+        var e = a.chave,
+            h = a.tp,
+            j = a.fech,
+            k = "",
+            l = "";
+        a.pesavel && Pdv.api.sistema.Gerenciador.pesoColetadoAutomaticamente &&
+            Ext.ComponentQuery.query("#balanca")[0].el.dom.click();
+        this.bipar(!0);
+        if (void 0 != h && null != h) {
+            f = Pdv.api.nucleo.Interpretador.chave;
+            2 == j && (Pdv.api.nucleo.Interpretador.menuStatus = !0);
+            switch (h) {
+                case 1:
+                    if ("pdvtelacomanda" === Ext.ComponentQuery.query("#workspace")[0].layout.getActiveItem().xtype)
+                        if (Pdv.api.sistema.Gerenciador.menuComanda = !0, Pdv.api.sistema.Gerenciador.codMercadoriaComanda = e, Pdv.api.sistema.Gerenciador.qtdComanda = Ext.isEmpty(g) ? "" : "1" === g.getValue() ? "" : g.getValue(), "" === Pdv.api.sistema.Gerenciador.qtdComanda ||
+                            "0" === Pdv.api.sistema.Gerenciador.qtdComanda)
+                            if (Pdv.api.sistema.Gerenciador.parametroBalanca) {
+                                if (__itemPesadoComanda && 2 == e.substring(0, 1) && (13 == e.length || 20 == e.length)) Pdv.api.sistema.Gerenciador.comandaItemPesado = !0;
+                                Pdv.api.nucleo.Restful.buscaDadosMercadoria(e)
+                            } else __myApp.getController("Pdv.controller.Controller").trataFuncaoInterna(12806, !(a.pesavel && Pdv.api.sistema.Gerenciador.pesoColetadoAutomaticamente));
+                    else Pdv.api.nucleo.Restful.registrarItem({
+                        evento: 0,
+                        fn: 12806
+                    }), g.setValue(0);
+                    else k = Pdv.api.sistema.Gerenciador.historico,
+                        l = Ext.isEmpty(g) ? 1 : g.getValue(), 0 == j && (Pdv.api.nucleo.Interpretador.menuStatus = !0), Pdv.api.nucleo.Comunicador.setSelecaoMenu(f, -8, k, 1, e, l), d.setValue(1), Pdv.api.sistema.Gerenciador.mensagemAguarde("Aguarde...", "Registrando");
+                    return !0;
+                case 2:
+                    Pdv.api.nucleo.Comunicador.setSelecaoMenu(f, -8, k, 2, e, l);
+                    break;
+                case 3:
+                    Pdv.api.sistema.Gerenciador.textoLista = a.text, retorno = Pdv.api.nucleo.Interpretador.tratarArgsMenuLista(null, e, null), !1 == retorno && Pdv.api.nucleo.Comunicador.setSelecaoMenu(f, -8, k, 2, e, l)
+            }
+            b.close()
+        } else if (Ext.isNumber(e)) try {
+            Pdv.api.nucleo.Comunicador.setSelecao(f,
+                e), b.close()
+        } catch (m) {
+            console.log("erro na selecao")
+        }
+    },
+    resizeMultiColetor: function(a, b) {
+        var d = 0,
+            e = a.down("#mainFrame"),
+            f = a.down("#tecladoColetorAN");
+        for (i in a.dockedItems.items)
+            for (c in a.dockedItems.items[i].items.items) a.dockedItems.items[i].items.items[c].height && (d += a.dockedItems.items[i].items.items[c].height);
+        e && f && e.setHeight(0.92 * (void 0 !== b ? b : a.getHeight()) - (f.hidden ? 0 : f.height) - d)
+    },
+    enviarEnter: function() {
+        if (!(2013 == __template && !Ext.isEmpty(__lista_funcoes) && __lista_funcoes.CartaoPresente.funcao ===
+                Pdv.api.sistema.Gerenciador.getSituacaoRealPDV())) {
+            if ("undefined" != typeof __gatilho_dialogo && "undefined" != typeof __gatilho_teclas) var a = __gatilho_dialogo();
+            else var b = Ext.ComponentQuery.query("dialogo").length - 1,
+                a = Ext.ComponentQuery.query("dialogo")[b];
+            if (void 0 == a) {
+                if (Pdv.api.sistema.Gerenciador.ativadaCapturaUSBProdutoSemInput() && Pdv.api.sistema.Gerenciador.getStatusBuffer() && "" != Pdv.api.sistema.Gerenciador.getBuffer()) return Pdv.api.nucleo.Comunicador.setpermitir_limpar_item_venda(!1), b = Pdv.api.sistema.Gerenciador.getBuffer(),
+                    Pdv.api.sistema.Gerenciador.limparArrBuffer(), 4E3 <= __template && 4999 >= __template && "adicionarcomanda" == Pdv.api.sistema.Gerenciador.getTelaCorrente().xtype ? (Pdv.api.sistema.Gerenciador.mensagemAguarde("Aguarde..."), Pdv.api.nucleo.Comunicador.enviar('{"cmd":1,"arg":{"ev":35,"comanda":"' + b[0] + '"}}')) : Pdv.api.nucleo.Comunicador.setCodigoProduto(b), !0;
+                Pdv.api.tela.Gerenciador.setFocusInput();
+                return !0
+            }
+            var d = a.down("teclamensageira"),
+                b = a.down("teclaentrar");
+            if (a && void 0 == b && void 0 != d) {
+                if (__desativaTeclaEnterMercadoriaNaoEncontrada &&
+                    a.body && a.body.dom && a.body.dom.textContent) {
+                    var e = a.body.dom.textContent;
+                    if ("" !== e.trim() && -1 !== e.indexOf("PDV00003")) return
+                }
+                d.fireEvent("click", d)
+            }
+            Pdv.api.sistema.Gerenciador.getStatusBuffer() && (a && b) && (d = Pdv.api.sistema.Gerenciador.getBuffer(), 0 < d.length && (valor = d[0], a = a.down("campoinput"), void 0 != a && ("" != Pdv.api.sistema.Gerenciador.getStrBuffer() && Pdv.api.sistema.Gerenciador.getStrBuffer() != Pdv.api.sistema.Gerenciador.oldStrBuffer) && (a.setValue(Pdv.api.sistema.Gerenciador.getStrBuffer()), Pdv.api.sistema.Gerenciador.oldStrBuffer =
+                Pdv.api.sistema.Gerenciador.getStrBuffer()), Pdv.api.sistema.Gerenciador.removerPrimeiroBuffer()), void 0 != b && b.fireEvent("click", b))
+        }
+    },
+    tratarCampoColetaCustomizada: function(a) {
+        if (void 0 != a.value) try {
+            if (!Ext.isEmpty(a.maxLength) && a.value.length > a.maxLength) {
+                var b = a.getValue();
+                a.setValue(b.substring(0, b.length - 1))
+            }
+            switch (a.tipoDado) {
+                case 1:
+                    a.setValue(Pdv.api.validacao.VType.maskDate(a.getValue()));
+                    break;
+                case 2:
+                    a.setValue(Pdv.api.validacao.VType.maskFone(a.getValue()));
+                    break;
+                case 3:
+                    a.setValue(Pdv.api.validacao.VType.maskCelular(a.getValue()))
+            }
+        } catch (d) {}
+    },
+    tecladoConfiguradorNumerico: function(a) {
+        if (!(void 0 == a.value || Ext.isEmpty(a.value))) {
+            var b = Pdv.api.sistema.Gerenciador.buscarItemTelaAtiva(a.campoDeInput);
+            if (void 0 != b) {
+                var d = b.getValue();
+                b.setValue(d + a.value)
+            }
+        }
+    },
+    tratarCamposTecla: function(a) {
+        a.opcoes & 1 && (Pdv.api.sistema.Gerenciador.exibirSubMenu = !1);
+        12890 == a.pdvfn && (!Ext.isEmpty(a.indiceURL) && !Ext.isEmpty(__urls_externas[a.indiceURL])) && (Pdv.api.sistema.Gerenciador.urlExterna = __urls_externas[a.indiceURL])
+    }
+});
