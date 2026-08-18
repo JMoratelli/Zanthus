@@ -53,6 +53,7 @@
    06. Barras de progresso e visores
    07. Teclado e botoes
    08. Atalhos, menus e toolbar generica (particularidades)
+       8.1.1 Icones de atalho como SVG proprio
    09. Rotulos (labels)
    10. Grid do cupom
    11. Botao seletor de item (check)
@@ -66,6 +67,34 @@
    19. Janelas coletoras
    20. Movimento reduzido
    21. Botoes de dialogo por funcao (escopado por tipo de janela)
+   22. Selecao por seta nos botoes de dialogo
+
+   REFATORACAO DE SUPERFICIES (2026-08)
+   ------------------------------------
+   A tela parecia "feita de retalhos" e a causa nao era falta de cor, e
+   EXCESSO DE CINZAS QUASE IGUAIS: #FAFAFA, #F5F5F5 e #FFF conviviam
+   lado a lado, cada area marcada por uma borda de 1px. Cinco
+   superficies a um passo de distancia = costura visivel sem hierarquia
+   por tras. O que mudou:
+
+     - Duas superficies apenas (secao 02): --sup-fundo #EEEEEE e
+       --sup-cartao #FFFFFF. --sup-app e --sup-painel viraram apelidos,
+       entao nenhum seletor precisou mudar.
+     - Hover e pressionado desceram um tom, senao sumiriam no fundo novo.
+     - Bordas de 1px que nao separavam nada foram apagadas com
+       `border-color: transparent` (nunca `none` - encolhe a caixa).
+     - Faixa da marca sob a barra de atalhos + sombra que descola o topo
+       do corpo (secao 08, div[id^="menubotoes-"]).
+     - --borda-caixa deixou de ser #000 puro.
+     - Campos readonly perderam a borda: viraram visor, nao campo.
+     - .x-btn-disabled de .45+grayscale para .6 sem filtro.
+
+   PENDENTE, precisa de decisao ou de mais dump:
+     - Zebra da grid: #F5F5F5 contra #FFF e 4% de diferenca, nao ajuda
+       nem atrapalha. Ou aumenta o contraste, ou tira e fica so a linha
+       divisoria - meio-termo nao serve.
+     - Cor por estado de operacao (Venda normal / Cancelamento /
+       Devolucao): depende de o Zeus trocar alguma classe no DOM.
 ======================================================================= */
 
 
@@ -120,18 +149,60 @@
    02. TOKENS - SEMANTICAS  (o que as regras usam de fato)
 ======================================================================= */
 :root{
-    /* --- Superficies --- */
-    --sup-app:         var(--p-cinza-050);
-    --sup-painel:      var(--p-cinza-100);
-    --sup-cartao:      var(--p-branco);
-    --sup-hover:       var(--p-cinza-200);
-    --sup-pressionado: var(--p-cinza-300);
+    /* --- Superficies: DUAS, e so duas ---
+       A tela tinha CINCO cinzas quase iguais convivendo (#FAFAFA app,
+       #F5F5F5 painel, #FFF cartao, mais o branco que o Zeus crava
+       inline e o branco das box-*). Cinco superficies a um passo de
+       distancia, cada uma marcada por uma borda de 1px - o olho le isso
+       como remendo, nao como hierarquia. Agora ha FUNDO e CARTAO, com
+       contraste real entre os dois.
+
+       --sup-app e --sup-painel viraram APELIDOS de --sup-fundo de
+       proposito: nenhum seletor do arquivo precisou mudar. Para voltar
+       atras, basta restaurar os cinco valores acima. */
+    --sup-fundo:       var(--p-cinza-200);   /* #EEEEEE - barras       */
+    --sup-cartao:      var(--p-branco);      /* #FFFFFF - conteudo     */
+
+    /* CORRIGIDO no 1o teste em VM. --sup-app alimenta
+       `.x-panel-body-default`, que e o corpo de TODO painel do ExtJS -
+       a grid do cupom, a area do Subtotal/A pagar e ate o corpo dos
+       menus suspensos. Apontando para o cinza, a tela inteira ficou
+       cinza e apareceu o efeito "branco, depois cinza" na tela de
+       pagamento.
+       Regra que ficou: CINZA E SO PARA BARRA DE FERRAMENTAS
+       (--sup-painel). Conteudo e branco. */
+    --sup-app:         var(--sup-cartao);
+    --sup-painel:      var(--sup-fundo);
+
+    /* Hover e pressionado DESCERAM um tom cada. Antes --sup-hover era
+       #EEEEEE - com o fundo agora nesse mesmo valor, o hover dos
+       atalhos ficaria invisivel. */
+    --sup-hover:       var(--p-cinza-300);
+    --sup-pressionado: var(--p-cinza-400);
 
     /* Grafite dos cabecalhos de grid/painel e do bt_funcao.
        Particularidade deste layout - nos outros dois esses cabecalhos
        sao cinza claro. */
     --acento-escuro:   var(--p-cinza-800);
     --acento-escuro-2: var(--p-cinza-900);
+
+    /* Faixa que fecha a barra de atalhos.
+
+       ERA O VERMELHO DA MARCA e virou grafite (#424242, o mesmo
+       --p-cinza-800 dos cabecalhos de grid). Motivo: vermelho neste
+       arquivo e --p-perigo - Cancelar, item cancelado, "A pagar" -, e
+       usa-lo tambem como moldura diluia esse sinal. Em grafite a faixa
+       vira estrutura, nao alerta, e conversa com os cabecalhos de grid
+       que ja usam o mesmo tom.
+
+       O nome do token ficou "marca" por compatibilidade com o resto do
+       arquivo; se um dia o vermelho voltar, basta trocar esta linha. */
+    --acento-marca:     var(--acento-escuro);
+    /* 2px, nao 3. Com as faixas em cima E embaixo da barra de atalhos,
+       3px cada somava peso demais para um elemento que e moldura, nao
+       conteudo. */
+    --acento-marca-alt: 2px;
+
 
     /* --- Texto --- */
     --texto-principal:  var(--p-cinza-900);
@@ -144,7 +215,9 @@
     --borda-sutil: var(--p-cinza-300);
     --borda-media: var(--p-cinza-400);
     --borda-forte: var(--p-cinza-700);
-    --borda-caixa: var(--p-preto);   /* molduras de grid/painel */
+    /* Era #000 puro - o unico preto absoluto do arquivo, contra um
+       tema inteiro feito de cinzas. Delimita igual e para de destoar. */
+    --borda-caixa: var(--p-cinza-400);   /* molduras de grid/painel */
     --foco-cor:    var(--p-cinza-700);
 
     /* Campo: no foco a borda apenas ESCURECE um tom - sem halo, sem
@@ -270,6 +343,12 @@
        e exclusivo do Limpar. */
     --pgto-faixa-btn: 6px;
 
+    /* Altura da faixa grafite que atravessa o .area-south, emendando o
+       cabecalho de "Pagamentos realizados" com a barra das setas.
+       = cabecalho (24px) + colunas (22px).
+       Amarrado a numeros do Zeus - ver nota na secao 14. */
+    --pgto-faixa-alt: 48px;  /* 46 + 2px de registro */
+
     /* Uma cor por POSICAO, nomeada pelo rotulo observado no dump de
        2026-08 (formaspagamentocard-1495):
            1 DINHEIRO  2 DEBITO  3 CREDITO  4 POS  5 PIX  6 VALE TROCA
@@ -293,8 +372,11 @@
     /* --- CUPOM / GRID --- */
     --cupom-cabecalho-fundo: var(--acento-escuro);
     --cupom-cabecalho-texto: var(--p-branco);
-    --cupom-linha-fundo:     var(--p-cinza-100);
-    --cupom-linha-alt-fundo: var(--sup-cartao);
+    /* INVERTIDO apos o teste: a linha normal era #F5F5F5 e a alternada
+       branca, entao o PRIMEIRO item do cupom nascia cinza e a lista
+       parecia suja. Agora comeca branca e a zebra e a excecao. */
+    --cupom-linha-fundo:     var(--sup-cartao);
+    --cupom-linha-alt-fundo: var(--p-cinza-100);
     --cupom-linha-cancelada-fundo:     var(--p-perigo-claro);
     --cupom-linha-cancelada-alt-fundo: var(--p-perigo-claro-2);
     --cupom-linha-cancelada-texto:     var(--p-perigo);
@@ -312,7 +394,12 @@
 
     /* --- JANELAS / MODAIS --- */
     --janela-fundo:             var(--sup-cartao);
-    --janela-corpo-fundo:       var(--p-cinza-100);
+    /* BRANCO, nao cinza. Escopado por natureza: este token so alimenta
+       `.x-window-body` (secao 12), entao vale para janelas e mais nada.
+       O cinza sobrava do tempo em que o resto da tela tambem era cinza;
+       com o corpo do PDV branco, ele passou a parecer sujeira dentro
+       das coletoras. */
+    --janela-corpo-fundo:       var(--sup-cartao);
     --janela-raio:              var(--dlg-raio);
     --janela-sombra:            var(--dlg-sombra);
     --janela-cabecalho-fundo:   var(--dlg-cabecalho-fundo);
@@ -372,7 +459,7 @@
     --dlg-acento-altura:   4px;
     --dlg-cabecalho-fundo: var(--p-branco);
     --dlg-cabecalho-texto: var(--p-cinza-900);
-    --dlg-rodape-fundo:    var(--p-cinza-050);
+    --dlg-rodape-fundo:    var(--sup-cartao);
     --dlg-rodape-linha:    var(--p-cinza-200);
     --dlg-raio:            14px;
     --dlg-sombra:          0 18px 44px rgba(0,0,0,.26),
@@ -452,25 +539,46 @@ span.txt-valores,
 }
 
 .status-bar{
-    background: var(--sup-cartao);
+    /* !important porque `.x-panel-body-default` e vizinhos usam peso
+       forte e vinham ganhando aqui - o rodape saia cinza. */
+    background: var(--sup-cartao) !important;
+    /* Divisoria sutil, e so. A faixa vermelha da barra de atalhos NAO
+       se repete aqui de proposito: com duas ocorrencias o vermelho
+       deixaria de significar "barra de atalhos" e viraria enfeite - e
+       vermelho neste arquivo e --p-perigo (Cancelar, item cancelado,
+       "A pagar"). Espalhar dilui esse sinal.
+       `transparent` viraria remocao visual; aqui a linha volta com cor,
+       sem mexer na largura (regra de ouro, topo do arquivo). */
     border-top: 1px solid var(--borda-sutil) !important;
 }
 
 .status-bar-topo{
     background: var(--sup-cartao);
-    border-bottom: 1px solid var(--borda-sutil) !important;
+    /* SEM divisoria. Ela foi testada e removida: junto com a borda do
+       .box-toolbar logo abaixo, o topo ficava com linha demais, e a de
+       cima ainda somava com a faixa vermelha e fazia as duas faixas
+       parecerem de espessuras diferentes. Quem separa o topo do corpo
+       agora e so a faixa vermelha no rodape da barra de atalhos. */
+    border-bottom: 1px solid transparent !important;
 }
 
+/* IDEIA 2 - largura preservada, cor apagada. Estas caixas ja se
+   distinguem do fundo por serem brancas sobre #EEEEEE; a borda so
+   somava mais uma costura visivel. */
 .box-total{
     margin: 8px;
-    border: 1px solid var(--borda-sutil) !important;
+    border: 1px solid transparent !important;
     border-radius: 4px !important;
     background: var(--sup-cartao);
 }
 
+/* A caixa da grid de itens PRECISA de contorno: e ela que delimita a
+   lista do resto da tela, e agora que o conteudo e branco sobre branco
+   nao ha diferenca de fundo para fazer esse papel. Borda media, nao
+   sutil - pedido em campo, "um pouco mais destaque". */
 .box-codigo{
     margin: 8px;
-    border: 1px solid var(--borda-sutil) !important;
+    border: 1px solid var(--borda-media) !important;
     border-radius: 4px !important;
     background: var(--sup-cartao);
 }
@@ -482,11 +590,45 @@ span.txt-valores,
     background: none;
 }
 
-.box-toolbar{
+/* BARRA DOS MENUS EM CINZA.
+
+   Separa por SUPERFICIE e nao por linha - a mesma linguagem que o
+   arquivo usa desde a refatoracao das duas superficies. Uma divisoria
+   horizontal foi cogitada e descartada: seria vocabulario novo so
+   para este pedaco, e o topo ja tinha ficado com linha demais quando
+   as bordas existiam.
+
+   SO ESTA BARRA. A `.status-bar-topo` logo acima (ECF / operador /
+   modo) fica BRANCA de proposito, por escolha em campo. Ela tem
+   altura minima nesta tela (6 a 12px conforme a resolucao), entao o
+   filete branco acima do cinza e pequeno e nao le como sobra.
+
+   O cinza e --sup-fundo, o mesmo #EEEEEE ja definido na secao 02 -
+   nenhuma cor nova entrou no arquivo.
+
+   SELETOR COM DUAS CLASSES, E NAO SO `.box-toolbar`
+   -------------------------------------------------
+   A primeira versao usava `.box-toolbar` sozinha e NAO PEGOU: a
+   `.x-toolbar-default` da secao 12 tambem pinta o fundo, tambem com
+   !important, e mora DEPOIS no arquivo. Uma classe contra uma classe
+   da empate, e em empate vence quem vem por ultimo.
+
+   `.x-toolbar.box-toolbar` tem duas classes e ganha sem depender de
+   ordem - o elemento carrega as duas (`x-toolbar box-toolbar ...`).
+   Mesma armadilha vale para qualquer regra nova aqui na secao 04 que
+   dispute propriedade com a secao 12. */
+.x-toolbar.box-toolbar{
     border: none !important;
-    border-bottom: 1px solid var(--borda-sutil) !important;
-    background: var(--sup-cartao) !important;
+    border-bottom: 1px solid transparent !important;
+    background: var(--sup-fundo) !important;
 }
+
+/* Os botoes de menu ficam transparentes sobre o cinza da barra. Sem
+   isto eles herdariam o tratamento de toolbar da secao 8.2, que os
+   deixa transparentes tambem - mas com hover em --sup-hover, que agora
+   precisa ser mais escuro que o proprio fundo da barra para aparecer.
+   O hover ja e --p-cinza-300, um tom abaixo do #EEEEEE: continua
+   legivel. Bloco mantido apenas como registro dessa conferencia. */
 
 .x-grid-empty{
     font-weight: bold !important;
@@ -572,9 +714,14 @@ input[readonly].input-sub-total-pagamento {
     font-size: 24px !important;
 }
 
+/* IDEIA 8 - Subtotal, A pagar e Troco tinham a MESMA borda dos campos
+   digitaveis; so o fundo mudava, e sutilmente demais. Sem a borda, a
+   leitura e imediata: isto e visor, nao campo.
+   `border-color` e nao `border` - a largura fica onde esta. */
 input[readonly] {
     color: var(--texto-principal) !important;
     background: var(--sup-painel) !important;
+    border-color: transparent !important;
 }
 
 /* Campo com erro: tremida curta, o operador percebe sem ler */
@@ -702,7 +849,7 @@ input[type=text].campo-erro,
 }
 
 .area-teclado .x-panel-body-default{
-    border: 1px solid var(--borda-sutil) !important;
+    border: 1px solid transparent !important;
     background: var(--sup-painel) !important;
 }
 
@@ -736,9 +883,12 @@ input[type=text].campo-erro,
                 border-color var(--dur-rapida) var(--curva) !important;
 }
 
+/* IDEIA 9 - .45 + grayscale praticamente apagava o botao (o F2 sumia
+   da barra). Numa barra de atalhos, saber que a tecla EXISTE mas esta
+   indisponivel e informacao util para o operador. */
 .x-btn-disabled {
-    opacity: .45 !important;
-    filter: grayscale(.4) !important;
+    opacity: .6 !important;
+    filter: none !important;
     box-shadow: none !important;
 }
 
@@ -1025,7 +1175,31 @@ input[type=text].campo-erro,
    /* transition: transform 0.1s;*/
 }
 
-/* Estado normal */
+/* Estado normal: SEM FUNDO PROPRIO, so o icone, o rotulo e a divisoria.
+
+   Duas versoes foram testadas e descartadas antes desta:
+     - fundo cinza da barra contra o resto branco: a barra virava um
+       bloco pesado e destoava do corpo da tela;
+     - cada atalho como CARTAO BRANCO sobre barra cinza: doze cartoes
+       em fila ficaram carregados demais.
+
+   O que ficou: a barra tem a mesma cor do resto da interface e os
+   atalhos nao tem superficie nem divisoria - so o icone e o rotulo.
+
+   A DIVISORIA LATERAL FOI REMOVIDA (terceira e ultima tentativa)
+   -------------------------------------------------------------
+   Foi testada de duas formas: colorindo a borda direita (1px) e, para
+   igualar a espessura da faixa, como `inset` box-shadow de 2px. As
+   duas funcionavam, mas EM ALGUMAS TELAS a linha saia desalinhada:
+   os atalhos nao tem a mesma altura em todas as resolucoes (vistos
+   134, 103, 91, 67, 51, 49, 47 e 35px), e o F12 ainda e posicionado
+   com `position:absolute`, fora do fluxo dos outros onze. Um traco
+   vertical exige que todos comecem e terminem na mesma linha, e aqui
+   isso nao se sustenta.
+
+   O espacamento que o ExtJS ja reserva (`margin: 4px 10px 2px`
+   inline) separa os botoes o suficiente. NAO REINTRODUZA a divisoria
+   sem antes conferir as telas de 1024x768 e a de pagamento. */
 .bt_atalho:not(.x-pressed):not(.x-btn-pressed) {
     background: transparent !important;
     background-image: none !important;
@@ -1113,6 +1287,231 @@ input[type=text].campo-erro,
     mask-position: var(--seta-voltar-x-hover) var(--seta-voltar-y);
 }
 
+/* --- 8.1.1 Icones de atalho como SVG proprio --------------------------
+   Substitui os PNG da barra de atalhos por SVG em data URI, desenhados
+   aqui. Similares aos originais, nao copias.
+
+   COMO O GANCHO FUNCIONA
+   ----------------------
+   O ExtJS crava `background-image:url(resources/icones/NN.png)` INLINE
+   no span do icone, e estilo inline so perde para !important. O gancho
+   e o NOME DO ARQUIVO: `[style*="/11.png"]` casa pelo conteudo do
+   atributo style, unica coisa estavel aqui - teclafuncao-1230 e indice
+   do ExtJS e muda a cada montagem.
+
+   A BARRA NO SELETOR E OBRIGATORIA. Sem ela, `[style*="5.png"]` casaria
+   tambem com 15.png, 25.png, 35.png - e substring, nao nome exato. Com
+   a barra, "/1.png" tambem deixa de colidir com "/11.png", "/12.png" e
+   "/14.png", porque a barra so aparece uma vez e o caractere seguinte
+   ja diverge.
+
+   FALHA SEGURA: se o Zeus trocar o icone de uma funcao, a regra deixa
+   de casar e o PNG original volta. Nada quebra.
+
+   O GANCHO E POR ARQUIVO, NAO POR TECLA. F3 e F7 compartilhavam o
+   4.png e ficavam com o mesmo desenho - sem solucao por CSS. O F7 foi
+   reapontado para 14.png na config do Zeus. Ao reapontar qualquer
+   icone: O ARQUIVO PRECISA EXISTIR NA PASTA, senao o Zeus TRAVA A
+   INTERFACE (verificado em campo). Nao e exigencia do CSS - o
+   !important sobrescreve o inline antes de qualquer download - e do
+   Zeus. Um PNG 48x48 transparente basta, e ainda preserva a falha
+   segura: se o CSS falhar, aparece espaco vazio em vez de icone
+   quebrado.
+
+   SO PINTURA
+   ----------
+   Sem position, sem float, sem width/height, sem pseudo-elemento. O
+   span ja e posicionado pelo ExtJS - e por isso que o `top:-10px` da
+   secao 8.1 funciona. Tirar o span do fluxo para ele cobrir o botao
+   inteiro FOI TESTADO E ARREBENTOU O LAYOUT: o <em> e medido pelo
+   ExtJS, e criar contexto de posicionamento nele ja basta para
+   envenenar a conta. Nao tente de novo. O teto e este: o desenho
+   divide a caixa com o rotulo, nao a domina.
+
+   RECEITA FECHADA (nao mexer sem motivo)
+   --------------------------------------
+   Lona 48x48 - a mesma dos PNG originais - com o desenho ENCOSTANDO
+   nas bordas; tamanho FIXO em 48px; posicao vertical em 50%.
+
+   TRES REGRAS DE DESENHO APRENDIDAS EM CAMPO
+   ------------------------------------------
+   1. COERENCIA ENTRE OS 12 VALE MAIS QUE FIDELIDADE A UM. Uma versao
+      da lupa copiou o contorno preto grosso do PNG e ficou pesada ao
+      lado do f(x) e do visto. Adotado: sem contorno preto.
+   2. O FUNDO DA BARRA E CLARO. Cinza acima de ~#DDD desaparece nele,
+      mesmo em tela boa - a folha da lupa sumiu em #E8EDF2.
+      Preenchimento precisa ser #C0C8D0 ou mais escuro; contorno,
+      #90A0B0 ou mais escuro.
+   3. MASSA PEDE MASSA. So contorno fino fica rustico ao lado dos
+      icones solidos. Formas sobrepostas precisam de contraste de
+      MATIZ, nao so de tom: caixa azul com lupa azul (F5) virou borrao
+      ate a caixa virar papelao.
+
+   HISTORICO DE TENTATIVAS - PARA NAO REFAZER
+   ------------------------------------------
+   1. viewBox 24x24 + `contain`: funcionou, desenho pequeno demais.
+   2. viewBox 126x47 com o rotulo embutido no SVG: o f(x) ficou
+      MINUSCULO. Com `contain` o navegador encaixa a LONA inteira na
+      caixa, entao espaco vazio dentro do SVG encolhe o desenho na
+      mesma proporcao. Rotulo embutido e icone grande sao incompativeis
+      aqui - e o texto do ExtJS ja ocupa aquela area de graca, e ainda
+      acompanha troca de funcao sozinho.
+   3. viewBox 24x24 + `contain` de novo: TRANSBORDOU. `contain` escala
+      pela maior dimensao do span, que tem width:100% (126px) contra
+      43px de altura.
+   4. Lona 48x48 + tamanho fixo: acertou.
+   5. O `135%` herdado da fase de transbordo jogou o desenho para BAIXO
+      do rotulo. Tamanho e percentual conversam: mexer em um pede
+      reconferir o outro.
+
+   A ALTURA DO BOTAO VARIA - vistos 134, 67, 51, 49, 47 e 35px na mesma
+   instalacao. Por isso a posicao vertical vai em PERCENTUAL; px fixo so
+   acertaria em uma das alturas.
+
+   DEPENDENCIA DE FONTE: apenas F1 (f(x)), F4 (CPF) e F11 (cifrao no
+   disco) usam <text>. Se a fonte faltar no PDV o navegador substitui -
+   critico no `f` italico (Georgia), tolerante nos demais. Se der
+   problema, trocar por `serif` / `sans-serif` genericos. Os outros
+   icones sao geometria pura.
+
+   MAPA ARQUIVO -> TECLA (dump de 2026-08)
+   ---------------------------------------
+       11.png  F1  Funcao
+        5.png  F2  Subtotal            (nasce desabilitado)
+        4.png  F3  Produto
+        3.png  F4  Cliente
+        8.png  F5  Pesquisa Embalagem
+       12.png  F6  Desconto
+       14.png  F7  Nome Produto        (reapontado; era 4.png)
+        7.png  F8  Valor
+       10.png  F9  Pesquisa Cliente
+        1.png  F10 Canc. Cupom
+        2.png  F11 Pedido
+        6.png  F12 Sair
+====================================================================== */
+
+:root{
+    /* Os dois valores conversam - mexer em um pede reconferir o outro. */
+    --atalho-svg-tam: 48px;   /* tamanho nativo do PNG substituido */
+    --atalho-svg-y:   50%;    /* centro da caixa; maior desce */
+
+    /* F1 - Funcao (11.png)
+       f serifado em italico com (x) em azul. Sem o realce arredondado
+       atras do x que o original tem. */
+    --atalho-svg-f1: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ctext x='14' y='34' font-family='Georgia,serif' font-size='40' font-style='italic' font-weight='bold' fill='%231E88E5' text-anchor='middle'%3Ef%3C/text%3E%3Ctext x='31' y='32' font-family='Verdana,sans-serif' font-size='22' font-weight='bold' fill='%231E88E5' text-anchor='middle'%3E(x)%3C/text%3E%3C/svg%3E");
+
+    /* F2 - Subtotal (5.png)
+       Visto verde sobre disco verde-claro. Disco em tom distinto e
+       visto mais reto, sem a cauda longa do original. */
+    --atalho-svg-f2: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='23' fill='%23B7E9A0'/%3E%3Cpath d='M12 25 L21 34 L37 14' fill='none' stroke='%23219A3C' stroke-width='7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+
+    /* F3 - Produto (4.png)
+       Lupa sobre ficha de produto: folha com dobra de canto real,
+       quatro linhas de texto de larguras variaveis, lente com brilho e
+       virola entre aro e cabo.
+       A folha e #CBD6E2 e nao um cinza claro - ver regra 2 acima. */
+    --atalho-svg-f3: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cpath d='M11 3h18l9 9v33H11z' fill='%23CBD6E2'/%3E%3Cpath d='M11 3h18l9 9v33H11z' fill='none' stroke='%237E8FA1' stroke-width='2'/%3E%3Cpath d='M29 3l9 9h-9z' fill='%238B9CAD'/%3E%3Cpath d='M29 3v9h9' fill='none' stroke='%236B7C8D' stroke-width='2' stroke-linejoin='round'/%3E%3Cpath d='M16 17h16M16 22h11M16 27h14M16 32h8' stroke='%236B7C8D' stroke-width='2.2' stroke-linecap='round'/%3E%3Ccircle cx='31' cy='31' r='15' fill='%23FFFFFF'/%3E%3Ccircle cx='31' cy='31' r='11' fill='%23A9DCF5'/%3E%3Cpath d='M25 27a8 8 0 0 1 5-4' fill='none' stroke='%23FFFFFF' stroke-width='3' stroke-linecap='round'/%3E%3Ccircle cx='31' cy='31' r='11' fill='none' stroke='%231565C0' stroke-width='4'/%3E%3Cpath d='M39 39l2 2' stroke='%231565C0' stroke-width='7' stroke-linecap='round'/%3E%3Cpath d='M41 41l5 5' stroke='%23F2C230' stroke-width='6' stroke-linecap='round'/%3E%3C/svg%3E");
+
+    /* F4 - Cliente (3.png)
+       Cartao azul-escuro com CPF. Cantos arredondados e faixa acima do
+       texto, em vez de atras dele como no original. */
+    --atalho-svg-f4: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect x='4' y='9' width='40' height='30' rx='4' fill='%232C4A73'/%3E%3Crect x='9' y='15' width='19' height='4' rx='2' fill='%23BFD3E8'/%3E%3Crect x='9' y='22' width='12' height='3' rx='1.5' fill='%237B95B4'/%3E%3Ctext x='30' y='34' font-family='Verdana,sans-serif' font-size='13' font-weight='bold' fill='%23FFFFFF' text-anchor='middle'%3ECPF%3C/text%3E%3C/svg%3E");
+
+    /* F5 - Pesquisa Embalagem (8.png)
+       Caixa de papelao com lupa. NAO e azul como o original: caixa azul
+       com lupa azul se fundiu (ver regra 3). O anel branco em volta da
+       lupa e o que a descola da caixa. */
+    --atalho-svg-f5: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cpath d='M4 17h34v23H4z' fill='%23C99B62'/%3E%3Cpath d='M4 17l4-9h13v9z' fill='%23E0B87E'/%3E%3Cpath d='M38 17l-4-9H21v9z' fill='%23B0854F'/%3E%3Cpath d='M21 8v32' stroke='%238C6237' stroke-width='2'/%3E%3Cpath d='M4 24h34' stroke='%238C6237' stroke-width='1.5'/%3E%3Ccircle cx='33' cy='29' r='13' fill='%23FFFFFF'/%3E%3Ccircle cx='33' cy='29' r='9.5' fill='%23A9DCF5'/%3E%3Ccircle cx='33' cy='29' r='9.5' fill='none' stroke='%231565C0' stroke-width='4'/%3E%3Cpath d='M40 36l5.5 5.5' stroke='%231565C0' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E");
+
+    /* F6 - Desconto (12.png)
+       Cupom com carrinho e cifrao. Serrilha so na lateral esquerda.
+
+       ACOPLAMENTO AO TEMA: a serrilha sao tres circulos na cor do FUNDO
+       DA BARRA de atalhos mordendo a borda do cupom. Se --sup-fundo
+       mudar de valor, eles viram bolinhas claras fora de lugar. E o
+       unico ponto do conjunto acoplado ao tema - o data URI nao aceita
+       var(), entao o valor esta cravado. Hoje: #EEEEEE. */
+    --atalho-svg-f6: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect x='3' y='11' width='42' height='26' rx='4' fill='%23F8D3D8'/%3E%3Crect x='3' y='11' width='42' height='26' rx='4' fill='none' stroke='%23D83B4E' stroke-width='2.5'/%3E%3Ccircle cx='3' cy='17' r='3' fill='%23EEEEEE'/%3E%3Ccircle cx='3' cy='24' r='3' fill='%23EEEEEE'/%3E%3Ccircle cx='3' cy='31' r='3' fill='%23EEEEEE'/%3E%3Cpath d='M11 18h3l3 10h9' fill='none' stroke='%23D83B4E' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='19' cy='31' r='1.8' fill='%23D83B4E'/%3E%3Ccircle cx='25' cy='31' r='1.8' fill='%23D83B4E'/%3E%3Ccircle cx='36' cy='24' r='8' fill='%23D83B4E'/%3E%3Ctext x='36' y='29' font-family='Verdana,sans-serif' font-size='12' font-weight='bold' fill='%23FFFFFF' text-anchor='middle'%3E%24%3C/text%3E%3C/svg%3E");
+
+    /* F7 - Nome Produto (14.png)
+       Lupa sobre linhas de texto. Sem folha (e do F3) e sem caixa (e do
+       F5): os tres de pesquisa precisam se distinguir de relance. Aqui
+       o que identifica sao as LINHAS, de larguras diferentes para ler
+       como nome e nao como tabela. */
+    --atalho-svg-f7: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cpath d='M4 9h34M4 17h26M4 25h30M4 33h18' stroke='%238B9CAD' stroke-width='3.5' stroke-linecap='round'/%3E%3Ccircle cx='30' cy='30' r='15' fill='%23FFFFFF'/%3E%3Ccircle cx='30' cy='30' r='11' fill='%23A9DCF5'/%3E%3Ccircle cx='30' cy='30' r='11' fill='none' stroke='%231565C0' stroke-width='4'/%3E%3Cpath d='M38 38l6 6' stroke='%231565C0' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E");
+
+    /* F8 - Valor (7.png)
+       Cifrao verde em <path>, nao <text>: precisa de traco grosso e
+       uniforme, e fonte substituta mudaria o desenho. Verde igual ao
+       visto do F2. */
+    --atalho-svg-f8: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cpath d='M35 14c-3-3.5-7-5-11-5-5.5 0-9.5 2.5-9.5 7 0 4 3.5 5.5 9.5 6.5 6.5 1 10.5 2.5 10.5 7 0 5-4.5 7.5-10.5 7.5-5 0-9-1.5-12-5' fill='none' stroke='%23219A3C' stroke-width='5' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M20 3v42M28 3v42' stroke='%23219A3C' stroke-width='4.5' stroke-linecap='round'/%3E%3C/svg%3E");
+
+    /* F9 - Pesquisa Cliente (10.png)
+       Pessoa com sacola. NAO leva lupa apesar do rotulo "Pesquisa": ja
+       ha tres lupas na barra (F3, F5, F7) e uma quarta diluiria o
+       sinal. A PESSOA e o que identifica, e o que distingue do F4
+       (cartao CPF, tambem cliente). */
+    --atalho-svg-f9: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='18' cy='13' r='9' fill='%23E8B98E'/%3E%3Cpath d='M18 24c-8 0-13 5-13 12v8h26v-8c0-7-5-12-13-12z' fill='%233F84C9'/%3E%3Cpath d='M18 24v20' stroke='%232C4A73' stroke-width='2'/%3E%3Cpath d='M32 26h13v18H32z' fill='%23D83B4E'/%3E%3Cpath d='M35 26v-4a3.5 3.5 0 0 1 7 0v4' fill='none' stroke='%238C2230' stroke-width='2.5'/%3E%3C/svg%3E");
+
+    /* F10 - Canc. Cupom (1.png)
+       X vermelho macico, pontas arredondadas, sem o degrade do
+       original. */
+    --atalho-svg-f10: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cpath d='M9 9L39 39M39 9L9 39' stroke='%23E53935' stroke-width='11' stroke-linecap='round'/%3E%3C/svg%3E");
+
+    /* F11 - Pedido (2.png)
+       Prancheta com itens, cifrao e carrinho. O que identifica e a
+       PRANCHETA - lista ja montada -, nao o cifrao (F8) nem o cupom
+       (F6). */
+    --atalho-svg-f11: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect x='7' y='6' width='30' height='36' rx='3' fill='%23E4EAF0' stroke='%235B7085' stroke-width='2.5'/%3E%3Crect x='16' y='2' width='12' height='7' rx='2' fill='%235B7085'/%3E%3Cpath d='M13 17h18M13 24h18M13 31h10' stroke='%235B7085' stroke-width='2.5' stroke-linecap='round'/%3E%3Ccircle cx='36' cy='14' r='9' fill='%23219A3C'/%3E%3Ctext x='36' y='19' font-family='Verdana,sans-serif' font-size='13' font-weight='bold' fill='%23FFFFFF' text-anchor='middle'%3E%24%3C/text%3E%3Cpath d='M22 36h3l2.5 8h9' fill='none' stroke='%23D83B4E' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='29' cy='46' r='1.6' fill='%23D83B4E'/%3E%3Ccircle cx='35' cy='46' r='1.6' fill='%23D83B4E'/%3E%3C/svg%3E");
+
+    /* F12 - Sair (6.png)
+       Porta com seta saindo. NAO e o power do original, de proposito: o
+       simbolo de power diz "desligar a maquina", a tecla so SAI DO PDV.
+       Numa barra onde a F10 cancela cupom, hesitacao aqui e cara.
+       Vermelho mantido - a acao continua terminal.
+       Solido e nao contorno: a primeira versao, so com traco fino,
+       ficou rustica ao lado do X do F10 (regra 3).
+       A ponta da seta encosta na borda da lona de proposito: reforca a
+       ideia de sair. Se ficar apertado na tela, puxar de 49 para 46. */
+    --atalho-svg-f12: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cpath d='M6 5h18a3 3 0 0 1 3 3v32a3 3 0 0 1-3 3H6z' fill='%23E53935'/%3E%3Ccircle cx='21' cy='24' r='2.6' fill='%23FFD6D4'/%3E%3Cpath d='M31 19h9v10h-9z' fill='%23E53935'/%3E%3Cpath d='M37 12l12 12-12 12z' fill='%23E53935'/%3E%3C/svg%3E");
+}
+
+/* Base comum. Ao acrescentar um icone: some o seletor a ESTA lista E
+   crie o bloco de background-image correspondente logo abaixo. */
+.bt_atalho span.x-btn-icon[style*="/11.png"],
+.bt_atalho span.x-btn-icon[style*="/5.png"],
+.bt_atalho span.x-btn-icon[style*="/4.png"],
+.bt_atalho span.x-btn-icon[style*="/3.png"],
+.bt_atalho span.x-btn-icon[style*="/8.png"],
+.bt_atalho span.x-btn-icon[style*="/12.png"],
+.bt_atalho span.x-btn-icon[style*="/14.png"],
+.bt_atalho span.x-btn-icon[style*="/7.png"],
+.bt_atalho span.x-btn-icon[style*="/10.png"],
+.bt_atalho span.x-btn-icon[style*="/1.png"],
+.bt_atalho span.x-btn-icon[style*="/2.png"],
+.bt_atalho span.x-btn-icon[style*="/6.png"] {
+    background-repeat: no-repeat !important;
+    /* Fixo de proposito - ver tentativa 3 no historico. */
+    background-size: var(--atalho-svg-tam) var(--atalho-svg-tam) !important;
+    /* Compensa o `top:-10px` generico da secao 8.1, na TINTA e nao na
+       caixa: background-position nao altera layout nenhum. */
+    background-position: center var(--atalho-svg-y) !important;
+}
+
+.bt_atalho span.x-btn-icon[style*="/11.png"] { background-image: var(--atalho-svg-f1)  !important; }
+.bt_atalho span.x-btn-icon[style*="/5.png"]  { background-image: var(--atalho-svg-f2)  !important; }
+.bt_atalho span.x-btn-icon[style*="/4.png"]  { background-image: var(--atalho-svg-f3)  !important; }
+.bt_atalho span.x-btn-icon[style*="/3.png"]  { background-image: var(--atalho-svg-f4)  !important; }
+.bt_atalho span.x-btn-icon[style*="/8.png"]  { background-image: var(--atalho-svg-f5)  !important; }
+.bt_atalho span.x-btn-icon[style*="/12.png"] { background-image: var(--atalho-svg-f6)  !important; }
+.bt_atalho span.x-btn-icon[style*="/14.png"] { background-image: var(--atalho-svg-f7)  !important; }
+.bt_atalho span.x-btn-icon[style*="/7.png"]  { background-image: var(--atalho-svg-f8)  !important; }
+.bt_atalho span.x-btn-icon[style*="/10.png"] { background-image: var(--atalho-svg-f9)  !important; }
+.bt_atalho span.x-btn-icon[style*="/1.png"]  { background-image: var(--atalho-svg-f10) !important; }
+.bt_atalho span.x-btn-icon[style*="/2.png"]  { background-image: var(--atalho-svg-f11) !important; }
+.bt_atalho span.x-btn-icon[style*="/6.png"]  { background-image: var(--atalho-svg-f12) !important; }
+
+
 /* --- Atalho com icone AO LADO do texto (x-btn-icon-text-center) ------
    As regras genericas de .bt_atalho acima foram escritas para o atalho
    de icone ACIMA do texto: elas empurram o texto 35px para baixo
@@ -1156,12 +1555,31 @@ input[type=text].campo-erro,
     font-size: var(--menu-tamanho-texto) !important;
 }
 
-/* Container dos botoes de atalho */
+/* Container dos botoes de atalho.
+
+   A barra tem a MESMA COR DO RESTO DA INTERFACE - branco. Ela era
+   cinza (--sup-painel) e pesava contra o corpo branco da tela; quem
+   delimita a barra agora sao as duas faixas da marca, nao um bloco de
+   cor.
+
+   UMA faixa so, no RODAPE. A de cima foi removida: com as duas, elas
+   apareciam com espessuras diferentes na tela, apesar de saírem do
+   mesmo box-shadow e do mesmo token. A de cima encostava na borda
+   cinza da barra de menu e as duas linhas somadas liam como mais
+   grossa. Com uma faixa so, o vermelho volta a dizer uma coisa so:
+   "aqui termina a barra de atalhos".
+
+   Duas camadas num box-shadow:
+     - `inset 0 -2px` desenha a faixa da marca no rodape;
+     - a segunda, para fora, descola a barra do conteudo.
+   box-shadow nao participa do box model - a conta do ExtJS nao muda. */
 div[id^="menubotoes-"] {
-    background: var(--sup-painel) !important;
-    background-color: var(--sup-painel) !important;
+    background: var(--sup-cartao) !important;
+    background-color: var(--sup-cartao) !important;
     background-image: none !important;
     border: none !important;
+    box-shadow: inset 0 calc(-1 * var(--acento-marca-alt)) 0 0 var(--acento-marca),
+                0 2px 5px rgba(0,0,0,.10) !important;
 }
 
 /* --- 8.2 Botoes de toolbar sem classe propria -------------------------
@@ -1744,6 +2162,19 @@ span.txt-valores{
     font-weight: bold !important;
 }
 
+/* RODAPE DE QUALQUER JANELA: branco.
+   A regra generica de `.x-toolbar-docked-bottom` (fim desta secao)
+   pinta o rodape com --sup-painel, o cinza das barras de ferramenta.
+   Dentro de uma janela isso destoa - o corpo dela e branco desde a
+   correcao de --janela-corpo-fundo. Escopado em `.x-window`, entao as
+   toolbars de rodape do resto da aplicacao seguem cinza. */
+.x-window .x-toolbar-docked-bottom,
+.x-window .x-toolbar-footer,
+.x-window .x-toolbar-default-docked-bottom {
+    background: var(--sup-cartao) !important;
+    background-image: none !important;
+}
+
 /* Rodape de janela de mensagem ganha chao. Linha via inset box-shadow
    para nao criar borda (que mudaria a caixa). */
 .janela-msg .x-toolbar-docked-bottom,
@@ -1775,6 +2206,20 @@ span.txt-valores{
     background: transparent !important;
     background-image: none !important;
     border: none !important;
+}
+
+/* Faixa vertical que o ExtJS desenha a esquerda dos menus para alinhar
+   icones. Nenhum item deste PDV tem icone - ela so cria uma coluna
+   cinza que destoa do menu branco. `visibility` e nao `display`: o
+   ExtJS mede esse elemento. */
+.x-menu .x-menu-icon-separator {
+    visibility: hidden !important;
+}
+
+/* O corpo do menu e um x-panel-body-default e vinha herdando o fundo
+   de painel. Explicito aqui para nao depender dessa heranca. */
+.x-menu .x-panel-body-default {
+    background: var(--sup-cartao) !important;
 }
 
 .x-tip,
@@ -1809,7 +2254,7 @@ span.txt-valores{
     background: var(--sup-painel) !important;
     background-image: none !important;
     border: none !important;
-    border-top: 1px solid var(--borda-sutil) !important;
+    border-top: 1px solid transparent !important;
     box-shadow: none !important;
 }
 
@@ -1834,6 +2279,37 @@ span.txt-valores{
 /* Grid seletor: o tema padrao desenha a moldura num azul claro. */
 div[id^="gridseletor-"] {
     border-color: var(--borda-caixa) !important;
+}
+
+
+/* =======================================================================
+   13.1 IMAGEM DO PRODUTO / MARCA (#imgProduto)
+
+   O ExtJS crava `background-image:url(resources/imagens/Zeus_V.gif)`
+   INLINE neste elemento - e, ao contrario do resto do inline dele,
+   SEM !important. Um !important daqui ganha sem esforco.
+
+   O GANCHO E BOM: `imgProduto` e um id LITERAL, escrito no codigo do
+   Zeus, nao um indice de montagem como teclafuncao-1230. Nao muda
+   entre telas nem entre versoes.
+
+   CAMINHO: no HTML o url e relativo a PAGINA (`resources/imagens/`);
+   aqui e relativo ao ARQUIVO CSS. Por isso `../imagens/`, igual ao
+   --splash-logo da secao 02. Se o CSS mudar de pasta, este caminho
+   muda junto.
+
+   O ARQUIVO PRECISA EXISTIR em resources/imagens/ZeusMachadao.png.
+   Se faltar, o elemento fica vazio - o PNG antigo NAO volta, porque a
+   regra casa de qualquer jeito. Diferente do caso dos icones de
+   atalho, aqui nao ha falha segura.
+
+   So background-image: tamanho, posicao e repeticao continuam vindo do
+   inline do ExtJS (90% 90%, center, no-repeat), entao a nova imagem se
+   encaixa igual a antiga. Se a proporcao for muito diferente da do
+   GIF, e no `background-size` do Zeus que se ajusta, nao aqui.
+======================================================================= */
+#imgProduto {
+    background-image: url("../imagens/ZeusMachadao.png") !important;
 }
 
 
@@ -1870,8 +2346,137 @@ div[id^="gridseletor-"] {
 /* Moldura da caixa. CORRIGIDO: o original usava `border: 1px solid`,
    que reescreve a LARGURA. Se o inline do ExtJS mudar, a caixa muda
    junto. Cor e cor, largura e largura. */
+/* IDEIA 5 - o card de finalizadoras era o unico bloco da aplicacao sem
+   superficie propria: flutuava solto enquanto a grid do cupom e o
+   "Pagamentos realizados" tinham cartao branco e cabecalho grafite.
+   Agora tem o mesmo chao dos outros, o que faz a tela de pagamento
+   parecer a mesma aplicacao da tela de venda. */
 div[id^="formaspagamentocard-"][id$="-body"] {
-    border-color: var(--borda-caixa) !important;
+    /* MOLDURA DUPLA - corrigido no 2o teste em VM.
+       Este painel mora DENTRO de um .box-codigo, que tem contorno
+       proprio (secao 04). Com borda nos dois, a tela de pagamento
+       ganhava dois retangulos a 4px um do outro. Quem delimita e o
+       .box-codigo, de fora; este aqui so precisa do fundo.
+       `border-color` e nao `border` - a largura fica onde esta. */
+    border-color: transparent !important;
+    background: var(--sup-cartao) !important;
+}
+
+/* A BARRA VAZIA DO RODAPE DO CARD (toolbar .area-nav)
+   ---------------------------------------------------
+   Faixa de 40px que so contem as setas de paginacao das finalizadoras.
+   Quando cabem todas na tela - o caso normal, com seis - as duas setas
+   ficam com `display:none` e sobra uma barra cinza sem conteudo
+   nenhum, colada no rodape do card. Era o "quadrado escondido".
+
+   Nao da para escondar a barra: ela e um docked item e o ExtJS reserva
+   a altura dela no calculo do painel; `display:none` aqui reorganiza o
+   card inteiro. O que da e torna-la invisivel - fundo do cartao e
+   borda transparente. O espaco continua reservado, so deixa de
+   aparecer.
+
+   SE UMA LOJA TIVER FINALIZADORAS DEMAIS e as setas voltarem a
+   aparecer, elas continuam funcionando e visiveis - so o fundo da
+   barra que sumiu. */
+.x-toolbar.area-nav,
+.x-toolbar.area-nav.x-toolbar-docked-bottom {
+    background: var(--sup-cartao) !important;
+    background-image: none !important;
+    border-top-color: transparent !important;
+    box-shadow: none !important;
+}
+
+
+/* --- BARRA DE SETAS DE "PAGAMENTOS REALIZADOS" ------------------------
+   O container das setas (toolbar-1515 no dump) NAO tem classe propria -
+   e apenas `x-toolbar x-toolbar-default`, igual a varias outras telas.
+   Nao ha como alcanca-lo neste parque (ver nota sobre :has() abaixo),
+   entao nada e pintado nele: a faixa vem de fora, projetada pelo
+   painel vizinho.
+
+   O QUE ESTAVA QUEBRANDO A HARMONIA: dois quadrados cinza-claro
+   flutuando num vazio de 274px, ao lado de um painel com cabecalho
+   grafite. Nao pareciam controle de coisa nenhuma. Agora a barra
+   compartilha a superficie do painel e os botoes vestem o grafite do
+   cabecalho - lem-se como controle DAQUELA grid.
+====================================================================== */
+
+/* 1. CONTINUA A FAIXA GRAFITE ATE A BORDA DA TELA
+      ----------------------------------------------
+      O cabecalho de "Pagamentos realizados" (titulo 24px + cabecalho
+      de colunas 22px) tem 1640px cravados inline pelo ExtJS, dentro de
+      uma linha de 1918px. Os ~276px restantes sao a barra das setas -
+      e a faixa escura PARAVA ali, com um talho branco depois.
+
+      O GANCHO: IRMAO ADJACENTE
+      -------------------------
+      A barra das setas nao tem classe propria (so `x-toolbar
+      x-toolbar-default`, igual a varias outras telas) e o ID
+      `toolbar-1515` e indice de montagem do ExtJS - muda. Mas ela e a
+      UNICA toolbar que e irma imediata de um painel
+      `pagamentosaceitos-*`. Prefixo e estavel, indice nao entra na
+      conta, e nao precisa de :has().
+
+      TRES TENTATIVAS QUE FALHARAM - NAO REFAZER
+      ------------------------------------------
+      a) Gradiente via `.x-toolbar:has(.bt_seta_cima)`.
+      b) `box-shadow` projetado para a direita a partir do cabecalho -
+         o ExtJS poe `overflow:hidden` no painel de grid e nos
+         `x-box-inner`, e sombra para fora e recortada. Vale para
+         qualquer tentativa futura de vazar tinta para fora de um
+         painel do ExtJS.
+      c) Gradiente no `.area-south`, o container de 1918px que abriga
+         os dois blocos.
+
+      NENHUMA DAS TRES PINTOU, o que e estranho: (c) e gradiente em
+      elemento com classe propria, CSS trivial. Se esta tambem falhar,
+      SUSPEITE DE CACHE DO CSS antes de tentar a quinta - recarga
+      forcada (Ctrl+Shift+R) e conferir no DevTools se a regra aparece
+      na lista de estilos do elemento.
+
+      --pgto-faixa-alt PRECISA BATER com a soma do cabecalho do painel
+      (24px) e do cabecalho de colunas (22px) = 46px. Aqui NAO entra o
+      top:2px do painel: a toolbar irma comeca em top:0, alinhada com o
+      container, enquanto o painel esta 2px abaixo. Se a faixa sair
+      2px fora de registro, e este o motivo. */
+div[id^="pagamentosaceitos-"] + div[id^="toolbar-"] {
+    background-color: var(--sup-cartao) !important;
+    background-image: linear-gradient(
+        to bottom,
+        transparent 0,
+        transparent 2px,
+        var(--cupom-cabecalho-fundo) 2px,
+        var(--cupom-cabecalho-fundo) var(--pgto-faixa-alt),
+        transparent var(--pgto-faixa-alt)
+    ) !important;
+    background-repeat: no-repeat !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+}
+
+/* 2. Setas no grafite do cabecalho da grid. Sem :has() de proposito -
+      se o Chromium for antigo, este bloco sobrevive sozinho e ja
+      resolve a maior parte do problema.
+      Os icones sao PNG de seta ESCURA sobre fundo claro; no grafite
+      eles sumiriam. `invert(1)` os deixa brancos sem trocar arquivo. */
+.bt_seta_cima,
+.bt_seta_baixo {
+    background: var(--cupom-cabecalho-fundo) !important;
+    background-image: none !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+}
+
+.bt_seta_cima span.x-btn-icon,
+.bt_seta_baixo span.x-btn-icon {
+    filter: invert(1) brightness(2) !important;
+}
+
+.bt_seta_cima:hover,
+.bt_seta_baixo:hover,
+.bt_seta_cima:active:not(.x-btn-disabled),
+.bt_seta_baixo:active:not(.x-btn-disabled) {
+    background: var(--acento-escuro-2) !important;
 }
 
 /* Catch-all: da 7a finalizadora em diante, ninguem fica sem faixa */
@@ -2376,7 +2981,8 @@ div[id^="coletadadoscon-"] input.input-input {
 /* CONFIRMAR - o unico solido */
 .janela-msg .bt_bbar.bt_tec_11,
 .janela-msg .bt_bbar.bt_tec_27,
-.janela-msg .bt_bbar.bt_tec_21 {
+.janela-msg .bt_bbar.bt_tec_21,
+.janela-msg .bt_bbar.bt_tec_58 {
     background: var(--dlg-confirmar-fundo) !important;
     border-color: transparent !important;
     box-shadow: none !important;
@@ -2385,17 +2991,21 @@ div[id^="coletadadoscon-"] input.input-input {
 .janela-msg .bt_bbar.bt_tec_11 .x-btn-inner,
 .janela-msg .bt_bbar.bt_tec_27 .x-btn-inner,
 .janela-msg .bt_bbar.bt_tec_21 .x-btn-inner,
+.janela-msg .bt_bbar.bt_tec_58 .x-btn-inner,
 .janela-msg .bt_bbar.bt_tec_11 span,
 .janela-msg .bt_bbar.bt_tec_27 span,
-.janela-msg .bt_bbar.bt_tec_21 span {
+.janela-msg .bt_bbar.bt_tec_21 span,
+.janela-msg .bt_bbar.bt_tec_58 span {
     color: var(--dlg-confirmar-texto) !important;
 }
 .janela-msg .bt_bbar.bt_tec_11:active:not(.x-btn-disabled),
 .janela-msg .bt_bbar.bt_tec_27:active:not(.x-btn-disabled),
 .janela-msg .bt_bbar.bt_tec_21:active:not(.x-btn-disabled),
+.janela-msg .bt_bbar.bt_tec_58:active:not(.x-btn-disabled),
 .janela-msg .bt_bbar.bt_tec_11:hover,
 .janela-msg .bt_bbar.bt_tec_27:hover,
-.janela-msg .bt_bbar.bt_tec_21:hover {
+.janela-msg .bt_bbar.bt_tec_21:hover,
+.janela-msg .bt_bbar.bt_tec_58:hover {
     background: var(--dlg-confirmar-fundo-ativo) !important;
     border-color: transparent !important;
 }
@@ -2445,10 +3055,119 @@ div[id^="coletadadoscon-"] input.input-input {
     border-color: transparent !important;
 }
 
+/* --- 21.1 O MESMO MAPA VALE PARA .tela_dialogo ------------------------
+   A secao 21 inteira foi escrita escopada em `.janela-msg`. As janelas
+   COLETORAS usam outra classe - `.tela_dialogo` (coletor-1920 e afins)
+   - e por isso o Cancelar delas nascia neutro, sem o contorno vermelho
+   de acao destrutiva que o "Nao" ja tinha nas janelas de mensagem.
+
+   Aqui o mapa e repetido para essa classe. Repetido POR EXTENSO e nao
+   com um replace de virgula: em CSS a virgula separa seletores
+   inteiros, e um replace cego quebraria todos os compostos - a mesma
+   armadilha ja documentada na secao 19.
+
+   O bt_tec_58 FICA DE FORA, de proposito - ver nota no fim da secao 21.
+====================================================================== */
+
+/* ABORTAR (Cancelar) - ghost vermelho */
+.tela_dialogo .bt_bbar.bt_tec_1,
+.tela_dialogo .bt_bbar.bt_tec_2 {
+    background: transparent !important;
+    border-color: transparent !important;
+    box-shadow: inset 0 0 0 var(--dlg-ghost-espessura) var(--dlg-abortar-contorno) !important;
+    animation: none !important;
+}
+.tela_dialogo .bt_bbar.bt_tec_1 .x-btn-inner,
+.tela_dialogo .bt_bbar.bt_tec_2 .x-btn-inner,
+.tela_dialogo .bt_bbar.bt_tec_1 span,
+.tela_dialogo .bt_bbar.bt_tec_2 span {
+    color: var(--dlg-abortar-texto) !important;
+}
+.tela_dialogo .bt_bbar.bt_tec_1:active:not(.x-btn-disabled),
+.tela_dialogo .bt_bbar.bt_tec_2:active:not(.x-btn-disabled),
+.tela_dialogo .bt_bbar.bt_tec_1:hover,
+.tela_dialogo .bt_bbar.bt_tec_2:hover {
+    background: var(--dlg-abortar-fundo-ativo) !important;
+    border-color: transparent !important;
+}
+
+/* RECUSAR (Nao) - ghost neutro */
+.tela_dialogo .bt_bbar.bt_tec_56,
+.tela_dialogo .bt_bbar.bt_tec_28 {
+    background: transparent !important;
+    border-color: transparent !important;
+    box-shadow: inset 0 0 0 var(--dlg-ghost-espessura) var(--dlg-recusar-contorno) !important;
+    animation: none !important;
+}
+.tela_dialogo .bt_bbar.bt_tec_56 .x-btn-inner,
+.tela_dialogo .bt_bbar.bt_tec_28 .x-btn-inner,
+.tela_dialogo .bt_bbar.bt_tec_56 span,
+.tela_dialogo .bt_bbar.bt_tec_28 span {
+    color: var(--dlg-recusar-texto) !important;
+}
+.tela_dialogo .bt_bbar.bt_tec_56:active:not(.x-btn-disabled),
+.tela_dialogo .bt_bbar.bt_tec_28:active:not(.x-btn-disabled),
+.tela_dialogo .bt_bbar.bt_tec_56:hover,
+.tela_dialogo .bt_bbar.bt_tec_28:hover {
+    background: var(--dlg-recusar-fundo-ativo) !important;
+    border-color: transparent !important;
+}
+
+/* CONFIRMAR - o unico solido */
+.tela_dialogo .bt_bbar.bt_tec_11,
+.tela_dialogo .bt_bbar.bt_tec_27,
+.tela_dialogo .bt_bbar.bt_tec_21,
+.tela_dialogo .bt_bbar.bt_tec_58 {
+    background: var(--dlg-confirmar-fundo) !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+}
+.tela_dialogo .bt_bbar.bt_tec_11 .x-btn-inner,
+.tela_dialogo .bt_bbar.bt_tec_27 .x-btn-inner,
+.tela_dialogo .bt_bbar.bt_tec_21 .x-btn-inner,
+.tela_dialogo .bt_bbar.bt_tec_58 .x-btn-inner,
+.tela_dialogo .bt_bbar.bt_tec_58 span,
+.tela_dialogo .bt_bbar.bt_tec_11 span,
+.tela_dialogo .bt_bbar.bt_tec_27 span,
+.tela_dialogo .bt_bbar.bt_tec_21 span {
+    color: var(--dlg-confirmar-texto) !important;
+}
+.tela_dialogo .bt_bbar.bt_tec_11:active:not(.x-btn-disabled),
+.tela_dialogo .bt_bbar.bt_tec_27:active:not(.x-btn-disabled),
+.tela_dialogo .bt_bbar.bt_tec_21:active:not(.x-btn-disabled),
+.tela_dialogo .bt_bbar.bt_tec_11:hover,
+.tela_dialogo .bt_bbar.bt_tec_27:hover,
+.tela_dialogo .bt_bbar.bt_tec_21:hover,
+.tela_dialogo .bt_bbar.bt_tec_58:hover,
+.tela_dialogo .bt_bbar.bt_tec_58:active:not(.x-btn-disabled) {
+    background: var(--dlg-confirmar-fundo-ativo) !important;
+    border-color: transparent !important;
+}
+
 /* Raio dos botoes de dialogo */
-.janela-msg .bt_bbar[class*="bt_tec_"] {
+.janela-msg .bt_bbar[class*="bt_tec_"],
+.tela_dialogo .bt_bbar[class*="bt_tec_"] {
     border-radius: 8px !important;
 }
+
+/* --- O CONFLITO DO bt_tec_58 (2026-08) --------------------------------
+   A secao 21 previu isto e aconteceu. Neste MESMO PDV o bt_tec_58
+   aparece com dois papeis diferentes:
+
+       dialogomsg-2011   58 = "Sem usar PinPad"   caminho alternativo
+       toolbar-1935      58 = "Sim"               confirmar
+
+   DECISAO TOMADA EM 2026-08: o 58 PASSA A SER CONFIRMAR nos dois
+   casos. Avaliado em campo que "Sem usar PinPad" tambem e uma acao de
+   PROSSEGUIR, nao um desvio perigoso - as duas sao suficientemente
+   parecidas para dividir o mesmo verde. Fica registrado que e uma
+   escolha consciente, nao um descuido do mapa.
+
+   SE UM DIA o 58 aparecer num terceiro papel que NAO seja prosseguir,
+   esta linha precisa ser revista - e ai o mapa por codigo perde o chao
+   de vez, com a saida passando a ser posicao no rodape
+   (.bt_bbar:first-of-type = acao primaria).
+====================================================================== */
 
 
 /* =======================================================================
