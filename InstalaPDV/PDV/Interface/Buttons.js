@@ -146,7 +146,7 @@ Ext.define("Pdv.api.dinamico.pdvMouse.Buttons", {
         pdvfn: 12801,
         atalho: !0,
         text: "F7 - Nome Produto",
-        icon: _resources_icon_4,
+        icon: _resources_icon_14,
         iconAlign: "top",
         cls: "bt_atalho"
     }, {
