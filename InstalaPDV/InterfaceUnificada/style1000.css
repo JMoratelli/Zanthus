@@ -2121,7 +2121,39 @@ img[class*="processando"] {
     border-radius: 8px !important;
 }
 
+/* --- 17.2 ABORTAR: botao UNICO no rodape -----------------------------
+   Um botao sozinho entre dois tbfill (2o de 3 filhos) e sempre acao
+   unica de saida - Cancelar. Com par Sim/Nao a contagem muda e esta
+   regra nao pega, caindo no mapa por codigo da 17.1.
 
+   Resolve a colisao do bt_tec_2, que e "Nao" (recusar) no dialogomsg
+   com par e "Cancelar" (abortar) aqui.
+
+   Especificidade 4 vence os 3 da 17.1, e vem depois no arquivo.
+   Zero box-model. */
+   
+   /* --- ABORTAR: botao UNICO no rodape ---------------------------------
+   Um botao sozinho entre dois tbfill (2o de 3 filhos) e sempre acao
+   unica de saida - Cancelar. Quando ha par Sim/Nao a contagem muda e
+   esta regra nao pega, caindo no mapa por codigo da 17.2.
+
+   Resolve a colisao do bt_tec_2, que e "Nao" (recusar) no dialogomsg
+   com par e "Cancelar" (abortar) aqui.
+
+   Especificidade 4 (2 classes + 2 pseudo) vence os 3 da 17.2, e vem
+   depois no arquivo. Zero box-model. */
+.bt_bbar[class*="bt_tec_"]:nth-child(2):nth-last-child(2) {
+    background: transparent !important;
+    box-shadow: inset 0 0 0 var(--dlg-ghost-espessura) var(--dlg-abortar-contorno) !important;
+    animation: none !important;
+}
+.bt_bbar[class*="bt_tec_"]:nth-child(2):nth-last-child(2) .x-btn-inner,
+.bt_bbar[class*="bt_tec_"]:nth-child(2):nth-last-child(2) span {
+    color: var(--dlg-abortar-texto) !important;
+}
+.bt_bbar[class*="bt_tec_"]:nth-child(2):nth-last-child(2):active:not(.x-btn-disabled) {
+    background: var(--dlg-abortar-fundo-ativo) !important;
+}
 /* =======================================================================
    18. POP-UPS / DIALOGOS (visual)
 
