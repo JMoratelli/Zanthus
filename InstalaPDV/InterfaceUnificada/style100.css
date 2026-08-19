@@ -2175,10 +2175,18 @@ span.txt-valores{
     background-image: none !important;
 }
 
-/* Rodape de janela de mensagem ganha chao. Linha via inset box-shadow
-   para nao criar borda (que mudaria a caixa). */
-.janela-msg .x-toolbar-docked-bottom,
-.tela_dialogo .x-toolbar-docked-bottom {
+/* Rodape de janela ganha chao: uma linha fina separando os botoes do
+   corpo. Via inset box-shadow para nao criar borda, que mudaria a
+   caixa.
+
+   ESCOPO EM `.x-window`, NAO NAS CLASSES DE JANELA
+   ------------------------------------------------
+   Era `.janela-msg, .tela_dialogo` - e a `.janela-seletor` ficou sem
+   a linha, porque o Zeus usa uma classe diferente para cada tipo de
+   janela. Toda regra escopada por essas classes quebra quando aparece
+   um tipo novo (ja aconteceu tres vezes neste arquivo). `.x-window` e
+   comum as tres e a qualquer janela futura. */
+.x-window .x-toolbar-docked-bottom {
     background: var(--dlg-rodape-fundo) !important;
     background-image: none !important;
     box-shadow: inset 0 1px 0 0 var(--dlg-rodape-linha) !important;
@@ -3144,9 +3152,96 @@ div[id^="coletadadoscon-"] input.input-input {
     border-color: transparent !important;
 }
 
+/* --- 21.2 O MESMO MAPA PARA .janela-seletor ---------------------------
+   TERCEIRA classe de janela do sistema, alem de `.janela-msg` e
+   `.tela_dialogo`. E a das listas de escolha (seletor-2383, "Qual o
+   motivo do cancelamento?"). O Cancelar dela nascia neutro porque a
+   secao 21 e a 21.1 nao a alcancavam.
+
+   PARTICULARIDADE: aqui o bt_tec_1 costuma ser o UNICO botao do
+   rodape. Nas outras janelas o ghost vermelho significa "nao e a acao
+   principal", em contraste com um Confirmar solido ao lado. Sozinho,
+   ele pode ler como "perigoso" quando e so voltar. Mantido mesmo
+   assim: consistencia entre janelas vale mais, e a acao continua
+   sendo abandonar a operacao.
+
+   Escrito por extenso, como na 21.1 - nada de replace de virgula. */
+.janela-seletor .bt_bbar.bt_tec_1,
+.janela-seletor .bt_bbar.bt_tec_2 {
+    background: transparent !important;
+    border-color: transparent !important;
+    box-shadow: inset 0 0 0 var(--dlg-ghost-espessura) var(--dlg-abortar-contorno) !important;
+    animation: none !important;
+}
+.janela-seletor .bt_bbar.bt_tec_1 .x-btn-inner,
+.janela-seletor .bt_bbar.bt_tec_2 .x-btn-inner,
+.janela-seletor .bt_bbar.bt_tec_1 span,
+.janela-seletor .bt_bbar.bt_tec_2 span {
+    color: var(--dlg-abortar-texto) !important;
+}
+.janela-seletor .bt_bbar.bt_tec_1:active:not(.x-btn-disabled),
+.janela-seletor .bt_bbar.bt_tec_2:active:not(.x-btn-disabled),
+.janela-seletor .bt_bbar.bt_tec_1:hover,
+.janela-seletor .bt_bbar.bt_tec_2:hover {
+    background: var(--dlg-abortar-fundo-ativo) !important;
+    border-color: transparent !important;
+}
+
+.janela-seletor .bt_bbar.bt_tec_56,
+.janela-seletor .bt_bbar.bt_tec_28 {
+    background: transparent !important;
+    border-color: transparent !important;
+    box-shadow: inset 0 0 0 var(--dlg-ghost-espessura) var(--dlg-recusar-contorno) !important;
+    animation: none !important;
+}
+.janela-seletor .bt_bbar.bt_tec_56 .x-btn-inner,
+.janela-seletor .bt_bbar.bt_tec_28 .x-btn-inner,
+.janela-seletor .bt_bbar.bt_tec_56 span,
+.janela-seletor .bt_bbar.bt_tec_28 span {
+    color: var(--dlg-recusar-texto) !important;
+}
+.janela-seletor .bt_bbar.bt_tec_56:active:not(.x-btn-disabled),
+.janela-seletor .bt_bbar.bt_tec_28:active:not(.x-btn-disabled),
+.janela-seletor .bt_bbar.bt_tec_56:hover,
+.janela-seletor .bt_bbar.bt_tec_28:hover {
+    background: var(--dlg-recusar-fundo-ativo) !important;
+    border-color: transparent !important;
+}
+
+.janela-seletor .bt_bbar.bt_tec_11,
+.janela-seletor .bt_bbar.bt_tec_27,
+.janela-seletor .bt_bbar.bt_tec_21,
+.janela-seletor .bt_bbar.bt_tec_58 {
+    background: var(--dlg-confirmar-fundo) !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+}
+.janela-seletor .bt_bbar.bt_tec_11 .x-btn-inner,
+.janela-seletor .bt_bbar.bt_tec_27 .x-btn-inner,
+.janela-seletor .bt_bbar.bt_tec_21 .x-btn-inner,
+.janela-seletor .bt_bbar.bt_tec_58 .x-btn-inner,
+.janela-seletor .bt_bbar.bt_tec_11 span,
+.janela-seletor .bt_bbar.bt_tec_27 span,
+.janela-seletor .bt_bbar.bt_tec_21 span,
+.janela-seletor .bt_bbar.bt_tec_58 span {
+    color: var(--dlg-confirmar-texto) !important;
+}
+.janela-seletor .bt_bbar.bt_tec_11:hover,
+.janela-seletor .bt_bbar.bt_tec_27:hover,
+.janela-seletor .bt_bbar.bt_tec_21:hover,
+.janela-seletor .bt_bbar.bt_tec_58:hover,
+.janela-seletor .bt_bbar.bt_tec_11:active:not(.x-btn-disabled),
+.janela-seletor .bt_bbar.bt_tec_27:active:not(.x-btn-disabled),
+.janela-seletor .bt_bbar.bt_tec_21:active:not(.x-btn-disabled),
+.janela-seletor .bt_bbar.bt_tec_58:active:not(.x-btn-disabled) {
+    background: var(--dlg-confirmar-fundo-ativo) !important;
+    border-color: transparent !important;
+}
+
 /* Raio dos botoes de dialogo */
 .janela-msg .bt_bbar[class*="bt_tec_"],
-.tela_dialogo .bt_bbar[class*="bt_tec_"] {
+.tela_dialogo .bt_bbar[class*="bt_tec_"],
+.janela-seletor .bt_bbar[class*="bt_tec_"] {
     border-radius: 8px !important;
 }
 
