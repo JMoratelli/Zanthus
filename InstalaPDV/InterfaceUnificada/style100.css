@@ -2293,32 +2293,11 @@ div[id^="gridseletor-"] {
 /* =======================================================================
    13.1 IMAGEM DO PRODUTO / MARCA (#imgProduto)
 
-   O ExtJS crava `background-image:url(resources/imagens/Zeus_V.gif)`
-   INLINE neste elemento - e, ao contrario do resto do inline dele,
-   SEM !important. Um !important daqui ganha sem esforco.
-
-   O GANCHO E BOM: `imgProduto` e um id LITERAL, escrito no codigo do
-   Zeus, nao um indice de montagem como teclafuncao-1230. Nao muda
-   entre telas nem entre versoes.
-
-   CAMINHO: no HTML o url e relativo a PAGINA (`resources/imagens/`);
-   aqui e relativo ao ARQUIVO CSS. Por isso `../imagens/`, igual ao
-   --splash-logo da secao 02. Se o CSS mudar de pasta, este caminho
-   muda junto.
-
-   O ARQUIVO PRECISA EXISTIR em resources/imagens/ZeusMachadao.png.
-   Se faltar, o elemento fica vazio - o PNG antigo NAO volta, porque a
-   regra casa de qualquer jeito. Diferente do caso dos icones de
-   atalho, aqui nao ha falha segura.
-
-   So background-image: tamanho, posicao e repeticao continuam vindo do
-   inline do ExtJS (90% 90%, center, no-repeat), entao a nova imagem se
-   encaixa igual a antiga. Se a proporcao for muito diferente da do
-   GIF, e no `background-size` do Zeus que se ajusta, nao aqui.
+   Regra removida (2026-08). O ExtJS reaplica o inline `background-image`
+   ao iniciar a venda, matando o !important. A troca virou substituicao
+   direta do arquivo Zeus_V.gif em resources/imagens/, mesmo nome antigo -
+   nao depende mais do CSS.
 ======================================================================= */
-#imgProduto {
-    background-image: url("../imagens/ZeusMachadao.png") !important;
-}
 
 
 /* =======================================================================
