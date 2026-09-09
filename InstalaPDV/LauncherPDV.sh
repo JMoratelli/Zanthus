@@ -713,24 +713,21 @@ if [ "$tipoInstala" == "PDVComum" ]; then
 fi
 
 log_step 15 "Copiando arquivos gerais de interface"
-safe_wget "https://github.com/JMoratelli/Zanthus/raw/refs/heads/main/InstalaPDV/InterfaceUnificada/icones.7z" "/Zanthus/Zeus/Interface/resources/icones/icones.7z"
-run_silent "Extraindo ícones" bash -c "cd /Zanthus/Zeus/Interface/resources/icones/ && 7z x -y icones.7z '*'"
-
-safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/PDV/Interface/Zeus_V.gif" "/Zanthus/Zeus/Interface/resources/imagens/Zeus_V.gif"
-safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/PDV/Interface/logo.png" "/Zanthus/Zeus/Interface/resources/imagens/logo.png"
-safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Self/Interface/logo_self.png" "/Zanthus/Zeus/Interface/resources/imagens/logo_self.png"
-safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Self/Interface/descanso1000.jpg" "/Zanthus/Zeus/Interface/resources/imagens/descanso1000.jpg"
+safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/InterfaceUnificada/Comum/Zeus_V.gif" "/Zanthus/Zeus/Interface/resources/imagens/Zeus_V.gif"
+safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/InterfaceUnificada/Comum/logo.png" "/Zanthus/Zeus/Interface/resources/imagens/logo.png"
+safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/InterfaceUnificada/Comum/logo_self.png" "/Zanthus/Zeus/Interface/resources/imagens/logo_self.png"
+safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/InterfaceUnificada/Comum/descanso1000.jpg" "/Zanthus/Zeus/Interface/resources/imagens/descanso1000.jpg"
 
 rm -f /Zanthus/Zeus/Interface/resources/imagens/self/codigo.gif
 rm -f /Zanthus/Zeus/Interface/resources/imagens/cancela_sel.png
 rm -f /Zanthus/Zeus/Interface/resources/imagens/cancela.png
 log_ok "Arquivos obsoletos removidos (codigo.gif, cancela*.png)"
 
-safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/InterfaceUnificada/style100.css" "/Zanthus/Zeus/Interface/resources/css/style100.css"
-safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/InterfaceUnificada/style1000.css" "/Zanthus/Zeus/Interface/resources/css/style1000.css"
-safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/InterfaceUnificada/style2.css" "/Zanthus/Zeus/Interface/resources/css/style2.css"
-safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/InterfaceUnificada/stylemonitor_cliente.css" "/Zanthus/Zeus/Interface/resources/css/stylemonitor_cliente.css"
-safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/PDV/Interface/Buttons.js" "/Zanthus/Zeus/Interface/app/api/dinamico/pdvMouse/Buttons.js"
+safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/InterfaceUnificada/Comum/style100.css" "/Zanthus/Zeus/Interface/resources/css/style100.css"
+safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/InterfaceUnificada/Comum/style1000.css" "/Zanthus/Zeus/Interface/resources/css/style1000.css"
+safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/InterfaceUnificada/Comum/style2.css" "/Zanthus/Zeus/Interface/resources/css/style2.css"
+safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/InterfaceUnificada/Comum/stylemonitor_cliente.css" "/Zanthus/Zeus/Interface/resources/css/stylemonitor_cliente.css"
+safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/InterfaceUnificada/Comum/Buttons.js" "/Zanthus/Zeus/Interface/app/api/dinamico/pdvMouse/Buttons.js"
 
 chmod 777 -R /Zanthus/Zeus/Interface/
 log_ok "Permissões aplicadas em /Zanthus/Zeus/Interface/"

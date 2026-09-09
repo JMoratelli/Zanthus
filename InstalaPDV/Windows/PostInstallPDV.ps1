@@ -18,7 +18,6 @@ if (-not $isAdmin) {
 # --- CONFIGURAÇÕES INICIAIS ---
 $caminhoPdv = "C:\Zanthus\Zeus\pdvJava"
 $caminhoInterface = "C:\Zanthus\Zeus\Interface"
-$caminhoIcones = "$caminhoInterface\resources\icones"
 $caminhoImagens = "$caminhoInterface\resources\imagens"
 
 # --- TABELAS DE ESCALABILIDADE (Basta adicionar novas filiais aqui repita para vários gateways) ---
@@ -192,22 +191,13 @@ Write-Host "`nBaixando Icones e Imagens..." -ForegroundColor Cyan
 # Força o uso do TLS 1.2 para evitar erros de conexão no GitHub
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
-if (-not (Test-Path $caminhoIcones)) { New-Item -ItemType Directory -Path $caminhoIcones | Out-Null }
 if (-not (Test-Path $caminhoImagens)) { New-Item -ItemType Directory -Path $caminhoImagens | Out-Null }
 
-Invoke-WebRequest -Uri "https://github.com/JMoratelli/Zanthus/raw/refs/heads/main/InstalaPDV/InterfaceUnificada/icones.7z" -OutFile "$caminhoIcones\icones.7z"
-
-Write-Host "Extraindo Icones..."
-$sevenZip = "C:\Program Files\7-Zip\7z.exe"
-Set-Location -Path $caminhoIcones
-& $sevenZip x -y icones.7z * | Out-Null
-Set-Location -Path $PSScriptRoot # Retorna ao diretorio original
-
 Write-Host "Baixando arquivos de Interface..."
-Invoke-WebRequest -Uri "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/PDV/Interface/Zeus_V.gif" -OutFile "$caminhoImagens\Zeus_V.gif"
-Invoke-WebRequest -Uri "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/InterfaceUnificada/style2.css" -OutFile "C:\Zanthus\Zeus\Interface\resources\css\style2.css"
-Invoke-WebRequest -Uri "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/InterfaceUnificada/style100.css" -OutFile "C:\Zanthus\Zeus\Interface\resources\css\style100.css"
-Invoke-WebRequest -Uri "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/InterfaceUnificada/style1000.css" -OutFile "C:\Zanthus\Zeus\Interface\resources\css\style1000.css"
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/InterfaceUnificada/Comum/Zeus_V.gif" -OutFile "$caminhoImagens\Zeus_V.gif"
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/InterfaceUnificada/Comum/style2.css" -OutFile "C:\Zanthus\Zeus\Interface\resources\css\style2.css"
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/InterfaceUnificada/Comum/style100.css" -OutFile "C:\Zanthus\Zeus\Interface\resources\css\style100.css"
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/InterfaceUnificada/Comum/style1000.css" -OutFile "C:\Zanthus\Zeus\Interface\resources\css\style1000.css"
 
 $caminhoConfigInterface = "$caminhoInterface\config"
 if (-not (Test-Path $caminhoConfigInterface)) { New-Item -ItemType Directory -Path $caminhoConfigInterface | Out-Null }
@@ -215,7 +205,7 @@ Invoke-WebRequest -Uri "https://raw.githubusercontent.com/JMoratelli/Zanthus/ref
 
 $caminhoAppDinamico = "$caminhoInterface\app\api\dinamico\pdvMouse"
 if (-not (Test-Path $caminhoAppDinamico)) { New-Item -ItemType Directory -Path $caminhoAppDinamico | Out-Null }
-Invoke-WebRequest -Uri "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/PDV/Interface/Buttons.js" -OutFile "$caminhoAppDinamico\Buttons.js"
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/InterfaceUnificada/Comum/Buttons.js" -OutFile "$caminhoAppDinamico\Buttons.js"
 
 # --- INSTALAÇÕES E AJUSTES DE SISTEMA ---
 

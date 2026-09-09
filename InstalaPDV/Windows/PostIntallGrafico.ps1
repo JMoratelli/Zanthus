@@ -354,7 +354,6 @@ $trabalho = {
 
     $caminhoPdv       = "C:\Zanthus\Zeus\pdvJava"
     $caminhoInterface = "C:\Zanthus\Zeus\Interface"
-    $caminhoIcones    = "$caminhoInterface\resources\icones"
     $caminhoImagens   = "$caminhoInterface\resources\imagens"
     $ipServidor       = $sync.IpServidor
     $filial           = $sync.Filial
@@ -394,7 +393,7 @@ $trabalho = {
     $etapas = @(
 
     @{ Nome = "Estrutura de pastas"; Acao = {
-        foreach ($p in @($caminhoPdv, $caminhoIcones, $caminhoImagens,
+        foreach ($p in @($caminhoPdv, $caminhoImagens,
                          "$caminhoInterface\config", "$caminhoInterface\app\api\dinamico\pdvMouse",
                          "$caminhoInterface\resources\css")) {
             if (-not (Test-Path $p)) { New-Item -ItemType Directory -Path $p -Force | Out-Null; Log "  criado $p" }
@@ -486,20 +485,13 @@ ConfiguracaoEnderecoIP=tls-prod.fiservapp.com
 
     @{ Nome = "Download de icones e imagens"; Acao = {
         [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-        Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/JMoratelli/Zanthus/raw/refs/heads/main/InstalaPDV/InterfaceUnificada/icones.7z" -OutFile "$caminhoIcones\icones.7z"
-        $sevenZip = "C:\Program Files\7-Zip\7z.exe"
-        if (Test-Path $sevenZip) {
-            & $sevenZip x -y "-o$caminhoIcones" "$caminhoIcones\icones.7z" | Out-Null
-            Log "  icones extraidos" $CorOk
-        } else { Log "  7-Zip nao encontrado - icones NAO extraidos" $CorAviso }
-
-        Invoke-WebRequest -UseBasicParsing -Uri "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/PDV/Interface/Zeus_V.gif" -OutFile "$caminhoImagens\Zeus_V.gif"
-        Invoke-WebRequest -Uri "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Self/Interface/logo_self.png" -OutFile "C:\Zanthus\Zeus\Interface\resources\imagens\logo_self.png"
-        Invoke-WebRequest -Uri "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/InterfaceUnificada/style2.css" -OutFile "C:\Zanthus\Zeus\Interface\resources\css\style2.css"
-        Invoke-WebRequest -Uri "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/InterfaceUnificada/style100.css" -OutFile "C:\Zanthus\Zeus\Interface\resources\css\style100.css"
-        Invoke-WebRequest -Uri "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/InterfaceUnificada/style1000.css" -OutFile "C:\Zanthus\Zeus\Interface\resources\css\style1000.css"
+        Invoke-WebRequest -UseBasicParsing -Uri "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/InterfaceUnificada/Comum/Zeus_V.gif" -OutFile "$caminhoImagens\Zeus_V.gif"
+        Invoke-WebRequest -Uri "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/InterfaceUnificada/Comum/logo_self.png" -OutFile "C:\Zanthus\Zeus\Interface\resources\imagens\logo_self.png"
+        Invoke-WebRequest -Uri "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/InterfaceUnificada/Comum/style2.css" -OutFile "C:\Zanthus\Zeus\Interface\resources\css\style2.css"
+        Invoke-WebRequest -Uri "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/InterfaceUnificada/Comum/style100.css" -OutFile "C:\Zanthus\Zeus\Interface\resources\css\style100.css"
+        Invoke-WebRequest -Uri "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/InterfaceUnificada/Comum/style1000.css" -OutFile "C:\Zanthus\Zeus\Interface\resources\css\style1000.css"
         Invoke-WebRequest -UseBasicParsing -Uri "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/PDV/Interface/config.js" -OutFile "$caminhoInterface\config\config.js"
-        Invoke-WebRequest -UseBasicParsing -Uri "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/PDV/Interface/Buttons.js" -OutFile "$caminhoInterface\app\api\dinamico\pdvMouse\Buttons.js"
+        Invoke-WebRequest -UseBasicParsing -Uri "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/InterfaceUnificada/Comum/Buttons.js" -OutFile "$caminhoInterface\app\api\dinamico\pdvMouse\Buttons.js"
         Log "  interface atualizada" $CorOk
     }}
 
