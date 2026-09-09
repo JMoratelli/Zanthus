@@ -933,7 +933,7 @@ log_ok "Arquivos legados removidos"
 # 22. Periféricos USB (balança, etc.)
 #===============================================================================
 log_step 22 "Instalando script de periféricos USB"
-safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/PerifericosUSB.sh" "/home/zanthus/PerifericosUSB.sh"
+safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Utilitarios/PerifericosUSB.sh" "/home/zanthus/PerifericosUSB.sh"
 chmod +x /home/zanthus/PerifericosUSB.sh
 run_silent "Executando PerifericosUSB.sh" /home/zanthus/PerifericosUSB.sh
 
@@ -975,7 +975,7 @@ fi
 # OBS: o GitHub raw responde em HTTP/2, então o header vem MINÚSCULO
 # (content-length) - por isso o grep é case-insensitive (-i), diferente do
 # atualizaSC que fala com o serv-web.
-LAUNCHER_URL="https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Interfaces/Touch/PDVTouch.sh"
+LAUNCHER_URL="https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/PDVJava/Comum/PDVTouch.sh"
 LAUNCHER_PATH="/Zanthus/Zeus/pdvJava/PDVTouch.sh"
 
 log_step 24 "Verificando launcher (PDVTouch.sh)"

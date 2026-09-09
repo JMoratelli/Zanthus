@@ -27,7 +27,7 @@ rsync -avz --delete zanthus@192.168.8.121:/Zanthus/Zeus/pdvJava/GERAL/SINCRO/WEB
 ```
 <b>Executa automação de correção do PHPPDV via Script</b>
 ```
-curl -s https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/CorrigePHPPDV.sh https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/CorrigePHPPDV.sh | bash
+curl -s https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Utilitarios/CorrigePHPPDV.sh https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Utilitarios/CorrigePHPPDV.sh | bash
 ```
 <b>Comando para forçar aplicação de permissões dentro do docker</b>
 
