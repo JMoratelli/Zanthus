@@ -194,18 +194,18 @@ Write-Host "`nBaixando Icones e Imagens..." -ForegroundColor Cyan
 if (-not (Test-Path $caminhoImagens)) { New-Item -ItemType Directory -Path $caminhoImagens | Out-Null }
 
 Write-Host "Baixando arquivos de Interface..."
-Invoke-WebRequest -Uri "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/InterfaceUnificada/Comum/Zeus_V.gif" -OutFile "$caminhoImagens\Zeus_V.gif"
-Invoke-WebRequest -Uri "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/InterfaceUnificada/Comum/style2.css" -OutFile "C:\Zanthus\Zeus\Interface\resources\css\style2.css"
-Invoke-WebRequest -Uri "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/InterfaceUnificada/Comum/style100.css" -OutFile "C:\Zanthus\Zeus\Interface\resources\css\style100.css"
-Invoke-WebRequest -Uri "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/InterfaceUnificada/Comum/style1000.css" -OutFile "C:\Zanthus\Zeus\Interface\resources\css\style1000.css"
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Interfaces/Comum/Zeus_V.gif" -OutFile "$caminhoImagens\Zeus_V.gif"
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Interfaces/Comum/style2.css" -OutFile "C:\Zanthus\Zeus\Interface\resources\css\style2.css"
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Interfaces/Comum/style100.css" -OutFile "C:\Zanthus\Zeus\Interface\resources\css\style100.css"
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Interfaces/Comum/style1000.css" -OutFile "C:\Zanthus\Zeus\Interface\resources\css\style1000.css"
 
 $caminhoConfigInterface = "$caminhoInterface\config"
 if (-not (Test-Path $caminhoConfigInterface)) { New-Item -ItemType Directory -Path $caminhoConfigInterface | Out-Null }
-Invoke-WebRequest -Uri "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/PDV/Interface/config.js" -OutFile "$caminhoConfigInterface\config.js"
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Interfaces/PDVComum/config.js" -OutFile "$caminhoConfigInterface\config.js"
 
 $caminhoAppDinamico = "$caminhoInterface\app\api\dinamico\pdvMouse"
 if (-not (Test-Path $caminhoAppDinamico)) { New-Item -ItemType Directory -Path $caminhoAppDinamico | Out-Null }
-Invoke-WebRequest -Uri "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/InterfaceUnificada/Comum/Buttons.js" -OutFile "$caminhoAppDinamico\Buttons.js"
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Interfaces/Comum/Buttons.js" -OutFile "$caminhoAppDinamico\Buttons.js"
 
 # --- INSTALAÇÕES E AJUSTES DE SISTEMA ---
 

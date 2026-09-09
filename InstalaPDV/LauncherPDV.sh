@@ -687,47 +687,47 @@ fi
 log_step 15 "Copiando arquivos de interface para tipo: $tipoInstala"
 
 if [ "$tipoInstala" == "SelfCheckout" ]; then
-    safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Self/Interface/telas_touch.js" "/Zanthus/Zeus/Interface/resources/js/telas_touch.js"
-    safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Self/Interface/animacao-codigo-pdv.svg" "/Zanthus/Zeus/Interface/resources/imagens/animacao-codigo-pdv.svg"
-    safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Self/Interface/animacao-pagamento-pdv.svg" "/Zanthus/Zeus/Interface/resources/imagens/animacao-pagamento-pdv.svg"
-    safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Self/Interface/teclas_touch.js" "/Zanthus/Zeus/Interface/resources/js/teclas_touch.js"
-    safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Lanchonete/TelaComanda.js" "/Zanthus/Zeus/Interface/app/view/tela/2/TelaComanda.js"
-    safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Self/Interface/config.js" "/Zanthus/Zeus/Interface/config/config.js"
+    safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Interfaces/Comum/telas_touch.js" "/Zanthus/Zeus/Interface/resources/js/telas_touch.js"
+    safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Interfaces/Self/animacao-codigo-pdv.svg" "/Zanthus/Zeus/Interface/resources/imagens/animacao-codigo-pdv.svg"
+    safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Interfaces/Self/animacao-pagamento-pdv.svg" "/Zanthus/Zeus/Interface/resources/imagens/animacao-pagamento-pdv.svg"
+    safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Interfaces/Self/teclas_touch.js" "/Zanthus/Zeus/Interface/resources/js/teclas_touch.js"
+    safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Interfaces/Comum/TelaComanda.js" "/Zanthus/Zeus/Interface/app/view/tela/2/TelaComanda.js"
+    safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Interfaces/Self/config.js" "/Zanthus/Zeus/Interface/config/config.js"
 fi
 
 if [ "$tipoInstala" == "Lanchonete" ]; then
-    safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Self/Interface/telas_touch.js" "/Zanthus/Zeus/Interface/resources/js/telas_touch.js"
-    safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Lanchonete/teclas_touch.js" "/Zanthus/Zeus/Interface/resources/js/teclas_touch.js"
-    safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Lanchonete/TelaComanda.js" "/Zanthus/Zeus/Interface/app/view/tela/2/TelaComanda.js"
-    safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Lanchonete/config.js" "/Zanthus/Zeus/Interface/config/config.js"
+    safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Interfaces/Comum/telas_touch.js" "/Zanthus/Zeus/Interface/resources/js/telas_touch.js"
+    safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Interfaces/Lanchonete/teclas_touch.js" "/Zanthus/Zeus/Interface/resources/js/teclas_touch.js"
+    safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Interfaces/Comum/TelaComanda.js" "/Zanthus/Zeus/Interface/app/view/tela/2/TelaComanda.js"
+    safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Interfaces/Comum/config.js" "/Zanthus/Zeus/Interface/config/config.js"
 fi
 
 if [ "$tipoInstala" == "PDVTouch" ]; then
-    safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Self/Interface/telas_touch.js" "/Zanthus/Zeus/Interface/resources/js/telas_touch.js"
-    safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/PDV/Interface/teclas_touch.js" "/Zanthus/Zeus/Interface/resources/js/teclas_touch.js"
-    safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Lanchonete/config.js" "/Zanthus/Zeus/Interface/config/config.js"
+    safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Interfaces/Comum/telas_touch.js" "/Zanthus/Zeus/Interface/resources/js/telas_touch.js"
+    safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Interfaces/Touch/teclas_touch.js" "/Zanthus/Zeus/Interface/resources/js/teclas_touch.js"
+    safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Interfaces/Comum/config.js" "/Zanthus/Zeus/Interface/config/config.js"
 fi
 
 if [ "$tipoInstala" == "PDVComum" ]; then
-    safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/PDV/Interface/config.js" "/Zanthus/Zeus/Interface/config/config.js"
+    safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Interfaces/PDVComum/config.js" "/Zanthus/Zeus/Interface/config/config.js"
 fi
 
 log_step 15 "Copiando arquivos gerais de interface"
-safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/InterfaceUnificada/Comum/Zeus_V.gif" "/Zanthus/Zeus/Interface/resources/imagens/Zeus_V.gif"
-safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/InterfaceUnificada/Comum/logo.png" "/Zanthus/Zeus/Interface/resources/imagens/logo.png"
-safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/InterfaceUnificada/Comum/logo_self.png" "/Zanthus/Zeus/Interface/resources/imagens/logo_self.png"
-safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/InterfaceUnificada/Comum/descanso1000.jpg" "/Zanthus/Zeus/Interface/resources/imagens/descanso1000.jpg"
+safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Interfaces/Comum/Zeus_V.gif" "/Zanthus/Zeus/Interface/resources/imagens/Zeus_V.gif"
+safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Interfaces/Comum/logo.png" "/Zanthus/Zeus/Interface/resources/imagens/logo.png"
+safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Interfaces/Comum/logo_self.png" "/Zanthus/Zeus/Interface/resources/imagens/logo_self.png"
+safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Interfaces/Comum/descanso1000.jpg" "/Zanthus/Zeus/Interface/resources/imagens/descanso1000.jpg"
 
 rm -f /Zanthus/Zeus/Interface/resources/imagens/self/codigo.gif
 rm -f /Zanthus/Zeus/Interface/resources/imagens/cancela_sel.png
 rm -f /Zanthus/Zeus/Interface/resources/imagens/cancela.png
 log_ok "Arquivos obsoletos removidos (codigo.gif, cancela*.png)"
 
-safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/InterfaceUnificada/Comum/style100.css" "/Zanthus/Zeus/Interface/resources/css/style100.css"
-safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/InterfaceUnificada/Comum/style1000.css" "/Zanthus/Zeus/Interface/resources/css/style1000.css"
-safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/InterfaceUnificada/Comum/style2.css" "/Zanthus/Zeus/Interface/resources/css/style2.css"
-safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/InterfaceUnificada/Comum/stylemonitor_cliente.css" "/Zanthus/Zeus/Interface/resources/css/stylemonitor_cliente.css"
-safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/InterfaceUnificada/Comum/Buttons.js" "/Zanthus/Zeus/Interface/app/api/dinamico/pdvMouse/Buttons.js"
+safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Interfaces/Comum/style100.css" "/Zanthus/Zeus/Interface/resources/css/style100.css"
+safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Interfaces/Comum/style1000.css" "/Zanthus/Zeus/Interface/resources/css/style1000.css"
+safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Interfaces/Comum/style2.css" "/Zanthus/Zeus/Interface/resources/css/style2.css"
+safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Interfaces/Comum/stylemonitor_cliente.css" "/Zanthus/Zeus/Interface/resources/css/stylemonitor_cliente.css"
+safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Interfaces/Comum/Buttons.js" "/Zanthus/Zeus/Interface/app/api/dinamico/pdvMouse/Buttons.js"
 
 chmod 777 -R /Zanthus/Zeus/Interface/
 log_ok "Permissões aplicadas em /Zanthus/Zeus/Interface/"
@@ -737,7 +737,7 @@ log_ok "Permissões aplicadas em /Zanthus/Zeus/Interface/"
 #===============================================================================
 log_step 16 "Baixando arquivos de áudio"
 if [ "$tipoInstala" == "SelfCheckout" ]; then
-  base_url="https://github.com/JMoratelli/Zanthus/raw/refs/heads/main/InstalaPDV/Self/Interface/audio/"
+  base_url="https://github.com/JMoratelli/Zanthus/raw/refs/heads/main/InstalaPDV/Interfaces/Self/audio/"
   destino="/Zanthus/Zeus/Interface/resources/audio/"
   audio_ok=0; audio_falha=0
   for i in {0..24}; do
@@ -757,9 +757,9 @@ fi
 #===============================================================================
 log_step 17 "Configurando CliSiTef"
 if [ "$tipoInstala" == "SelfCheckout" ]; then
-    safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Self/CliSiTef.ini" "/Zanthus/Zeus/pdvJava/CliSiTef.ini"
+    safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/PDVJava/Self/CliSiTef.ini" "/Zanthus/Zeus/pdvJava/CliSiTef.ini"
 else
-    safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/PDV/CliSiTef.ini" "/Zanthus/Zeus/pdvJava/CliSiTef.ini"
+    safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/PDVJava/Comum/CliSiTef.ini" "/Zanthus/Zeus/pdvJava/CliSiTef.ini"
 fi
 
 chmod 777 -R /Zanthus/Zeus/pdvJava/CliSiTef.ini
@@ -975,7 +975,7 @@ fi
 # OBS: o GitHub raw responde em HTTP/2, então o header vem MINÚSCULO
 # (content-length) - por isso o grep é case-insensitive (-i), diferente do
 # atualizaSC que fala com o serv-web.
-LAUNCHER_URL="https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/PDV/PDVTouch.sh"
+LAUNCHER_URL="https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Interfaces/Touch/PDVTouch.sh"
 LAUNCHER_PATH="/Zanthus/Zeus/pdvJava/PDVTouch.sh"
 
 log_step 24 "Verificando launcher (PDVTouch.sh)"
