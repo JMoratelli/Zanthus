@@ -34,6 +34,7 @@ mkdir -p "$diretorio_base/pasta_temporaria"
 unzip "$arquivo_zip" -d "$diretorio_base/pasta_temporaria"
 
 # Remove arquivos e diretórios específicos
+rm -f "$diretorio_base/pasta_temporaria/app/controller/Controller.js"
 rm -f "$diretorio_base/pasta_temporaria/app/api/dinamico/pdvMouse/Buttons.js"
 rm -f "$diretorio_base/pasta_temporaria/resources/imagens/Zeus_V.gif"
 rm -f "$diretorio_base/pasta_temporaria/resources/imagens/logo.png"
@@ -51,8 +52,6 @@ rm -f "$diretorio_base/pasta_temporaria/resources/css/style1000.css"
 rm -f "$diretorio_base/pasta_temporaria/resources/css/stylemonitor_cliente.css"
 rm -f "$diretorio_base/pasta_temporaria/config/config.js"
 rm -f "$diretorio_base/pasta_temporaria/app/view/tela/2/TelaComanda.js"
-
-
 rm -rf "$diretorio_base/pasta_temporaria/resources/icones"
 rm -rf "$diretorio_base/pasta_temporaria/resources/audio"
 
