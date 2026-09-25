@@ -507,27 +507,47 @@ ConfiguracaoEnderecoIP=tls-prod.fiservapp.com
     }}
 
     @{ Nome = "Atalhos para todos os usuarios"; Acao = {
-        $wshell = New-Object -ComObject WScript.Shell
-        $alvo = "C:\Zanthus\Zeus\Interface\index.html"
-        $a1 = $wshell.CreateShortcut((Join-Path ([Environment]::GetFolderPath('CommonDesktopDirectory')) "Interface Zeus.lnk"))
-        $a1.TargetPath = $alvo; $a1.Save()
-        $a2 = $wshell.CreateShortcut((Join-Path ([Environment]::GetFolderPath('CommonStartup')) "launcherHTML.lnk"))
-        $a2.TargetPath = $alvo; $a2.Save()
-        Log "  atalhos de desktop e startup criados" $CorOk
+        $wshell  = New-Object -ComObject WScript.Shell
+        $desktop = [Environment]::GetFolderPath('CommonDesktopDirectory')
+        $startup = [Environment]::GetFolderPath('CommonStartup')
+
+        # Area de trabalho: interface HTML
+        $a1 = $wshell.CreateShortcut((Join-Path $desktop "Interface Zeus.lnk"))
+        $a1.TargetPath = "C:\Zanthus\Zeus\Interface\index.html"; $a1.Save()
+        Log "  desktop: Interface Zeus.lnk -> index.html" $CorOk
+
+        # Inicializacao: SEMPRE o zlauncher
+        $zl = "C:\Zanthus\Zeus\zlauncher\zlauncher.exe"
+        if (Test-Path -LiteralPath $zl) {
+            $a2 = $wshell.CreateShortcut((Join-Path $startup "Zeus Frente de Caixa.lnk"))
+            $a2.TargetPath = $zl; $a2.WorkingDirectory = Split-Path $zl -Parent; $a2.Save()
+            Log "  startup: Zeus Frente de Caixa.lnk -> zlauncher.exe" $CorOk
+        } else { Log "  $zl ausente - atalho de inicializacao nao criado" $CorAviso }
+
+        # O atalho antigo apontava para index.html e duplicava a interface
+        $velho = Join-Path $startup "launcherHTML.lnk"
+        if (Test-Path -LiteralPath $velho) {
+            Remove-Item -LiteralPath $velho -Force
+            Log "  atalho antigo launcherHTML.lnk removido" $CorOk
+        }
     }}
 
-    @{ Nome = "Servidor Mirage e w_pdv"; Acao = {
-        $carg = "$caminhoPdv\CARG0000.CFG"
-        if (Test-Path $carg) {
-            (Get-Content $carg) -replace '^endereco=.*', 'endereco=192.168.12.42' | Set-Content $carg
-        } else { Log "  CARG0000.CFG ausente" $CorAviso }
-        Set-Content -Path "$caminhoPdv\RESTG0200.CFG" -Value "endereco=192.168.12.42"
+    @{ Nome = "w_pdv.cmd (tira o kiosk)"; Acao = {
+        # O CARG0000.CFG / RESTG0200.CFG nao sao mais forcados aqui: a dinamica de
+        # acesso mudou e o endereco vem do que ja esta configurado no terminal.
         $wpdv = "$caminhoPdv\w_pdv.cmd"
-        if (Test-Path $wpdv) {
-            (Get-Content $wpdv) -replace 'C:\\Zanthus\\Zeus\\zifaceloader\.exe --operador=unificada --zlauncher',
-                                         'C:\Zanthus\Zeus\Interface\index.html' | Set-Content $wpdv
-        } else { Log "  w_pdv.cmd ausente" $CorAviso }
-        Log "  Mirage 192.168.12.42 aplicado" $CorOk
+        if (-not (Test-Path -LiteralPath $wpdv)) { Log "  w_pdv.cmd ausente" $CorAviso; return }
+
+        $linhas = Get-Content -LiteralPath $wpdv
+        $tem = @($linhas | Where-Object { $_ -match 'zifaceloader\.exe' -and $_ -match '\s--kiosk(\s|$)' })
+        if ($tem.Count -eq 0) { Log "  ja esta sem --kiosk - ignorado" $CorOk; return }
+
+        Copy-Item -LiteralPath $wpdv -Destination "$wpdv.bak" -Force
+        $novas = $linhas | ForEach-Object {
+            if ($_ -match 'zifaceloader\.exe') { $_ -replace '\s+--kiosk(?=\s|$)', '' } else { $_ }
+        }
+        Set-Content -LiteralPath $wpdv -Value $novas -Encoding Default
+        Log "  --kiosk removido (backup em w_pdv.cmd.bak)" $CorOk
     }}
 
     @{ Nome = "Correcao de fuso horario (Cuiaba)"; Acao = {
@@ -585,6 +605,30 @@ Set-Date $utc.AddHours(-4)
         Log "  barra alinhada a esquerda, pesquisa oculta" $CorOk
     }}
 
+    @{ Nome = "Plano de energia"; Acao = {
+        # Tela apaga em 30 min; a maquina nunca suspende, hiberna ou desliga disco.
+        $ajustes = @(
+            @{ c='monitor-timeout-ac';   v=30; t='tela (tomada): 30 min' }
+            @{ c='monitor-timeout-dc';   v=30; t='tela (bateria): 30 min' }
+            @{ c='standby-timeout-ac';   v=0;  t='suspensao (tomada): nunca' }
+            @{ c='standby-timeout-dc';   v=0;  t='suspensao (bateria): nunca' }
+            @{ c='hibernate-timeout-ac'; v=0;  t='hibernacao (tomada): nunca' }
+            @{ c='hibernate-timeout-dc'; v=0;  t='hibernacao (bateria): nunca' }
+            @{ c='disk-timeout-ac';      v=0;  t='disco (tomada): nunca' }
+            @{ c='disk-timeout-dc';      v=0;  t='disco (bateria): nunca' }
+        )
+        foreach ($a in $ajustes) {
+            powercfg.exe /change $a.c $a.v 2>&1 | Out-Null
+            if ($LASTEXITCODE -eq 0) { Log ("  " + $a.t) $CorOk }
+            else { Log ("  falhou: " + $a.c + " (powercfg $LASTEXITCODE)") $CorAviso }
+        }
+        # Botao de energia e tampa nao podem suspender um PDV
+        powercfg.exe /setacvalueindex SCHEME_CURRENT SUB_BUTTONS LIDACTION 0 2>&1 | Out-Null
+        powercfg.exe /setdcvalueindex SCHEME_CURRENT SUB_BUTTONS LIDACTION 0 2>&1 | Out-Null
+        powercfg.exe /setactive SCHEME_CURRENT 2>&1 | Out-Null
+        Log "  tampa e botao de energia nao suspendem" $CorOk
+    }}
+
     @{ Nome = "Nome do computador"; Acao = {
         if ($env:COMPUTERNAME -eq $sync.NovoNome) {
             Log "  ja esta como $($sync.NovoNome) - ignorado"
@@ -615,7 +659,6 @@ Set-Date $utc.AddHours(-4)
         if (Test-Nome "Notepad++*")         { Marcar-Presente 'notepadpp'  'Notepad++' }
         if (Test-Nome "*Sumatra*")          { Marcar-Presente 'sumatra'    'SumatraPDF' }
         if (Test-Nome "VLC media player*")  { Marcar-Presente 'vlc'        'VLC' }
-        if (Test-Nome "*MicroSIP*")         { Marcar-Presente 'microsip'   'MicroSIP' }
         if (Test-Nome "*GOnnect*")          { Marcar-Presente 'gonnect'    'GOnnect' }
 
         $qtdVc = @($Inv.Nomes | Where-Object { $_ -like "Microsoft Visual C++*Redistributable*" }).Count
@@ -657,14 +700,14 @@ Set-Date $utc.AddHours(-4)
             @{ id='sumatra'    ; wid='SumatraPDF.SumatraPDF'      ; rot='SumatraPDF' ; ex=@('--scope','machine','--architecture','x64') }
             @{ id='vlc'        ; wid='VideoLAN.VLC'               ; rot='VLC'        ; ex=@('--scope','machine') }
             @{ id='lightshot'  ; wid='Skillbrains.Lightshot'      ; rot='Lightshot'  ; ex=@() }
-            @{ id='microsip'   ; wid='MicroSIP.MicroSIP'          ; rot='MicroSIP'   ; ex=@() }
         )
         foreach ($p in $fila) {
             if (Falta $p.id) { Winget-Instala $p.wid $p.rot $p.ex }
         }
 
         if (Falta 'vcredist') {
-            foreach ($v in 'Microsoft.VCRedist.2005.x86','Microsoft.VCRedist.2008.x86','Microsoft.VCRedist.2008.x64',
+            foreach ($v in 'Microsoft.VCRedist.2005.x86','Microsoft.VCRedist.2005.x64',
+                           'Microsoft.VCRedist.2008.x86','Microsoft.VCRedist.2008.x64',
                            'Microsoft.VCRedist.2010.x86','Microsoft.VCRedist.2010.x64','Microsoft.VCRedist.2012.x86',
                            'Microsoft.VCRedist.2012.x64','Microsoft.VCRedist.2013.x86','Microsoft.VCRedist.2013.x64',
                            'Microsoft.VCRedist.2015+.x86','Microsoft.VCRedist.2015+.x64') {
@@ -676,7 +719,45 @@ Set-Date $utc.AddHours(-4)
             Winget-Instala 'Microsoft.DotNet.DesktopRuntime.6' '.NET 6 Desktop' @('--scope','machine','--architecture','x64')
             Winget-Instala 'Microsoft.DotNet.DesktopRuntime.8' '.NET 8 Desktop' @('--scope','machine','--architecture','x64')
         }
-        if (Falta 'gonnect') { Log "  GOnnect nao esta no winget - use o Configura-Ramal.ps1" $CorAviso }
+        if (Falta 'gonnect') {
+            # Nao existe no winget: pega a ultima release do GitHub que tenha asset win64.
+            $exeGonnect = "C:\Program Files\GOnnect\bin\gonnect.exe"
+            if (Test-Path -LiteralPath $exeGonnect) { Log "  GOnnect ja presente em disco" $CorOk }
+            else {
+                try {
+                    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+                    $cab = @{ 'User-Agent' = 'Machadao-Instalador' }
+                    Log "  GOnnect: procurando release com instalador win64..."
+                    $releases = Invoke-RestMethod -UseBasicParsing -ErrorAction Stop -Headers $cab `
+                        -Uri "https://api.github.com/repos/gonicus/gonnect/releases?per_page=100"
+
+                    $asset = $null; $tag = $null
+                    foreach ($rel in $releases) {
+                        $ach = $rel.assets | Where-Object { $_.name -like "*win64*.exe" } | Select-Object -First 1
+                        if ($ach) { $asset = $ach; $tag = $rel.tag_name; break }
+                    }
+                    if (-not $asset) { throw "nenhuma das $($releases.Count) releases tem instalador win64" }
+
+                    Log "  GOnnect: versao $tag"
+                    $dest = "$env:TEMP\$($asset.name)"
+                    Invoke-WebRequest -Uri $asset.browser_download_url -OutFile $dest `
+                        -UseBasicParsing -Headers $cab -ErrorAction Stop
+                    Start-Process -FilePath $dest -ArgumentList "/S" -Wait -WindowStyle Hidden
+                    Remove-Item $dest -Force -EA 0
+
+                    if (-not (Test-Path -LiteralPath $exeGonnect)) { throw "executavel nao apareceu em $exeGonnect" }
+
+                    $ws = New-Object -ComObject WScript.Shell
+                    $g1 = $ws.CreateShortcut((Join-Path ([Environment]::GetFolderPath('CommonStartup')) "GOnnect.lnk"))
+                    $g1.TargetPath = $exeGonnect; $g1.Save()
+                    $g2 = $ws.CreateShortcut((Join-Path ([Environment]::GetFolderPath('CommonDesktopDirectory')) "GOnnect.lnk"))
+                    $g2.TargetPath = $exeGonnect; $g2.Save()
+                    Log "  GOnnect $tag instalado, com atalho e inicializacao automatica" $CorOk
+                    Log "  o ramal sera pedido no proximo login do usuario" $CorInfo
+                }
+                catch { Log "  GOnnect falhou: $($_.Exception.Message)" $CorErro }
+            }
+        }
 
         Log "  fila de pacotes concluida" $CorOk
     }}
@@ -934,17 +1015,77 @@ bOpt2=0
         $NomeImpressora = "IMP-NFE"
         $TempDir = "C:\KyoceraDrivers"
         $ZipPath = "$TempDir\drivers.7z"
-        if (-not (Test-Path $TempDir)) { New-Item -ItemType Directory -Path $TempDir | Out-Null }
-        if (-not (Test-Path $ZipPath)) {
-            Log "  baixando drivers Kyocera..."
-            Invoke-WebRequest -Uri "http://192.168.12.223/uploads/InstaladorWindows/KyoceraDrivers.7z" -OutFile $ZipPath -UseBasicParsing
-        } else { Log "  pacote ja existe localmente" }
 
-        $InfFiles = Get-ChildItem -Path $TempDir -Filter "OEMSETUP.INF" -Recurse -EA 0
-        if (-not $InfFiles) {
-            & "C:\Program Files\7-Zip\7z.exe" x $ZipPath "-o$TempDir" -y | Out-Null
-            $InfFiles = Get-ChildItem -Path $TempDir -Filter "OEMSETUP.INF" -Recurse
+        # Mesma origem do InstalaWindows.ps1: o pacote vive no Google Drive. O
+        # endpoint drive.usercontent devolve o arquivo direto; o antigo
+        # (drive.google.com/uc) passou a servir pagina de aviso em vez do .7z.
+        $GDriveId  = "1YJC2UHbEAAihMMqgS980WbLZe7q4AQ7S"
+        $GDriveUrl = "https://drive.usercontent.google.com/download?id=$GDriveId&export=download&confirm=t"
+
+        if (-not (Test-Path -LiteralPath $TempDir)) { New-Item -ItemType Directory -Path $TempDir -Force | Out-Null }
+
+        function Get-GDriveVersao ($Url) {
+            $req = [System.Net.HttpWebRequest]::Create($Url); $req.Method = "HEAD"
+            $resp = $req.GetResponse()
+            try { "$($resp.ContentLength)|$($resp.Headers['Last-Modified'])" } finally { $resp.Close() }
         }
+        function Get-GDriveArquivo ($Url, $Destino) {
+            $req = [System.Net.HttpWebRequest]::Create($Url)
+            $resp = $req.GetResponse()
+            $total = $resp.ContentLength
+            $ent = $resp.GetResponseStream(); $sai = [System.IO.File]::Create($Destino)
+            $buf = New-Object byte[] 65536; $lidoTotal = 0
+            $rel = [System.Diagnostics.Stopwatch]::StartNew()
+            try {
+                while (($n = $ent.Read($buf, 0, $buf.Length)) -gt 0) {
+                    $sai.Write($buf, 0, $n); $lidoTotal += $n
+                    if ($rel.ElapsedMilliseconds -gt 2000) {
+                        $mb = [math]::Round($lidoTotal / 1MB, 1)
+                        if ($total -gt 0) {
+                            Log ("  baixando drivers... {0}% ({1} MB de {2} MB)" -f `
+                                 [math]::Round(($lidoTotal / $total) * 100), $mb, [math]::Round($total / 1MB, 1))
+                        } else { Log "  baixando drivers... $mb MB" }
+                        $rel.Restart()
+                    }
+                }
+            } finally { $sai.Close(); $ent.Close(); $resp.Close() }
+        }
+
+        # Cache local x pacote remoto: sem isso, uma vez extraido em C:\KyoceraDrivers
+        # o pacote nunca era atualizado, mesmo trocado por um mais novo no Drive.
+        $Marcador = Join-Path $TempDir ".pacote-versao"
+        $versaoRemota = $null
+        try {
+            $versaoRemota = Get-GDriveVersao $GDriveUrl
+            $versaoLocal = if (Test-Path -LiteralPath $Marcador) { Get-Content -LiteralPath $Marcador -Raw -EA 0 } else { $null }
+            if ($versaoLocal -and $versaoLocal.Trim() -ne $versaoRemota) {
+                Log "  pacote mudou no Google Drive - limpando cache local" $CorAviso
+                Get-ChildItem -LiteralPath $TempDir -Force | Remove-Item -Recurse -Force -EA 0
+            }
+        } catch { Log "  nao deu para checar a versao do pacote - usando cache local" $CorAviso }
+
+        $InfFiles = @(Get-ChildItem -Path $TempDir -Filter "OEMSETUP.INF" -Recurse -EA 0)
+        if ($InfFiles.Count -eq 0) {
+            if (-not (Test-Path -LiteralPath $ZipPath)) {
+                Log "  baixando drivers Kyocera do Google Drive..."
+                try { Get-GDriveArquivo $GDriveUrl $ZipPath }
+                catch {
+                    Remove-Item -LiteralPath $ZipPath -Force -EA 0
+                    Log "  falha no download: $($_.Exception.Message)" $CorErro; return
+                }
+            } else { Log "  pacote ja existe localmente" }
+
+            $sete = "C:\Program Files\7-Zip\7z.exe"
+            if (-not (Test-Path -LiteralPath $sete)) { Log "  7-Zip nao instalado - nao da para extrair" $CorErro; return }
+            Log "  extraindo com 7-Zip..."
+            & $sete x $ZipPath "-o$TempDir" -y | Out-Null
+            if ($LASTEXITCODE -ne 0) { Log "  7-Zip retornou $LASTEXITCODE" $CorErro; return }
+
+            $InfFiles = @(Get-ChildItem -Path $TempDir -Filter "OEMSETUP.INF" -Recurse)
+            if ($versaoRemota) { Set-Content -LiteralPath $Marcador -Value $versaoRemota -Force }
+        } else { Log "  drivers ja extraidos em $TempDir" }
+
+        if ($InfFiles.Count -eq 0) { Log "  nenhum OEMSETUP.INF apos a extracao" $CorErro; return }
 
         $SNMP = New-Object -ComObject olePrn.OleSNMP
         $SNMP.Open($IP, "public")
@@ -1053,13 +1194,19 @@ bOpt2=0
         Remove-Item -LiteralPath $local -Force -EA 0
     }}
 
-    @{ Nome = "Bloqueio do usuario PDV e logon automatico"; Acao = {
-        Disable-LocalUser -Name "PDV" -EA 0
+    @{ Nome = "Bloqueio dos usuarios locais e logon automatico"; Acao = {
+        # O script roda no usuario zanthus, entao nenhuma das duas contas esta em uso.
+        foreach ($conta in 'PDV', 'pdvkiosk') {
+            if (Get-LocalUser -Name $conta -EA 0) {
+                Disable-LocalUser -Name $conta -EA 0
+                Log "  usuario local $conta desabilitado" $CorOk
+            } else { Log "  usuario local $conta nao existe - ignorado" }
+        }
         $wl = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon"
         Set-ItemProperty -Path $wl -Name "AutoAdminLogon" -Value "0"
         Set-ItemProperty -Path $wl -Name "DefaultUserName" -Value ""
         Remove-ItemProperty -Path $wl -Name "DefaultPassword" -EA 0
-        Log "  logon automatico desativado, usuario PDV desabilitado" $CorOk
+        Log "  logon automatico desativado" $CorOk
     }}
 
     @{ Nome = "Ingresso no dominio"; Acao = {
