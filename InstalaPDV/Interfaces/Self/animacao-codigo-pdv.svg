@@ -1,128 +1,260 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 864 864" width="864" height="864">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 864 864" width="864" height="864" role="img" aria-labelledby="t" xmlns:c2pa="http://c2pa.org/manifest"><metadata><c2pa:manifest>AAAWgmp1bWIAAAAeanVtZGMycGEAEQAQgAAAqgA4m3EDYzJwYQAAABZcanVtYgAAAEdqdW1kYzJtYQARABCAAACqADibcQN1cm46YzJwYTplNTY4MjYxMy1jNGNlLTRiNzMtOTRjZi04ZGQ0MTFjYzI1N2IAAAADl2p1bWIAAAApanVtZGMyYXMAEQAQgAAAqgA4m3EDYzJwYS5hc3NlcnRpb25zAAAAALxqdW1iAAAARGp1bWRjYm9yABEAEIAAAKoAOJtxE2MycGEuaW5ncmVkaWVudC52MwAAAAAYYzJzaBS7JncxwJQYuOgQCkdS/NIAAABwY2JvcqNpZGM6Zm9ybWF0bWltYWdlL3N2Zyt4bWxqaW5zdGFuY2VJRHgseG1wOmlpZDo4YTQwZTMwMC02OWFhLTQ3NTYtODI3NS0xNmQ3YTMzODJiYTVscmVsYXRpb25zaGlwaHBhcmVudE9mAAAB4mp1bWIAAABBanVtZGNib3IAEQAQgAAAqgA4m3ETYzJwYS5hY3Rpb25zLnYyAAAAABhjMnNo+hURPLWgJn3T1VsTV9o9TwAAAZljYm9yomdhY3Rpb25zgqJmYWN0aW9ua2MycGEub3BlbmVkanBhcmFtZXRlcnOha2luZ3JlZGllbnRzgaJjdXJseC1zZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmluZ3JlZGllbnQudjNkaGFzaFgg0F89UQnF49bo+QZt352uwFezJDyENIqbALz/N4H121KkZmFjdGlvbngdY29tLmFudGhyb3BpYy5jbGF1ZGUucHJvdmlkZWRqcGFyYW1ldGVyc6F4H2NvbS5hbnRocm9waWMub3JpZ2luLWNvbmZpZGVuY2VndW5rbm93bmtkZXNjcmlwdGlvbnhmQ2xhdWRlIHByb3ZpZGVkIHRoaXMgZmlsZSBhdCB0aGUgcmVxdWVzdCBvZiBhIHVzZXIgYW5kIG1heSBoYXZlIGNyZWF0ZWQgb3IgbW9kaWZpZWQgdGhlIGZpbGUgY29udGVudHMubXNvZnR3YXJlQWdlbnShZG5hbWVmQ2xhdWRlcmFsbEFjdGlvbnNJbmNsdWRlZPUAAADIanVtYgAAAEBqdW1kY2JvcgARABCAAACqADibcRNjMnBhLmhhc2guZGF0YQAAAAAYYzJzaH9MDgoJKahxO3BBDltNtcUAAACAY2JvcqVjYWxnZnNoYTI1NmNwYWRNAAAAAAAAAAAAAAAAAGRoYXNoWCCKAsnra9LFIngipoVTO/wP48qGnYEWTqy9py4o63zghGRuYW1lbmp1bWJmIG1hbmlmZXN0amV4Y2x1c2lvbnOBomVzdGFydBi1Zmxlbmd0aBkeBAAAAj5qdW1iAAAAJ2p1bWRjMmNsABEAEIAAAKoAOJtxA2MycGEuY2xhaW0udjIAAAACD2Nib3KlY2FsZ2ZzaGEyNTZpc2lnbmF0dXJleE1zZWxmI2p1bWJmPS9jMnBhL3VybjpjMnBhOmU1NjgyNjEzLWM0Y2UtNGI3My05NGNmLThkZDQxMWNjMjU3Yi9jMnBhLnNpZ25hdHVyZWppbnN0YW5jZUlEeCx4bXA6aWlkOjlmNWQxNzM2LWIyYTQtNGJjNi1hNzU2LWYzMTYyM2NlN2MxOHJjcmVhdGVkX2Fzc2VydGlvbnODomN1cmx4LXNlbGYjanVtYmY9YzJwYS5hc3NlcnRpb25zL2MycGEuaW5ncmVkaWVudC52M2RoYXNoWCDQXz1RCcXj1uj5Bm3fna7AV7MkPIQ0ipsAvP83gfXbUqJjdXJseCpzZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmFjdGlvbnMudjJkaGFzaFgg9A8qzJeefdvYJbmm3YNmHglJxEKMUioy+x3liPZlLiCiY3VybHgpc2VsZiNqdW1iZj1jMnBhLmFzc2VydGlvbnMvYzJwYS5oYXNoLmRhdGFkaGFzaFggHzXNdJuG8l6cN/EhXldFZ5Wg/0aZWyAgEjCHwpv8Tjp0Y2xhaW1fZ2VuZXJhdG9yX2luZm+jZG5hbWVvQW50aHJvcGljIEZpbGVzZ3ZlcnNpb25lMS4wLjBrc3BlY1ZlcnNpb25lMi40LjAAABA4anVtYgAAAChqdW1kYzJjcwARABCAAACqADibcQNjMnBhLnNpZ25hdHVyZQAAABAIY2JvctKEWQISogEmGCFZAgowggIGMIIBjaADAgECAhRA5aAK7sI50L64g/oGQgU9Z1UTADAKBggqhkjOPQQDAzBJMRcwFQYDVQQKEw5BbnRocm9waWMsIFBCQzEuMCwGA1UEAxMlQW50aHJvcGljIENvbnRlbnQgQ3JlZGVudGlhbHMgUm9vdCBDQTAeFw0yNjA4MDcxODQzNTZaFw0yODA4MDYxOTQzNTZaMEQxFzAVBgNVBAoTDkFudGhyb3BpYywgUEJDMSkwJwYDVQQDEyBBbnRocm9waWMgQ2xhdWRlIENvbnRlbnQgU2lnbmluZzBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABJh6CmvLUBgFFNU0vUKlOVtE6djd17L5SuwX0LemFisBM3dkd/3cyjxFA3Qo5S46fX0/ihY0VZ7mfb9KF703t5OjWDBWMA4GA1UdDwEB/wQEAwIHgDAVBgNVHSUEDjAMBgorBgEEAYPoXgIBMAwGA1UdEwEB/wQCMAAwHwYDVR0jBBgwFoAUzlHiBIFOZFsj+OPEz5o+nMHXXMIwCgYIKoZIzj0EAwMDZwAwZAIwMXMdFJ4BetLLVY7ORuE9noqbbAZOZn/aArXyTwFAZfKrPzxF2vPoJNf1+UCdg1XGAjBwX1zd9WGqYkqmL5SFqw1QySjr1zJfpJM9+1rdDwSPLMOPOjKuiXjoU/pUUeG9RwmhY3BhZFkNngAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPZYQJHbUtWPrc7KioZyskSufE1+Tls3he+VN9LfpViwaA9qzqDSinDvZvvdtEnlg/pOZDikphEwGWo01poqlCEj5K8=</c2pa:manifest></metadata>
+  <title id="t">Produto saindo da cesta, passando no leitor do PDV e indo para a área de ensacamento</title>
+  <defs>
+    <linearGradient id="gMon" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#565A61"/><stop offset="1" stop-color="#3A3D42"/>
+    </linearGradient>
+    <linearGradient id="gScreen" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#EEF0F2"/>
+    </linearGradient>
+    <linearGradient id="gBottle" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#B8141C"/><stop offset=".35" stop-color="#E63946"/>
+      <stop offset=".55" stop-color="#F26670"/><stop offset="1" stop-color="#B8141C"/>
+    </linearGradient>
+    <linearGradient id="gBasket" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FF8A3D"/><stop offset="1" stop-color="#E8621A"/>
+    </linearGradient>
+    <linearGradient id="gLaser" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0" stop-color="#FF2A2A" stop-opacity=".9"/><stop offset="1" stop-color="#FF2A2A" stop-opacity="0"/>
+    </linearGradient>
+    <radialGradient id="gOk">
+      <stop offset="0" stop-color="#5CB85C" stop-opacity=".55"/><stop offset="1" stop-color="#5CB85C" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#000" flood-opacity=".18"/>
+    </filter>
+  </defs>
+
   <style>
-    /* ANIMAÇÃO FLUIDA DO PRODUTO (Mantida nas proporções perfeitas originais) */
+    /* ===== FLUXO ORIGINAL (tempos e posições preservados) ===== */
     .product-x { animation: moveX 6s infinite cubic-bezier(0.4, 0, 0.2, 1); }
     .product-y { animation: moveY 6s infinite cubic-bezier(0.4, 0, 0.2, 1); }
-
     @keyframes moveX {
-        0%, 10%   { transform: translateX(180px); }
-        35%, 50%  { transform: translateX(400px); }
-        70%, 90%  { transform: translateX(620px); }
-        100%      { transform: translateX(180px); }
+      0%, 20%   { transform: translateX(180px); }
+      35%, 50%  { transform: translateX(400px); }
+      70%, 90%  { transform: translateX(620px); }
+      100%      { transform: translateX(180px); }
     }
-
     @keyframes moveY {
-        0%, 10%   { transform: translateY(270px); opacity: 0; }
-        15%       { transform: translateY(270px); opacity: 1; } 
-        22%       { transform: translateY(150px); } 
-        35%, 50%  { transform: translateY(250px); } 
-        60%       { transform: translateY(160px); } 
-        70%       { transform: translateY(260px); opacity: 1; } 
-        85%       { transform: translateY(260px); opacity: 1; }
-        90%, 100% { transform: translateY(260px); opacity: 0; } 
+      0%, 10%   { transform: translateY(270px); opacity: 0; }
+      15%       { transform: translateY(270px); opacity: 1; }
+      22%       { transform: translateY(150px); }
+      35%, 50%  { transform: translateY(250px); }
+      60%       { transform: translateY(160px); }
+      70%       { transform: translateY(260px); opacity: 1; }
+      85%       { transform: translateY(260px); opacity: 1; }
+      90%, 100% { transform: translateY(260px); opacity: 0; }
     }
 
-    /* MENSAGEM NA TELA (MOCKUP DE LINHAS) */
-    .screen-text-anim {
-        animation: textFade 6s infinite ease-in-out;
+    /* ===== EXTRAS sincronizados ao mesmo ciclo de 6s ===== */
+    /* inclinação no transporte + "amassadinha" ao pousar */
+    .product-r { transform-box: fill-box; transform-origin: 50% 100%;
+                 animation: tilt 6s infinite cubic-bezier(0.4, 0, 0.2, 1); }
+    @keyframes tilt {
+      0%, 15%  { transform: rotate(0) scale(1); }
+      22%      { transform: rotate(-10deg) scale(1); }
+      33%      { transform: rotate(0) scale(1); }
+      35%      { transform: rotate(0) scale(1.06, .94); }
+      38%, 50% { transform: rotate(0) scale(1); }
+      60%      { transform: rotate(10deg) scale(1); }
+      68%      { transform: rotate(0) scale(1); }
+      70%      { transform: rotate(0) scale(1.06, .94); }
+      73%, 85% { transform: rotate(0) scale(1); }
+      90%,100% { transform: rotate(0) scale(.85); }
     }
 
-    @keyframes textFade {
-        0%, 33%   { opacity: 0; transform: translateY(5px); }
-        36%, 67%  { opacity: 1; transform: translateY(0); } 
-        70%, 100% { opacity: 0; transform: translateY(-5px); } 
+    /* cesta balança quando o produto sai */
+    .basket { transform-box: fill-box; transform-origin: 50% 100%; animation: basketNudge 6s infinite ease-out; }
+    @keyframes basketNudge {
+      0%, 15% { transform: rotate(0); }  18% { transform: rotate(-3deg); }
+      21% { transform: rotate(2deg); }   24%, 100% { transform: rotate(0); }
     }
 
-    /* LUZ DO LEITOR */
+    /* laser vermelho varrendo enquanto o produto se aproxima */
+    .laser { animation: laserOn 6s infinite; }
+    @keyframes laserOn { 0%, 27% { opacity: 0; } 29%, 35% { opacity: 1; } 36%, 100% { opacity: 0; } }
+    .laser-sweep { transform-box: fill-box; transform-origin: 50% 100%; animation: sweep .45s infinite alternate ease-in-out; }
+    @keyframes sweep { from { transform: skewX(-18deg); } to { transform: skewX(18deg); } }
+
+    /* bip verde (mesma janela do original) */
     .bip-anim { animation: bipFlash 6s infinite; }
+    @keyframes bipFlash { 0%, 34% { opacity: 0; } 36%, 42% { opacity: 1; } 46%, 100% { opacity: 0; } }
+    .bip-ring { transform-box: fill-box; transform-origin: center; animation: ring 6s infinite ease-out; }
+    @keyframes ring {
+      0%, 35% { transform: scale(.3); opacity: 0; } 36% { opacity: .8; }
+      46% { transform: scale(1.6); opacity: 0; } 100% { opacity: 0; }
+    }
 
-    @keyframes bipFlash {
-        0%, 34%   { opacity: 0; }
-        36%, 42%  { opacity: 1; } 
-        46%, 100% { opacity: 0; }
+    /* item novo na tela (mesma janela do original) */
+    .screen-text-anim { animation: textFade 6s infinite ease-in-out; }
+    @keyframes textFade {
+      0%, 33%   { opacity: 0; transform: translateY(5px); }
+      36%, 67%  { opacity: 1; transform: translateY(0); }
+      70%, 100% { opacity: 0; transform: translateY(-5px); }
+    }
+    .row-flash { animation: rowFlash 6s infinite; }
+    @keyframes rowFlash { 0%, 35% { opacity: 0; } 37% { opacity: .22; } 55%, 100% { opacity: 0; } }
+    .tot-old { animation: totOld 6s infinite; }
+    .tot-new { animation: totNew 6s infinite; }
+    @keyframes totOld { 0%, 35% { opacity: 1; } 37%, 67% { opacity: 0; } 70%, 100% { opacity: 1; } }
+    @keyframes totNew { 0%, 35% { opacity: 0; } 37%, 67% { opacity: 1; } 70%, 100% { opacity: 0; } }
+
+    /* pinpad mostra valor junto com a tela */
+    .pin-price { animation: textFade 6s infinite ease-in-out; }
+
+    /* balança da área de ensacamento reage ao peso */
+    .plate { animation: platePress 6s infinite ease-out; }
+    @keyframes platePress {
+      0%, 69% { transform: translateY(0); } 71% { transform: translateY(3px); }
+      74%, 88% { transform: translateY(2px); } 92%, 100% { transform: translateY(0); }
+    }
+    .bag-led { animation: bagLed 6s infinite; }
+    @keyframes bagLed { 0%, 70% { fill: #9AA0A6; } 72%, 88% { fill: #5CB85C; } 90%, 100% { fill: #9AA0A6; } }
+
+    @media (prefers-reduced-motion: reduce) {
+      .laser-sweep, .basket, .product-r, .bip-ring, .plate { animation: none; }
     }
   </style>
-  
+
   <g transform="translate(432, 432) scale(1.4) translate(-405, -167.5)">
-  
-    <g transform="translate(180, 260)">
-      <line x1="-30" y1="-45" x2="-12" y2="-100" stroke="#0B2053" stroke-width="8" stroke-linecap="round"/>
-      <line x1="30" y1="-45" x2="12" y2="-100" stroke="#0B2053" stroke-width="8" stroke-linecap="round"/>
-      <polygon points="-55,-40 55,-40 45,35 -45,35" fill="#C25A12"/>
+
+    <!-- sombras de chão -->
+    <ellipse cx="180" cy="297" rx="58" ry="6" fill="#000" opacity=".08"/>
+    <ellipse cx="400" cy="282" rx="86" ry="5" fill="#000" opacity=".08"/>
+    <ellipse cx="620" cy="287" rx="80" ry="5" fill="#000" opacity=".08"/>
+
+    <!-- CESTA (parte de trás) -->
+    <g class="basket">
+      <g transform="translate(180, 260)">
+        <path d="M-30 -45 Q-26 -96 -12 -100" stroke="#0B2053" stroke-width="8" fill="none" stroke-linecap="round"/>
+        <path d="M30 -45 Q26 -96 12 -100" stroke="#0B2053" stroke-width="8" fill="none" stroke-linecap="round"/>
+        <polygon points="-55,-40 55,-40 45,35 -45,35" fill="#B94E0E"/>
+      </g>
     </g>
 
+    <!-- MONITOR -->
     <g transform="translate(400, 110)">
-      <rect x="-25" y="80" width="50" height="70" fill="#555555"/>
-      <rect x="-60" y="150" width="120" height="15" fill="#333333" rx="4"/>
-      
-      <rect x="-160" y="-70" width="320" height="190" fill="#4A4A4A" rx="8"/>
-      <rect x="-150" y="-60" width="300" height="170" fill="#F4F4F4" rx="4"/>
-      <rect x="-150" y="-60" width="300" height="25" fill="#FAD048"/> 
-      <rect x="-140" y="-53" width="40" height="10" fill="#333333" rx="2"/> 
-      
-      <rect x="-130" y="-15" width="100" height="6" fill="#CCCCCC" rx="3"/>
-      <rect x="-130" y="5" width="70" height="6" fill="#CCCCCC" rx="3"/>
-      <rect x="-130" y="25" width="90" height="6" fill="#CCCCCC" rx="3"/>
-      <rect x="-130" y="80" width="260" height="20" fill="#E0E0E0" rx="4"/>
+      <rect x="-22" y="80" width="44" height="72" fill="#4A4D52"/>
+      <rect x="-22" y="80" width="10" height="72" fill="#5A5E64"/>
+      <rect x="-62" y="150" width="124" height="15" fill="#2E3034" rx="6"/>
 
+      <rect x="-160" y="-70" width="320" height="190" fill="url(#gMon)" rx="12" filter="url(#shadow)"/>
+      <rect x="-150" y="-60" width="300" height="170" fill="url(#gScreen)" rx="5"/>
+      <rect x="-150" y="-60" width="300" height="25" fill="#FAD048"/>
+      <rect x="-140" y="-52" width="40" height="10" fill="#333" rx="3"/>
+      <circle cx="128" cy="-47" r="4" fill="#333" opacity=".5"/>
+      <circle cx="140" cy="-47" r="4" fill="#333" opacity=".5"/>
+
+      <!-- itens já registrados -->
+      <rect x="-130" y="-22" width="100" height="6" fill="#CFD3D7" rx="3"/><rect x="100" y="-22" width="30" height="6" fill="#CFD3D7" rx="3"/>
+      <rect x="-130" y="-8"  width="70"  height="6" fill="#CFD3D7" rx="3"/><rect x="104" y="-8"  width="26" height="6" fill="#CFD3D7" rx="3"/>
+      <rect x="-130" y="6"   width="90"  height="6" fill="#CFD3D7" rx="3"/><rect x="100" y="6"   width="30" height="6" fill="#CFD3D7" rx="3"/>
+
+      <!-- item novo -->
       <g class="screen-text-anim">
-          <rect x="-80" y="10" width="160" height="12" fill="#555555" rx="6"/>
-          <rect x="-50" y="30" width="100" height="12" fill="#555555" rx="6"/>
+        <rect class="row-flash" x="-140" y="18" width="280" height="36" fill="#5CB85C" opacity=".18" rx="6"/>
+        <rect x="-130" y="24" width="18" height="24" fill="#E63946" rx="4"/>
+        <rect x="-104" y="26" width="130" height="10" fill="#4A4D52" rx="5"/>
+        <rect x="-104" y="40" width="70"  height="6"  fill="#9AA0A6" rx="3"/>
+        <rect x="80"   y="28" width="50"  height="14" fill="#4A4D52" rx="5"/>
       </g>
 
-      <rect x="160" y="30" width="30" height="15" fill="#333333"/>
-      <rect x="180" y="-15" width="60" height="110" fill="#4A4A4A" rx="6"/>
-      <rect x="188" y="-5" width="44" height="40" fill="#B3D4C8" rx="2"/> 
-      <rect x="188" y="45" width="44" height="45" fill="#333333" rx="2"/> 
-      <circle cx="196" cy="55" r="4" fill="#999999"/>
-      <circle cx="210" cy="55" r="4" fill="#999999"/>
-      <circle cx="224" cy="55" r="4" fill="#999999"/>
-      <circle cx="196" cy="68" r="4" fill="#999999"/>
-      <circle cx="210" cy="68" r="4" fill="#999999"/>
-      <circle cx="224" cy="68" r="4" fill="#999999"/>
-      <circle cx="196" cy="81" r="4" fill="#E63946"/> 
-      <circle cx="210" cy="81" r="4" fill="#FAD048"/> 
-      <circle cx="224" cy="81" r="4" fill="#5CB85C"/> 
+      <!-- total -->
+      <rect x="-130" y="80" width="260" height="20" fill="#E4E7EA" rx="5"/>
+      <rect x="-122" y="86" width="40" height="8" fill="#9AA0A6" rx="4"/>
+      <rect class="tot-old" x="80" y="85" width="42" height="10" fill="#4A4D52" rx="5"/>
+      <rect class="tot-new" x="66" y="85" width="56" height="10" fill="#2E8B3E" rx="5"/>
+
+      <!-- PINPAD -->
+      <rect x="160" y="30" width="30" height="15" fill="#2E3034"/>
+      <rect x="180" y="-15" width="60" height="110" fill="url(#gMon)" rx="8" filter="url(#shadow)"/>
+      <rect x="188" y="-5" width="44" height="40" fill="#B3D4C8" rx="3"/>
+      <g class="pin-price">
+        <rect x="194" y="6" width="32" height="7" fill="#2F5D4E" rx="3"/>
+        <rect x="198" y="18" width="24" height="9" fill="#2F5D4E" rx="3"/>
+      </g>
+      <rect x="188" y="45" width="44" height="45" fill="#2E3034" rx="3"/>
+      <g fill="#9AA0A6">
+        <circle cx="196" cy="55" r="4"/><circle cx="210" cy="55" r="4"/><circle cx="224" cy="55" r="4"/>
+        <circle cx="196" cy="68" r="4"/><circle cx="210" cy="68" r="4"/><circle cx="224" cy="68" r="4"/>
+      </g>
+      <circle cx="196" cy="81" r="4" fill="#E63946"/>
+      <circle cx="210" cy="81" r="4" fill="#FAD048"/>
+      <circle cx="224" cy="81" r="4" fill="#5CB85C"/>
     </g>
 
+    <!-- LEITOR (topo + vidro) -->
     <g transform="translate(400, 260)">
-      <rect x="-80" y="-15" width="160" height="20" fill="#333333" rx="4"/>
-      <rect x="-70" y="-13" width="140" height="10" fill="#1A1A1A" rx="2"/> 
+      <rect x="-80" y="-15" width="160" height="20" fill="#2E3034" rx="5"/>
+      <rect x="-70" y="-13" width="140" height="10" fill="#15171A" rx="3"/>
+      <rect x="-66" y="-12" width="40" height="3" fill="#FFFFFF" opacity=".12" rx="1.5"/>
     </g>
 
+    <!-- laser vermelho -->
+    <g class="laser" transform="translate(400, 250)">
+      <g class="laser-sweep">
+        <polygon points="-3,0 3,0 30,-60 -30,-60" fill="url(#gLaser)" opacity=".35"/>
+        <rect x="-1" y="-60" width="2" height="60" fill="#FF3B3B"/>
+      </g>
+      <rect x="-70" y="-3" width="140" height="2" fill="#FF3B3B" opacity=".8"/>
+    </g>
+
+    <!-- PRODUTO -->
     <g class="product-x">
       <g class="product-y">
-        <path d="M -18,0 L 18,0 L 18,-50 Q 18,-60 9,-65 L 9,-75 L -9,-75 L -9,-65 Q -18,-60 -18,-50 Z" fill="#E63946" stroke="#B71C1C" stroke-width="2"/>
-        <rect x="-11" y="-80" width="22" height="6" fill="#DDDDDD" rx="2" stroke="#999999" stroke-width="1"/>
-        <rect x="-17" y="-40" width="34" height="20" fill="#FFFFFF"/>
-        <rect x="-17" y="-36" width="34" height="4" fill="#FAD048"/>
+        <g class="product-r" filter="url(#shadow)">
+          <path d="M -18,0 L 18,0 L 18,-50 Q 18,-60 9,-65 L 9,-75 L -9,-75 L -9,-65 Q -18,-60 -18,-50 Z" fill="url(#gBottle)" stroke="#9E1117" stroke-width="1.5"/>
+          <rect x="-11" y="-81" width="22" height="7" fill="#E4E7EA" rx="2" stroke="#9AA0A6" stroke-width="1"/>
+          <rect x="-17" y="-40" width="34" height="22" fill="#FFFFFF"/>
+          <rect x="-17" y="-37" width="34" height="4" fill="#FAD048"/>
+          <g fill="#222">
+            <rect x="-12" y="-30" width="1.5" height="9"/><rect x="-9" y="-30" width="1" height="9"/>
+            <rect x="-6.5" y="-30" width="2" height="9"/><rect x="-3" y="-30" width="1" height="9"/>
+            <rect x="-0.5" y="-30" width="1.5" height="9"/><rect x="2.5" y="-30" width="1" height="9"/>
+            <rect x="5" y="-30" width="2" height="9"/><rect x="8.5" y="-30" width="1" height="9"/>
+            <rect x="10.5" y="-30" width="1.5" height="9"/>
+          </g>
+          <rect x="-13" y="-58" width="4" height="50" fill="#FFFFFF" opacity=".25" rx="2"/>
+        </g>
       </g>
     </g>
 
-    <g transform="translate(180, 260)">
-      <polygon points="-55,-40 55,-40 45,35 -45,35" fill="#FF7824"/>
-      <line x1="-30" y1="-10" x2="-22" y2="20" stroke="#0B2053" stroke-width="6" stroke-linecap="round"/>
-      <line x1="0" y1="-10" x2="0" y2="20" stroke="#0B2053" stroke-width="6" stroke-linecap="round"/>
-      <line x1="30" y1="-10" x2="22" y2="20" stroke="#0B2053" stroke-width="6" stroke-linecap="round"/>
-      <rect x="-70" y="-60" width="140" height="30" fill="#E82C2A" rx="10"/>
-      <line x1="-45" y1="-45" x2="45" y2="-45" stroke="#0B2053" stroke-width="6" stroke-linecap="round"/>
+    <!-- CESTA (frente) -->
+    <g class="basket">
+      <g transform="translate(180, 260)">
+        <polygon points="-55,-40 55,-40 45,35 -45,35" fill="url(#gBasket)"/>
+        <line x1="-30" y1="-10" x2="-22" y2="20" stroke="#0B2053" stroke-width="6" stroke-linecap="round"/>
+        <line x1="0" y1="-10" x2="0" y2="20" stroke="#0B2053" stroke-width="6" stroke-linecap="round"/>
+        <line x1="30" y1="-10" x2="22" y2="20" stroke="#0B2053" stroke-width="6" stroke-linecap="round"/>
+        <rect x="-70" y="-60" width="140" height="30" fill="#E82C2A" rx="12"/>
+        <rect x="-64" y="-57" width="128" height="6" fill="#FFFFFF" opacity=".18" rx="3"/>
+        <line x1="-45" y1="-45" x2="45" y2="-45" stroke="#0B2053" stroke-width="6" stroke-linecap="round"/>
+      </g>
     </g>
 
+    <!-- LEITOR (base frontal) -->
     <g transform="translate(400, 260)">
-      <rect x="-80" y="5" width="160" height="15" fill="#4A4A4A" rx="2"/>
-      <rect x="-75" y="8" width="150" height="4" fill="#666666" rx="1"/>
+      <rect x="-80" y="5" width="160" height="16" fill="#3E4146" rx="4"/>
+      <rect x="-75" y="8" width="150" height="4" fill="#5A5E64" rx="2"/>
+      <circle cx="68" cy="14" r="2.5" fill="#5CB85C" opacity=".7"/>
     </g>
 
+    <!-- ÁREA DE ENSACAMENTO -->
     <g transform="translate(620, 260)">
-      <rect x="-70" y="0" width="140" height="25" fill="#777777" rx="4"/>
-      <rect x="-80" y="-10" width="160" height="10" fill="#E0E0E0" stroke="#CCCCCC" stroke-width="2" rx="3"/>
+      <rect x="-70" y="0" width="140" height="25" fill="#6E7278" rx="5"/>
+      <circle class="bag-led" cx="58" cy="13" r="3.5" fill="#9AA0A6"/>
+      <g class="plate">
+        <rect x="-80" y="-10" width="160" height="10" fill="#E4E7EA" stroke="#C4C8CC" stroke-width="2" rx="4"/>
+      </g>
     </g>
 
+    <!-- BIP verde -->
     <g transform="translate(400, 250)" class="bip-anim">
-      <rect x="-70" y="-20" width="140" height="3" fill="#5CB85C"/>
-      <rect x="0" y="-50" width="3" height="60" fill="#5CB85C"/>
-      <circle cx="0" cy="-20" r="30" fill="#5CB85C" opacity="0.2"/>
+      <circle cx="0" cy="-20" r="42" fill="url(#gOk)"/>
+      <rect x="-70" y="-3" width="140" height="3" fill="#5CB85C" rx="1.5"/>
+      <rect x="-1.5" y="-50" width="3" height="50" fill="#5CB85C" rx="1.5"/>
     </g>
+    <circle class="bip-ring" cx="400" cy="230" r="34" fill="none" stroke="#5CB85C" stroke-width="3"/>
 
   </g>
 </svg>
