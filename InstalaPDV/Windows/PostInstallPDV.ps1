@@ -767,6 +767,27 @@ Set-Date $utc.AddHours(-4)
         # Conteudo do script original, verbatim. Unica adaptacao: o param()
         # virou variaveis (param() so vale no topo de um arquivo) e o
         # Write-Log espelha no painel alem de gravar no instalacao.log.
+        #
+        # ATENCAO - ISTO NAO E UM BUG, NAO "CONSERTE"
+        #
+        # A impressora fiscal destes terminais e uma TM-T20X-II
+        # (USB\VID_04B8&PID_0202), mas o utilitario instalado aqui e o do
+        # TM-T88V, de proposito: $BASE aponta para a pasta tm-t88v e
+        # $EXE_UTIL e o TM-T88VUtility170.exe.
+        #
+        # Existe uma pasta tm-t20X-ii ao lado, com TM-T20X-IIUtility100.exe,
+        # que NAO e usada. O criterio da escolha foi simplicidade e, acima de
+        # tudo, funcionar: este caminho esta validado em campo.
+        #
+        # Trocar para a pasta tm-t20X-ii nao e so mudar $BASE. O setup.iss
+        # nao vem no pacote nem e extraido - e gerado logo abaixo, pela
+        # New-SetupIss, e o conteudo hardcoded la e o response file do
+        # InstallShield do T88V ([Application] Name=EPSON TM-T88V Utility
+        # Ver.1.70, GUID {DDA36F98-...}). Response file casa por GUID de
+        # dialogo, entao ele nao serve para o instalador do T20X-II: seria
+        # preciso gravar um novo com
+        #     TM-T20X-IIUtility100.exe /r /f1"setup.iss"
+        # percorrendo o wizard uma vez, e so entao trocar o caminho.
         # ------------------------------------------------------------------
         $Forcar         = $sync.ForcarEpson
         $ImpressoraTipo = $sync.ImpressoraTipo
@@ -801,6 +822,9 @@ Set-Date $utc.AddHours(-4)
 
         function Test-PortConnector { Test-Path -LiteralPath $PORTCONN }
 
+        # Response file do InstallShield do TM-T88V - ver a nota no topo desta
+        # etapa antes de mexer. O GUID e o bloco [Application] abaixo sao do
+        # T88V e nao valem para o instalador do T20X-II.
         function New-SetupIss {
             $conteudo = @'
 [InstallShield Silent]
@@ -862,7 +886,7 @@ bOpt2=0
         if (-not (Test-Admin))                   { Write-Log 'Execute como Administrador.' 'ERRO'; return }
         if (-not (Test-Path -LiteralPath $BASE)) { Write-Log "Pasta base nao encontrada: $BASE" 'ERRO'; return }
 
-        Write-Log '=== INICIO - Epson TM-T20X-II ==='
+        Write-Log '=== INICIO - Epson: impressora TM-T20X-II, utilitario T88V ==='
 
         $stPortConn = Test-PortConnector
         $stDll      = Test-DllCopiada
