@@ -1334,6 +1334,72 @@ bOpt2=0
             }
         }
     }}
+
+    @{ Nome = "SSH: bloqueia o usuario local zanthus"; Acao = {
+        # Ultima etapa de proposito: so faz sentido depois do ingresso no dominio.
+        #
+        # DenyUsers bloqueia a CONTA, nao o metodo - chave e senha caem junto.
+        # Por isso a trava abaixo: num terminal fora do dominio isso deixaria o
+        # PDV sem nenhum caminho de SSH, porque nao haveria conta AD no lugar.
+        #
+        # E NAO usamos 'PasswordAuthentication no': ele derrubaria a senha de
+        # TODAS as contas, inclusive as do AD, que e justamente como se entra
+        # na maquina depois do ingresso.
+        $cs = Get-CimInstance Win32_ComputerSystem
+        if (-not $cs.PartOfDomain) {
+            Log "  maquina fora do dominio - etapa ignorada" $CorAviso
+            Log "  (bloquear o zanthus agora deixaria o terminal sem SSH nenhum)" $CorAviso
+            return
+        }
+        if (-not (Get-Service sshd -EA 0)) { Log "  sshd nao instalado - nada a fazer"; return }
+
+        $cfg = 'C:\ProgramData\ssh\sshd_config'
+        if (-not (Test-Path $cfg)) { Log "  sshd_config nao encontrado" $CorAviso; return }
+
+        $linhas = @(Get-Content $cfg)
+        if ($linhas | Where-Object { $_ -match '^\s*DenyUsers\b.*\bzanthus\b' }) {
+            Log "  zanthus ja bloqueado no sshd_config - ignorado" $CorOk
+            return
+        }
+
+        # A diretiva TEM que ficar antes do primeiro bloco Match. Depois dele
+        # ela vira uma opcao por-Match: o 'sshd -t' aceita, mas o 'sshd -T'
+        # mostra denyusers vazio no escopo global e o bloqueio so vale dentro
+        # daquele Match. Testado nesta build (OpenSSH 10.0p2 for Windows).
+        $primeiroMatch = ($linhas | Select-String -Pattern '^\s*Match\b' | Select-Object -First 1).LineNumber
+        if ($primeiroMatch) {
+            $novas = @($linhas[0..($primeiroMatch - 2)]) + 'DenyUsers zanthus' +
+                     @($linhas[($primeiroMatch - 1)..($linhas.Count - 1)])
+        } else {
+            $novas = @($linhas) + 'DenyUsers zanthus'
+        }
+
+        # Valida antes de aplicar: config quebrado aqui derruba o sshd e o
+        # acesso remoto junto.
+        $teste = "$env:TEMP\sshd_config.teste"
+        [System.IO.File]::WriteAllLines($teste, $novas, (New-Object System.Text.ASCIIEncoding))
+        $saida = (& 'C:\Program Files\OpenSSH\sshd.exe' -t -f $teste) 2>&1
+        if ($LASTEXITCODE -ne 0) {
+            Log "  config recusado pelo sshd -t, nada alterado: $saida" $CorErro
+            Remove-Item $teste -Force -EA 0
+            return
+        }
+
+        Copy-Item $cfg "$cfg.bak" -Force
+        [System.IO.File]::WriteAllLines($cfg, $novas, (New-Object System.Text.ASCIIEncoding))
+        Remove-Item $teste -Force -EA 0
+        Restart-Service sshd -Force
+
+        $efetivo = (& 'C:\Program Files\OpenSSH\sshd.exe' -T) 2>&1 |
+                   Where-Object { $_ -match '^denyusers\b' }
+        if ($efetivo -match 'zanthus') {
+            Log "  usuario local zanthus bloqueado no SSH" $CorOk
+            Log "  contas do dominio seguem entrando normalmente" $CorOk
+        } else {
+            Log "  aplicado, mas o sshd -T nao confirmou o bloqueio - conferir $cfg" $CorAviso
+        }
+        Log "  backup do config em $cfg.bak"
+    }}
     )
 
     # ---------- execucao ----------
