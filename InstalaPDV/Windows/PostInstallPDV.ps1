@@ -647,8 +647,16 @@ Set-Date $utc.AddHours(-4)
             (Test-Nome "*Bitdefender*") -or
             (Test-Path "C:\Program Files\Bitdefender\Endpoint Security")) { Marcar-Presente 'bitdefender' 'BitDefender' }
 
-        # UltraVNC: so detecta, NUNCA instala
-        if (Test-Path "C:\Program Files\uvnc bvba\UltraVNC\winvnc.exe") { Marcar-Presente 'uvnc' 'UltraVNC' }
+        # UltraVNC: so detecta, NUNCA instala. O instalador nem sempre usa a
+        # pasta "uvnc bvba" - em campo aparece tambem so "uvnc".
+        $uvncExe = @(
+            "C:\Program Files\uvnc bvba\UltraVNC\winvnc.exe"
+            "C:\Program Files\uvnc\UltraVNC\winvnc.exe"
+            "C:\Program Files\UltraVNC\winvnc.exe"
+            "C:\Program Files (x86)\uvnc bvba\UltraVNC\winvnc.exe"
+            "C:\Program Files (x86)\uvnc\UltraVNC\winvnc.exe"
+        ) | Where-Object { Test-Path -LiteralPath $_ } | Select-Object -First 1
+        if ($uvncExe) { Marcar-Presente 'uvnc' 'UltraVNC' }
         else { Log ("  {0,-14} ausente (instalacao manual, fora do escopo)" -f 'UltraVNC') $CorAviso }
 
         if (Test-Nome "7-Zip*")             { Marcar-Presente '7zip'       '7-Zip' }
@@ -760,6 +768,65 @@ Set-Date $utc.AddHours(-4)
         }
 
         Log "  fila de pacotes concluida" $CorOk
+    }}
+
+    @{ Nome = "UltraVNC como servico"; Acao = {
+        # O UltraVNC precisa ser SERVICO, nao atalho de inicializacao. Como
+        # atalho ele so sobe quando alguem faz logon - e este script tira o
+        # autologon e desativa PDV e pdvkiosk, entao ninguem loga e o acesso
+        # remoto morre junto com o resto da inicializacao.
+        $exe = @(
+            "C:\Program Files\uvnc bvba\UltraVNC\winvnc.exe"
+            "C:\Program Files\uvnc\UltraVNC\winvnc.exe"
+            "C:\Program Files\UltraVNC\winvnc.exe"
+            "C:\Program Files (x86)\uvnc bvba\UltraVNC\winvnc.exe"
+            "C:\Program Files (x86)\uvnc\UltraVNC\winvnc.exe"
+        ) | Where-Object { Test-Path -LiteralPath $_ } | Select-Object -First 1
+
+        if (-not $exe) { Log "  UltraVNC nao instalado - instalacao manual, fora do escopo" $CorAviso; return }
+        Log "  binario: $exe"
+
+        # Sem ini nao ha senha configurada: o servico subiria aberto.
+        $ini = @(
+            "C:\ProgramData\UltraVNC\ultravnc.ini"
+            (Join-Path (Split-Path $exe -Parent) 'ultravnc.ini')
+        ) | Where-Object { Test-Path -LiteralPath $_ } | Select-Object -First 1
+        if ($ini) { Log "  configuracao: $ini" }
+        else { Log "  ATENCAO: nenhum ultravnc.ini encontrado - o servico pode subir sem senha" $CorAviso }
+
+        $svc = Get-Service -Name 'uvnc_service' -EA 0
+        if (-not $svc) { $svc = Get-Service -EA 0 | Where-Object { $_.Name -match 'vnc' } | Select-Object -First 1 }
+
+        if ($svc) { Log "  servico $($svc.Name) ja registrado" }
+        else {
+            Log "  nenhum servico de VNC - registrando..."
+            & $exe -install
+            Start-Sleep -Seconds 4
+            $svc = Get-Service -Name 'uvnc_service' -EA 0
+            if (-not $svc) { Log "  falhou: o servico nao foi criado" $CorErro; return }
+            Log "  servico uvnc_service criado" $CorOk
+        }
+
+        Set-Service -Name $svc.Name -StartupType Automatic -EA 0
+        if ((Get-Service -Name $svc.Name).Status -ne 'Running') { Start-Service -Name $svc.Name -EA 0 }
+
+        # O servico roda na sessao 0 e lanca um helper na sessao do console;
+        # e o helper que abre as portas, alguns segundos depois.
+        $escutando = $false
+        foreach ($tentativa in 1..10) {
+            Start-Sleep -Seconds 2
+            if (Get-NetTCPConnection -LocalPort 5900 -State Listen -EA 0) { $escutando = $true; break }
+        }
+        if ($escutando) { Log "  servico ativo, escutando na porta 5900" $CorOk }
+        else { Log "  servico rodando mas nada escuta a 5900 - conferir o ultravnc.ini" $CorAviso }
+
+        # Com o servico no ar, o atalho da inicializacao dispara um segundo
+        # winvnc na sessao do usuario e bate de frente com ele.
+        $lnk = Join-Path ([Environment]::GetFolderPath('CommonStartup')) 'UltraVNC Server.lnk'
+        if (Test-Path -LiteralPath $lnk) {
+            Remove-Item -LiteralPath $lnk -Force
+            Log "  atalho 'UltraVNC Server' removido da inicializacao - o servico cobre isso" $CorOk
+        }
     }}
 
     @{ Nome = "Epson TM-T20X"; Acao = {
