@@ -1,4 +1,3 @@
-#Requires -RunAsAdministrator
 <#
     PostInstallPDV.ps1
     Provisionamento de estacao PDV Zanthus - Machadao Corp
@@ -21,14 +20,27 @@ try {
 # ============================================================
 #  1. ELEVACAO
 # ============================================================
+# Nao ha '#Requires -RunAsAdministrator' no topo, e isso e proposital: o
+# Requires aborta o script antes da primeira linha executar, entao a
+# auto-elevacao daqui nunca chegava a rodar - sem admin, a janela so piscava e
+# sumia. A checagem abaixo faz o mesmo papel do Requires e ainda relanca
+# elevado.
 $ehAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole(
             [Security.Principal.WindowsBuiltInRole]::Administrator)
 if (-not $ehAdmin) {
+    Add-Type -AssemblyName PresentationFramework
     if ($PSCommandPath) {
-        Start-Process powershell -Verb RunAs -WindowStyle Hidden -ArgumentList `
-            "-NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File `"$PSCommandPath`""
+        try {
+            Start-Process powershell -Verb RunAs -WindowStyle Hidden -ErrorAction Stop -ArgumentList `
+                "-NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File `"$PSCommandPath`""
+        } catch {
+            # UAC recusado ou conta sem direito de elevar. Com o console
+            # escondido na secao 0, sem esta caixa o tecnico nao ve nada.
+            [void][System.Windows.MessageBox]::Show(
+                "E preciso autorizar a elevacao para instalar o terminal.", "Machadao Corp")
+        }
     } else {
-        Add-Type -AssemblyName PresentationFramework
+        # Script colado no console ou no ISE: nao ha arquivo para relancar.
         [void][System.Windows.MessageBox]::Show(
             "Execute em um PowerShell como Administrador.", "Machadao Corp")
     }
@@ -58,15 +70,22 @@ $mapaGateways = @{
     "192.168.58.1"   = 58
 }
 
+# Fuso por filial, com os IDs do proprio Windows (a lista sai de 'tzutil /l').
+# Fica na tabela, e nao numa lista solta dentro da etapa, porque filial nova
+# entra aqui e mais nada precisa ser tocado.
+# So a filial 57 e Brasilia; todas as outras sao Cuiaba.
+$tzCuiaba   = "Central Brazilian Standard Time"   # UTC-4
+$tzBrasilia = "E. South America Standard Time"    # UTC-3
+
 $configFiliais = @{
-    1  = @{ numLoja = "01"; BaseCaixa = 100;  Servidor = "192.168.50.130"; ipImpNFe = "10.1.1.139" }
-    3  = @{ numLoja = "02"; BaseCaixa = 200;  Servidor = "192.168.50.2";   ipImpNFe = "192.168.11.94" }
-    9  = @{ numLoja = "03"; BaseCaixa = 300;  Servidor = "192.168.51.194"; ipImpNFe = "192.168.4.26" }
-    21 = @{ numLoja = "21"; BaseCaixa = 2100; Servidor = "192.168.205.1";  ipImpNFe = "127.0.0.1" }
-    52 = @{ numLoja = "06"; BaseCaixa = 5200; Servidor = "192.168.51.130"; ipImpNFe = "192.168.8.29" }
-    53 = @{ numLoja = "05"; BaseCaixa = 5300; Servidor = "192.168.51.2";   ipImpNFe = "192.168.6.39" }
-    57 = @{ numLoja = "07"; BaseCaixa = 5700; Servidor = "192.168.51.66";  ipImpNFe = "192.168.57.126" }
-    58 = @{ numLoja = "08"; BaseCaixa = 5800; Servidor = "192.168.53.2";   ipImpNFe = "192.168.58.159" }
+    1  = @{ numLoja = "01"; BaseCaixa = 100;  Servidor = "192.168.50.130"; ipImpNFe = "10.1.1.139";    Fuso = $tzCuiaba }
+    3  = @{ numLoja = "02"; BaseCaixa = 200;  Servidor = "192.168.50.2";   ipImpNFe = "192.168.11.94"; Fuso = $tzCuiaba }
+    9  = @{ numLoja = "03"; BaseCaixa = 300;  Servidor = "192.168.51.194"; ipImpNFe = "192.168.4.26";  Fuso = $tzCuiaba }
+    21 = @{ numLoja = "21"; BaseCaixa = 2100; Servidor = "192.168.205.1";  ipImpNFe = "127.0.0.1";     Fuso = $tzCuiaba }
+    52 = @{ numLoja = "06"; BaseCaixa = 5200; Servidor = "192.168.51.130"; ipImpNFe = "192.168.8.29";  Fuso = $tzCuiaba }
+    53 = @{ numLoja = "05"; BaseCaixa = 5300; Servidor = "192.168.51.2";   ipImpNFe = "192.168.6.39";  Fuso = $tzCuiaba }
+    57 = @{ numLoja = "07"; BaseCaixa = 5700; Servidor = "192.168.51.66";  ipImpNFe = "192.168.57.126"; Fuso = $tzBrasilia }
+    58 = @{ numLoja = "08"; BaseCaixa = 5800; Servidor = "192.168.53.2";   ipImpNFe = "192.168.58.159"; Fuso = $tzCuiaba }
 }
 
 # Impressora fiscal: '91' ou '92' (izrcb_R<tipo>.dll)
@@ -84,6 +103,9 @@ $ipMaquina = if ($gatewayInfo) { @($gatewayInfo.IPAddress | Where-Object { $_ -m
 $filial     = if ($gateway) { $mapaGateways[$gateway] } else { $null }
 $lojaAtual  = if ($filial)  { $configFiliais[$filial] } else { $null }
 
+# O nome sai de BaseCaixa + (ultimo octeto do IP % 100). O resto por 100 e
+# intencional: nenhuma loja passa de 100 caixas, entao a faixa de IP dos
+# terminais cabe inteira no resto e nao existe nome repetido na pratica.
 $novoNome = $env:COMPUTERNAME
 if ($lojaAtual -and $ipMaquina) {
     $novoNome = "CAIXA$($lojaAtual.BaseCaixa + ([int]($ipMaquina.Split('.')[-1]) % 100))-LJ$($lojaAtual.numLoja)"
@@ -331,6 +353,7 @@ $script:sync = [hashtable]::Synchronized(@{
     NumLoja        = $numLoja
     IpServidor     = $ipServidor
     IpImpNFe       = $ipImpNFe
+    Fuso           = $lojaAtual.Fuso
     NovoNome       = $novoNome
     ImpressoraTipo = $impressoraTipo
     ForcarEpson    = $forcarEpson
@@ -550,46 +573,211 @@ ConfiguracaoEnderecoIP=tls-prod.fiservapp.com
         Log "  --kiosk removido (backup em w_pdv.cmd.bak)" $CorOk
     }}
 
-    @{ Nome = "Correcao de fuso horario (Cuiaba)"; Acao = {
-        if ($filial -in 1,3,9,52,53,58) {
-            New-Item C:\Scripts -ItemType Directory -Force | Out-Null
-            $scriptContent = @'
-Start-Sleep 10
-$s = "a.ntp.br"
-$u = New-Object Net.Sockets.UdpClient
-$u.Client.ReceiveTimeout = 5000
-$e = New-Object Net.IPEndPoint(([Net.Dns]::GetHostAddresses($s)[0]), 123)
-$d = New-Object byte[] 48
-$d[0] = 27
-[void]$u.Send($d, $d.Length, $e)
-$r = New-Object Net.IPEndPoint([Net.IPAddress]::Any, 0)
-$p = $u.Receive([ref]$r)
-$sec = [BitConverter]::ToUInt32([byte[]]($p[43], $p[42], $p[41], $p[40]), 0)
-$utc = ([datetime]"1900-01-01").AddSeconds($sec)
-Set-Date $utc.AddHours(-4)
+    @{ Nome = "Fuso horario"; Acao = {
+        # ------------------------------------------------------------------
+        # Aqui existia a tarefa agendada HoraCuiaba, que a cada boot, a cada
+        # logon e a cada evento de mudanca de hora do kernel consultava um NTP
+        # externo na mao, subtraia 4 horas no braco e dava Set-Date.
+        #
+        # Ela existia por um motivo unico: o servidor Zeus das filiais esta em
+        # UTC-3 e as lojas de Mato Grosso em UTC-4, e o w_receb.exe do proprio
+        # Zeus copiava a hora de parede do servidor para o terminal via
+        # SetLocalTime - empurrando o caixa uma hora para a frente. A tarefa
+        # desfazia isso. Duas correcoes erradas que davam um resultado certo.
+        #
+        # Isso foi resolvido na origem, fora deste script: o w_receb perdeu a
+        # capacidade de escrever no relogio, com o privilegio removido apenas
+        # daquele servico (sc privs no exec_pdv, so SeSystemtimePrivilege).
+        # Com o fuso correto abaixo e o w32tm recebendo servidor e intervalo
+        # por diretiva de dominio, nao sobra nada para esta etapa fazer alem
+        # de garantir o fuso e limpar o mecanismo antigo.
+        #
+        # A tarefa ainda era nociva por si: um dos gatilhos dela era o proprio
+        # evento "hora do sistema alterada", e ela alterava a hora - media no
+        # CAIXA5232-LJ06 em 26/09/2026, 3032 execucoes num unico dia, uma a
+        # cada 11 segundos. E cada execucao aceitava a resposta NTP sem
+        # validar origem, camada, leap indicator nem Kiss-o'-Death: bastava
+        # uma resposta torta para plantar data absurda e cancelar emissao de
+        # nota. O w32tm faz todas essas conferencias; a tarefa nao fazia.
+        # ------------------------------------------------------------------
+        $fuso = $sync.Fuso
+        if (-not $fuso) { Log "  filial $filial sem fuso na tabela - etapa ignorada" $CorAviso; return }
+
+        $fusoAtual = (Get-TimeZone).Id
+        if ($fusoAtual -eq $fuso) { Log "  fuso ja e $fuso" $CorOk }
+        else {
+            Set-TimeZone -Id $fuso
+            Log "  fuso: $fusoAtual -> $fuso" $CorOk
+        }
+
+        # A fonte de tempo NAO e configurada aqui, de proposito: ela chega por
+        # diretiva de dominio, e o que vem de diretiva tem precedencia sobre
+        # configuracao local. Mexer no w32tm aqui e escrever o que nao vale.
+        Log "  fonte de tempo (por diretiva): $(& w32tm /query /source 2>&1 | Select-Object -First 1)"
+        Log ("  relogio: " + (Get-Date -Format 'dd/MM/yyyy HH:mm:ss'))
+
+        if (Get-ScheduledTask -TaskName "HoraCuiaba" -EA 0) {
+            Unregister-ScheduledTask -TaskName "HoraCuiaba" -Confirm:$false
+            Log "  tarefa HoraCuiaba removida" $CorOk
+        }
+        if (Test-Path "C:\Scripts\HoraCuiaba.ps1") {
+            Remove-Item "C:\Scripts\HoraCuiaba.ps1" -Force
+            Log "  script HoraCuiaba.ps1 removido" $CorOk
+        }
+
+        # ---------- acerto no boot ----------
+        # Sobra um caso que nada mais cobre: terminal que liga com a hora fora
+        # porque a bateria de CMOS morreu. O w32time tenta sincronizar no boot,
+        # mas se a rede ainda nao subiu ele falha e so tenta de novo na
+        # sondagem seguinte - que demora. Esta tarefa fecha essa janela.
+        New-Item C:\Scripts -ItemType Directory -Force | Out-Null
+        $acerto = "C:\Scripts\RelogioPDV.ps1"
+        $corpo = @'
+# ---------------------------------------------------------------------
+# RelogioPDV.ps1 - acerta o relogio na inicializacao do terminal.
+#
+# So chama 'w32tm /resync'. Nao escreve a hora, nao calcula fuso, nao
+# consulta NTP por conta propria. Quem valida o pacote - origem, camada,
+# leap indicator, Kiss-o'-Death - e o w32tm. Foi a falta dessas
+# conferencias, num Set-Date escrito a mao, que plantava data absurda.
+#
+# O UNICO gatilho e a inicializacao, e deve continuar assim. A tarefa
+# anterior tinha gatilho no evento de mudanca de hora e ela propria mexia
+# na hora: se realimentava, 3032 execucoes num dia, uma a cada 11s.
+# ---------------------------------------------------------------------
+$Log = 'C:\Scripts\RelogioPDV.log'
+function Registrar ($t) {
+    Add-Content -LiteralPath $Log -Encoding UTF8 -ErrorAction SilentlyContinue `
+        -Value ('{0} {1}' -f (Get-Date -Format 'yyyy-MM-dd HH:mm:ss'), $t)
+}
+
+Registrar ("boot - antes: " + (Get-Date -Format 'yyyy-MM-dd HH:mm:ss'))
+if ((Get-Service w32time -EA 0).Status -ne 'Running') { Start-Service w32time -EA 0; Start-Sleep 5 }
+
+# A insistencia e o ponto: no boot a rede raramente esta de pe na primeira
+# tentativa, e sem repetir a tarefa falha justamente no caso que a motiva.
+$ok = $false
+foreach ($n in 1..10) {
+    & w32tm /resync /rediscover 2>&1 | Out-Null
+    if ($LASTEXITCODE -eq 0) { $ok = $true; Registrar "resync ok na tentativa $n"; break }
+    Start-Sleep 30
+}
+if (-not $ok) { Registrar "ATENCAO: nao sincronizou em 5 minutos" }
+
+$fim = Get-Date
+Registrar ("boot - depois: " + $fim.ToString('yyyy-MM-dd HH:mm:ss'))
+
+# Se a data continua absurda depois do resync, nao e sincronismo: e bateria
+# de CMOS ou alguma aplicacao escrevendo no relogio. Precisa de gente.
+if ($fim.Year -lt 2025) { Registrar ("ATENCAO: data implausivel: " + $fim.ToString('yyyy-MM-dd')) }
 '@
-            Set-Content -Path C:\Scripts\HoraCuiaba.ps1 -Value $scriptContent -Encoding UTF8
-            Unregister-ScheduledTask -TaskName "HoraCuiaba" -Confirm:$false -ErrorAction SilentlyContinue
-            $A = New-ScheduledTaskAction -Execute "powershell.exe" `
-                 -Argument '-WindowStyle Hidden -ExecutionPolicy Bypass -File C:\Scripts\HoraCuiaba.ps1'
-            $Query = @'
-<QueryList>
-  <Query Id="0" Path="System">
-    <Select Path="System">*[System[Provider[@Name='Microsoft-Windows-Kernel-General'] and (EventID=1)]]</Select>
-  </Query>
-</QueryList>
-'@
-            $cls = Get-CimClass -ClassName MSFT_TaskEventTrigger -Namespace Root/Microsoft/Windows/TaskScheduler
-            $tEvt = New-CimInstance -CimClass $cls -ClientOnly
-            $tEvt.Subscription = $Query
-            $tEvt.Enabled = $true
-            Register-ScheduledTask -TaskName "HoraCuiaba" -Action $A `
-                -Trigger @((New-ScheduledTaskTrigger -AtStartup), (New-ScheduledTaskTrigger -AtLogon), $tEvt) `
-                -Principal (New-ScheduledTaskPrincipal -UserId "SYSTEM" -LogonType ServiceAccount -RunLevel Highest) `
-                -Settings (New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -StartWhenAvailable) `
-                -Force | Out-Null
-            Log "  tarefa HoraCuiaba registrada" $CorOk
-        } else { Log "  filial $filial nao precisa de ajuste de fuso - ignorado" }
+        Set-Content -LiteralPath $acerto -Value $corpo -Encoding UTF8
+
+        Unregister-ScheduledTask -TaskName "RelogioPDV" -Confirm:$false -ErrorAction SilentlyContinue
+        Register-ScheduledTask -TaskName "RelogioPDV" `
+            -Action (New-ScheduledTaskAction -Execute "powershell.exe" `
+                     -Argument "-NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File $acerto") `
+            -Trigger (New-ScheduledTaskTrigger -AtStartup) `
+            -Principal (New-ScheduledTaskPrincipal -UserId "SYSTEM" -LogonType ServiceAccount -RunLevel Highest) `
+            -Settings (New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries `
+                       -StartWhenAvailable -MultipleInstances IgnoreNew `
+                       -ExecutionTimeLimit (New-TimeSpan -Minutes 15)) -Force | Out-Null
+        Log "  tarefa RelogioPDV registrada (so na inicializacao)" $CorOk
+        Log "  log: C:\Scripts\RelogioPDV.log"
+    }}
+
+    @{ Nome = "Privilegio de hora do exec_pdv"; Acao = {
+        # ------------------------------------------------------------------
+        # O w_receb.exe, do proprio Zeus, roda como LocalSystem sob o servico
+        # exec_pdv (embrulhado pelo nssm) e escreve no relogio do terminal:
+        # habilita o SeSystemtimePrivilege com AdjustTokenPrivileges e chama
+        # SetLocalTime.
+        #
+        # Repare que e SetLocalTime, hora de parede, e nao SetSystemTime. Como
+        # o servidor Zeus das filiais esta em UTC-3 e as lojas de Mato Grosso
+        # em UTC-4, o efeito e empurrar o caixa uma hora para a frente. Foi
+        # medido em campo no CAIXA5232-LJ06, uma a duas vezes por dia. Relogio
+        # errado em PDV cancela emissao de nota.
+        #
+        # A correcao e tirar do servico a capacidade, nao pedir para ele parar.
+        # Atribuicao de direitos (secpol ou GPO) NAO resolve: o token do
+        # LocalSystem e montado pelo kernel e ja traz o privilegio, apenas
+        # desabilitado. No mesmo terminal, o SeSystemtimePrivilege nem constava
+        # na atribuicao da maquina e ainda assim o w_receb mudava a hora. O que
+        # funciona e o privilegio exigido por servico: o SCM monta o token com
+        # APENAS o que estiver na lista.
+        #
+        # A lista e lida do token em execucao, e nao fixada aqui de proposito:
+        # o conjunto padrao do LocalSystem muda entre versoes do Windows, e
+        # listar um privilegio que a conta nao possui impede o servico de subir.
+        # ------------------------------------------------------------------
+        $svc = Get-CimInstance Win32_Service -Filter "Name='exec_pdv'" -EA 0
+        if (-not $svc) { Log "  servico exec_pdv nao existe neste terminal - etapa ignorada" $CorAviso; return }
+        if ($svc.State -ne 'Running') {
+            Start-Service exec_pdv -EA SilentlyContinue
+            Start-Sleep -Seconds 6
+            $svc = Get-CimInstance Win32_Service -Filter "Name='exec_pdv'"
+        }
+        if (-not $svc.ProcessId) { Log "  exec_pdv sem processo - nao da para ler o token" $CorErro; return }
+
+        if (-not ('PrivToken' -as [type])) {
+            Add-Type -TypeDefinition @"
+using System; using System.Runtime.InteropServices; using System.Text;
+public class PrivToken {
+  [DllImport("kernel32.dll", SetLastError=true)] static extern IntPtr OpenProcess(uint a, bool i, int p);
+  [DllImport("advapi32.dll", SetLastError=true)] static extern bool OpenProcessToken(IntPtr h, uint a, out IntPtr t);
+  [DllImport("advapi32.dll", SetLastError=true)] static extern bool GetTokenInformation(IntPtr t, int c, IntPtr b, int l, out int r);
+  [DllImport("advapi32.dll", SetLastError=true, CharSet=CharSet.Unicode)] static extern bool LookupPrivilegeName(string s, ref LUID l, StringBuilder n, ref int len);
+  [DllImport("kernel32.dll")] static extern bool CloseHandle(IntPtr h);
+  [StructLayout(LayoutKind.Sequential)] struct LUID { public uint Low; public int High; }
+  [StructLayout(LayoutKind.Sequential)] struct LAA { public LUID Luid; public uint Attr; }
+  public static string[] Ler(int pid) {
+    IntPtr hp = OpenProcess(0x1000, false, pid);
+    if (hp == IntPtr.Zero) throw new Exception("OpenProcess " + Marshal.GetLastWin32Error());
+    IntPtr ht;
+    if (!OpenProcessToken(hp, 0x0008, out ht)) throw new Exception("OpenProcessToken " + Marshal.GetLastWin32Error());
+    int len = 0; GetTokenInformation(ht, 3, IntPtr.Zero, 0, out len);
+    IntPtr buf = Marshal.AllocHGlobal(len);
+    if (!GetTokenInformation(ht, 3, buf, len, out len)) throw new Exception("GetTokenInformation");
+    int n = Marshal.ReadInt32(buf); string[] r = new string[n];
+    long q = buf.ToInt64() + 4; int sz = Marshal.SizeOf(typeof(LAA));
+    for (int i = 0; i < n; i++) {
+      LAA la = (LAA)Marshal.PtrToStructure(new IntPtr(q + i*sz), typeof(LAA));
+      StringBuilder sb = new StringBuilder(256); int l = 256;
+      LookupPrivilegeName(null, ref la.Luid, sb, ref l); r[i] = sb.ToString();
+    }
+    Marshal.FreeHGlobal(buf); CloseHandle(ht); CloseHandle(hp); return r;
+  }
+}
+"@
+        }
+
+        $token = @([PrivToken]::Ler([int]$svc.ProcessId))
+        Log "  token do servico: $($token.Count) privilegios"
+        if ($token -notcontains 'SeSystemtimePrivilege') {
+            Log "  SeSystemtimePrivilege ja fora do token - nada a fazer" $CorOk
+            return
+        }
+
+        $manter = @($token | Where-Object { $_ -ne 'SeSystemtimePrivilege' } | Sort-Object)
+        & sc.exe privs exec_pdv ($manter -join '/') | Out-Null
+        if ($LASTEXITCODE -ne 0) { Log "  sc privs falhou (codigo $LASTEXITCODE)" $CorErro; return }
+        Log "  $($manter.Count) privilegios exigidos gravados, sem o de hora" $CorOk
+
+        Restart-Service exec_pdv -Force -EA SilentlyContinue
+        Start-Sleep -Seconds 12
+
+        $subiu = ((Get-Service exec_pdv).Status -eq 'Running') -and [bool](Get-Process w_receb -EA 0)
+        if ($subiu) {
+            Log "  exec_pdv e w_receb no ar sem poder escrever no relogio" $CorOk
+        } else {
+            # Nao voltou: desfaz na hora. PDV fora do ar e pior que relogio errado.
+            & cmd.exe /c 'sc privs exec_pdv ""' | Out-Null
+            Restart-Service exec_pdv -Force -EA SilentlyContinue
+            Start-Sleep -Seconds 12
+            Log "  exec_pdv NAO subiu com a restricao - revertido" $CorErro
+            Log "  estado apos reverter: $((Get-Service exec_pdv).Status)" $CorAviso
+        }
     }}
 
     @{ Nome = "Barra de tarefas (usuario e perfil padrao)"; Acao = {
@@ -630,6 +818,11 @@ Set-Date $utc.AddHours(-4)
     }}
 
     @{ Nome = "Nome do computador"; Acao = {
+        # A ordem e proposital e nao deve ser "corrigida": o rename fica
+        # pendente e so vale no reboot do fim, enquanto o ingresso no dominio
+        # acontece varias etapas depois, ainda com o nome antigo ativo. E a
+        # rede de protecao para quando algo falha no meio da instalacao - o
+        # terminal segue alcancavel pelo nome que sempre teve, ate o fim.
         if ($env:COMPUTERNAME -eq $sync.NovoNome) {
             Log "  ja esta como $($sync.NovoNome) - ignorado"
         } else {
@@ -786,13 +979,16 @@ Set-Date $utc.AddHours(-4)
         if (-not $exe) { Log "  UltraVNC nao instalado - instalacao manual, fora do escopo" $CorAviso; return }
         Log "  binario: $exe"
 
-        # Sem ini nao ha senha configurada: o servico subiria aberto.
+        # O ini e procurado so para registrar no log onde esta a configuracao.
+        # A senha do VNC NAO e definida por este script: ela vem de outro
+        # processo de provisionamento, junto com a instalacao do UltraVNC.
+        # Nao achar o ini nestes caminhos nao significa servico sem senha.
         $ini = @(
             "C:\ProgramData\UltraVNC\ultravnc.ini"
             (Join-Path (Split-Path $exe -Parent) 'ultravnc.ini')
         ) | Where-Object { Test-Path -LiteralPath $_ } | Select-Object -First 1
         if ($ini) { Log "  configuracao: $ini" }
-        else { Log "  ATENCAO: nenhum ultravnc.ini encontrado - o servico pode subir sem senha" $CorAviso }
+        else { Log "  ultravnc.ini fora dos caminhos conhecidos - a senha vem de outro processo" }
 
         $svc = Get-Service -Name 'uvnc_service' -EA 0
         if (-not $svc) { $svc = Get-Service -EA 0 | Where-Object { $_.Name -match 'vnc' } | Select-Object -First 1 }
@@ -1245,6 +1441,9 @@ bOpt2=0
     @{ Nome = "BitDefender Endpoint (interativo)"; Acao = {
         if (-not (Falta 'bitdefender')) { Log "  ja instalado - etapa ignorada" $CorOk; return }
 
+        # O instalador e servido por HTTP simples de um servidor interno da
+        # rede Machadao, e e assim de proposito. Nao trocar por HTTPS nem
+        # travar a etapa por conferencia de hash.
         $baseUrl = "http://192.168.12.223/uploads/InstaladorWindows/"
         $pastaDestino = Join-Path $env:USERPROFILE "Downloads"
         if (-not (Test-Path -LiteralPath $pastaDestino)) { New-Item -ItemType Directory -Path $pastaDestino -Force | Out-Null }
