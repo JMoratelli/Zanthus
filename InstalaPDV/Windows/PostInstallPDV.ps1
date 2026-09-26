@@ -963,6 +963,578 @@ public class PrivToken {
         Log "  fila de pacotes concluida" $CorOk
     }}
 
+    @{ Nome = "Configuracao de ramal do GOnnect"; Acao = {
+        # ------------------------------------------------------------------
+        # O GOnnect e INSTALADO uma vez por maquina, na etapa dos pacotes. A
+        # CONFIGURACAO e por usuario: cada um tem ramal e senha proprios, e os
+        # arquivos vivem no perfil dele. Sao dois tempos diferentes, e por isso
+        # dois mecanismos.
+        #
+        # O Active Setup e o nativo para "uma vez por usuario": no logon, o
+        # Windows compara a Version do HKLM com a do HKCU e, faltando, executa
+        # o StubPath COMO AQUELE USUARIO, uma unica vez. Subir a Version aqui
+        # faz a tela voltar para todo mundo - e como se muda a configuracao da
+        # frota depois.
+        #
+        # Ele roda SEM elevacao, e e isso que o torna o lugar certo: tudo que
+        # a tela grava fica no perfil de quem a preencheu. A versao antiga,
+        # administrativa, precisava liberar "Todos:(F)" no arquivo que guarda
+        # a senha SIP em texto claro, para o dono do perfil poder le-lo.
+        #
+        # O Active Setup segura o logon ate o StubPath sair. Por isso a tela
+        # tem limite de tempo proprio - nao registrar aqui nada que possa
+        # esperar para sempre, ou um terminal fica preso na tela de logon.
+        #
+        # A tela NAO cria atalho: isso e da instalacao, no perfil Comum, que
+        # todo usuario enxerga. Criar de novo por usuario duplica o icone e
+        # faz o GOnnect subir duas vezes a cada logon.
+        # ------------------------------------------------------------------
+        $GuidRamal = '{19F15D4D-3FF4-4802-A7F1-861993133965}'
+        $destino   = 'C:\Scripts\ConfiguraRamalGOnnect.ps1'
+
+        # A tela vai embutida, nao baixada: o postinstall e o que se leva para
+        # o terminal, e ele nao deve depender de a internet responder no meio
+        # da instalacao. O bloco abaixo e gravado em disco como esta.
+        #
+        # Nao use here-string com aspas duplas aqui: a tela tem $variavel em
+        # quase toda linha e elas seriam expandidas na hora errada. E nao
+        # introduza na tela nenhuma linha que comece com '@ - ela encerraria
+        # este bloco no meio. E por isso que o Add-Type do console oculto,
+        # la dentro, recebe array em vez de here-string.
+        $telaRamal = @'
+<#
+    ConfiguraRamalGOnnect.ps1 - Machadao Corp
+    Configura o ramal do GOnnect para o usuario que esta logado.
+
+    RODA COMO O PROPRIO USUARIO, SEM ELEVACAO, e e por isso que este script
+    e curto. A versao que roda como administrador precisa descobrir quem esta
+    logado, gravar .lnk em perfil alheio por copia, montar HKU para alcancar
+    o Run de outro usuario, liberar ACL nos .conf e subir o GOnnect por tarefa
+    agendada com /IT. Nada disso existe aqui: o perfil e o nosso.
+
+    Atalho e inicializacao tambem nao sao assunto deste script: o
+    PostInstallPDV ja os cria no perfil Comum, que vale para todos. Criar de
+    novo por usuario duplica o icone e faz o GOnnect subir duas vezes.
+
+    E melhor tambem para a senha do ramal: a versao administrativa precisa dar
+    "Todos:(F)" no arquivo que contem a senha SIP, para o dono do perfil poder
+    le-lo. Gravando como o dono, esse acesso para o "Todos" nao e necessario.
+
+    A INSTALACAO do GOnnect nao acontece aqui - ela e do PostInstallPDV, que
+    roda uma vez por maquina, com privilegio. Este script so configura.
+
+    Chamado pelo Active Setup no primeiro logon de cada usuario, e pelo Run do
+    HKCU nos logons seguintes enquanto o ramal nao estiver configurado.
+
+    @JJMoratelli
+#>
+
+# ============================================================ CONSOLE OCULTO
+# MemberDefinition aceita array de linhas. Fica assim, e nao em here-string,
+# porque este arquivo e gravado a partir de um here-string do PostInstallPDV:
+# uma linha comecando com '@ encerraria aquele bloco no meio.
+Add-Type -Namespace Nativo -Name Janela -ErrorAction SilentlyContinue -MemberDefinition @(
+    '[DllImport("kernel32.dll")] public static extern System.IntPtr GetConsoleWindow();',
+    '[DllImport("user32.dll")]   public static extern bool ShowWindow(System.IntPtr hWnd, int nCmdShow);'
+)
+try {
+    $h = [Nativo.Janela]::GetConsoleWindow()
+    if ($h -ne [System.IntPtr]::Zero) { [Nativo.Janela]::ShowWindow($h, 0) | Out-Null }
+}
+catch { }
+
+Add-Type -AssemblyName System.Windows.Forms
+Add-Type -AssemblyName System.Drawing
+[System.Windows.Forms.Application]::EnableVisualStyles()
+
+# O ISE mantem variaveis entre execucoes: zera estado.
+$script:Concluido  = $false
+$script:PodeFechar = $true
+$script:Restam     = 300          # limite da tela, em segundos
+$script:Relogio    = $null
+
+# ============================================================ PALETA
+$script:CorPreto   = [System.Drawing.ColorTranslator]::FromHtml("#12161C")
+$script:CorAzul    = [System.Drawing.ColorTranslator]::FromHtml("#1A5FB4")
+$script:CorAzulH   = [System.Drawing.ColorTranslator]::FromHtml("#154C90")
+$script:CorCinza   = [System.Drawing.ColorTranslator]::FromHtml("#A9B2BD")
+$script:CorGrafite = [System.Drawing.ColorTranslator]::FromHtml("#5B6672")
+$script:CorClaro   = [System.Drawing.ColorTranslator]::FromHtml("#9AA4AF")
+$script:CorEyebrow = [System.Drawing.ColorTranslator]::FromHtml("#7C93AE")
+$script:CorCredito = [System.Drawing.ColorTranslator]::FromHtml("#B4BCC5")
+$script:CorVerde   = [System.Drawing.ColorTranslator]::FromHtml("#0A6F66")
+$script:CorAmbar   = [System.Drawing.ColorTranslator]::FromHtml("#8A5A00")
+$script:CorVinho   = [System.Drawing.ColorTranslator]::FromHtml("#C01C28")
+$script:CorCampo   = [System.Drawing.ColorTranslator]::FromHtml("#EDEFF2")
+
+$script:ExeGOnnect = "C:\Program Files\GOnnect\bin\gonnect.exe"
+$script:PastaExe   = "C:\Program Files\GOnnect\bin"
+$script:PastaConf  = Join-Path $env:LOCALAPPDATA "gonnect\GOnnect\gonnect"
+$script:ArqSip     = Join-Path $script:PastaConf "01-sip.conf"
+$script:ArqUser    = Join-Path $script:PastaConf "99-user.conf"
+$script:ChaveRun   = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run"
+$script:NomeRun    = "MachadaoConfiguraRamalGOnnect"
+
+# ============================================================ ESTADO
+# "Configurado" e o arquivo gravado com um ramal dentro, nao um marcador a
+# parte: marcador mente quando alguem apaga o perfil ou o .conf na mao.
+function Test-RamalConfigurado {
+    if (-not (Test-Path -LiteralPath $script:ArqSip)) { return $false }
+    $conteudo = Get-Content -LiteralPath $script:ArqSip -Raw -ErrorAction SilentlyContinue
+    if (-not $conteudo) { return $false }
+    return ($conteudo -match '(?m)^\s*username\s*=\s*\S+')
+}
+
+# Insistencia: enquanto o ramal nao estiver configurado, a tela volta no
+# proximo logon - dessa vez pelo Run, que NAO trava o logon como o Active
+# Setup trava. Assim o primeiro logon tem a garantia e os seguintes tem a
+# insistencia, sem nunca prender o terminal.
+function Set-Reapresentacao {
+    param([switch]$Remover)
+    try {
+        if ($Remover) {
+            Remove-ItemProperty -Path $script:ChaveRun -Name $script:NomeRun -ErrorAction SilentlyContinue
+            return
+        }
+        if (-not (Test-Path $script:ChaveRun)) { New-Item -Path $script:ChaveRun -Force | Out-Null }
+        $meu = $PSCommandPath
+        if (-not $meu) { $meu = $MyInvocation.MyCommand.Path }
+        if (-not $meu) { return }
+        $cmd = '"{0}" -NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File "{1}"' -f `
+               (Get-Process -Id $PID).Path, $meu
+        Set-ItemProperty -Path $script:ChaveRun -Name $script:NomeRun -Value $cmd
+    }
+    catch { }
+}
+
+function Write-ConfiguracaoRamal {
+    param(
+        [Parameter(Mandatory=$true)][string]$Ramal,
+        [Parameter(Mandatory=$true)][string]$Senha
+    )
+
+    # Fecha o GOnnect para liberar a pasta e forcar releitura ao reabrir.
+    Stop-Process -Name "GOnnect","gonnect" -Force -ErrorAction SilentlyContinue
+    Start-Sleep -Seconds 1
+
+    if (-not (Test-Path -LiteralPath $script:PastaConf)) {
+        New-Item -ItemType Directory -Path $script:PastaConf -Force | Out-Null
+    }
+
+    $ConteudoSip = @"
+[generic]
+autostart=true
+showCallWindowOnStartup=true
+busyOnBusy=true
+showMainWindowOnStart=true
+
+[ua]
+maxCalls=4
+
+[account0]
+## Endereco do usuario (Ramal + servidor)
+userUri=sip:$Ramal@voip.redejcm.com.br
+
+## Servidor SIP (Registrar)
+registrarUri=sip:voip.redejcm.com.br
+
+## Desativado para conexoes locais sem certificado SSL
+srtpUse=disabled
+srtpSecureSignaling=0
+
+## Porta padrao para SIP UDP
+port=5060
+
+contactRewriteMethod=always-update
+contactUseSrcPort=true
+
+## Aponta para a secao de autenticacao abaixo
+auth=auth0
+
+## Transporte UDP (padrao em redes locais)
+transport=udp
+
+## Protocolo de rede automatico (IPv4)
+network=auto
+
+## Texto em tempo real
+realTimeText=true
+
+[auth0]
+## Esquema de autenticacao padrao
+scheme=Digest
+
+## Usuario (o ramal)
+username=$Ramal
+
+## Aceita qualquer realm do servidor local
+realm=*
+
+## Tipo da senha
+type=plain
+
+## Senha do ramal
+data=$Senha
+"@
+
+    $ConteudoUser = @"
+[generic]
+showTrayDialog=true
+noSyncSystemMute=false
+showMainWindowOnStart=true
+useOwnWindowDecoration=false
+"@
+
+    Set-Content -LiteralPath $script:ArqSip  -Value $ConteudoSip  -Force -Encoding UTF8
+    Set-Content -LiteralPath $script:ArqUser -Value $ConteudoUser -Force -Encoding UTF8
+
+    # Confere o que gravou antes de dizer que deu certo.
+    if (-not (Test-Path -LiteralPath $script:ArqSip)) {
+        throw "o 01-sip.conf nao foi gravado em $($script:PastaConf)"
+    }
+    if (-not ((Get-Content -LiteralPath $script:ArqSip -Raw) -match [regex]::Escape("username=$Ramal"))) {
+        throw "o 01-sip.conf gravado nao contem o ramal informado"
+    }
+}
+
+# ============================================================ SAIDA ANTECIPADA
+# Ja configurado: nao pisca janela nenhuma, so limpa a reapresentacao e sai.
+if (Test-RamalConfigurado) {
+    Set-Reapresentacao -Remover
+    return
+}
+
+# ============================================================ JANELA
+$LARG = 660
+$script:Form          = New-Object System.Windows.Forms.Form
+$Form                 = $script:Form
+$Form.Text            = "GOnnect (SIP) - Machadao Corp"
+$Form.Size            = New-Object System.Drawing.Size($LARG, 470)
+$Form.StartPosition   = "CenterScreen"
+$Form.FormBorderStyle = "FixedDialog"
+$Form.MaximizeBox     = $false
+$Form.MinimizeBox     = $false
+$Form.ControlBox      = $false
+$Form.TopMost         = $true
+$Form.BackColor       = [System.Drawing.Color]::White
+
+$Form.Add_FormClosing({
+    param($s, $e)
+    if (-not $script:PodeFechar) { $e.Cancel = $true }
+})
+
+# ============================================================ CABECALHO
+$cab           = New-Object System.Windows.Forms.Panel
+$cab.Size      = New-Object System.Drawing.Size($LARG, 96)
+$cab.BackColor = $script:CorPreto
+$Form.Controls.Add($cab)
+
+$eyebrow           = New-Object System.Windows.Forms.Label
+$eyebrow.Text      = "M A C H A D A O   C O R P"
+$eyebrow.Font      = New-Object System.Drawing.Font("Consolas", 9)
+$eyebrow.ForeColor = $script:CorEyebrow
+$eyebrow.Location  = New-Object System.Drawing.Point(34, 20)
+$eyebrow.AutoSize  = $true
+$cab.Controls.Add($eyebrow)
+
+$titulo           = New-Object System.Windows.Forms.Label
+$titulo.Text      = "Ramal do GOnnect"
+$titulo.Font      = New-Object System.Drawing.Font("Segoe UI", 19)
+$titulo.ForeColor = [System.Drawing.Color]::White
+$titulo.Location  = New-Object System.Drawing.Point(32, 42)
+$titulo.AutoSize  = $true
+$cab.Controls.Add($titulo)
+
+$ctxMaquina           = New-Object System.Windows.Forms.Label
+$ctxMaquina.Text      = "$env:COMPUTERNAME"
+$ctxMaquina.Font      = New-Object System.Drawing.Font("Consolas", 9)
+$ctxMaquina.ForeColor = [System.Drawing.ColorTranslator]::FromHtml("#C9D3DE")
+$ctxMaquina.Location  = New-Object System.Drawing.Point(360, 46)
+$ctxMaquina.Size      = New-Object System.Drawing.Size(($LARG - 394), 18)
+$ctxMaquina.TextAlign = "MiddleRight"
+$ctxMaquina.AutoEllipsis = $true
+$cab.Controls.Add($ctxMaquina)
+
+$ctxUsuario           = New-Object System.Windows.Forms.Label
+$ctxUsuario.Text      = "$env:USERDOMAIN\$env:USERNAME"
+$ctxUsuario.Font      = New-Object System.Drawing.Font("Consolas", 9)
+$ctxUsuario.ForeColor = $script:CorEyebrow
+$ctxUsuario.Location  = New-Object System.Drawing.Point(360, 66)
+$ctxUsuario.Size      = New-Object System.Drawing.Size(($LARG - 394), 18)
+$ctxUsuario.TextAlign = "MiddleRight"
+$ctxUsuario.AutoEllipsis = $true
+$cab.Controls.Add($ctxUsuario)
+
+# ============================================================ CONTEUDO
+$ajuda           = New-Object System.Windows.Forms.Label
+$ajuda.Text      = "Informe o ramal e a senha do seu telefone. A configuracao vale so para este usuario."
+$ajuda.Font      = New-Object System.Drawing.Font("Segoe UI", 10)
+$ajuda.ForeColor = $script:CorGrafite
+$ajuda.Location  = New-Object System.Drawing.Point(36, 122)
+$ajuda.Size      = New-Object System.Drawing.Size(($LARG - 70), 24)
+$Form.Controls.Add($ajuda)
+
+$lblRamal           = New-Object System.Windows.Forms.Label
+$lblRamal.Text      = "Ramal"
+$lblRamal.Font      = New-Object System.Drawing.Font("Segoe UI", 10)
+$lblRamal.ForeColor = $script:CorGrafite
+$lblRamal.Location  = New-Object System.Drawing.Point(36, 160)
+$lblRamal.AutoSize  = $true
+$Form.Controls.Add($lblRamal)
+
+$script:TxtRamal          = New-Object System.Windows.Forms.TextBox
+$script:TxtRamal.Font     = New-Object System.Drawing.Font("Consolas", 16)
+$script:TxtRamal.Location = New-Object System.Drawing.Point(36, 182)
+$script:TxtRamal.Size     = New-Object System.Drawing.Size(240, 38)
+$Form.Controls.Add($script:TxtRamal)
+
+$lblSenha           = New-Object System.Windows.Forms.Label
+$lblSenha.Text      = "Senha do ramal"
+$lblSenha.Font      = New-Object System.Drawing.Font("Segoe UI", 10)
+$lblSenha.ForeColor = $script:CorGrafite
+$lblSenha.Location  = New-Object System.Drawing.Point(312, 160)
+$lblSenha.AutoSize  = $true
+$Form.Controls.Add($lblSenha)
+
+$script:TxtSenha              = New-Object System.Windows.Forms.TextBox
+$script:TxtSenha.Font         = New-Object System.Drawing.Font("Consolas", 16)
+$script:TxtSenha.Location     = New-Object System.Drawing.Point(312, 182)
+$script:TxtSenha.Size         = New-Object System.Drawing.Size(276, 38)
+$script:TxtSenha.PasswordChar = '*'
+$Form.Controls.Add($script:TxtSenha)
+
+$lblPerfil           = New-Object System.Windows.Forms.Label
+$lblPerfil.Text      = "Sera gravado em $($script:PastaConf)"
+$lblPerfil.Font      = New-Object System.Drawing.Font("Segoe UI", 9)
+$lblPerfil.ForeColor = $script:CorClaro
+$lblPerfil.Location  = New-Object System.Drawing.Point(36, 228)
+$lblPerfil.Size      = New-Object System.Drawing.Size(($LARG - 70), 20)
+$lblPerfil.AutoEllipsis = $true
+$Form.Controls.Add($lblPerfil)
+
+# ============================================================ MENSAGEM
+$script:Msg           = New-Object System.Windows.Forms.Label
+$script:Msg.Font      = New-Object System.Drawing.Font("Segoe UI", 10)
+$script:Msg.ForeColor = $script:CorGrafite
+$script:Msg.Location  = New-Object System.Drawing.Point(36, 256)
+$script:Msg.Size      = New-Object System.Drawing.Size(($LARG - 70), 44)
+$Form.Controls.Add($script:Msg)
+
+$script:Barra          = New-Object System.Windows.Forms.ProgressBar
+$script:Barra.Location = New-Object System.Drawing.Point(36, 306)
+$script:Barra.Size     = New-Object System.Drawing.Size(($LARG - 70), 6)
+$script:Barra.Maximum  = 3
+$script:Barra.Style    = "Continuous"
+$Form.Controls.Add($script:Barra)
+
+# O caminho de saida por tempo fica visivel: o usuario ve que a tela nao vai
+# prender a maquina, e o tecnico sabe quanto tempo tem.
+$script:LblTempo           = New-Object System.Windows.Forms.Label
+$script:LblTempo.Font      = New-Object System.Drawing.Font("Segoe UI", 9)
+$script:LblTempo.ForeColor = $script:CorClaro
+$script:LblTempo.Location  = New-Object System.Drawing.Point(36, 324)
+$script:LblTempo.Size      = New-Object System.Drawing.Size(($LARG - 70), 20)
+$Form.Controls.Add($script:LblTempo)
+
+# ============================================================ RODAPE
+$creditos           = New-Object System.Windows.Forms.Label
+$creditos.Text      = "Desenvolvido por @JJMoratelli"
+$creditos.Font      = New-Object System.Drawing.Font("Segoe UI", 9)
+$creditos.ForeColor = $script:CorCredito
+$creditos.Location  = New-Object System.Drawing.Point(36, 392)
+$creditos.AutoSize  = $true
+$Form.Controls.Add($creditos)
+
+$script:BtnAcao = New-Object System.Windows.Forms.Button
+$script:BtnAcao.Text      = "Configurar ramal"
+$script:BtnAcao.Font      = New-Object System.Drawing.Font("Segoe UI", 12, [System.Drawing.FontStyle]::Bold)
+$script:BtnAcao.Size      = New-Object System.Drawing.Size(210, 50)
+$script:BtnAcao.Location  = New-Object System.Drawing.Point(($LARG - 254), 372)
+$script:BtnAcao.FlatStyle = "Flat"
+$script:BtnAcao.FlatAppearance.BorderSize = 0
+$script:BtnAcao.FlatAppearance.MouseOverBackColor = $script:CorAzulH
+$script:BtnAcao.FlatAppearance.MouseDownBackColor = $script:CorAzulH
+$script:BtnAcao.BackColor = $script:CorAzul
+$script:BtnAcao.ForeColor = [System.Drawing.Color]::White
+$Form.Controls.Add($script:BtnAcao)
+$Form.AcceptButton = $script:BtnAcao
+
+# "Configurar depois", e nao "Cancelar": nada se perde, a tela volta no
+# proximo logon. Por isso fica no cinza secundario, nao no vermelho - que
+# neste padrao pertence so a acao destrutiva.
+$script:BtnDepois = New-Object System.Windows.Forms.Button
+$script:BtnDepois.Text      = "Configurar depois"
+$script:BtnDepois.Font      = New-Object System.Drawing.Font("Segoe UI", 12, [System.Drawing.FontStyle]::Bold)
+$script:BtnDepois.Size      = New-Object System.Drawing.Size(170, 50)
+$script:BtnDepois.Location  = New-Object System.Drawing.Point(($LARG - 436), 372)
+$script:BtnDepois.FlatStyle = "Flat"
+$script:BtnDepois.FlatAppearance.BorderSize = 1
+$script:BtnDepois.FlatAppearance.BorderColor = $script:CorGrafite
+$script:BtnDepois.FlatAppearance.MouseOverBackColor = $script:CorCampo
+$script:BtnDepois.FlatAppearance.MouseDownBackColor = $script:CorCampo
+$script:BtnDepois.BackColor = [System.Drawing.Color]::White
+$script:BtnDepois.ForeColor = $script:CorGrafite
+$Form.Controls.Add($script:BtnDepois)
+
+# ============================================================ LOGICA
+function Set-Etapa {
+    param([string]$Texto, [int]$Passo = -1, $Cor = $null)
+    if ($null -eq $Cor) { $Cor = $script:CorGrafite }
+    $script:Msg.ForeColor = $Cor
+    $script:Msg.Text      = $Texto
+    if ($Passo -ge 0) { $script:Barra.Value = [Math]::Min($Passo, $script:Barra.Maximum) }
+    [System.Windows.Forms.Application]::DoEvents()
+}
+
+function Stop-Relogio {
+    if ($script:Relogio) { $script:Relogio.Stop() }
+    $script:LblTempo.Text = ""
+}
+
+# Sair sem configurar nao e desistir: reagenda a tela para o proximo logon.
+function Sair-SemConfigurar {
+    if (-not $script:PodeFechar) { return }
+    Stop-Relogio
+    Set-Reapresentacao
+    $script:Concluido = $true
+    $script:Form.Close()
+}
+
+$script:BtnDepois.Add_Click({ Sair-SemConfigurar })
+
+$script:BtnAcao.Add_Click({
+    if ($script:Concluido) { $script:Form.Close(); return }
+
+    $ramal = $script:TxtRamal.Text.Trim()
+    $senha = $script:TxtSenha.Text.Trim()
+
+    if (-not $ramal) { Set-Etapa "Informe o ramal." -1 $script:CorVinho; $script:TxtRamal.Focus(); return }
+    if (-not $senha) { Set-Etapa "Informe a senha do ramal." -1 $script:CorVinho; $script:TxtSenha.Focus(); return }
+
+    Stop-Relogio
+    $script:PodeFechar          = $false
+    $script:BtnAcao.Enabled     = $false
+    $script:BtnAcao.BackColor   = $script:CorCinza
+    $script:BtnAcao.Text        = "Aguarde..."
+    $script:BtnDepois.Enabled   = $false
+    $script:TxtRamal.Enabled    = $false
+    $script:TxtSenha.Enabled    = $false
+
+    try {
+        Set-Etapa "Gravando a configuracao do ramal..." 1
+        Write-ConfiguracaoRamal -Ramal $ramal -Senha $senha
+
+        # Atalho e inicializacao NAO sao criados aqui. O PostInstallPDV ja os
+        # coloca no perfil Comum, que todo usuario enxerga. Criar de novo no
+        # perfil pessoal duplica o icone na area de trabalho e, pior, deixa
+        # dois GOnnect subindo a cada logon - um por Startup.
+        Set-Etapa "Iniciando o GOnnect..." 2
+        try {
+            Start-Process -FilePath $script:ExeGOnnect -WorkingDirectory $script:PastaExe -WindowStyle Hidden
+            Start-Sleep -Seconds 2
+        }
+        catch { }
+
+        # Configurado: a tela nao volta mais para este usuario.
+        Set-Reapresentacao -Remover
+
+        $script:Concluido  = $true
+        $script:PodeFechar = $true
+        Set-Etapa "Ramal $ramal configurado para $env:USERNAME." 3 $script:CorVerde
+        $script:BtnAcao.Text      = "Concluido"
+        $script:BtnDepois.Enabled = $false
+
+        for ($i = 0; $i -lt 25; $i++) {
+            Start-Sleep -Milliseconds 100
+            [System.Windows.Forms.Application]::DoEvents()
+        }
+        $script:Form.Close()
+    }
+    catch {
+        $script:PodeFechar        = $true
+        Set-Etapa "Falha: $($_.Exception.Message)" -1 $script:CorVinho
+        $script:TxtRamal.Enabled  = $true
+        $script:TxtSenha.Enabled  = $true
+        $script:BtnAcao.Enabled   = $true
+        $script:BtnAcao.BackColor = $script:CorAzul
+        $script:BtnAcao.Text      = "Tentar novamente"
+        $script:BtnDepois.Enabled = $true
+    }
+})
+
+# ============================================================ LIMITE DE TEMPO
+# O Active Setup segura o logon ate este script sair. Sem limite, um terminal
+# em que ninguem sabe o ramal ficaria parado para sempre na tela de logon.
+# Por isso a contagem: ela e o "caminho de saida" que o padrao exige, e o que
+# torna seguro travar o logon no primeiro acesso.
+$script:Relogio          = New-Object System.Windows.Forms.Timer
+$script:Relogio.Interval = 1000
+$script:Relogio.Add_Tick({
+    $script:Restam--
+    if ($script:Restam -le 0) {
+        $script:Relogio.Stop()
+        Sair-SemConfigurar
+        return
+    }
+    $m = [int]($script:Restam / 60)
+    $s = $script:Restam % 60
+    $script:LblTempo.Text = "Esta tela fecha sozinha em {0}:{1:d2} e volta no proximo login." -f $m, $s
+})
+
+$Form.Add_Shown({
+    if (-not (Test-Path -LiteralPath $script:ExeGOnnect)) {
+        # Sem o GOnnect instalado nao ha o que configurar. A instalacao e do
+        # PostInstallPDV, que roda com privilegio - nao cabe tentar aqui.
+        Set-Etapa "GOnnect nao esta instalado nesta maquina. Procure o suporte." -1 $script:CorVinho
+        $script:TxtRamal.Enabled  = $false
+        $script:TxtSenha.Enabled  = $false
+        $script:BtnAcao.Text      = "Fechar"
+        $script:BtnAcao.BackColor = $script:CorGrafite
+        $script:BtnAcao.FlatAppearance.MouseOverBackColor = $script:CorPreto
+        $script:Concluido         = $true
+        return
+    }
+    $script:Relogio.Start()
+    $script:TxtRamal.Focus()
+})
+
+$Form.ShowDialog() | Out-Null
+$Form.Dispose()
+if ($script:Relogio) { $script:Relogio.Dispose() }
+'@
+
+        New-Item -ItemType Directory -Path 'C:\Scripts' -Force | Out-Null
+        Set-Content -LiteralPath $destino -Value $telaRamal -Encoding UTF8 -Force
+
+        # Registrar um StubPath que aponta para arquivo quebrado faz TODO logon
+        # rodar um comando que falha. Confere antes de registrar.
+        $erros = $null; $tokens = $null
+        [System.Management.Automation.Language.Parser]::ParseFile($destino, [ref]$tokens, [ref]$erros) | Out-Null
+        if ($erros -and $erros.Count -gt 0) {
+            Log "  o arquivo baixado nao e PowerShell valido - nada registrado" $CorErro
+            return
+        }
+        Log "  tela de ramal gravada em $destino" $CorOk
+
+        $chave = "HKLM:\SOFTWARE\Microsoft\Active Setup\Installed Components\$GuidRamal"
+        $psexe = Join-Path $env:SystemRoot 'System32\WindowsPowerShell\v1.0\powershell.exe'
+        $stub  = '"{0}" -NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File "{1}"' -f $psexe, $destino
+
+        New-Item -Path $chave -Force | Out-Null
+        Set-ItemProperty -Path $chave -Name '(Default)'   -Value 'Machadao Corp - Configuracao de ramal GOnnect'
+        Set-ItemProperty -Path $chave -Name 'Version'     -Value '1,0,0,0'
+        Set-ItemProperty -Path $chave -Name 'StubPath'    -Value $stub
+        Set-ItemProperty -Path $chave -Name 'IsInstalled' -Value 1 -Type DWord
+
+        # Releia e compare: Set-ItemProperty aceita e ignora calado em alguns casos.
+        $lido = Get-ItemProperty -Path $chave -EA 0
+        if ($lido.StubPath -eq $stub) {
+            Log "  Active Setup registrado - a tela abre no primeiro logon de cada usuario" $CorOk
+        } else {
+            Log "  a chave do Active Setup nao ficou como esperado - conferir $chave" $CorErro
+        }
+    }}
+
     @{ Nome = "UltraVNC como servico"; Acao = {
         # O UltraVNC precisa ser SERVICO, nao atalho de inicializacao. Como
         # atalho ele so sobe quando alguem faz logon - e este script tira o
