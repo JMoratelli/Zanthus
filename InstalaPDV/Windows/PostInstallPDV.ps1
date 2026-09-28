@@ -121,7 +121,7 @@ elseif (-not $filial){ $erroDeteccao = "Gateway [$gateway] nao esta mapeado para
 [xml]$xamlSplash = @"
 <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Machadao Corp" Height="430" Width="720"
+        Title="Machadao Corp" Height="490" Width="720"
         WindowStartupLocation="CenterScreen" ResizeMode="NoResize"
         WindowStyle="None" Topmost="True" Background="#EDEFF2">
   <Grid>
@@ -178,6 +178,10 @@ elseif (-not $filial){ $erroDeteccao = "Gateway [$gateway] nao esta mapeado para
           <TextBlock x:Name="TxtAviso" FontFamily="Segoe UI" FontSize="11" Foreground="#1A5FB4" TextWrapping="Wrap"/>
         </Border>
         <TextBlock x:Name="TxtValida" FontFamily="Segoe UI" FontSize="11" Foreground="#C01C28" Margin="2,14,0,0" TextWrapping="Wrap"/>
+        <CheckBox x:Name="ChkHomolog" Content="Homologacao" FontFamily="Segoe UI" FontSize="12"
+                  Foreground="#12161C" Margin="2,18,0,0"/>
+        <TextBlock Text="Marque para NAO apontar este terminal para o servidor de producao."
+                   FontFamily="Segoe UI" FontSize="10" Foreground="#9AA4AF" Margin="24,4,0,0"/>
       </StackPanel>
 
       <Grid Grid.Row="2">
@@ -207,7 +211,7 @@ function Habilitar-Arrasto ($Janela) {
 
 $splash = [Windows.Markup.XamlReader]::Load((New-Object System.Xml.XmlNodeReader $xamlSplash))
 $el = @{}
-'TxtMaquina','TxtIp','TxtFilial','TxtLoja','TxtGw','TxtServidor','TxtImp','TxtAviso','TxtValida','BtnSair','BtnIniciar' |
+'TxtMaquina','TxtIp','TxtFilial','TxtLoja','TxtGw','TxtServidor','TxtImp','TxtAviso','TxtValida','ChkHomolog','BtnSair','BtnIniciar' |
     ForEach-Object { $el[$_] = $splash.FindName($_) }
 
 $el.TxtMaquina.Text  = $env:COMPUTERNAME
@@ -233,6 +237,10 @@ Habilitar-Arrasto $splash
 $el.BtnIniciar.Add_Click({ $script:iniciar = $true; $splash.Close() })
 $el.BtnSair.Add_Click({ $script:iniciar = $false; $splash.Close() })
 [void]$splash.ShowDialog()
+
+# A janela ja fechou, mas o objeto continua vivo: le o estado final do
+# checkbox aqui, e nao dentro do Add_Click, para nao depender de closure.
+$homologacao = [bool]$el.ChkHomolog.IsChecked
 
 if (-not $script:iniciar) { return }
 
@@ -325,6 +333,10 @@ $ui = @{}
 Habilitar-Arrasto $win
 $ui.HdMaquina.Text = $env:COMPUTERNAME
 $ui.HdFilial.Text  = "filial $filial - loja $numLoja"
+if ($homologacao) {
+    $ui.HdFilial.Text = "filial $filial - loja $numLoja - HOMOLOGACAO"
+    $ui.TxtNota.Text  = "HOMOLOGACAO: o terminal nao sera apontado para o servidor de producao. Nao desligue o terminal."
+}
 $linhasLog = New-Object System.Collections.ObjectModel.ObservableCollection[object]
 $ui.Log.ItemsSource = $linhasLog
 
@@ -357,6 +369,7 @@ $script:sync = [hashtable]::Synchronized(@{
     NovoNome       = $novoNome
     ImpressoraTipo = $impressoraTipo
     ForcarEpson    = $forcarEpson
+    Homologacao    = $homologacao
 })
 
 # ============================================================
@@ -450,6 +463,74 @@ L Economica=97100
 Nextel=75000000
 "@
         Log "  8 arquivos gravados em $caminhoPdv" $CorOk
+    }}
+
+    @{ Nome = "Endereco do servidor Zanthus (producao)"; Acao = {
+        # Aponta os arquivos de conexao do terminal para o host de producao.
+        #
+        # NAO roda em homologacao: marcado o checkbox no splash, o endereco
+        # fica exatamente como ja estava no terminal. E por isso que esta
+        # etapa le e grava, em vez de recriar os arquivos como a etapa
+        # "Arquivos de configuracao Zeus" faz - o que nao for o endereco tem
+        # que sair igual ao que entrou.
+        if ($sync.Homologacao) {
+            Log "  homologacao marcada - endereco nao alterado" $CorAviso
+            return
+        }
+
+        $hostProducao = 'zanthus.redejcm.com.br'
+        $enc   = [Text.Encoding]::GetEncoding(28591)   # ISO-8859-1
+        $gravados = @{}   # nome -> $true; os tres de flags sao gravados duas vezes
+
+        # Le e grava byte a byte em latin-1, e so grava se algo mudou: acento
+        # e fim de linha do resto do arquivo saem intactos. Set-Content com
+        # -Encoding Default reescreveria o arquivo inteiro na code page da
+        # maquina, que nem sempre e a mesma que gravou o original.
+        function Ajustar ($Caminho, $Transformacao) {
+            $nome = Split-Path $Caminho -Leaf
+            if (-not (Test-Path -LiteralPath $Caminho)) { Log "  -- $nome nao encontrado"; return }
+            $antes  = $enc.GetString([IO.File]::ReadAllBytes($Caminho))
+            $depois = & $Transformacao $antes
+            if ($depois -eq $antes) { Log "  =  $nome sem alteracao"; return }
+            [IO.File]::WriteAllBytes($Caminho, $enc.GetBytes($depois))
+            $gravados[$nome] = $true
+            Log "  ok $nome" $CorOk
+        }
+
+        $trocaEndereco = {
+            param($texto)
+            [regex]::Replace($texto, '^endereco=[^\r\n]*', "endereco=$hostProducao", 'Multiline')
+        }
+
+        # ZMWS1600.CFG fica de fora de proposito: o endereco dele nao e o do
+        # servidor Zanthus.
+        Get-ChildItem -LiteralPath $caminhoPdv -File |
+            Where-Object { $_.Name -match '^(ZMWS|REST|CARG|ZURL)' -and $_.Name -ne 'ZMWS1600.CFG' } |
+            ForEach-Object { Ajustar $_.FullName $trocaEndereco }
+
+        if (-not (Get-ChildItem -LiteralPath $caminhoPdv -File -Filter 'ZURL*.CFG' -EA 0)) {
+            Log "  nenhum ZURL*.CFG neste terminal" $CorAviso
+        }
+
+        Ajustar "$caminhoInterface\config\manager.js" {
+            param($texto)
+            [regex]::Replace($texto, "^var __urlManager = '[^\r\n]*';",
+                             "var __urlManager = 'http://$hostProducao/manager/';", 'Multiline')
+        }
+
+        # flags=256 + ssl=0 so nos tres arquivos de conexao principais, e so
+        # se ainda nao estiverem la. Entram logo depois do timeout, no mesmo
+        # fim de linha que o arquivo ja usa.
+        foreach ($nome in 'RESTG0000.CFG','ZMWS0000.CFG','CARG0000.CFG') {
+            Ajustar "$caminhoPdv\$nome" {
+                param($texto)
+                if ($texto -match '(?m)^flags=256') { return $texto }
+                $fim = if ($texto -match "`r`n") { "`r`n" } else { "`n" }
+                [regex]::Replace($texto, '^timeout=[^\r\n]*', "`$0${fim}flags=256${fim}ssl=0", 'Multiline')
+            }
+        }
+
+        Log "  $($gravados.Count) arquivo(s) gravado(s) apontando para $hostProducao" $CorOk
     }}
 
     @{ Nome = "CliSiTef.ini"; Acao = {
@@ -556,8 +637,9 @@ ConfiguracaoEnderecoIP=tls-prod.fiservapp.com
     }}
 
     @{ Nome = "w_pdv.cmd (tira o kiosk)"; Acao = {
-        # O CARG0000.CFG / RESTG0200.CFG nao sao mais forcados aqui: a dinamica de
-        # acesso mudou e o endereco vem do que ja esta configurado no terminal.
+        # Esta etapa nao mexe mais em CARG0000.CFG / RESTG0200.CFG: o endereco
+        # do servidor e assunto da etapa "Endereco do servidor Zanthus
+        # (producao)", que respeita o checkbox de homologacao.
         $wpdv = "$caminhoPdv\w_pdv.cmd"
         if (-not (Test-Path -LiteralPath $wpdv)) { Log "  w_pdv.cmd ausente" $CorAviso; return }
 
