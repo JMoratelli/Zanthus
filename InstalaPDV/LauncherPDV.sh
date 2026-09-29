@@ -708,6 +708,7 @@ fi
 
 if [ "$tipoInstala" == "PDVComum" ]; then
     safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Interfaces/PDVComum/config.js" "/Zanthus/Zeus/Interface/config/config.js"
+    safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Interfaces/PDVComum/Controller.js" "/Zanthus/Zeus/Interface/app/controller/Controller.js"
 fi
 
 log_step 15 "Copiando arquivos gerais de interface"

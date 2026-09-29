@@ -431,6 +431,7 @@ $trabalho = {
     @{ Nome = "Estrutura de pastas"; Acao = {
         foreach ($p in @($caminhoPdv, $caminhoImagens,
                          "$caminhoInterface\config", "$caminhoInterface\app\api\dinamico\pdvMouse",
+                         "$caminhoInterface\app\controller",
                          "$caminhoInterface\resources\css")) {
             if (-not (Test-Path $p)) { New-Item -ItemType Directory -Path $p -Force | Out-Null; Log "  criado $p" }
         }
@@ -590,12 +591,24 @@ ConfiguracaoEnderecoIP=tls-prod.fiservapp.com
     @{ Nome = "Download de icones e imagens"; Acao = {
         [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
         Invoke-WebRequest -UseBasicParsing -Uri "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Interfaces/Comum/Zeus_V.gif" -OutFile "$caminhoImagens\Zeus_V.gif"
+        Invoke-WebRequest -UseBasicParsing -Uri "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Interfaces/Comum/logo.png" -OutFile "$caminhoImagens\logo.png"
         Invoke-WebRequest -Uri "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Interfaces/Comum/logo_self.png" -OutFile "C:\Zanthus\Zeus\Interface\resources\imagens\logo_self.png"
         Invoke-WebRequest -Uri "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Interfaces/Comum/style2.css" -OutFile "C:\Zanthus\Zeus\Interface\resources\css\style2.css"
         Invoke-WebRequest -Uri "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Interfaces/Comum/style100.css" -OutFile "C:\Zanthus\Zeus\Interface\resources\css\style100.css"
         Invoke-WebRequest -Uri "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Interfaces/Comum/style1000.css" -OutFile "C:\Zanthus\Zeus\Interface\resources\css\style1000.css"
         Invoke-WebRequest -UseBasicParsing -Uri "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Interfaces/PDVComum/config.js" -OutFile "$caminhoInterface\config\config.js"
         Invoke-WebRequest -UseBasicParsing -Uri "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Interfaces/Comum/Buttons.js" -OutFile "$caminhoInterface\app\api\dinamico\pdvMouse\Buttons.js"
+
+        # Controller.js nao entra na mesma categoria dos arquivos acima. Imagem,
+        # CSS e config.js sao versao nossa e integral; o Controller.js e codigo da
+        # Zanthus com o enxerto do bloco VERSAO_JJM. O que esta no repo e byte a
+        # byte o que o ProcessaAtuInterface.py gera, para que instalacao limpa e
+        # atualizacao entreguem o mesmo arquivo.
+        #
+        # Por ser codigo da Zanthus, o arquivo esta preso a release que o gerou
+        # (1-14-189). Rebaixa o Controller.js de um terminal que ja esteja em
+        # release mais nova - conferir antes de rodar em terminal atualizado.
+        Invoke-WebRequest -UseBasicParsing -Uri "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/Interfaces/PDVComum/Controller.js" -OutFile "$caminhoInterface\app\controller\Controller.js"
         Log "  interface atualizada" $CorOk
     }}
 
