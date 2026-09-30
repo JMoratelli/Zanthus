@@ -57,7 +57,7 @@ Remove-Variable -Name resultado, etapas, filial, lojaAtual -Scope Script -ErrorA
 #  2. TABELAS DE ESCALABILIDADE
 # ============================================================
 $mapaGateways = @{
-    "10.1.1.1"       = 1
+    "192.168.10.1"       = 1
     "192.168.11.253" = 3
     "192.168.5.253"  = 9
     "192.168.205.1"  = 21
