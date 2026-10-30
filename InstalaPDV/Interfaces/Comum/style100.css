@@ -1083,9 +1083,11 @@ input[type=text].campo-erro,
 
 /* Botao neutro dentro de janela: o fundo dele (--btn-neutro-fundo) e
    quase o branco do corpo da janela e o botao sumia. Um contorno de
-   1px por dentro (inset, nao borda - caixa intacta) devolve a forma. */
-.x-window .bt_teclado:not(.x-btn-disabled),
-.x-window .bt_teclado_menu:not(.x-btn-disabled) {
+   1px por dentro (inset, nao borda - caixa intacta) devolve a forma. 
+   SO NO RODAPE da janela: o teclado numerico do coletor tambem tem
+   bt_teclado (o "00", a virgula) e la o contorno saia em uma tecla so. */
+.x-window .x-toolbar-docked-bottom .bt_teclado:not(.x-btn-disabled),
+.x-window .x-toolbar-docked-bottom .bt_teclado_menu:not(.x-btn-disabled) {
     box-shadow: inset 0 0 0 1px var(--borda-sutil) !important;
 }
 
@@ -2761,6 +2763,14 @@ span.txt-valores{
 /* Grid seletor: o tema padrao desenha a moldura num azul claro. */
 div[id^="gridseletor-"] {
     border-color: var(--borda-caixa) !important;
+}
+
+/* O fio azul (#99bce8, a borda padrao de painel do ExtJS) em volta das
+   telas cheias (venda, pagamento) - ora no painel, ora no corpo dele.
+   Cor so - a largura de 1px continua la. */
+.x-panel[id^="pdv"],
+.x-panel[id^="pdv"] > .x-panel-body-default {
+    border-color: transparent !important;
 }
 
 
