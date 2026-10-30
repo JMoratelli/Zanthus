@@ -376,13 +376,16 @@
     --dlg-recusar-texto:       var(--texto-principal);
     --dlg-recusar-fundo-ativo: var(--btn-neutro-fundo-ativo);
 
-    /* Abortar ("Cancelar") - VERMELHO CHEIO (2026-10). Era ghost; no
-       touch o Cancelar "ficava branco" (queixa de campo). Mesmo
-       vermelho do bt_teclado_v. */
+    /* Abortar ("Cancelar") - CONTORNO VERMELHO sobre tecla branca
+       (2026-10). Passou um tempo em vermelho cheio e destacava demais
+       o Cancelar na tela do cliente. A tecla branca sobre o rodape
+       cinza-claro mantem a forma do botao (a queixa antiga era o
+       Cancelar "branco", sem contorno nenhum). O anel e um inset
+       box-shadow - ver --dlg-abortar-anel. */
     --dlg-abortar-contorno:    var(--p-perigo);
-    --dlg-abortar-fundo:       var(--p-perigo);
-    --dlg-abortar-texto:       var(--p-branco);
-    --dlg-abortar-fundo-ativo: var(--p-perigo-escuro);
+    --dlg-abortar-fundo:       var(--p-branco);
+    --dlg-abortar-texto:       var(--p-perigo);
+    --dlg-abortar-fundo-ativo: var(--p-perigo-claro-2);
 
     --dlg-ghost-espessura:       2px;
     /* Respiro entre botoes de dialogo. O ExtJS os cola com 2px de vao
@@ -390,6 +393,10 @@
        RODAPE, por dentro (inset), afasta a parte visivel do botao: o
        vao lido vira 8px e a area de toque fica a mesma. */
     --dlg-btn-respiro: 3px;
+    /* Respiro + anel vermelho do abortar, ambos por dentro. A primeira
+       sombra fica por cima: o vermelho aparece so entre 3px e 5px. */
+    --dlg-abortar-anel: inset 0 0 0 var(--dlg-btn-respiro) var(--dlg-rodape-fundo),
+                        inset 0 0 0 calc(var(--dlg-btn-respiro) + var(--dlg-ghost-espessura)) var(--dlg-abortar-contorno);
 
     /* --- POP-UPS / DIALOGOS --- */
     --dlg-acento:            var(--p-cinza-900);   /* faixa de topo */
@@ -515,6 +522,26 @@ body,
 [id^="telatopo-"] {
     background-color: var(--barra-topo-fundo) !important;
     background-image: none !important;
+}
+
+/* Cantos dos blocos cinza (2026-10). O fundo das telas e o claro do
+   app (--sup-app); topo e rodape sao blocos cinza sobre ele.
+   Venda: os blocos encostam na borda da tela, entao so arredondam os
+   cantos que dao para a faixa clara do meio.
+   Pagamento: o painel e "framed" e deixa ~5px de moldura clara em
+   volta - topo e rodape viram cartoes, os quatro cantos.
+   So raio: os dois ja tem overflow:hidden do ExtJS, que recorta os
+   filhos na curva. Nenhum filho encosta no canto (o mais perto fica
+   a 15px). */
+div[id^="pdvmain-"] > .x-panel-body > .topo_pdv.x-border-item {
+    border-radius: 0 0 var(--raio-cartao) var(--raio-cartao) !important;
+}
+div[id^="pdvmain-"] > .x-panel-body > .area-south.x-border-item {
+    border-radius: var(--raio-cartao) var(--raio-cartao) 0 0 !important;
+}
+div[id^="pdvtelapagamento-"] > .x-panel-body > .topo_pdv.x-border-item,
+div[id^="pdvtelapagamento-"] > .x-panel-body > .area-south.x-border-item {
+    border-radius: var(--raio-cartao) !important;
 }
 
 .bg-rodape {
@@ -1735,8 +1762,11 @@ i.fa {
     background-color: var(--sup-app) !important;
 }
 
+/* Mesmo claro do bloco das formas de pagamento ao lado (2026-10). Era
+   branco (--sup-cartao) e formava um retangulo solto atras da
+   ilustracao. */
 .bg-image2 {
-    background: var(--sup-cartao) !important;
+    background: var(--sup-app) !important;
 }
 
 .img-self{
@@ -2403,7 +2433,12 @@ img[class*="processando"] {
    .janela-msg e "Voltar" (recusar) em .tela_dialogo. Mesmo numero,
    papeis opostos. E exatamente por isso que o escopo por tipo de
    janela nao e frescura.
-       abortar      1 (Cancelar)                   11 (Cancelar)
+       abortar      1 (Cancelar)                   11 (Cancelar),
+                                                   1 (Cancelar)  [dump 2026-10]
+
+   REVISAO 2026-10: coletor-1424 ("Informe o CPF/CNPJ do consumidor",
+   cls=tela_dialogo) traz o Cancelar SOZINHO no rodape como bt_tec_1.
+   Sem mapa, nascia cinza.
 
    REVISAO 2026-08: 58 e 2 foram remapeados a partir de um dump real
    (dialogomsg-1420, "Confirma mudança para modo administrativo?", com
@@ -2495,22 +2530,26 @@ img[class*="processando"] {
 /* ABORTAR (Cancelar) - ghost vermelho */
 .janela-msg   .bt_bbar.bt_tec_1,
 .janela-msg   .bt_bbar.bt_tec_2,
-.tela_dialogo .bt_bbar.bt_tec_11 {
+.tela_dialogo .bt_bbar.bt_tec_11,
+.tela_dialogo .bt_bbar.bt_tec_1 {
     background: var(--dlg-abortar-fundo) !important;
-    box-shadow: inset 0 0 0 var(--dlg-btn-respiro) var(--dlg-rodape-fundo) !important;
+    box-shadow: var(--dlg-abortar-anel) !important;
     animation: none !important;
 }
 .janela-msg   .bt_bbar.bt_tec_1 .x-btn-inner,
 .janela-msg   .bt_bbar.bt_tec_2 .x-btn-inner,
 .tela_dialogo .bt_bbar.bt_tec_11 .x-btn-inner,
+.tela_dialogo .bt_bbar.bt_tec_1 .x-btn-inner,
 .janela-msg   .bt_bbar.bt_tec_1 span,
 .janela-msg   .bt_bbar.bt_tec_2 span,
-.tela_dialogo .bt_bbar.bt_tec_11 span {
+.tela_dialogo .bt_bbar.bt_tec_11 span,
+.tela_dialogo .bt_bbar.bt_tec_1 span {
     color: var(--dlg-abortar-texto) !important;
 }
 .janela-msg   .bt_bbar.bt_tec_1:active:not(.x-btn-disabled),
 .janela-msg   .bt_bbar.bt_tec_2:active:not(.x-btn-disabled),
-.tela_dialogo .bt_bbar.bt_tec_11:active:not(.x-btn-disabled) {
+.tela_dialogo .bt_bbar.bt_tec_11:active:not(.x-btn-disabled),
+.tela_dialogo .bt_bbar.bt_tec_1:active:not(.x-btn-disabled) {
     background: var(--dlg-abortar-fundo-ativo) !important;
 }
 
@@ -2534,7 +2573,7 @@ img[class*="processando"] {
 .janela-seletor .bt_bbar.bt_tec_1,
 .janela-seletor .bt_bbar.bt_tec_2 {
     background: var(--dlg-abortar-fundo) !important;
-    box-shadow: inset 0 0 0 var(--dlg-btn-respiro) var(--dlg-rodape-fundo) !important;
+    box-shadow: var(--dlg-abortar-anel) !important;
     animation: none !important;
 }
 .janela-seletor .bt_bbar.bt_tec_1 .x-btn-inner,
@@ -2551,31 +2590,31 @@ img[class*="processando"] {
 /* BOTAO SOZINHO NAO E CANCELAR (2026-10). O codigo bt_tec_N e a TECLA,
    nao a funcao: a propria Interface usa tec:1 para "Voltar", "Fechar",
    "Quantidade", "Balanca"... e o Zeus manda "OK" com codigos que este
-   mapa trata como abortar. Com o abortar em vermelho cheio, o OK
-   sozinho saia vermelho. Regra: em mensagem e coletora, um botao
-   SOZINHO no rodape (2o de 3 filhos: tbfill, botao, tbfill) com codigo
-   de abortar fica NEUTRO. Com par ao lado (o Cancelar junto do "Sem
-   usar PinPad") segue vermelho. Custo assumido: um Cancelar sozinho
-   numa mensagem tambem sai neutro. A seletora fica de fora - la o
-   botao sozinho e sempre o Cancelar. */
+   mapa trata como abortar, e o OK sozinho saia vermelho (dump 2026-10:
+   "Coloque o produto na balanca" traz o "Liberar" sozinho como
+   bt_tec_1; o Cancelar do TEF vem sozinho como bt_tec_2). Regra: na
+   mensagem, um botao SOZINHO no rodape (2o de 3 filhos: tbfill, botao,
+   tbfill) com codigo de abortar fica NEUTRO. Com par ao lado (o
+   Cancelar junto do "Sem usar PinPad") segue vermelho. Custo assumido:
+   um Cancelar sozinho numa mensagem tambem sai neutro.
+   O coletor (.tela_dialogo) ficou de fora (2026-10): la o 11 e sempre
+   Cancelar - o OK do coletor e o 56 - e a excecao deixava sem vermelho
+   o Cancelar sozinho da identificacao do consumidor. A seletora tambem
+   fica de fora - la o botao sozinho e sempre o Cancelar. */
 .janela-msg   .bt_bbar.bt_tec_1:nth-child(2):nth-last-child(2),
-.janela-msg   .bt_bbar.bt_tec_2:nth-child(2):nth-last-child(2),
-.tela_dialogo .bt_bbar.bt_tec_11:nth-child(2):nth-last-child(2) {
+.janela-msg   .bt_bbar.bt_tec_2:nth-child(2):nth-last-child(2) {
     background: var(--dlg-recusar-fundo) !important;
     box-shadow: inset 0 0 0 var(--dlg-btn-respiro) var(--dlg-rodape-fundo) !important;
     animation: none !important;
 }
 .janela-msg   .bt_bbar.bt_tec_1:nth-child(2):nth-last-child(2) .x-btn-inner,
 .janela-msg   .bt_bbar.bt_tec_2:nth-child(2):nth-last-child(2) .x-btn-inner,
-.tela_dialogo .bt_bbar.bt_tec_11:nth-child(2):nth-last-child(2) .x-btn-inner,
 .janela-msg   .bt_bbar.bt_tec_1:nth-child(2):nth-last-child(2) span,
-.janela-msg   .bt_bbar.bt_tec_2:nth-child(2):nth-last-child(2) span,
-.tela_dialogo .bt_bbar.bt_tec_11:nth-child(2):nth-last-child(2) span {
+.janela-msg   .bt_bbar.bt_tec_2:nth-child(2):nth-last-child(2) span {
     color: var(--dlg-recusar-texto) !important;
 }
 .janela-msg   .bt_bbar.bt_tec_1:nth-child(2):nth-last-child(2):active:not(.x-btn-disabled),
-.janela-msg   .bt_bbar.bt_tec_2:nth-child(2):nth-last-child(2):active:not(.x-btn-disabled),
-.tela_dialogo .bt_bbar.bt_tec_11:nth-child(2):nth-last-child(2):active:not(.x-btn-disabled) {
+.janela-msg   .bt_bbar.bt_tec_2:nth-child(2):nth-last-child(2):active:not(.x-btn-disabled) {
     background: var(--dlg-recusar-fundo-ativo) !important;
 }
 
@@ -2613,21 +2652,19 @@ img[class*="processando"] {
    depois no arquivo. Zero box-model. */
 /* (2026-10) SO NA SELETORA. Antes valia para QUALQUER botao sozinho no
    rodape - e isso pegava "Ok" e "Liberar", que nao sao Cancelar, e o
-   OK saia vermelho. Na seletora o botao sozinho e sempre o Cancelar.
-   Fica no contorno; cores explicitas porque o texto do abortar
-   (--dlg-abortar-texto) agora e branco. */
+   OK saia vermelho. Na seletora o botao sozinho e sempre o Cancelar,
+   com o mesmo contorno do abortar mapeado por codigo. */
 .janela-seletor .bt_bbar[class*="bt_tec_"]:nth-child(2):nth-last-child(2) {
-    background: transparent !important;
-    box-shadow: inset 0 0 0 var(--dlg-btn-respiro) var(--dlg-rodape-fundo),
-                inset 0 0 0 calc(var(--dlg-btn-respiro) + var(--dlg-ghost-espessura)) var(--dlg-abortar-contorno) !important;
+    background: var(--dlg-abortar-fundo) !important;
+    box-shadow: var(--dlg-abortar-anel) !important;
     animation: none !important;
 }
 .janela-seletor .bt_bbar[class*="bt_tec_"]:nth-child(2):nth-last-child(2) .x-btn-inner,
 .janela-seletor .bt_bbar[class*="bt_tec_"]:nth-child(2):nth-last-child(2) span {
-    color: var(--dlg-abortar-contorno) !important;
+    color: var(--dlg-abortar-texto) !important;
 }
 .janela-seletor .bt_bbar[class*="bt_tec_"]:nth-child(2):nth-last-child(2):active:not(.x-btn-disabled) {
-    background: var(--p-perigo-claro-2) !important;
+    background: var(--dlg-abortar-fundo-ativo) !important;
 }
 /* =======================================================================
    18. POP-UPS / DIALOGOS (visual)
@@ -2989,7 +3026,7 @@ div[id^="coletadadoscon-"] div[class*="x-panel-body-default-framed"] {
 div[id^="coletor-"] .bt_teclado_a,
 div[id^="coletadadoscon-"] .bt_teclado_a {
     background: var(--dlg-abortar-fundo) !important;
-    box-shadow: none !important;
+    box-shadow: inset 0 0 0 var(--dlg-ghost-espessura) var(--dlg-abortar-contorno) !important;
 }
 div[id^="coletor-"] .bt_teclado_a span,
 div[id^="coletadadoscon-"] .bt_teclado_a span {
