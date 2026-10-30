@@ -11,7 +11,8 @@
        bt_teclado_l = verde (no self e laranja da marca)
        bt_menu = laranja / bt_funcao = preto
 
-   Fonte Verdana e TODA a escala tipografica original preservadas.
+   Escala tipografica original preservada; a FAMILIA mudou (ver
+   REFINAMENTO abaixo).
 
    REGRA DE OURO (NAO QUEBRAR)
    ---------------------------
@@ -47,12 +48,55 @@
    18. Animacoes da splash / movimento reduzido
    19. Botoes de dialogo por funcao (escopado por tipo de janela)
    20. Pop-ups / dialogos (visual)
+       20.1 Janela seletora (lista de escolha)
+
+   REFINAMENTO (2026-10) - o mesmo acabamento do style1000 (self)
+   ---------------------------------------------------------------
+   Este e o PDV touch do OPERADOR; o style1000 e o touch do CLIENTE.
+   Os dois passam a falar a mesma lingua de tela touch - blocos
+   escritos igual nos dois arquivos, so a paleta de cada um muda:
+
+     - FONTE UNICA: --fonte-ui (Inter, de resources/fontes), com a
+       Verdana do proprio pacote de reserva. Antes a Verdana vinha sem
+       alternativa (serifada em maquina sem ela), a grid em Courier e o
+       teclado numerico pedia a fonte Numerico - que nao existe.
+     - SEM PISCAR: mascara sem fade e janela que so ASSENTA, opaca. O
+       Zeus encadeia janelas e a cada troca a mascara some e volta.
+     - ESPERA COM O FAVO no lugar do circulo, da mascara azul do ExtJS
+       e da varredura da splash.
+     - Modais com fundo em degrade e mascara em vinheta; respiro de 8px
+       entre os botoes do dialogo (anel interno na cor do rodape).
+     - Cupom em cartao; finalizadoras com faixa de borda interna reta.
+     - Verde, azul e laranja escurecidos para o texto branco ler; botao
+       colorido desabilitado em cinza.
+     - TOQUE, NAO MOUSE: nenhum hover. O toque escurece e afunda 3%.
 ======================================================================= */
 
 
 /* =======================================================================
    01. TOKENS - PRIMITIVAS  (paleta bruta, uso interno)
 ======================================================================= */
+
+/* Fontes do proprio pacote do Zeus (resources/fontes). `local()` antes:
+   se a maquina tiver a fonte instalada, nem le o arquivo.
+   Inter.ttf e variavel - um arquivo so cobre do 100 ao 900. */
+@font-face {
+    font-family: "Inter";
+    src: local("Inter"), url("../fontes/Inter.ttf") format("truetype");
+    font-weight: 100 900;
+    font-display: block;
+}
+@font-face {
+    font-family: "Verdana";
+    src: local("Verdana"), url("../fontes/verdana.ttf") format("truetype");
+    font-weight: 400;
+}
+@font-face {
+    font-family: "Verdana";
+    src: local("Verdana Bold"), local("Verdana-Bold"), url("../fontes/verdanab.ttf") format("truetype");
+    font-weight: 700;
+}
+
 :root{
     /* Neutros */
     --p-branco:    #FFFFFF;
@@ -71,8 +115,12 @@
     /* Marca Machadão */
     --p-marca-vermelho:        #E53935;
     --p-marca-vermelho-escuro: #C62828;
-    --p-marca-laranja:         #FF9800;
-    --p-marca-laranja-escuro:  #F57C00;
+    /* Laranja, verde e azul escurecidos (2026-10), os mesmos tons do
+       style100 e do style1000: texto branco no Limpar e no menu do
+       topo (#FF9800 dava 2:1), no Confirmar e no Entrar ficava abaixo
+       de 3:1. */
+    --p-marca-laranja:         #F76707;
+    --p-marca-laranja-escuro:  #D9480F;
 
     /* Semaforo funcional */
     --p-perigo:         #E53935;
@@ -80,14 +128,14 @@
     --p-perigo-claro:   #FFCDD2;
     --p-perigo-claro-2: #FFEBEE;
     --p-perigo-ativo:   #EF9A9A;
-    --p-sucesso:        #4CAF50;
-    --p-sucesso-escuro: #2E7D32;
+    --p-sucesso:        #2F9E44;
+    --p-sucesso-escuro: #2B8A3E;
     --p-sucesso-claro:  #C8E6C9;
     --p-sucesso-ativo:  #A5D6A7;
 
     /* Acao / atencao */
-    --p-azul:          #1E88E5;
-    --p-azul-escuro:   #1976D2;
+    --p-azul:          #1C7ED6;
+    --p-azul-escuro:   #1971C2;
     --p-amarelo-claro: #FFF9C4;
     --p-amarelo-ativo: #FFF59D;
 }
@@ -108,6 +156,12 @@
        Clarear quebra o encaixe dos containers do PDV Comum. Nao mexer. */
     --sup-pdvmain:     var(--p-cinza-500);
 
+    /* Chao da tela principal em volta da faixa do centro e embaixo dos
+       paineis Subtotal / Consumidor. Cinza claro e frio: os paineis
+       (brancos) e a faixa do centro (cinza medio) se destacam dele. Era
+       quase branco, e os paineis cinza-claro sumiam no fundo. */
+    --sup-tela-fundo:  #E9ECEF;
+
     /* --- Texto --- */
     --texto-principal:  var(--p-cinza-900);
     --texto-secundario: var(--p-cinza-800);
@@ -118,11 +172,13 @@
     /* --- Bordas / divisorias --- */
     --borda-sutil: var(--p-cinza-300);
     --borda-forte: var(--p-cinza-700);
-    --borda-cupom: var(--p-preto);
+    /* Era preto puro: a moldura do cupom era o traco mais duro da tela.
+       Cinza medio delimita igual - com raio (secao 16). */
+    --borda-cupom: var(--p-cinza-400);
     /* Molduras de painel/grid. Antes --borda-painel-pgto; renomeado
        porque agora serve tambem ao gridseletor. Mesmo nome no
        style1000.css. */
-    --borda-caixa:  var(--p-preto);
+    --borda-caixa:  var(--p-cinza-400);
     --foco-cor:    var(--p-cinza-700);
 
     /* Campo: no foco a borda apenas ESCURECE um tom - sem halo, sem
@@ -132,17 +188,49 @@
     --campo-foco-borda: var(--p-cinza-600);
     --campo-texto:      var(--texto-principal);
 
-    /* --- Sombras --- */
-    --sombra-sutil: 0 1px 2px rgba(0,0,0,.10);
-    --sombra-media: 0 2px 6px rgba(0,0,0,.12);
-    --sombra-alta:  0 8px 24px rgba(0,0,0,.18);
+    /* --- Sombras ---
+       Duas camadas: uma curta que assenta, uma longa que eleva. Tinta
+       azul-grafite em vez de preto puro - some no branco sem sujar. */
+    --sombra-sutil: 0 1px 2px rgba(16,24,40,.06), 0 1px 3px rgba(16,24,40,.08);
+    --sombra-media: 0 4px 12px rgba(16,24,40,.10), 0 1px 3px rgba(16,24,40,.06);
+    --sombra-alta:  0 12px 28px rgba(16,24,40,.16), 0 2px 6px rgba(16,24,40,.08);
 
-    /* --- Movimento (nunca valor magico solto) --- */
-    --dur-rapida: 90ms;
-    --dur-media:  180ms;
+    /* --- Raios ---
+       Escala curta: campo e botao 8, cartao 10, janela 16. */
+    --raio-campo:  8px;
+    --raio-botao:  8px;
+    --raio-cartao: 10px;
+
+    /* --- Tipografia ---
+       Uma familia so. Inter vem no pacote do Zeus; Verdana (tambem do
+       pacote, secao 01) e a reserva se o arquivo faltar. */
+    --fonte-ui: "Inter", "Verdana", "DejaVu Sans", sans-serif;
+
+    /* --- Movimento (nunca valor magico solto) ---
+       UMA curva para entrar (--curva-saida, a mesma do ChamadoJa) e
+       tres duracoes. */
+    --dur-rapida: 120ms;
+    --dur-media:  200ms;
     --dur-lenta:  320ms;
     --curva:      cubic-bezier(.4, 0, .2, 1);
     --curva-saida:cubic-bezier(.2, .8, .2, 1);
+
+    /* --- Espera: o favo ---
+       Nove celulas hexagonais que acendem em cascata, o mesmo desenho
+       das telas de espera do ChamadoJa (favo.tsx). SVG em data URI com
+       a animacao DENTRO dele. data URI nao aceita var(): cores
+       cravadas - celula vazia #E3E7EC (claro) ou branco a 12% (escuro),
+       acesa no vermelho da marca #E53935. O SVG respeita
+       prefers-reduced-motion sozinho (fica aceso). */
+    --favo-claro:  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-30.2 -42 69 69'%3E%3Cstyle%3E.c%7Bfill:%23E3E7EC%7D.f%7Bfill:%23E53935;opacity:0;transform-box:fill-box;transform-origin:center;animation:a 3s ease-in-out infinite%7D.f:nth-of-type(1)%7Banimation-delay:0.00s%7D.f:nth-of-type(2)%7Banimation-delay:0.15s%7D.f:nth-of-type(3)%7Banimation-delay:0.30s%7D.f:nth-of-type(4)%7Banimation-delay:0.45s%7D.f:nth-of-type(5)%7Banimation-delay:0.60s%7D.f:nth-of-type(6)%7Banimation-delay:0.75s%7D.f:nth-of-type(7)%7Banimation-delay:0.90s%7D.f:nth-of-type(8)%7Banimation-delay:1.05s%7D.f:nth-of-type(9)%7Banimation-delay:1.20s%7D%40keyframes a%7B0%25%7Bopacity:0;transform:scale(.55)%7D10%25,68%25%7Bopacity:1;transform:scale(1)%7D82%25,100%25%7Bopacity:0;transform:scale(.9)%7D%7D%40media (prefers-reduced-motion:reduce)%7B.f%7Banimation:none;opacity:1%7D%7D%3C/style%3E%3Cg%3E%3Cpath class='c' d='M-8.7 6.6L-1.4 10.8L-1.4 19.2L-8.7 23.4L-15.9 19.2L-15.9 10.8Z'/%3E%3Cpath class='c' d='M8.7 6.6L15.9 10.8L15.9 19.2L8.7 23.4L1.4 19.2L1.4 10.8Z'/%3E%3Cpath class='c' d='M0.0 -8.4L7.3 -4.2L7.3 4.2L0.0 8.4L-7.3 4.2L-7.3 -4.2Z'/%3E%3Cpath class='c' d='M-17.3 -8.4L-10.0 -4.2L-10.0 4.2L-17.3 8.4L-24.6 4.2L-24.6 -4.2Z'/%3E%3Cpath class='c' d='M17.3 -8.4L24.6 -4.2L24.6 4.2L17.3 8.4L10.0 4.2L10.0 -4.2Z'/%3E%3Cpath class='c' d='M8.7 -23.4L15.9 -19.2L15.9 -10.8L8.7 -6.6L1.4 -10.8L1.4 -19.2Z'/%3E%3Cpath class='c' d='M26.0 -23.4L33.3 -19.2L33.3 -10.8L26.0 -6.6L18.7 -10.8L18.7 -19.2Z'/%3E%3Cpath class='c' d='M-8.7 -23.4L-1.4 -19.2L-1.4 -10.8L-8.7 -6.6L-15.9 -10.8L-15.9 -19.2Z'/%3E%3Cpath class='c' d='M17.3 -38.4L24.6 -34.2L24.6 -25.8L17.3 -21.6L10.0 -25.8L10.0 -34.2Z'/%3E%3C/g%3E%3Cpath class='f' d='M-8.7 6.6L-1.4 10.8L-1.4 19.2L-8.7 23.4L-15.9 19.2L-15.9 10.8Z'/%3E%3Cpath class='f' d='M8.7 6.6L15.9 10.8L15.9 19.2L8.7 23.4L1.4 19.2L1.4 10.8Z'/%3E%3Cpath class='f' d='M0.0 -8.4L7.3 -4.2L7.3 4.2L0.0 8.4L-7.3 4.2L-7.3 -4.2Z'/%3E%3Cpath class='f' d='M-17.3 -8.4L-10.0 -4.2L-10.0 4.2L-17.3 8.4L-24.6 4.2L-24.6 -4.2Z'/%3E%3Cpath class='f' d='M17.3 -8.4L24.6 -4.2L24.6 4.2L17.3 8.4L10.0 4.2L10.0 -4.2Z'/%3E%3Cpath class='f' d='M8.7 -23.4L15.9 -19.2L15.9 -10.8L8.7 -6.6L1.4 -10.8L1.4 -19.2Z'/%3E%3Cpath class='f' d='M26.0 -23.4L33.3 -19.2L33.3 -10.8L26.0 -6.6L18.7 -10.8L18.7 -19.2Z'/%3E%3Cpath class='f' d='M-8.7 -23.4L-1.4 -19.2L-1.4 -10.8L-8.7 -6.6L-15.9 -10.8L-15.9 -19.2Z'/%3E%3Cpath class='f' d='M17.3 -38.4L24.6 -34.2L24.6 -25.8L17.3 -21.6L10.0 -25.8L10.0 -34.2Z'/%3E%3C/svg%3E");
+    /* Setas de navegacao (bt_nav) desenhadas aqui, usadas como MASCARA -
+       a cor vem do token, nao de dentro do SVG (secao 7.4). */
+    --seta-baixo-forma: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9.5l6 6 6-6'/%3E%3C/svg%3E");
+    --seta-cima-forma:  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 14.5l6-6 6 6'/%3E%3C/svg%3E");
+    --seta-direita-forma:  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9.5 6l6 6-6 6'/%3E%3C/svg%3E");
+    --seta-esquerda-forma: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14.5 6l-6 6 6 6'/%3E%3C/svg%3E");
+    --seta-nav-cor:     var(--texto-secundario);
+    --favo-escuro: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-30.2 -42 69 69'%3E%3Cstyle%3E.c%7Bfill:rgba(255,255,255,.12)%7D.f%7Bfill:%23E53935;opacity:0;transform-box:fill-box;transform-origin:center;animation:a 3s ease-in-out infinite%7D.f:nth-of-type(1)%7Banimation-delay:0.00s%7D.f:nth-of-type(2)%7Banimation-delay:0.15s%7D.f:nth-of-type(3)%7Banimation-delay:0.30s%7D.f:nth-of-type(4)%7Banimation-delay:0.45s%7D.f:nth-of-type(5)%7Banimation-delay:0.60s%7D.f:nth-of-type(6)%7Banimation-delay:0.75s%7D.f:nth-of-type(7)%7Banimation-delay:0.90s%7D.f:nth-of-type(8)%7Banimation-delay:1.05s%7D.f:nth-of-type(9)%7Banimation-delay:1.20s%7D%40keyframes a%7B0%25%7Bopacity:0;transform:scale(.55)%7D10%25,68%25%7Bopacity:1;transform:scale(1)%7D82%25,100%25%7Bopacity:0;transform:scale(.9)%7D%7D%40media (prefers-reduced-motion:reduce)%7B.f%7Banimation:none;opacity:1%7D%7D%3C/style%3E%3Cg%3E%3Cpath class='c' d='M-8.7 6.6L-1.4 10.8L-1.4 19.2L-8.7 23.4L-15.9 19.2L-15.9 10.8Z'/%3E%3Cpath class='c' d='M8.7 6.6L15.9 10.8L15.9 19.2L8.7 23.4L1.4 19.2L1.4 10.8Z'/%3E%3Cpath class='c' d='M0.0 -8.4L7.3 -4.2L7.3 4.2L0.0 8.4L-7.3 4.2L-7.3 -4.2Z'/%3E%3Cpath class='c' d='M-17.3 -8.4L-10.0 -4.2L-10.0 4.2L-17.3 8.4L-24.6 4.2L-24.6 -4.2Z'/%3E%3Cpath class='c' d='M17.3 -8.4L24.6 -4.2L24.6 4.2L17.3 8.4L10.0 4.2L10.0 -4.2Z'/%3E%3Cpath class='c' d='M8.7 -23.4L15.9 -19.2L15.9 -10.8L8.7 -6.6L1.4 -10.8L1.4 -19.2Z'/%3E%3Cpath class='c' d='M26.0 -23.4L33.3 -19.2L33.3 -10.8L26.0 -6.6L18.7 -10.8L18.7 -19.2Z'/%3E%3Cpath class='c' d='M-8.7 -23.4L-1.4 -19.2L-1.4 -10.8L-8.7 -6.6L-15.9 -10.8L-15.9 -19.2Z'/%3E%3Cpath class='c' d='M17.3 -38.4L24.6 -34.2L24.6 -25.8L17.3 -21.6L10.0 -25.8L10.0 -34.2Z'/%3E%3C/g%3E%3Cpath class='f' d='M-8.7 6.6L-1.4 10.8L-1.4 19.2L-8.7 23.4L-15.9 19.2L-15.9 10.8Z'/%3E%3Cpath class='f' d='M8.7 6.6L15.9 10.8L15.9 19.2L8.7 23.4L1.4 19.2L1.4 10.8Z'/%3E%3Cpath class='f' d='M0.0 -8.4L7.3 -4.2L7.3 4.2L0.0 8.4L-7.3 4.2L-7.3 -4.2Z'/%3E%3Cpath class='f' d='M-17.3 -8.4L-10.0 -4.2L-10.0 4.2L-17.3 8.4L-24.6 4.2L-24.6 -4.2Z'/%3E%3Cpath class='f' d='M17.3 -8.4L24.6 -4.2L24.6 4.2L17.3 8.4L10.0 4.2L10.0 -4.2Z'/%3E%3Cpath class='f' d='M8.7 -23.4L15.9 -19.2L15.9 -10.8L8.7 -6.6L1.4 -10.8L1.4 -19.2Z'/%3E%3Cpath class='f' d='M26.0 -23.4L33.3 -19.2L33.3 -10.8L26.0 -6.6L18.7 -10.8L18.7 -19.2Z'/%3E%3Cpath class='f' d='M-8.7 -23.4L-1.4 -19.2L-1.4 -10.8L-8.7 -6.6L-15.9 -10.8L-15.9 -19.2Z'/%3E%3Cpath class='f' d='M17.3 -38.4L24.6 -34.2L24.6 -25.8L17.3 -21.6L10.0 -25.8L10.0 -34.2Z'/%3E%3C/svg%3E");
 
     /* --- BOTOES: nome pela FUNCAO, nao pela cor --------------------
        ATENCAO: a semantica aqui e a do PDV COMUM e diverge do self.
@@ -259,7 +347,11 @@
     --janela-cabecalho-fundo:   var(--dlg-cabecalho-fundo);
     --janela-cabecalho-texto:   var(--dlg-cabecalho-texto);
     --janela-mascara-fundo:     var(--p-cinza-900);
-    --janela-mascara-opacidade: .58;
+    /* Mascara em VINHETA: mais leve no centro, onde a janela abre, mais
+       escura nas bordas - puxa o olho para o modal. A transparencia
+       esta nos stops, entao a mascara usa opacity 1 (secao 11). */
+    --janela-mascara-gradiente: radial-gradient(130% 100% at 50% 42%,
+        rgba(20, 23, 28, .24) 0%, rgba(20, 23, 28, .56) 100%);
 
     /* --- BOTOES DE DIALOGO ---
        CUIDADO: bt_tec_N e o codigo da tecla, NAO a funcao do botao.
@@ -274,19 +366,30 @@
     --dlg-confirmar-fundo:       var(--p-sucesso);
     --dlg-confirmar-fundo-ativo: var(--p-sucesso-escuro);
     --dlg-confirmar-texto:       var(--p-branco);
-    --dlg-confirmar-halo:        rgba(76, 175, 80, .22);
+    --dlg-confirmar-halo:        rgba(47, 158, 68, .20);
 
-    /* Recusar - ghost neutro */
+    /* Recusar ("Nao", "Voltar") - TECLA NEUTRA CHEIA (2026-10). Era
+       ghost (so contorno); numa tela de TOQUE, contorno sobre branco le
+       como botao vazio. */
     --dlg-recusar-contorno:    var(--p-cinza-400);
-    --dlg-recusar-texto:       var(--p-cinza-800);
-    --dlg-recusar-fundo-ativo: var(--p-cinza-200);
+    --dlg-recusar-fundo:       var(--btn-neutro-fundo);
+    --dlg-recusar-texto:       var(--texto-principal);
+    --dlg-recusar-fundo-ativo: var(--btn-neutro-fundo-ativo);
 
-    /* Abortar - ghost vermelho (destrutivo nao deve puxar o olho) */
+    /* Abortar ("Cancelar") - VERMELHO CHEIO (2026-10). Era ghost; no
+       touch o Cancelar "ficava branco" (queixa de campo). Mesmo
+       vermelho do bt_teclado_v. */
     --dlg-abortar-contorno:    var(--p-perigo);
-    --dlg-abortar-texto:       var(--p-perigo);
-    --dlg-abortar-fundo-ativo: var(--p-perigo-claro-2);
+    --dlg-abortar-fundo:       var(--p-perigo);
+    --dlg-abortar-texto:       var(--p-branco);
+    --dlg-abortar-fundo-ativo: var(--p-perigo-escuro);
 
     --dlg-ghost-espessura: 2px;
+    /* Respiro entre botoes de dialogo. O ExtJS os cola com 2px de vao
+       (margin 0 inline) e margem nao se mexe. Um anel de 3px na cor do
+       RODAPE, por dentro (inset), afasta a parte visivel do botao: o
+       vao lido vira 8px e a area de toque fica a mesma. */
+    --dlg-btn-respiro: 3px;
 
     /* --- POP-UPS / DIALOGOS --- */
     --dlg-acento:          var(--p-cinza-900);   /* faixa de topo */
@@ -295,11 +398,19 @@
     --dlg-cabecalho-texto: var(--p-cinza-900);
     --dlg-corpo-fundo:     var(--p-branco);
     --dlg-mensagem-texto:  var(--p-cinza-900);
-    --dlg-rodape-fundo:    var(--p-cinza-050);
+    /* Fim do degrade do modal e chao do rodape (ver --dlg-fundo). E
+       tambem a cor do anel de respiro dos botoes - os tres precisam ser
+       a MESMA cor, senao o anel aparece como halo claro. */
+    --dlg-rodape-fundo:    #F2F4F7;
     --dlg-rodape-linha:    var(--p-cinza-200);
-    --dlg-raio:            14px;
-    --dlg-sombra:          0 18px 44px rgba(0,0,0,.26),
-                           0 2px 6px rgba(0,0,0,.10);
+    /* SUPERFICIE DO MODAL EM DEGRADE: branco no topo descendo para o
+       cinza-azulado do rodape. Chega ao tom do rodape em 62% da altura
+       e para ali - o rodape mais alto (mensagem curta, ~35% da janela)
+       cai inteiro na parte lisa e o anel dos botoes bate com o fundo. */
+    --dlg-fundo: linear-gradient(180deg, var(--p-branco) 0%, var(--dlg-rodape-fundo) 62%);
+    --dlg-raio:            16px;
+    --dlg-sombra:          0 24px 56px rgba(16,24,40,.28),
+                           0 4px 12px rgba(16,24,40,.12);
 
     /* --- PROGRESSO / CARREGAMENTO --- */
     --progresso-trilha-fundo: var(--p-cinza-200);
@@ -328,8 +439,45 @@
 
 /* =======================================================================
    03. BASE / TIPOGRAFIA
-   Fonte e escala originais do Comum (Verdana). Nao unificar com o self.
+   Escala original preservada. A FAMILIA e --fonte-ui, igual ao self.
 ======================================================================= */
+
+/* Familia unica. A lista cobre o que o ExtJS pinta com a pilha
+   tahoma/arial dele. SO font-family: tamanho e peso continuam onde
+   estavam. Nao virar `*` - pegaria o FontAwesome (i.fa). */
+body,
+.x-body,
+.x-body input,
+.x-body textarea,
+.x-btn-inner,
+.x-form-item-label,
+.x-form-display-field,
+.x-form-field,
+.x-form-text,
+.x-menu-item-text,
+.x-panel-header-text,
+.x-window-header-text,
+.x-tip-body,
+.x-mask-msg div,
+.x-grid-empty,
+.x-grid-cell-inner,
+.x-column-header-text,
+.x-boundlist-item {
+    font-family: var(--fonte-ui) !important;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* O app.css do Zeus forca `monospace !important` na PRIMEIRA coluna de
+   toda .pdv-grid-panel. Mesmo seletor, carregado depois: ganha. */
+.pdv-grid-panel .x-grid-cell-first .x-grid-cell-inner {
+    font-family: var(--fonte-ui) !important;
+}
+
+/* Colunas de numero alinhadas sem fonte mono: tabular-nums deixa todo
+   digito com a mesma largura. */
+.x-grid-cell-inner {
+    font-variant-numeric: tabular-nums;
+}
 
 /* Numeros monetarios nao "dancam" ao atualizar */
 .label-text-subtotal,
@@ -363,9 +511,13 @@
     background: var(--sup-cartao) !important;
 }
 
+/* "Caixa livre" / "Venda em Andamento": estado da tela, nao conteudo -
+   um tom mais claro e espacamento de titulo. Sem animacao de proposito:
+   o Zeus redesenha a grid a cada janela que fecha e o texto piscaria. */
 .x-grid-empty{
     font-weight: bold !important;
-    color: var(--texto-terciario) !important;
+    color: var(--p-cinza-500) !important;
+    letter-spacing: -.02em;
     font-size: 60px !important;
     text-align: center !important;
     height: 99% !important;
@@ -388,9 +540,9 @@
 }
 
 input[type=text] {
-    -webkit-border-radius: 4px !important;
-    -moz-border-radius: 4px !important;
-    border-radius: 4px !important;
+    -webkit-border-radius: var(--raio-campo) !important;
+    -moz-border-radius: var(--raio-campo) !important;
+    border-radius: var(--raio-campo) !important;
     box-shadow: none;
     border: 1px solid var(--campo-borda) !important;
     font-weight: bold !important;
@@ -487,9 +639,9 @@ input[type=text].campo-erro,
 
 .area_pbar{
     border: 1px solid var(--borda-forte) !important;
-    -webkit-border-radius: 6px;
-    -moz-border-radius: 6px;
-    border-radius: 6px;
+    -webkit-border-radius: var(--raio-cartao);
+    -moz-border-radius: var(--raio-cartao);
+    border-radius: var(--raio-cartao);
     background: var(--p-cinza-900);
     box-shadow: none;
 }
@@ -555,9 +707,9 @@ input[type=text].campo-erro,
 .bt_seletora,
 .bt_nav {
     border: none !important;
-    -webkit-border-radius: 6px !important;
-    -moz-border-radius: 6px !important;
-    border-radius: 6px !important;
+    -webkit-border-radius: var(--raio-botao) !important;
+    -moz-border-radius: var(--raio-botao) !important;
+    border-radius: var(--raio-botao) !important;
     box-shadow: none;
 }
 
@@ -566,9 +718,29 @@ input[type=text].campo-erro,
 .bt_teclado_a, .bt_teclado_v, .bt_teclado_vd, .bt_teclado_c,
 .bt_numerico, .bt_teclado_l, .bt_teclado_menu, .bt_seletora,
 .bt_nav, .bt_teste {
-    transition: background-color var(--dur-rapida) var(--curva),
-                filter var(--dur-rapida) var(--curva) !important;
+    transition: background-color var(--dur-rapida) var(--curva-saida),
+                filter var(--dur-rapida) var(--curva-saida),
+                transform var(--dur-rapida) var(--curva-saida) !important;
     -webkit-tap-highlight-color: transparent !important;
+}
+
+/* O toque AFUNDA 3%, o mesmo gesto do self. transform nao entra na
+   conta de layout do ExtJS; e so desenho. */
+.bt_menu:active:not(.x-btn-disabled),
+.bt_bbar:active:not(.x-btn-disabled),
+.bt_funcao:active:not(.x-btn-disabled),
+.bt_teclado:active:not(.x-btn-disabled),
+.bt_teclado_y:active:not(.x-btn-disabled),
+.bt_teclado_a:active:not(.x-btn-disabled),
+.bt_teclado_v:active:not(.x-btn-disabled),
+.bt_teclado_vd:active:not(.x-btn-disabled),
+.bt_teclado_c:active:not(.x-btn-disabled),
+.bt_numerico:active:not(.x-btn-disabled),
+.bt_teclado_l:active:not(.x-btn-disabled),
+.bt_teclado_menu:active:not(.x-btn-disabled),
+.bt_seletora:active:not(.x-btn-disabled),
+.bt_nav:active:not(.x-btn-disabled) {
+    transform: scale(.97);
 }
 
 /* Estado desabilitado padronizado */
@@ -576,6 +748,30 @@ input[type=text].campo-erro,
     opacity: .45 !important;
     filter: grayscale(.4) !important;
     box-shadow: none !important;
+}
+
+/* Botao COLORIDO desabilitado vira neutro. Com opacidade + grayscale o
+   vermelho desbotava para ROSA e o verde para verde-agua - cores que
+   nao significam nada. Cinza continua dizendo "existe, agora nao". */
+.x-btn-disabled.bt_teclado_a,
+.x-btn-disabled.bt_teclado_v,
+.x-btn-disabled.bt_teclado_vd,
+.x-btn-disabled.bt_teclado_c,
+.x-btn-disabled.bt_teclado_l,
+.x-btn-disabled.bt_teclado_y,
+.x-btn-disabled.bt_menu {
+    background: var(--btn-neutro-fundo) !important;
+    filter: none !important;
+    opacity: .7 !important;
+}
+.x-btn.x-btn-disabled.bt_teclado_a span,
+.x-btn.x-btn-disabled.bt_teclado_v span,
+.x-btn.x-btn-disabled.bt_teclado_vd span,
+.x-btn.x-btn-disabled.bt_teclado_c span,
+.x-btn.x-btn-disabled.bt_teclado_l span,
+.x-btn.x-btn-disabled.bt_teclado_y span,
+.x-btn.x-btn-disabled.bt_menu span {
+    color: var(--texto-terciario) !important;
 }
 
 /* --- 7.4 Tipografia interna dos botoes ------------------------------- */
@@ -595,7 +791,7 @@ input[type=text].campo-erro,
     height: 55px;
     text-align: center;
     color: var(--btn-neutro-texto) !important;
-    font-family: Verdana !important;
+    font-family: var(--fonte-ui) !important;
     font-weight: bold !important;
     text-rendering: optimizeLegibility !important;
 }
@@ -646,6 +842,44 @@ input[type=text].campo-erro,
     height: 100% !important;
 }
 
+/* SETAS DO CUPOM SEM O PNG AZUL (2026-10). O ExtJS crava
+   `background-image:url(resources/imagens/seta_baixo_self.png)` INLINE
+   no span do icone - o chevron azul do tema antigo. Trocado por um
+   chevron desenhado, como MASCARA: a cor vem de --seta-nav-cor.
+   O gancho e o NOME DO ARQUIVO no atributo style ([style*="seta_baixo"]
+   pega seta_baixo.png, seta_baixo_self.png, seta_baixo1001.png...).
+   Falha segura: se o Zeus trocar o icone, a regra para de casar e o
+   PNG volta. So pintura - o span fica do tamanho que tinha. */
+.bt_nav span.x-btn-icon[style*="seta_baixo"],
+.bt_nav span.x-btn-icon[style*="seta_cima"],
+.bt_nav span.x-btn-icon[style*="seta_direita"],
+.bt_nav span.x-btn-icon[style*="seta_esquerda"] {
+    background-image: none !important;
+    background-color: var(--seta-nav-cor) !important;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-position: center;
+    -webkit-mask-size: 26px 26px;
+    mask-size: 26px 26px;
+}
+.bt_nav span.x-btn-icon[style*="seta_baixo"] {
+    -webkit-mask-image: var(--seta-baixo-forma);
+    mask-image: var(--seta-baixo-forma);
+}
+.bt_nav span.x-btn-icon[style*="seta_cima"] {
+    -webkit-mask-image: var(--seta-cima-forma);
+    mask-image: var(--seta-cima-forma);
+}
+.bt_nav span.x-btn-icon[style*="seta_direita"] {
+    -webkit-mask-image: var(--seta-direita-forma);
+    mask-image: var(--seta-direita-forma);
+}
+.bt_nav span.x-btn-icon[style*="seta_esquerda"] {
+    -webkit-mask-image: var(--seta-esquerda-forma);
+    mask-image: var(--seta-esquerda-forma);
+}
+
 .bt_bbar span.x-btn-inner{
     display: block !important;
     width: 100% !important;
@@ -665,16 +899,20 @@ input[type=text].campo-erro,
     margin: 2px;
 }
 
+/* Era `font-family: Numerico` - fonte que nao existe em lugar nenhum
+   (nenhum @font-face, nada em resources/fontes): o navegador caia na
+   serifada padrao e o teclado numerico saia em letra de jornal. */
 .bt_numerico span{
     font-size: 40px !important;
-    font-weight: bold;
-    font-family:  Numerico !important;
+    font-weight: 700;
+    font-family: var(--fonte-ui) !important;
+    font-variant-numeric: tabular-nums;
 }
 
 .bt_teclado_menu span{
     font-size: 11px !important;
     font-weight: bold !important;
-    font-family:  Verdana !important;
+    font-family: var(--fonte-ui) !important;
 }
 
 .bt_menu span, .bt_funcao span{
@@ -683,7 +921,7 @@ input[type=text].campo-erro,
     height: 70px;
     text-align: center;
     color: var(--btn-menu-texto) !important;
-    font-family: Verdana !important;
+    font-family: var(--fonte-ui) !important;
 }
 
 /* --- 7.5 CORES POR FUNCAO -------------------------------------------- */
@@ -829,7 +1067,7 @@ input[type=text].campo-erro,
    pela classe generica mudaria a cor de varios outros botoes.
    Se o componente mudar de indice, este seletor para de casar e o
    botao volta ao neutro - feio, nunca perigoso.                      */
-#teclafinalizar-1077 {
+#teclafinalizar-1077:not(.x-btn-disabled) {
     background: var(--btn-finalizar-fundo) !important;
 }
 #teclafinalizar-1077:active:not(.x-btn-disabled) {
@@ -852,20 +1090,27 @@ input[type=text].campo-erro,
 .label-text, .label-text-grande{
     font-weight: bold !important;
     color: var(--texto-principal) !important;
-    font-family: Verdana !important;
+    font-family: var(--fonte-ui) !important;
+}
+
+/* "Codigo:" / "Produto:" / "Quantidade:"... - rotulo de campo, um
+   degrau abaixo do valor que o operador digita. Igual ao style100. */
+.label-text {
+    font-weight: 600 !important;
+    color: var(--texto-secundario) !important;
 }
 
 .label-text-input{
     /*font-size: 28px !important;*/
     font-weight: bold !important;
     color: var(--texto-principal) !important;
-    font-family: Verdana !important;
+    font-family: var(--fonte-ui) !important;
 }
 
 .label-text-pagamento{
     font-weight: bold !important;
     color: var(--texto-principal) !important;
-    font-family: Verdana !important;
+    font-family: var(--fonte-ui) !important;
     font-size: 14px !important;
 }
 
@@ -877,15 +1122,28 @@ input[type=text].campo-erro,
 
 .label-text-display{
     font-size: 10px !important;
-    color: var(--texto-principal) !important;
-    font-family: Verdana !important;
-    font-weight: bold !important;
+    color: var(--texto-terciario) !important;
+    font-family: var(--fonte-ui) !important;
+    font-weight: 600 !important;
+}
+
+/* BARRA DE STATUS do rodape ("Funcao em execucao", "Retaguarda",
+   "Modulo fiscal"). Vem com `background: rgb(225,225,225)` e borda
+   #CCC INLINE pelo Zeus, sem classe propria - o gancho e o proprio
+   valor no atributo style, escopado ao pdvmain. Vira o cinza claro do
+   sistema com uma linha de 1px em cima (inset - a borda fica, so
+   transparente). Se o Zeus trocar a cor inline, volta o cinza antigo. */
+div[id^="pdvmain-"] .x-container[style*="225, 225, 225"],
+div[id^="pdvtelapagamento-"] .x-container[style*="225, 225, 225"] {
+    background: var(--sup-painel) !important;
+    border-color: transparent !important;
+    box-shadow: inset 0 1px 0 var(--borda-sutil) !important;
 }
 
 .label-text-display-funcao{
     font-size: 12px !important;
     color: var(--texto-alerta) !important;
-    font-family: Verdana !important;
+    font-family: var(--fonte-ui) !important;
     font-weight: bold !important;
 }
 
@@ -893,14 +1151,18 @@ input[type=text].campo-erro,
     font-weight: bold !important;
     font-size: 25px !important;
     color: var(--texto-principal) !important;
-    font-family: Verdana !important;
+    font-family: var(--fonte-ui) !important;
     padding-top: 10px;
 }
 
+/* Paineis do rodape (Subtotal / Consumidor): cantos com o raio de
+   cartao, como o cupom e os cartoes do pagamento. */
 .sub-total{
     padding: 5px;
     margin: 5px 5px 5px 0;
-    background: var(--sup-painel);
+    background: var(--sup-cartao);
+    border-radius: var(--raio-cartao);
+    box-shadow: var(--sombra-sutil);
 }
 
 .texto-startupcon {
@@ -909,7 +1171,7 @@ input[type=text].campo-erro,
     margin: auto;
     font-size: 16px;
     color: var(--texto-invertido);
-    font-family: Verdana;
+    font-family: var(--fonte-ui);
     text-align: center;
     margin-bottom: auto;
 }
@@ -943,14 +1205,21 @@ input[type=text].campo-erro,
     background-color: var(--cupom-cabecalho-fundo) !important;
 }
 
+/* Quem pinta o grafite e SO o container (.x-grid-header-ct, acima): as
+   colunas ficam transparentes, e o raio do cartao (secao 16) nao e
+   furado por colunas de canto reto. Tracking um pouco negativo para o
+   rotulo caber mais. Overflow visivel FOI testado (como no style100) e
+   aqui piorou: a coluna "Imagem" e mais estreita e o rotulo montava em
+   cima do "Qtd". Fica o corte do ExtJS. */
 .pdv-grid-panel .x-column-header,
 .pdv-grid-panel .x-column-header-over {
     font-size: 12px !important;
-    font-weight: bold !important;
+    font-weight: 600 !important;
     background: none !important;
     border: 0px !important;
-    background-color: var(--cupom-cabecalho-fundo) !important;
+    background-color: transparent !important;
     color: var(--cupom-cabecalho-texto) !important;
+    letter-spacing: -.02em;
 }
 
 .pdv-grid-panel .x-grid-row {
@@ -1117,12 +1386,23 @@ input[type=text].campo-erro,
 
 /* =======================================================================
    11. JANELAS, MODAIS E TOOLBARS
-   As janelas surgiam secas, sem transicao. Ganham entrada suave
-   (fade + leve escala) e mascara com fade. A animacao usa opacity e
-   transform, que NAO afetam o layout calculado pelo ExtJS.
+
+   ENTRADA SEM TRANSPARENCIA (2026-10). Ja houve fade na janela e na
+   mascara; no PDV comum a tela PISCAVA. O Zeus encadeia janelas em
+   fila - coletor fecha, spinner abre, mensagem abre, em 300-400ms - e
+   a cada troca a mascara some (display:none) e volta. Com fade, cada
+   volta clareava e escurecia a tela inteira, e a janela nascia
+   translucida. Agora: mascara aparece de uma vez; janela so ASSENTA
+   (sobe 4px em 160ms), sempre opaca. O spinner nem isso.
+   transform nao afeta o layout calculado pelo ExtJS.
 ======================================================================= */
+
+/* Sombra que o ExtJS gera em elemento proprio, ATRAS da janela.
+   Desligada: e um retangulo de cantos retos, e com a janela em raio 16
+   os cantos dele apareciam por fora da curva. A janela ja tem
+   box-shadow proprio. So a pintura - o elemento continua la. */
 .x-css-shadow {
-    box-shadow: var(--sombra-media) !important;
+    box-shadow: none !important;
     background-color: transparent !important;
 }
 
@@ -1131,14 +1411,14 @@ input[type=text].campo-erro,
    divergencia proposital em relacao ao style1000, que usa border:none. */
 .x-window,
 .x-window-default {
-    background: var(--janela-fundo) !important;
+    background: var(--dlg-fundo) !important;
     border: 1px solid transparent !important;
     -webkit-border-radius: var(--janela-raio) !important;
     -moz-border-radius: var(--janela-raio) !important;
     border-radius: var(--janela-raio) !important;
     box-shadow: var(--janela-sombra) !important;
     overflow: hidden !important;
-    animation: zx-janela-entra var(--dur-lenta) var(--curva-saida) both !important;
+    animation: zx-janela-entra 160ms var(--curva-saida) both !important;
     transform-origin: center center !important;
 }
 
@@ -1148,23 +1428,30 @@ input[type=text].campo-erro,
 .x-window-header,
 .x-window-header-default,
 .x-window-header-default-top {
-    background: var(--janela-cabecalho-fundo) !important;
+    background: transparent !important;
     background-image: none !important;
     border: none !important;
     border-bottom: none !important;
     box-shadow: inset 0 var(--dlg-acento-altura) 0 0 var(--dlg-acento) !important;
 }
 
+/* O titulo da janela e 11px, medido pelo ExtJS - tamanho nao se mexe.
+   Em caixa-alta e espacado ele passa a ler como ROTULO da janela, e o
+   miudo vira intencao em vez de descuido. Quem fala e o corpo. */
 .x-window-header-text-default {
-    color: var(--janela-cabecalho-texto) !important;
-    font-weight: bold !important;
+    color: var(--texto-terciario) !important;
+    font-weight: 700 !important;
+    text-transform: uppercase;
+    letter-spacing: .07em;
     text-shadow: none !important;
 }
 
+/* Cabecalho e corpo TRANSPARENTES: quem pinta o modal e a propria
+   .x-window, com o degrade (--dlg-fundo). */
 .x-window-body,
 .x-window-body-default,
 .body-msg {
-    background: var(--janela-fundo) !important;
+    background: transparent !important;
     border: none !important;
     border-width: 0px !important;
     border-color: transparent !important;
@@ -1191,11 +1478,13 @@ input[type=text].campo-erro,
     font-size: 30px !important;
 }
 
-/* Mascara de fundo com fade - tira o "corte seco" ao abrir modal */
+/* Mascara de fundo. SEM fade (ver nota no topo desta secao): ela some
+   e volta a cada janela do fluxo, e o fade fazia a tela piscar.
+   Vinheta em vez de cor chapada (--janela-mascara-gradiente). */
 .x-mask {
-    background: var(--janela-mascara-fundo) !important;
-    opacity: var(--janela-mascara-opacidade) !important;
-    animation: zx-fade-entra var(--dur-media) var(--curva) both !important;
+    background: var(--janela-mascara-gradiente) !important;
+    opacity: 1 !important;
+    animation: none !important;
 }
 
 /* Toolbars */
@@ -1206,6 +1495,47 @@ input[type=text].campo-erro,
     background-image: none !important;
     border-color: var(--borda-sutil) !important;
     box-shadow: none !important;
+}
+
+/* Barras DENTRO de janela nao pintam fundo proprio: a de cima some no
+   degrade; a de baixo (rodape dos botoes) e o chao liso do degrade. */
+.x-window .x-toolbar-docked-top {
+    background-color: transparent !important;
+}
+.x-window .x-toolbar-docked-bottom,
+.x-window div[id^="toolbar-"].x-toolbar-docked-bottom {
+    background: var(--dlg-rodape-fundo) !important;
+    background-image: none !important;
+    border-color: transparent !important;
+    box-shadow: inset 0 1px 0 0 var(--dlg-rodape-linha) !important;
+}
+.x-window div[id^="toolbar-"].x-toolbar-docked-bottom > div.x-box-inner {
+    background-color: transparent !important;
+}
+
+/* Dentro de janela, a barra de CIMA (ex.: SubTotal / A pagar no
+   coletor da finalizadora) nao tem moldura: a borda cinza herdada das
+   barras genericas desenhava um retangulo por cima do degrade. Fica so
+   uma linha fina embaixo, separando do corpo. Cor, nao largura. */
+.x-window .x-toolbar-docked-top {
+    border-color: transparent !important;
+    box-shadow: inset 0 -1px 0 var(--dlg-rodape-linha) !important;
+}
+
+/* As alcas de redimensionar do ExtJS (.x-resizable-handle) sao tiras de
+   6px nas bordas da janela com fundo BRANCO. Com o modal liso nao se
+   viam; com o degrade apareciam como faixas brancas nas laterais e
+   embaixo. Ficam transparentes (continuam la, e funcionando). */
+.x-window .x-resizable-handle {
+    background: transparent !important;
+}
+
+/* Botao neutro no rodape de janela ("Fechar" do coletor): o fundo dele
+   e quase o do rodape e o botao sumia. Contorno de 1px por dentro.
+   SO NO RODAPE: o teclado numerico tambem tem bt_teclado. */
+.x-window .x-toolbar-docked-bottom .bt_teclado:not(.x-btn-disabled),
+.x-window .x-toolbar-docked-bottom .bt_teclado_menu:not(.x-btn-disabled) {
+    box-shadow: inset 0 0 0 1px var(--borda-sutil) !important;
 }
 
 .x-btn-default-toolbar-small,
@@ -1239,7 +1569,7 @@ input[type=text].campo-erro,
 .x-panel-header-text-default {
     color: var(--texto-secundario) !important;
     font-weight: bold !important;
-    font-family: Verdana, sans-serif !important;
+    font-family: var(--fonte-ui) !important;
     text-shadow: none !important;
     font-size: 13px !important;
 }
@@ -1268,9 +1598,16 @@ div[id^="pagamentosaceitos-"] > .x-panel-header {
     border-color: var(--borda-caixa) !important;
 }
 
-/* Grid seletor: mesma moldura azul clara do tema padrao. Vira preta. */
+/* Grid seletor: mesma moldura azul clara do tema padrao. */
 div[id^="gridseletor-"] {
     border-color: var(--borda-caixa) !important;
+}
+
+/* O fio azul (#99bce8, a borda padrao de painel do ExtJS) em volta das
+   telas cheias - ora no painel, ora no corpo dele. Cor so. */
+.x-panel[id^="pdv"],
+.x-panel[id^="pdv"] > .x-panel-body-default {
+    border-color: transparent !important;
 }
 
 /* --- BOTOES DAS FINALIZADORAS ----------------------------------------
@@ -1297,84 +1634,104 @@ div[id^="gridseletor-"] {
    A faixa e inset box-shadow, nunca border: o ExtJS crava
    border-width:1px inline em cada botao. */
 
-/* Catch-all: qualquer finalizadora alem da 3a */
-div[id^="formaspagamentocard-"] .bt_seletora:nth-of-type(n+4) {
-    box-shadow: inset var(--pgto-faixa-btn) 0 0 0 var(--pgto-extra-1) !important;
+/* --- PAINEIS DA TELA DE PAGAMENTO EM CARTAO (2026-10) -----------------
+   O painel das finalizadoras e o de "Pagamentos realizados" eram
+   retangulos de moldura reta, com faixas cinza soltas (o titulo de um,
+   a barra vazia .area-nav do outro). Viram cartoes, como no self:
+   raio no painel (o ExtJS ja poe overflow:hidden nele, entao o raio
+   recorta os filhos), contorno de 1px como ANEL de box-shadow - borda
+   de verdade com raio teria os cantos recortados - e sombra curta.
+   A borda propria do corpo fica transparente (cor, nao largura). */
+div.x-panel[id^="formaspagamentocard-"],
+div.x-panel[id^="pagamentosaceitos-"] {
+    border-radius: var(--raio-cartao) !important;
+    box-shadow: 0 0 0 1px var(--borda-sutil), var(--sombra-sutil) !important;
 }
-div[id^="formaspagamentocard-"] .bt_seletora:nth-of-type(n+4) span {
-    color: var(--pgto-extra-1-ativo) !important;
+div[id^="formaspagamentocard-"][id$="-body"],
+div[id^="pagamentosaceitos-"][id$="-body"] {
+    border-color: transparent !important;
 }
-
-/* Por ordem - remover este bloco quando as classes existirem */
-div[id^="formaspagamentocard-"] .bt_seletora:nth-of-type(1) {
-    box-shadow: inset var(--pgto-faixa-btn) 0 0 0 var(--pgto-debito-cor) !important;
+/* Faixa de titulo e barra vazia de baixo: brancas, com divisoria. */
+div[id^="pagamentosaceitos-"] > .x-panel-header {
+    background: var(--sup-cartao) !important;
+    border-color: transparent !important;
+    box-shadow: inset 0 -1px 0 var(--borda-sutil) !important;
 }
-div[id^="formaspagamentocard-"] .bt_seletora:nth-of-type(1) span {
-    color: var(--pgto-debito-cor-ativo) !important;
+div[id^="pagamentosaceitos-"] .x-panel-header-text {
+    color: var(--texto-terciario) !important;
+    font-weight: 700 !important;
+    text-transform: uppercase;
+    letter-spacing: .07em;
 }
-div[id^="formaspagamentocard-"] .bt_seletora:nth-of-type(2) {
-    box-shadow: inset var(--pgto-faixa-btn) 0 0 0 var(--pgto-credito-cor) !important;
-}
-div[id^="formaspagamentocard-"] .bt_seletora:nth-of-type(2) span {
-    color: var(--pgto-credito-cor-ativo) !important;
-}
-div[id^="formaspagamentocard-"] .bt_seletora:nth-of-type(3) {
-    box-shadow: inset var(--pgto-faixa-btn) 0 0 0 var(--pgto-pix-cor) !important;
-}
-div[id^="formaspagamentocard-"] .bt_seletora:nth-of-type(3) span {
-    color: var(--pgto-pix-cor-ativo) !important;
-}
-div[id^="formaspagamentocard-"] .bt_seletora:nth-of-type(5) {
-    box-shadow: inset var(--pgto-faixa-btn) 0 0 0 var(--pgto-extra-2) !important;
-}
-div[id^="formaspagamentocard-"] .bt_seletora:nth-of-type(5) span {
-    color: var(--pgto-extra-2-ativo) !important;
-}
-div[id^="formaspagamentocard-"] .bt_seletora:nth-of-type(6) {
-    box-shadow: inset var(--pgto-faixa-btn) 0 0 0 var(--pgto-extra-3) !important;
-}
-div[id^="formaspagamentocard-"] .bt_seletora:nth-of-type(6) span {
-    color: var(--pgto-extra-3-ativo) !important;
-}
-div[id^="formaspagamentocard-"] .bt_seletora:nth-of-type(7) {
-    box-shadow: inset var(--pgto-faixa-btn) 0 0 0 var(--pgto-extra-4) !important;
-}
-div[id^="formaspagamentocard-"] .bt_seletora:nth-of-type(7) span {
-    color: var(--pgto-extra-4-ativo) !important;
+div[id^="formaspagamentocard-"] > .x-toolbar.area-nav {
+    background-color: var(--sup-cartao) !important;
+    box-shadow: inset 0 1px 0 var(--borda-sutil) !important;
 }
 
-/* Por classe - o gancho definitivo */
-.bt_seletora.pgto-credito {
-    box-shadow: inset var(--pgto-faixa-btn) 0 0 0 var(--pgto-credito-cor) !important;
+/* Rotulo da finalizadora: era 10px num cartao de 180x134 - miudo para
+   toque. 14px, o tamanho do self. O cartao tem medida cravada pelo
+   ExtJS; o texto dentro dele nao entra em conta nenhuma. */
+div[id^="formaspagamentocard-"] .bt_seletora span.x-btn-inner {
+    font-size: 14px !important;
+    font-weight: 700 !important;
 }
-.bt_seletora.pgto-credito span { color: var(--pgto-credito-cor-ativo) !important; }
 
-.bt_seletora.pgto-debito {
-    box-shadow: inset var(--pgto-faixa-btn) 0 0 0 var(--pgto-debito-cor) !important;
-}
-.bt_seletora.pgto-debito span { color: var(--pgto-debito-cor-ativo) !important; }
+/* COR DE CADA FINALIZADORA (2026-10: uma variavel por botao)
+   ----------------------------------------------------------
+   Cada botao so DECLARA a sua cor; quem pinta e uma regra so, mais
+   abaixo. Os dois ganchos continuam valendo: a CLASSE (vence por
+   especificidade, quando existir) e a ORDEM - com o alerta de troca
+   silenciosa escrito acima. A primeira linha e o catch-all (4a em
+   diante); 5a a 7a tem cor propria. Mesmos blocos do style1000. */
+div[id^="formaspagamentocard-"] .bt_seletora                { --pgto-cor: var(--pgto-extra-1);     --pgto-cor-ativo: var(--pgto-extra-1-ativo); }
+div[id^="formaspagamentocard-"] .bt_seletora:nth-of-type(1) { --pgto-cor: var(--pgto-debito-cor);  --pgto-cor-ativo: var(--pgto-debito-cor-ativo); }
+div[id^="formaspagamentocard-"] .bt_seletora:nth-of-type(2) { --pgto-cor: var(--pgto-credito-cor); --pgto-cor-ativo: var(--pgto-credito-cor-ativo); }
+div[id^="formaspagamentocard-"] .bt_seletora:nth-of-type(3) { --pgto-cor: var(--pgto-pix-cor);     --pgto-cor-ativo: var(--pgto-pix-cor-ativo); }
+div[id^="formaspagamentocard-"] .bt_seletora:nth-of-type(5) { --pgto-cor: var(--pgto-extra-2);     --pgto-cor-ativo: var(--pgto-extra-2-ativo); }
+div[id^="formaspagamentocard-"] .bt_seletora:nth-of-type(6) { --pgto-cor: var(--pgto-extra-3);     --pgto-cor-ativo: var(--pgto-extra-3-ativo); }
+div[id^="formaspagamentocard-"] .bt_seletora:nth-of-type(7) { --pgto-cor: var(--pgto-extra-4);     --pgto-cor-ativo: var(--pgto-extra-4-ativo); }
+.x-btn.bt_seletora.pgto-debito  { --pgto-cor: var(--pgto-debito-cor);  --pgto-cor-ativo: var(--pgto-debito-cor-ativo); }
+.x-btn.bt_seletora.pgto-credito { --pgto-cor: var(--pgto-credito-cor); --pgto-cor-ativo: var(--pgto-credito-cor-ativo); }
+.x-btn.bt_seletora.pgto-pix     { --pgto-cor: var(--pgto-pix-cor);     --pgto-cor-ativo: var(--pgto-pix-cor-ativo); }
 
-.bt_seletora.pgto-pix {
-    box-shadow: inset var(--pgto-faixa-btn) 0 0 0 var(--pgto-pix-cor) !important;
+/* O cartao: branco, borda sutil, sombra curta, raio de cartao, com a
+   faixa na esquerda. A FAIXA E FUNDO (gradiente de corte seco), NAO
+   box-shadow: sombra interna acompanha o raio e a faixa saia em forma
+   de "("; fundo e recortado pelo raio e fica com a borda de dentro
+   reta. A borda esquerda (1px do ExtJS) toma a mesma cor. */
+div[id^="formaspagamentocard-"] .bt_seletora,
+.x-btn.bt_seletora.pgto-debito,
+.x-btn.bt_seletora.pgto-credito,
+.x-btn.bt_seletora.pgto-pix {
+    background-color: var(--sup-cartao) !important;
+    background-image: linear-gradient(to right,
+        var(--pgto-cor) 0, var(--pgto-cor) var(--pgto-faixa-btn),
+        transparent var(--pgto-faixa-btn)) !important;
+    background-repeat: no-repeat !important;
+    border: 1px solid var(--borda-sutil) !important;
+    border-left-color: var(--pgto-cor) !important;
+    border-radius: var(--raio-cartao) !important;
+    box-shadow: var(--sombra-sutil) !important;
 }
-.bt_seletora.pgto-pix span { color: var(--pgto-pix-cor-ativo) !important; }
+div[id^="formaspagamentocard-"] .bt_seletora span,
+.x-btn.bt_seletora.pgto-debito span,
+.x-btn.bt_seletora.pgto-credito span,
+.x-btn.bt_seletora.pgto-pix span {
+    color: var(--pgto-cor-ativo) !important;
+}
 
-/* Pressionado: a regra geral da secao 7.5 zera box-shadow, o que
-   apagaria a faixa no toque. Redesenhada aqui no tom escuro. */
-div[id^="formaspagamentocard-"] .bt_seletora:nth-of-type(n+4):active:not(.x-btn-disabled) {
-    box-shadow: inset var(--pgto-faixa-btn) 0 0 0 var(--pgto-extra-1-ativo) !important;
-}
-div[id^="formaspagamentocard-"] .bt_seletora:nth-of-type(1):active:not(.x-btn-disabled),
-.bt_seletora.pgto-debito:active:not(.x-btn-disabled) {
-    box-shadow: inset var(--pgto-faixa-btn) 0 0 0 var(--pgto-debito-cor-ativo) !important;
-}
-div[id^="formaspagamentocard-"] .bt_seletora:nth-of-type(2):active:not(.x-btn-disabled),
-.bt_seletora.pgto-credito:active:not(.x-btn-disabled) {
-    box-shadow: inset var(--pgto-faixa-btn) 0 0 0 var(--pgto-credito-cor-ativo) !important;
-}
-div[id^="formaspagamentocard-"] .bt_seletora:nth-of-type(3):active:not(.x-btn-disabled),
-.bt_seletora.pgto-pix:active:not(.x-btn-disabled) {
-    box-shadow: inset var(--pgto-faixa-btn) 0 0 0 var(--pgto-pix-cor-ativo) !important;
+/* Pressionado: faixa no tom escuro, sem sombra, e afunda. A regra
+   geral da secao 7.5 zeraria a faixa - esta vence por especificidade. */
+div[id^="formaspagamentocard-"] .bt_seletora:active:not(.x-btn-disabled),
+.x-btn.bt_seletora.pgto-debito:active:not(.x-btn-disabled),
+.x-btn.bt_seletora.pgto-credito:active:not(.x-btn-disabled),
+.x-btn.bt_seletora.pgto-pix:active:not(.x-btn-disabled) {
+    background-image: linear-gradient(to right,
+        var(--pgto-cor-ativo) 0, var(--pgto-cor-ativo) var(--pgto-faixa-btn),
+        transparent var(--pgto-faixa-btn)) !important;
+    border-left-color: var(--pgto-cor-ativo) !important;
+    box-shadow: none !important;
+    transform: scale(.98);
 }
 
 
@@ -1385,9 +1742,11 @@ div[id^="formaspagamentocard-"] .bt_seletora:nth-of-type(3):active:not(.x-btn-di
     vertical-align: middle;
 }
 
+/* Era Courier: o cupom com cara de bobina de impressora. As colunas de
+   numero continuam alinhadas com tabular-nums (secao 03). */
 .x-grid-cell-inner, .x-column-header-text {
     white-space: pre-wrap !important;
-    font-family: courier, verdana !important;
+    font-family: var(--fonte-ui) !important;
     font-size: 13px !important;
 }
 
@@ -1455,20 +1814,71 @@ img[class*="processando"] {
     visibility: hidden !important;
 }
 
-/* Spinner circular (substitui o GIF legado) */
+/* O FAVO no lugar do circulo girando - o mesmo do style100 e do
+   style1000. Pseudo-elemento absoluto, como o circulo era: nao entra
+   na medicao de ninguem. A animacao mora dentro do SVG (secao 02). */
 .container-processando::after {
     content: "";
     position: absolute;
-    top: 50px;
-    left: calc(50% - 20px);   /* centraliza o circulo de 40px */
-    width: 40px;
-    height: 40px;
+    top: 20px;
+    left: calc(50% - 26px);   /* centraliza o favo de 52px */
+    width: 52px;
+    height: 52px;
     box-sizing: border-box;
-    border: 4px solid var(--sp-trilha);
-    border-top: 4px solid var(--sp-ativo);
-    border-radius: 50%;
-    animation: zx-girar 1s linear infinite !important;
+    border: none;
+    background: var(--favo-claro) no-repeat center / contain;
     display: block !important;
+}
+
+/* --- Janela de espera do Zeus (setTooltipMensagensNucleo) -----------
+   Quadrado de 130px, fundo #dfe8f6 cravado inline (o azul do ExtJS) e
+   o texto em 11px preto POR CIMA do desenho. Vira cartao: favo em
+   cima, texto embaixo em cinza. Sem animacao de entrada - vive menos
+   de um segundo entre duas janelas. O texto e um label com `top`
+   inline; so o top muda, dentro de um layout absoluto de tamanho fixo. */
+.window-spinner {
+    animation: none !important;
+}
+
+.window-spinner:not(.window-spinner-fullscreen) .processando-label {
+    top: 94px !important;
+    color: var(--texto-secundario) !important;
+    font-weight: 600 !important;
+    line-height: 1.25 !important;
+}
+
+/* Variante TELA CHEIA (__spinnerFullscreen): o favo vai para o lugar do
+   GIF antigo (40% da altura), grande e na versao para fundo escuro. */
+.window-spinner-fullscreen .container-processando::after {
+    top: 40%;
+    left: calc(50% - 48px);
+    width: 96px;
+    height: 96px;
+    background-image: var(--favo-escuro);
+}
+
+/* --- Mascara de carregamento do ExtJS ("Processando...") -------------
+   Vinha no azul-claro padrao do tema do ExtJS, com GIF de engrenagem.
+   Vira um cartao branco com o favo pequeno no lugar do GIF, dentro do
+   recuo esquerdo de 25px que o ExtJS ja reserva para ele. */
+.x-mask-msg {
+    background: var(--sup-cartao) !important;
+    background-image: none !important;
+    border: 1px solid transparent !important;
+    border-radius: var(--raio-cartao) !important;
+    box-shadow: var(--sombra-alta) !important;
+}
+
+.x-mask-msg div,
+.x-mask-msg .x-mask-loading {
+    background-color: transparent !important;
+    background-image: var(--favo-claro) !important;
+    background-repeat: no-repeat !important;
+    background-position: 4px center !important;
+    background-size: 18px 18px !important;
+    border-color: transparent !important;
+    color: var(--texto-secundario) !important;
+    font-weight: 600 !important;
 }
 
 
@@ -1477,16 +1887,11 @@ img[class*="processando"] {
    Prefixo zx- para nunca colidir com nome do ExtJS ou de terceiros.
 ======================================================================= */
 
-/* Entrada de janela/modal: fade + escala minima (0.97 -> 1).
-   Nao desloca layout, so da profundidade. */
+/* Entrada de janela/modal: so ASSENTA, sempre opaca. Sem opacity de
+   proposito - ver nota na secao 11. Nao desloca layout. */
 @keyframes zx-janela-entra {
-    from { opacity: 0; transform: scale(.97); }
-    to   { opacity: 1; transform: scale(1); }
-}
-
-@keyframes zx-fade-entra {
-    from { opacity: 0; }
-    to   { opacity: var(--janela-mascara-opacidade); }
+    from { transform: translateY(4px); }
+    to   { transform: none; }
 }
 
 /* Flash da linha recem-inserida no cupom */
@@ -1502,16 +1907,11 @@ img[class*="processando"] {
     75%      { transform: translateX(3px); }
 }
 
-/* Pulso do botao Confirmar do dialogo */
+/* Pulso do botao Confirmar do dialogo. O halo carrega o anel de
+   respiro junto - senao o botao "cresceria" 3px durante o pulso. */
 @keyframes zx-halo {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
-    50%      { box-shadow: 0 0 0 6px var(--dlg-confirmar-halo); }
-}
-
-/* Giro do spinner circular */
-@keyframes zx-girar {
-    0%   { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0%, 100% { box-shadow: inset 0 0 0 var(--dlg-btn-respiro) var(--dlg-rodape-fundo), 0 0 0 0 rgba(47, 158, 68, 0); }
+    50%      { box-shadow: inset 0 0 0 var(--dlg-btn-respiro) var(--dlg-rodape-fundo), 0 0 0 4px var(--dlg-confirmar-halo); }
 }
 
 /* Listras da barra de progresso */
@@ -1524,16 +1924,201 @@ img[class*="processando"] {
 /* =======================================================================
    16. FUNDO DA TELA PRINCIPAL (pdvmain) E CUPOM
 
-   O cinza medio do pdvmain e DE PROPOSITO. Clarear (como no self)
-   desalinha os containers do PDV Comum. Nao "corrigir".
-======================================================================= */
+   O CINZA MEDIO E DE PROPOSITO - ele preenche os vaos entre o cupom e
+   as teclas, e clarear tudo desmonta o encaixe visual do bloco.
+
+   (2026-10) O cinza MUDOU DE LUGAR, nao de cor: saiu do fundo da tela
+   inteira e foi para a FAIXA DO CENTRO (cupom + teclado), que ganhou
+   cantos arredondados - o mesmo raio dos paineis Subtotal/Consumidor
+   logo abaixo (.sub-total). Por dentro da faixa os vaos continuam
+   cinza. O fundo da tela fica claro so para os cantos aparecerem.
+   Historico: a primeira tentativa, com os paineis de baixo ainda de
+   canto reto, ficou estranha e voltou; com eles arredondados, foi.
+
+   O GANCHO: o pdvmain e um border layout com tres regioes - norte
+   (.topo_pdv), sul (um x-panel) e CENTRO, o unico x-container de borda
+   que nao e o topo. Id nao serve (indice do ExtJS). */
 div[id^="pdvmain-"][id$="-body"],
 div[id^="pdvmain-"] {
+    background-color: var(--sup-tela-fundo) !important;
+}
+
+/* A regiao SUL (Subtotal / Consumidor) nao pinta fundo proprio: o
+   chao e o da tela, e os paineis brancos ficam em cima dele. */
+div[id^="pdvmain-"] > .x-panel-body > .x-panel.x-border-item,
+div[id^="pdvmain-"] > .x-panel-body > .x-panel.x-border-item > .x-panel-body {
+    background: transparent !important;
+}
+
+div[id^="pdvmain-"] > .x-panel-body > .x-container.x-border-item:not(.topo_pdv) {
     background-color: var(--sup-pdvmain) !important;
+    border-radius: var(--raio-cartao) !important;
+}
+
+/* --- 16.1 TELA DE PAGAMENTO: tres blocos -----------------------------
+   Esquerda em cima: o cartao das finalizadoras. Esquerda embaixo: a
+   barra de "PAGAMENTOS REALIZADOS" com as setas, uma peca so (como no
+   style100), com a faixa grafite atravessando lista e setas. Direita:
+   teclado + Subtotal / A pagar / Troco, UM bloco so. Entre as duas
+   colunas, uma calha de 2px do chao cinza, igual em cima e embaixo.
+
+   POR QUE TANTA SOMBRA "DE PREENCHIMENTO": o ExtJS deixa as pecas fora
+   de alinhamento (teclado de x=612 a 1015 e ate y=590; bloco de baixo
+   de x=615 a 1020, a partir de y=595) e cada regiao do layout tem
+   overflow:hidden - nenhum desenho atravessa de uma para outra. Entao
+   cada peca ESTICA a propria tinta, por box-shadow solida, so dentro da
+   sua regiao, ate fechar o bloco: o teclado 5px para a direita e para
+   baixo, o bloco de baixo 3px para a esquerda. Nenhuma medida muda.
+   Os numeros (5px, 3px, 2px) sao os vaos medidos em 1024x768; as
+   margens que os criam sao fixas (.sub-total tem margin cravada).
+
+   A faixa grafite e pintada no FUNDO DO RODAPE (gradiente de corte
+   seco): entre a lista e a barra das setas ha um vao de 2px que
+   nenhuma das duas cobre. A barra das setas fica transparente e deixa
+   a faixa aparecer. --pgto-faixa-topo / -alt PRECISAM BATER com o
+   ExtJS: a lista comeca 2px abaixo do rodape; titulo (26px) + colunas
+   (22px) = 48px.
+
+   ARMADILHA DE NOME: .area-south esta no PAINEL do sul (x-panel) E no
+   bloco dos visores dentro dele (x-container). Cada regra leva
+   .x-panel ou .x-container junto. */
+div.x-panel[id^="pdvtelapagamento-"] {
+    background-color: var(--sup-tela-fundo) !important;
+    --pgto-faixa-topo: 2px;
+    --pgto-faixa-alt:  50px;   /* topo + 48 */
+}
+div[id^="pdvtelapagamento-"] .x-panel.topo_pdv,
+div[id^="pdvtelapagamento-"] .x-panel.topo_pdv .x-panel {
+    background-color: var(--sup-cartao) !important;
+    border-radius: var(--raio-cartao) !important;
+}
+
+/* --- Rodape: o CHAO cinza; o cartao branco sai das pecas de dentro ---
+   (lista + barra das setas). Assim o cartao tem os quatro cantos
+   arredondados: as quinas mostram o chao, e nao mais o fundo branco do
+   rodape inteiro. */
+div[id^="pdvtelapagamento-"] .x-panel.area-south {
+    background: transparent !important;
+}
+div[id^="pdvtelapagamento-"] .x-panel.area-south > .x-panel-body {
+    background: var(--sup-tela-fundo) !important;
+    background-image: none !important;
+}
+
+/* A lista: sem cartao proprio, cabecalho e colunas no grafite da faixa.
+   A FAIXA TEM OS QUATRO CANTOS ARREDONDADOS (um "bloquinho"): o de cima
+   a esquerda e o canto do painel (overflow:hidden recorta o titulo), o
+   de baixo a esquerda e o do cabecalho de colunas, e os dois da direita
+   sao do trecho desenhado na barra das setas (::after, mais abaixo).
+   O CARTAO BRANCO por tras dela tambem: cantos da esquerda no painel da
+   lista, da direita no ::before da barra das setas. */
+div[id^="pdvtelapagamento-"] div.x-panel[id^="pagamentosaceitos-"] {
+    background: var(--sup-cartao) !important;
+    border-radius: var(--raio-cartao) 0 0 var(--raio-cartao) !important;
+    box-shadow: none !important;
+}
+div[id^="pdvtelapagamento-"] div[id^="pagamentosaceitos-"] .x-grid-header-ct {
+    border-radius: 0 0 0 var(--raio-cartao) !important;
+}
+div[id^="pdvtelapagamento-"] div[id^="pagamentosaceitos-"] > .x-panel-header,
+div[id^="pdvtelapagamento-"] div[id^="pagamentosaceitos-"] .x-grid-header-ct {
+    background: var(--cupom-cabecalho-fundo) !important;
+    background-image: none !important;
+    box-shadow: none !important;
+}
+div[id^="pdvtelapagamento-"] div[id^="pagamentosaceitos-"] .x-panel-header-text,
+div[id^="pdvtelapagamento-"] div[id^="pagamentosaceitos-"] .x-column-header,
+div[id^="pdvtelapagamento-"] div[id^="pagamentosaceitos-"] .x-column-header-text {
+    color: var(--cupom-cabecalho-texto) !important;
+}
+
+/* Barra das setas: TRANSPARENTE (o chao aparece nas quinas). O que ela
+   tem de cartao e de faixa sao dois pseudo-elementos:
+     ::before  o branco do cartao, cantos da direita arredondados;
+     ::after   o trecho da faixa grafite, idem.
+   Os dois comecam 2px A ESQUERDA da barra (left:-2px), por cima do vao
+   de 2px que o ExtJS deixa entre a lista e ela - por isso a barra
+   deixa o desenho sair (overflow visible; ela so tem as duas setas
+   dentro). E vao de 2px a 2px do topo/base da barra: a lista comeca
+   2px mais abaixo e termina 2px mais acima, e o cartao precisa da
+   mesma altura nas duas pecas. Terminam 5px antes da direita - a calha
+   entre as colunas. ::before vem antes dos botoes no DOM (fica por
+   baixo); o ::after vem depois, mas so ocupa a altura da faixa, acima
+   das setas. */
+div[id^="pdvtelapagamento-"] .x-panel.area-south .x-toolbar {
+    background: transparent !important;
+    background-image: none !important;
+    overflow: visible !important;
+}
+div[id^="pdvtelapagamento-"] .x-panel.area-south .x-toolbar::before,
+div[id^="pdvtelapagamento-"] .x-panel.area-south .x-toolbar::after {
+    content: "";
+    position: absolute;
+    left: -2px;
+    right: 5px;
+    border-radius: 0 var(--raio-cartao) var(--raio-cartao) 0;
+    pointer-events: none;
+}
+div[id^="pdvtelapagamento-"] .x-panel.area-south .x-toolbar::before {
+    top: 2px;
+    bottom: 2px;
+    background: var(--sup-cartao);
+}
+div[id^="pdvtelapagamento-"] .x-panel.area-south .x-toolbar::after {
+    top: var(--pgto-faixa-topo);
+    height: calc(var(--pgto-faixa-alt) - var(--pgto-faixa-topo));
+    background: var(--cupom-cabecalho-fundo);
+}
+div[id^="pdvtelapagamento-"] .x-panel.area-south .bt_nav {
+    background: var(--sup-cartao) !important;
+    box-shadow: inset 0 0 0 1px var(--borda-sutil) !important;
+    /* O ExtJS cola as setas na borda de baixo da faixa. `translate` (e
+       nao transform, que e do afundar do toque) as desce 8px so na
+       pintura. Chromium que nao conheca a propriedade a ignora. */
+    translate: 0 8px;
+}
+
+/* --- Coluna da direita: teclado + totais num bloco so --- */
+div[id^="pdvtelapagamento-"] .x-container.sub-total {
+    background: var(--sup-cartao) !important;
+    border-radius: var(--raio-cartao) var(--raio-cartao) 0 0 !important;
+    box-shadow: 5px 0 0 var(--sup-cartao),
+                0 5px 0 var(--sup-cartao),
+                5px 5px 0 var(--sup-cartao) !important;
+}
+div[id^="pdvtelapagamento-"] .x-container.area-south {
+    background: var(--sup-cartao) !important;
+    border-radius: 0 0 var(--raio-cartao) var(--raio-cartao) !important;
+    box-shadow: -3px 0 0 var(--sup-cartao) !important;
 }
 
 div[id^="cupom-"][id$="-body"] {
     border-color: var(--borda-cupom) !important;
+}
+
+/* O cupom em CARTAO. Aqui ele e tres pecas empilhadas - cabecalho
+   grafite de colunas, corpo e a barra das setas embaixo - entao o raio
+   se divide: cabecalho arredonda em cima, barra embaixo. A sombra vai
+   no painel inteiro. So pintura. */
+div.x-panel[id^="cupom-"] {
+    border-radius: var(--raio-cartao) !important;
+    box-shadow: var(--sombra-sutil) !important;
+}
+div[id^="cupom-"] > .x-grid-header-ct {
+    border-radius: var(--raio-cartao) var(--raio-cartao) 0 0 !important;
+}
+div[id^="cupom-"] > .x-toolbar-docked-bottom {
+    border-radius: 0 0 var(--raio-cartao) var(--raio-cartao) !important;
+    /* A barra das setas e o pe do cartao BRANCO do cupom, com uma linha
+       em cima. Era #F5F5F5, quase a cor das setas (#EEEEEE): o botao
+       nao se descolava do fundo. */
+    background-color: var(--sup-cartao) !important;
+    box-shadow: inset 0 1px 0 var(--borda-sutil) !important;
+}
+/* As setas: o cinza neutro de botao com contorno de 1px por dentro -
+   no pe branco do cartao elas viram tecla, nao mancha. */
+div[id^="cupom-"] > .x-toolbar-docked-bottom .bt_nav {
+    box-shadow: inset 0 0 0 1px var(--borda-sutil) !important;
 }
 
 
@@ -1549,12 +2134,15 @@ div[id^="cupom-"][id$="-body"] {
    os filhos e distribui a partir dessas medidas; qualquer override de
    caixa envenena a conta. NAO TENTE DE NOVO por aqui.
 
-   Os pseudo-elementos (logo e varredura) sao seguros: ::before/::after
+   Os pseudo-elementos (logo e favo) sao seguros: ::before/::after
    em absolute nao entram na medicao dos irmaos.
 ======================================================================= */
 
-/* --- 17.1 Fundo -------------------------------------------------------- */
-div[id^="pdvstartup-"] {
+/* --- 17.1 Fundo --------------------------------------------------------
+   `.x-panel` no seletor: SO o painel. Sem ela o prefixo de id pegava
+   tambem -body, -innerCt e -targetEl, e o gradiente era pintado de novo
+   1px deslocado - um fio claro na borda de cima e na esquerda. */
+div.x-panel[id^="pdvstartup-"] {
     background-color: var(--splash-fundo) !important;
     background-image:
         radial-gradient(60vw 60vh at 18% 12%, var(--splash-brilho), transparent 60%),
@@ -1596,23 +2184,18 @@ div[id^="pdvstartup-"] .area_pbar::before {
     pointer-events: none !important;
 }
 
-/* Varredura indeterminada na borda superior: sinaliza "vivo" mesmo com
-   a barra de progresso parada em 0%. Tambem e pseudo-elemento. */
+/* O FAVO no lugar da varredura no topo do cartao: o mesmo sinal de
+   espera do resto da interface. Fica no vao entre o botao "Conectar-se
+   a outro endereco" e a versao. Pseudo-elemento absoluto; a animacao e
+   do SVG (--favo-escuro, secao 02). */
 div[id^="pdvstartup-"] .area_pbar::after {
     content: "" !important;
     position: absolute !important;
-    left: 0 !important;
-    top: 0 !important;
-    width: 100% !important;
-    height: 3px !important;
-    border-radius: 18px 18px 0 0 !important;
-    background-image: linear-gradient(90deg,
-        transparent 0%,
-        var(--splash-acento) 50%,
-        transparent 100%) !important;
-    background-size: 45% 100% !important;
-    background-repeat: no-repeat !important;
-    animation: zx-splash-varredura 1.6s var(--curva) infinite !important;
+    left: calc(50% - 20px) !important;
+    top: 142px !important;
+    width: 40px !important;
+    height: 40px !important;
+    background: var(--favo-escuro) no-repeat center / contain !important;
     pointer-events: none !important;
 }
 
@@ -1621,6 +2204,14 @@ div[id^="pdvstartup-"] .texto-startupcon {
     color: var(--splash-texto) !important;
     font-weight: 400 !important;
     text-shadow: none !important;
+}
+
+/* "Conectado!" / "Conectando..." saia 50px a ESQUERDA do centro. O
+   Startup.js do Zeus monta a caixa com `width: 100% !important`, mas o
+   ExtJS cola nela a largura da barra de progresso (398px, inline).
+   Aqui so se devolve o que o proprio Zeus pediu. */
+#msgProgressbar {
+    width: 100% !important;
 }
 
 /* --- 17.4 Botao "Conectar-se a outro endereco" ------------------------- */
@@ -1679,10 +2270,8 @@ div[id^="pdvstartup-"] .area_pbar .x-container {
    18. ANIMACOES DA SPLASH / MOVIMENTO REDUZIDO
 ======================================================================= */
 
-@keyframes zx-splash-varredura {
-    0%   { background-position: -45% 0; }
-    100% { background-position: 145% 0; }
-}
+/* A varredura da splash saiu (o favo da 17.2 a substituiu); o favo
+   respeita prefers-reduced-motion dentro do proprio SVG. */
 
 /* Respeita quem desligou animacao no sistema */
 @media (prefers-reduced-motion: reduce) {
@@ -1694,9 +2283,15 @@ div[id^="pdvstartup-"] .area_pbar .x-container {
     .tela_dialogo .bt_bbar.bt_tec_56,
     .x-mask,
     .pdv-grid-panel .x-grid-row.item-novo,
-    .container-processando::after,
-    div[id^="pdvstartup-"] .area_pbar::after {
+    .container-processando::after {
         animation: none !important;
+    }
+    /* O afundar do toque tambem sai. */
+    .bt_menu, .bt_bbar, .bt_funcao, .bt_teclado, .bt_teclado_y,
+    .bt_teclado_a, .bt_teclado_v, .bt_teclado_vd, .bt_teclado_c,
+    .bt_numerico, .bt_teclado_l, .bt_teclado_menu, .bt_seletora, .bt_nav {
+        transition: none !important;
+        transform: none !important;
     }
 }
 
@@ -1763,7 +2358,7 @@ div[id^="pdvstartup-"] .area_pbar .x-container {
 .janela-msg   .bt_bbar.bt_tec_58,
 .tela_dialogo .bt_bbar.bt_tec_56 {
     background: var(--dlg-confirmar-fundo) !important;
-    box-shadow: none !important;
+    box-shadow: inset 0 0 0 var(--dlg-btn-respiro) var(--dlg-rodape-fundo) !important;
     animation: zx-halo 1.5s var(--curva) 2 !important;
 }
 .janela-msg   .bt_bbar.bt_tec_11 .x-btn-inner,
@@ -1789,51 +2384,117 @@ div[id^="pdvstartup-"] .area_pbar .x-container {
 /* RECUSAR (Nao) - ghost neutro */
 .janela-msg   .bt_bbar.bt_tec_56,
 .janela-msg   .bt_bbar.bt_tec_28,
-.janela-msg   .bt_bbar.bt_tec_2,
 .tela_dialogo .bt_bbar.bt_tec_21 {
-    background: transparent !important;
-    box-shadow: inset 0 0 0 var(--dlg-ghost-espessura) var(--dlg-recusar-contorno) !important;
+    background: var(--dlg-recusar-fundo) !important;
+    box-shadow: inset 0 0 0 var(--dlg-btn-respiro) var(--dlg-rodape-fundo) !important;
     animation: none !important;
 }
 .janela-msg   .bt_bbar.bt_tec_56 .x-btn-inner,
 .janela-msg   .bt_bbar.bt_tec_28 .x-btn-inner,
-.janela-msg   .bt_bbar.bt_tec_2 .x-btn-inner,
 .janela-msg   .bt_bbar.bt_tec_56 span,
 .janela-msg   .bt_bbar.bt_tec_28 span,
-.janela-msg   .bt_bbar.bt_tec_2 span,
 .tela_dialogo .bt_bbar.bt_tec_21 .x-btn-inner,
 .tela_dialogo .bt_bbar.bt_tec_21 span {
     color: var(--dlg-recusar-texto) !important;
 }
 .janela-msg   .bt_bbar.bt_tec_56:active:not(.x-btn-disabled),
 .janela-msg   .bt_bbar.bt_tec_28:active:not(.x-btn-disabled),
-.janela-msg   .bt_bbar.bt_tec_2:active:not(.x-btn-disabled),
 .tela_dialogo .bt_bbar.bt_tec_21:active:not(.x-btn-disabled) {
     background: var(--dlg-recusar-fundo-ativo) !important;
 }
 
+/* bt_tec_2 NA .janela-msg AGORA E ABORTAR (2026-10). Era "recusar"
+   pelo dump de "Confirma mudanca para modo administrativo?" (58 = Sim,
+   2 = Nao) - mas o Cancelar do TEF ("Insira ou aproxime o cartao no
+   PinPad", "CPF no PinPad") tambem e o 2, ao lado do 58 = "Sem usar
+   PinPad", e ficava cinza. CSS nao le o texto: o mesmo codigo nao pode
+   ter dois papeis. Ficou abortar (como no style100); o "Nao" daquele
+   dialogo administrativo sai vermelho, aceitavel para uma negativa. */
 /* ABORTAR (Cancelar) - ghost vermelho */
 .janela-msg   .bt_bbar.bt_tec_1,
+.janela-msg   .bt_bbar.bt_tec_2,
 .tela_dialogo .bt_bbar.bt_tec_11 {
-    background: transparent !important;
-    box-shadow: inset 0 0 0 var(--dlg-ghost-espessura) var(--dlg-abortar-contorno) !important;
+    background: var(--dlg-abortar-fundo) !important;
+    box-shadow: inset 0 0 0 var(--dlg-btn-respiro) var(--dlg-rodape-fundo) !important;
     animation: none !important;
 }
 .janela-msg   .bt_bbar.bt_tec_1 .x-btn-inner,
+.janela-msg   .bt_bbar.bt_tec_2 .x-btn-inner,
 .janela-msg   .bt_bbar.bt_tec_1 span,
+.janela-msg   .bt_bbar.bt_tec_2 span,
 .tela_dialogo .bt_bbar.bt_tec_11 .x-btn-inner,
 .tela_dialogo .bt_bbar.bt_tec_11 span {
     color: var(--dlg-abortar-texto) !important;
 }
 .janela-msg   .bt_bbar.bt_tec_1:active:not(.x-btn-disabled),
+.janela-msg   .bt_bbar.bt_tec_2:active:not(.x-btn-disabled),
 .tela_dialogo .bt_bbar.bt_tec_11:active:not(.x-btn-disabled) {
     background: var(--dlg-abortar-fundo-ativo) !important;
 }
 
-/* Raio dos botoes de dialogo */
+/* ABORTAR na janela SELETORA (2026-10) - "Escolha o tipo de operacao",
+   "Qual o motivo do cancelamento?". O mapa acima so cobria .janela-msg
+   e .tela_dialogo: o Cancelar da seletora (bt_tec_1) nascia CINZA, sem
+   o contorno vermelho de acao que aborta. Mesmo mapa do style100
+   (21.2), observado em campo. O bt_tec_2 entra junto pela mesma razao
+   de la; os demais codigos da seletora ficam sem mapa ate ter dump. */
+.janela-seletor .bt_bbar.bt_tec_1,
+.janela-seletor .bt_bbar.bt_tec_2 {
+    background: var(--dlg-abortar-fundo) !important;
+    box-shadow: inset 0 0 0 var(--dlg-btn-respiro) var(--dlg-rodape-fundo) !important;
+    animation: none !important;
+}
+.janela-seletor .bt_bbar.bt_tec_1 .x-btn-inner,
+.janela-seletor .bt_bbar.bt_tec_2 .x-btn-inner,
+.janela-seletor .bt_bbar.bt_tec_1 span,
+.janela-seletor .bt_bbar.bt_tec_2 span {
+    color: var(--dlg-abortar-texto) !important;
+}
+.janela-seletor .bt_bbar.bt_tec_1:active:not(.x-btn-disabled),
+.janela-seletor .bt_bbar.bt_tec_2:active:not(.x-btn-disabled) {
+    background: var(--dlg-abortar-fundo-ativo) !important;
+}
+
+/* BOTAO SOZINHO NAO E CANCELAR (2026-10). O codigo bt_tec_N e a TECLA,
+   nao a funcao: a propria Interface usa tec:1 para "Voltar", "Fechar",
+   "Quantidade", "Balanca"... e o Zeus manda "OK" com codigos que este
+   mapa trata como abortar. Com o abortar em vermelho cheio, o OK
+   sozinho saia vermelho. Regra: em mensagem e coletora, um botao
+   SOZINHO no rodape (2o de 3 filhos: tbfill, botao, tbfill) com codigo
+   de abortar fica NEUTRO. Com par ao lado (o Cancelar junto do "Sem
+   usar PinPad") segue vermelho. Custo assumido: um Cancelar sozinho
+   numa mensagem tambem sai neutro. A seletora fica de fora - la o
+   botao sozinho e sempre o Cancelar. */
+.janela-msg   .bt_bbar.bt_tec_1:nth-child(2):nth-last-child(2),
+.janela-msg   .bt_bbar.bt_tec_2:nth-child(2):nth-last-child(2),
+.tela_dialogo .bt_bbar.bt_tec_11:nth-child(2):nth-last-child(2) {
+    background: var(--dlg-recusar-fundo) !important;
+    box-shadow: inset 0 0 0 var(--dlg-btn-respiro) var(--dlg-rodape-fundo) !important;
+    animation: none !important;
+}
+.janela-msg   .bt_bbar.bt_tec_1:nth-child(2):nth-last-child(2) .x-btn-inner,
+.janela-msg   .bt_bbar.bt_tec_2:nth-child(2):nth-last-child(2) .x-btn-inner,
+.tela_dialogo .bt_bbar.bt_tec_11:nth-child(2):nth-last-child(2) .x-btn-inner,
+.janela-msg   .bt_bbar.bt_tec_1:nth-child(2):nth-last-child(2) span,
+.janela-msg   .bt_bbar.bt_tec_2:nth-child(2):nth-last-child(2) span,
+.tela_dialogo .bt_bbar.bt_tec_11:nth-child(2):nth-last-child(2) span {
+    color: var(--dlg-recusar-texto) !important;
+}
+.janela-msg   .bt_bbar.bt_tec_1:nth-child(2):nth-last-child(2):active:not(.x-btn-disabled),
+.janela-msg   .bt_bbar.bt_tec_2:nth-child(2):nth-last-child(2):active:not(.x-btn-disabled),
+.tela_dialogo .bt_bbar.bt_tec_11:nth-child(2):nth-last-child(2):active:not(.x-btn-disabled) {
+    background: var(--dlg-recusar-fundo-ativo) !important;
+}
+
+/* Raio dos botoes de dialogo.
+   background-clip: o ExtJS crava border-width:1px e a borda aqui e
+   transparente; sem o clip o fundo vazava por baixo dela e desenhava
+   um filete por fora do anel de respiro. */
 .janela-msg   .bt_bbar[class*="bt_tec_"],
-.tela_dialogo .bt_bbar[class*="bt_tec_"] {
-    border-radius: 8px !important;
+.tela_dialogo .bt_bbar[class*="bt_tec_"],
+.janela-seletor .bt_bbar[class*="bt_tec_"] {
+    border-radius: 11px !important;
+    background-clip: padding-box !important;
 }
 
 
@@ -1846,13 +2507,13 @@ div[id^="pdvstartup-"] .area_pbar .x-container {
 ======================================================================= */
 
 .x-window.janela-msg {
-    background: var(--dlg-corpo-fundo) !important;
+    background: var(--dlg-fundo) !important;
 }
 
 .x-window.janela-msg .x-window-body,
 .x-window.janela-msg .x-window-body-default,
 .x-window.janela-msg .body-msg {
-    background: var(--dlg-corpo-fundo) !important;
+    background: transparent !important;
 }
 
 /* Mensagem em peso normal. 30px em negrito grita. */
@@ -1860,6 +2521,16 @@ div[id^="pdvstartup-"] .area_pbar .x-container {
     color: var(--dlg-mensagem-texto) !important;
     font-weight: normal !important;
     letter-spacing: -.01em !important;
+}
+
+/* TITULO ALINHADO COM O CONTEUDO (mensagem e seletora). O titulo nasce
+   5px da borda e colado na faixa de acento; o corpo comeca 15px para
+   dentro. translate move so a tinta. Coletora fica de fora: la o
+   subtitulo logo abaixo nasce no mesmo recuo do titulo. */
+.janela-seletor .x-window-header-text,
+.janela-msg .x-window-header-text {
+    display: inline-block;
+    transform: translate(10px, 3px);
 }
 
 /* Rodape ganha chao: fundo mais frio e uma linha de 1px acima.
@@ -1870,4 +2541,130 @@ div[id^="pdvstartup-"] .area_pbar .x-container {
     background-image: none !important;
     border-color: transparent !important;
     box-shadow: inset 0 1px 0 0 var(--dlg-rodape-linha) !important;
+}
+
+
+/* --- 20.0 Janelas COLETORAS (coletor-* e coletadadoscon-*) ------------
+   Mesmos blocos do style1000 (secao 24), menos o Cancelar: la ele e
+   .bt_teclado_a, que AQUI e o Entrar azul - copiar pintaria o Entrar
+   de vermelho. Cada arquivo com o seu mapa de botao.
+
+   ARMADILHA QUE JA CUSTOU CARO: ao acrescentar um prefixo de janela,
+   escrever cada seletor por extenso. Um replace cego de
+   `div[id^="coletor-"]` por `div[id^="coletor-"], div[id^="coletadadoscon-"]`
+   quebra todo seletor composto (a virgula separa seletores inteiros). */
+
+/* 1. O tema padrao do ExtJS pinta .x-panel-default-framed com um
+      azulado proprio; zerado, a janela vira uma superficie so (e o
+      degrade do modal aparece inteiro). */
+div[id^="coletor-"] .x-panel-default-framed,
+div[id^="coletor-"] div[class*="x-panel-body-default-framed"],
+div[id^="coletadadoscon-"] .x-panel-default-framed,
+div[id^="coletadadoscon-"] div[class*="x-panel-body-default-framed"] {
+    background: transparent !important;
+    background-image: none !important;
+    border-color: transparent !important;
+}
+
+/* 2. O CAMPO NUNCA RECEBE FOCO NESTAS JANELAS: o operador digita pelo
+      teclado da propria tela e o ExtJS escreve direto no input, sem
+      evento de foco. Como ha UM campo so, e ele e sempre o ativo, o
+      destaque fica permanente. Se aparecer coletora com dois campos,
+      esta regra destaca os dois e vira mentira. */
+div[id^="coletor-"] input.input-input,
+div[id^="coletadadoscon-"] input.input-input {
+    border-color: var(--campo-foco-borda) !important;
+}
+
+/* 3. Subtitulo do coletor ("Informe o CPF/CNPJ do consumidor"), logo
+      abaixo do titulo: subtitulo, nao corpo. So cor e peso - o tamanho
+      e o que o ExtJS mediu. */
+.label_msg_corpo_coletor {
+    color: var(--texto-secundario) !important;
+    font-weight: 600 !important;
+    text-shadow: none !important;
+}
+
+/* --- 20.1 Janela SELETORA (lista de escolha) ---------------------------
+   "Escolha o tipo de operacao", "Qual o motivo do cancelamento?"...
+   O Zeus monta a lista com a MESMA grid do cupom (.pdv-grid-panel), e
+   ela herdava tudo de la: cabecalho grafite de colunas SEM TEXTO (uma
+   faixa escura solta no topo), zebra, e a primeira coluna em monospace.
+
+   Vira lista no proprio branco da janela: divisoria de 1px entre as
+   opcoes, hover nenhum (toque), e linha selecionada com faixa verde -
+   o mesmo verde do "visto" que o Zeus acende na linha. Mesmo bloco do
+   style1000 (24.1), aprovado em campo no style100. Um poco cinza atras da lista
+   foi testado la e virou um "quadrado cinza no meio" - nao repor.
+   So cor, fundo e sombra: a grid continua do tamanho que o ExtJS
+   calculou. */
+.janela-seletor .pdv-grid-panel .x-grid-header-ct,
+.janela-seletor .pdv-grid-panel .x-column-header {
+    background-color: transparent !important;
+}
+
+.janela-seletor .pdv-grid-panel .x-grid-row,
+.janela-seletor .pdv-grid-panel .x-grid-row-alt {
+    background-color: var(--sup-cartao) !important;
+}
+
+.janela-seletor .pdv-grid-panel .x-grid-row .x-grid-cell {
+    box-shadow: inset 0 -1px 0 var(--borda-sutil) !important;
+}
+
+/* Linha de cima da primeira opcao: sem ela a lista comecava solta. */
+.janela-seletor .pdv-grid-panel .x-grid-table {
+    box-shadow: inset 0 1px 0 var(--borda-sutil) !important;
+}
+
+/* Texto da opcao: a linha tem 50px cravados, a letra nao mexe em
+   medida nenhuma. */
+.janela-seletor .pdv-grid-panel .x-grid-row .x-grid-cell-inner {
+    color: var(--texto-principal) !important;
+    font-weight: 600 !important;
+    font-size: 15px !important;
+}
+
+.janela-seletor .pdv-grid-panel .x-grid-row.x-grid-row-selected,
+.janela-seletor .pdv-grid-panel .x-grid-row.x-grid-row-focused {
+    background-color: var(--sup-painel) !important;
+}
+.janela-seletor .pdv-grid-panel .x-grid-row.x-grid-row-selected .x-grid-cell-first,
+.janela-seletor .pdv-grid-panel .x-grid-row.x-grid-row-focused .x-grid-cell-first {
+    box-shadow: inset 4px 0 0 var(--p-sucesso),
+                inset 0 -1px 0 var(--borda-sutil) !important;
+}
+
+/* Na SELETORA o titulo E A PERGUNTA - em rotulo de 11px cinza ela
+   sumia. Vira titulo: grafite, caixa normal, 11px x 1.45 = 16px pelo
+   scale (o ExtJS mediu o cabecalho com 11px; o scale cresce so a
+   tinta, para dentro do recuo vazio do corpo). */
+.janela-seletor .x-window-header-text {
+    color: var(--texto-principal) !important;
+    text-transform: none;
+    letter-spacing: -.005em;
+    transform-origin: left top;
+    transform: translate(10px, 6px) scale(1.45);
+}
+
+/* SELECAO POR SETA NA LISTA (.selecionado-seta)
+   O Controller.js do PDVComum liga e desliga essa classe na <tr> a
+   cada seta; nenhuma regra a pintava e a selecao nao aparecia.
+   Fundo claro e faixa vermelha a esquerda, o vocabulario da selecao
+   por seta dos botoes no style100. */
+.janela-seletor .pdv-grid-panel .x-grid-row.selecionado-seta,
+.pdv-grid-panel .x-grid-row.selecionado-seta {
+    background-color: var(--p-perigo-claro-2) !important;
+}
+.janela-seletor .pdv-grid-panel .x-grid-row.selecionado-seta .x-grid-cell-first,
+.pdv-grid-panel .x-grid-row.selecionado-seta .x-grid-cell-first {
+    box-shadow: inset 3px 0 0 var(--p-perigo),
+                inset 0 -1px 0 var(--borda-sutil) !important;
+}
+.x-grid-row.selecionado-seta .zanthus-botao-cancela-item {
+    border-color: var(--p-perigo) !important;
+}
+.x-grid-row.selecionado-seta .zanthus-botao-cancela-item::before {
+    border-bottom-color: var(--p-perigo) !important;
+    border-right-color: var(--p-perigo) !important;
 }
