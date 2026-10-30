@@ -227,6 +227,13 @@
        acesa no vermelho da marca #E53935. O SVG respeita
        prefers-reduced-motion sozinho (fica aceso). */
     --favo-claro:  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-30.2 -42 69 69'%3E%3Cstyle%3E.c%7Bfill:%23E3E7EC%7D.f%7Bfill:%23E53935;opacity:0;transform-box:fill-box;transform-origin:center;animation:a 3s ease-in-out infinite%7D.f:nth-of-type(1)%7Banimation-delay:0.00s%7D.f:nth-of-type(2)%7Banimation-delay:0.15s%7D.f:nth-of-type(3)%7Banimation-delay:0.30s%7D.f:nth-of-type(4)%7Banimation-delay:0.45s%7D.f:nth-of-type(5)%7Banimation-delay:0.60s%7D.f:nth-of-type(6)%7Banimation-delay:0.75s%7D.f:nth-of-type(7)%7Banimation-delay:0.90s%7D.f:nth-of-type(8)%7Banimation-delay:1.05s%7D.f:nth-of-type(9)%7Banimation-delay:1.20s%7D%40keyframes a%7B0%25%7Bopacity:0;transform:scale(.55)%7D10%25,68%25%7Bopacity:1;transform:scale(1)%7D82%25,100%25%7Bopacity:0;transform:scale(.9)%7D%7D%40media (prefers-reduced-motion:reduce)%7B.f%7Banimation:none;opacity:1%7D%7D%3C/style%3E%3Cg%3E%3Cpath class='c' d='M-8.7 6.6L-1.4 10.8L-1.4 19.2L-8.7 23.4L-15.9 19.2L-15.9 10.8Z'/%3E%3Cpath class='c' d='M8.7 6.6L15.9 10.8L15.9 19.2L8.7 23.4L1.4 19.2L1.4 10.8Z'/%3E%3Cpath class='c' d='M0.0 -8.4L7.3 -4.2L7.3 4.2L0.0 8.4L-7.3 4.2L-7.3 -4.2Z'/%3E%3Cpath class='c' d='M-17.3 -8.4L-10.0 -4.2L-10.0 4.2L-17.3 8.4L-24.6 4.2L-24.6 -4.2Z'/%3E%3Cpath class='c' d='M17.3 -8.4L24.6 -4.2L24.6 4.2L17.3 8.4L10.0 4.2L10.0 -4.2Z'/%3E%3Cpath class='c' d='M8.7 -23.4L15.9 -19.2L15.9 -10.8L8.7 -6.6L1.4 -10.8L1.4 -19.2Z'/%3E%3Cpath class='c' d='M26.0 -23.4L33.3 -19.2L33.3 -10.8L26.0 -6.6L18.7 -10.8L18.7 -19.2Z'/%3E%3Cpath class='c' d='M-8.7 -23.4L-1.4 -19.2L-1.4 -10.8L-8.7 -6.6L-15.9 -10.8L-15.9 -19.2Z'/%3E%3Cpath class='c' d='M17.3 -38.4L24.6 -34.2L24.6 -25.8L17.3 -21.6L10.0 -25.8L10.0 -34.2Z'/%3E%3C/g%3E%3Cpath class='f' d='M-8.7 6.6L-1.4 10.8L-1.4 19.2L-8.7 23.4L-15.9 19.2L-15.9 10.8Z'/%3E%3Cpath class='f' d='M8.7 6.6L15.9 10.8L15.9 19.2L8.7 23.4L1.4 19.2L1.4 10.8Z'/%3E%3Cpath class='f' d='M0.0 -8.4L7.3 -4.2L7.3 4.2L0.0 8.4L-7.3 4.2L-7.3 -4.2Z'/%3E%3Cpath class='f' d='M-17.3 -8.4L-10.0 -4.2L-10.0 4.2L-17.3 8.4L-24.6 4.2L-24.6 -4.2Z'/%3E%3Cpath class='f' d='M17.3 -8.4L24.6 -4.2L24.6 4.2L17.3 8.4L10.0 4.2L10.0 -4.2Z'/%3E%3Cpath class='f' d='M8.7 -23.4L15.9 -19.2L15.9 -10.8L8.7 -6.6L1.4 -10.8L1.4 -19.2Z'/%3E%3Cpath class='f' d='M26.0 -23.4L33.3 -19.2L33.3 -10.8L26.0 -6.6L18.7 -10.8L18.7 -19.2Z'/%3E%3Cpath class='f' d='M-8.7 -23.4L-1.4 -19.2L-1.4 -10.8L-8.7 -6.6L-15.9 -10.8L-15.9 -19.2Z'/%3E%3Cpath class='f' d='M17.3 -38.4L24.6 -34.2L24.6 -25.8L17.3 -21.6L10.0 -25.8L10.0 -34.2Z'/%3E%3C/svg%3E");
+    /* Setas de navegacao (bt_nav) desenhadas aqui, usadas como MASCARA -
+       a cor vem do token, nao de dentro do SVG (secao 07). */
+    --seta-baixo-forma: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9.5l6 6 6-6'/%3E%3C/svg%3E");
+    --seta-cima-forma:  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 14.5l6-6 6 6'/%3E%3C/svg%3E");
+    --seta-direita-forma:  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9.5 6l6 6-6 6'/%3E%3C/svg%3E");
+    --seta-esquerda-forma: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14.5 6l-6 6 6 6'/%3E%3C/svg%3E");
+    --seta-nav-cor:     var(--texto-secundario);
     --favo-escuro: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-30.2 -42 69 69'%3E%3Cstyle%3E.c%7Bfill:rgba(255,255,255,.12)%7D.f%7Bfill:%23E53935;opacity:0;transform-box:fill-box;transform-origin:center;animation:a 3s ease-in-out infinite%7D.f:nth-of-type(1)%7Banimation-delay:0.00s%7D.f:nth-of-type(2)%7Banimation-delay:0.15s%7D.f:nth-of-type(3)%7Banimation-delay:0.30s%7D.f:nth-of-type(4)%7Banimation-delay:0.45s%7D.f:nth-of-type(5)%7Banimation-delay:0.60s%7D.f:nth-of-type(6)%7Banimation-delay:0.75s%7D.f:nth-of-type(7)%7Banimation-delay:0.90s%7D.f:nth-of-type(8)%7Banimation-delay:1.05s%7D.f:nth-of-type(9)%7Banimation-delay:1.20s%7D%40keyframes a%7B0%25%7Bopacity:0;transform:scale(.55)%7D10%25,68%25%7Bopacity:1;transform:scale(1)%7D82%25,100%25%7Bopacity:0;transform:scale(.9)%7D%7D%40media (prefers-reduced-motion:reduce)%7B.f%7Banimation:none;opacity:1%7D%7D%3C/style%3E%3Cg%3E%3Cpath class='c' d='M-8.7 6.6L-1.4 10.8L-1.4 19.2L-8.7 23.4L-15.9 19.2L-15.9 10.8Z'/%3E%3Cpath class='c' d='M8.7 6.6L15.9 10.8L15.9 19.2L8.7 23.4L1.4 19.2L1.4 10.8Z'/%3E%3Cpath class='c' d='M0.0 -8.4L7.3 -4.2L7.3 4.2L0.0 8.4L-7.3 4.2L-7.3 -4.2Z'/%3E%3Cpath class='c' d='M-17.3 -8.4L-10.0 -4.2L-10.0 4.2L-17.3 8.4L-24.6 4.2L-24.6 -4.2Z'/%3E%3Cpath class='c' d='M17.3 -8.4L24.6 -4.2L24.6 4.2L17.3 8.4L10.0 4.2L10.0 -4.2Z'/%3E%3Cpath class='c' d='M8.7 -23.4L15.9 -19.2L15.9 -10.8L8.7 -6.6L1.4 -10.8L1.4 -19.2Z'/%3E%3Cpath class='c' d='M26.0 -23.4L33.3 -19.2L33.3 -10.8L26.0 -6.6L18.7 -10.8L18.7 -19.2Z'/%3E%3Cpath class='c' d='M-8.7 -23.4L-1.4 -19.2L-1.4 -10.8L-8.7 -6.6L-15.9 -10.8L-15.9 -19.2Z'/%3E%3Cpath class='c' d='M17.3 -38.4L24.6 -34.2L24.6 -25.8L17.3 -21.6L10.0 -25.8L10.0 -34.2Z'/%3E%3C/g%3E%3Cpath class='f' d='M-8.7 6.6L-1.4 10.8L-1.4 19.2L-8.7 23.4L-15.9 19.2L-15.9 10.8Z'/%3E%3Cpath class='f' d='M8.7 6.6L15.9 10.8L15.9 19.2L8.7 23.4L1.4 19.2L1.4 10.8Z'/%3E%3Cpath class='f' d='M0.0 -8.4L7.3 -4.2L7.3 4.2L0.0 8.4L-7.3 4.2L-7.3 -4.2Z'/%3E%3Cpath class='f' d='M-17.3 -8.4L-10.0 -4.2L-10.0 4.2L-17.3 8.4L-24.6 4.2L-24.6 -4.2Z'/%3E%3Cpath class='f' d='M17.3 -8.4L24.6 -4.2L24.6 4.2L17.3 8.4L10.0 4.2L10.0 -4.2Z'/%3E%3Cpath class='f' d='M8.7 -23.4L15.9 -19.2L15.9 -10.8L8.7 -6.6L1.4 -10.8L1.4 -19.2Z'/%3E%3Cpath class='f' d='M26.0 -23.4L33.3 -19.2L33.3 -10.8L26.0 -6.6L18.7 -10.8L18.7 -19.2Z'/%3E%3Cpath class='f' d='M-8.7 -23.4L-1.4 -19.2L-1.4 -10.8L-8.7 -6.6L-15.9 -10.8L-15.9 -19.2Z'/%3E%3Cpath class='f' d='M17.3 -38.4L24.6 -34.2L24.6 -25.8L17.3 -21.6L10.0 -25.8L10.0 -34.2Z'/%3E%3C/svg%3E");
 
     /* --- BOTOES DO TECLADO: nome pela FUNCAO, nao pela cor --- */
@@ -361,15 +368,21 @@
     --dlg-confirmar-texto:       var(--p-branco);
     --dlg-confirmar-halo:        rgba(47, 158, 68, .20);
 
-    /* Recusar - ghost neutro */
-    --dlg-recusar-contorno:      var(--p-cinza-400);
-    --dlg-recusar-texto:         var(--p-cinza-800);
-    --dlg-recusar-fundo-ativo:   var(--p-cinza-200);
+    /* Recusar ("Nao", "Voltar") - TECLA NEUTRA CHEIA (2026-10). Era
+       ghost (so contorno); numa tela de TOQUE, contorno sobre branco le
+       como botao vazio. */
+    --dlg-recusar-contorno:    var(--p-cinza-400);
+    --dlg-recusar-fundo:       var(--btn-neutro-fundo);
+    --dlg-recusar-texto:       var(--texto-principal);
+    --dlg-recusar-fundo-ativo: var(--btn-neutro-fundo-ativo);
 
-    /* Abortar - ghost vermelho (destrutivo nao deve puxar o olho) */
-    --dlg-abortar-contorno:      var(--p-perigo);
-    --dlg-abortar-texto:         var(--p-perigo);
-    --dlg-abortar-fundo-ativo:   var(--p-perigo-claro-2);
+    /* Abortar ("Cancelar") - VERMELHO CHEIO (2026-10). Era ghost; no
+       touch o Cancelar "ficava branco" (queixa de campo). Mesmo
+       vermelho do bt_teclado_v. */
+    --dlg-abortar-contorno:    var(--p-perigo);
+    --dlg-abortar-fundo:       var(--p-perigo);
+    --dlg-abortar-texto:       var(--p-branco);
+    --dlg-abortar-fundo-ativo: var(--p-perigo-escuro);
 
     --dlg-ghost-espessura:       2px;
     /* Respiro entre botoes de dialogo. O ExtJS os cola com 2px de vao
@@ -949,6 +962,46 @@ input[type=text].campo-erro,
     height: 100% !important;
 }
 
+/* SETAS DE NAVEGACAO SEM O PNG AZUL (2026-10) - mesmo bloco do style2.
+   No self as setas da tela de venda ficam ocultas (logo acima); estas
+   valem para as outras telas (pagamento, comanda...). O ExtJS crava
+   `background-image:url(resources/imagens/seta_baixo_self.png)` INLINE
+   no span do icone - o chevron azul do tema antigo. Trocado por um
+   chevron desenhado, como MASCARA: a cor vem de --seta-nav-cor.
+   O gancho e o NOME DO ARQUIVO no atributo style ([style*="seta_baixo"]
+   pega seta_baixo.png, seta_baixo_self.png, seta_baixo1001.png...).
+   Falha segura: se o Zeus trocar o icone, a regra para de casar e o
+   PNG volta. So pintura - o span fica do tamanho que tinha. */
+.bt_nav span.x-btn-icon[style*="seta_baixo"],
+.bt_nav span.x-btn-icon[style*="seta_cima"],
+.bt_nav span.x-btn-icon[style*="seta_direita"],
+.bt_nav span.x-btn-icon[style*="seta_esquerda"] {
+    background-image: none !important;
+    background-color: var(--seta-nav-cor) !important;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-position: center;
+    -webkit-mask-size: 26px 26px;
+    mask-size: 26px 26px;
+}
+.bt_nav span.x-btn-icon[style*="seta_baixo"] {
+    -webkit-mask-image: var(--seta-baixo-forma);
+    mask-image: var(--seta-baixo-forma);
+}
+.bt_nav span.x-btn-icon[style*="seta_cima"] {
+    -webkit-mask-image: var(--seta-cima-forma);
+    mask-image: var(--seta-cima-forma);
+}
+.bt_nav span.x-btn-icon[style*="seta_direita"] {
+    -webkit-mask-image: var(--seta-direita-forma);
+    mask-image: var(--seta-direita-forma);
+}
+.bt_nav span.x-btn-icon[style*="seta_esquerda"] {
+    -webkit-mask-image: var(--seta-esquerda-forma);
+    mask-image: var(--seta-esquerda-forma);
+}
+
 .bt_bbar span.x-btn-inner{
     display: block !important;
     width: 100% !important;
@@ -1179,6 +1232,13 @@ div.bt-ajuda {
     font-size: 16px !important;
 }
 
+/* Rotulo de campo um degrau abaixo do valor que se digita - mesmo
+   tratamento do style2 e do style100. So peso e cor. */
+.label-text {
+    font-weight: 600 !important;
+    color: var(--texto-secundario) !important;
+}
+
 .label-text-grande{
     font-weight: bold !important;
     color: var(--texto-principal) !important;
@@ -1281,14 +1341,19 @@ div.bt-ajuda {
     background-color: var(--cupom-cabecalho-fundo) !important;
 }
 
+/* Quem pinta o grafite e SO o container (.x-grid-header-ct, acima): as
+   colunas ficam transparentes, e o raio do cartao do cupom (secao 09)
+   nao e furado pelas colunas de canto reto da ponta. Mesmo bloco do
+   style2. */
 .pdv-grid-panel .x-column-header,
 .pdv-grid-panel .x-column-header-over {
     font-size: 12px !important;
-    font-weight: bold !important;
+    font-weight: 600 !important;
     background: none !important;
     border: 0px !important;
-    background-color: var(--cupom-cabecalho-fundo) !important;
+    background-color: transparent !important;
     color: var(--cupom-cabecalho-texto) !important;
+    letter-spacing: -.02em;
 }
 
 .x-column-header {
@@ -1607,6 +1672,23 @@ div[id^="gridseletor-"] {
    rodape saia num cinza e o anel dos botoes em outro. */
 .x-window div[id^="toolbar-"].x-toolbar-docked-bottom > div.x-box-inner {
     background-color: transparent !important;
+}
+
+/* Dentro de janela, a barra de CIMA (ex.: SubTotal / A pagar no
+   coletor da finalizadora) nao tem moldura: a borda cinza herdada das
+   barras genericas desenhava um retangulo por cima do degrade. Fica so
+   uma linha fina embaixo, separando do corpo. Cor, nao largura. */
+.x-window .x-toolbar-docked-top {
+    border-color: transparent !important;
+    box-shadow: inset 0 -1px 0 var(--dlg-rodape-linha) !important;
+}
+
+/* As alcas de redimensionar do ExtJS (.x-resizable-handle) sao tiras de
+   6px nas bordas da janela com fundo BRANCO. Com o modal liso nao se
+   viam; com o degrade apareciam como faixas brancas nas laterais e
+   embaixo. Ficam transparentes (continuam la, e funcionando). */
+.x-window .x-resizable-handle {
+    background: transparent !important;
 }
 
 /* Tooltips */
@@ -2384,18 +2466,14 @@ img[class*="processando"] {
 /* RECUSAR (Nao) - ghost neutro */
 .janela-msg   .bt_bbar.bt_tec_56,
 .janela-msg   .bt_bbar.bt_tec_28,
-.janela-msg   .bt_bbar.bt_tec_2,
 .tela_dialogo .bt_bbar.bt_tec_21 {
-    background: transparent !important;
-    box-shadow: inset 0 0 0 var(--dlg-btn-respiro) var(--dlg-rodape-fundo),
-                inset 0 0 0 calc(var(--dlg-btn-respiro) + var(--dlg-ghost-espessura)) var(--dlg-recusar-contorno) !important;
+    background: var(--dlg-recusar-fundo) !important;
+    box-shadow: inset 0 0 0 var(--dlg-btn-respiro) var(--dlg-rodape-fundo) !important;
     animation: none !important;
 }
 .janela-msg   .bt_bbar.bt_tec_56 .x-btn-inner,
 .janela-msg   .bt_bbar.bt_tec_28 .x-btn-inner,
-.janela-msg   .bt_bbar.bt_tec_2 .x-btn-inner,
 .tela_dialogo .bt_bbar.bt_tec_21 .x-btn-inner,
-.janela-msg   .bt_bbar.bt_tec_2 span,
 .janela-msg   .bt_bbar.bt_tec_56 span,
 .janela-msg   .bt_bbar.bt_tec_28 span,
 .tela_dialogo .bt_bbar.bt_tec_21 span {
@@ -2403,26 +2481,35 @@ img[class*="processando"] {
 }
 .janela-msg   .bt_bbar.bt_tec_56:active:not(.x-btn-disabled),
 .janela-msg   .bt_bbar.bt_tec_28:active:not(.x-btn-disabled),
-.janela-msg   .bt_bbar.bt_tec_2:active:not(.x-btn-disabled),
 .tela_dialogo .bt_bbar.bt_tec_21:active:not(.x-btn-disabled) {
     background: var(--dlg-recusar-fundo-ativo) !important;
 }
 
+/* bt_tec_2 NA .janela-msg AGORA E ABORTAR (2026-10). Era "recusar"
+   pelo dump de "Confirma mudanca para modo administrativo?" (58 = Sim,
+   2 = Nao) - mas o Cancelar do TEF ("Insira ou aproxime o cartao no
+   PinPad", "CPF no PinPad") tambem e o 2, ao lado do 58 = "Sem usar
+   PinPad", e ficava cinza. CSS nao le o texto: o mesmo codigo nao pode
+   ter dois papeis. Ficou abortar (como no style100); o "Nao" daquele
+   dialogo administrativo sai vermelho, aceitavel para uma negativa. */
 /* ABORTAR (Cancelar) - ghost vermelho */
 .janela-msg   .bt_bbar.bt_tec_1,
+.janela-msg   .bt_bbar.bt_tec_2,
 .tela_dialogo .bt_bbar.bt_tec_11 {
-    background: transparent !important;
-    box-shadow: inset 0 0 0 var(--dlg-btn-respiro) var(--dlg-rodape-fundo),
-                inset 0 0 0 calc(var(--dlg-btn-respiro) + var(--dlg-ghost-espessura)) var(--dlg-abortar-contorno) !important;
+    background: var(--dlg-abortar-fundo) !important;
+    box-shadow: inset 0 0 0 var(--dlg-btn-respiro) var(--dlg-rodape-fundo) !important;
     animation: none !important;
 }
 .janela-msg   .bt_bbar.bt_tec_1 .x-btn-inner,
+.janela-msg   .bt_bbar.bt_tec_2 .x-btn-inner,
 .tela_dialogo .bt_bbar.bt_tec_11 .x-btn-inner,
 .janela-msg   .bt_bbar.bt_tec_1 span,
+.janela-msg   .bt_bbar.bt_tec_2 span,
 .tela_dialogo .bt_bbar.bt_tec_11 span {
     color: var(--dlg-abortar-texto) !important;
 }
 .janela-msg   .bt_bbar.bt_tec_1:active:not(.x-btn-disabled),
+.janela-msg   .bt_bbar.bt_tec_2:active:not(.x-btn-disabled),
 .tela_dialogo .bt_bbar.bt_tec_11:active:not(.x-btn-disabled) {
     background: var(--dlg-abortar-fundo-ativo) !important;
 }
@@ -2435,6 +2522,61 @@ img[class*="processando"] {
 .x-window .x-toolbar-docked-bottom .bt_teclado:not(.x-btn-disabled),
 .x-window .x-toolbar-docked-bottom .bt_teclado_menu:not(.x-btn-disabled) {
     box-shadow: inset 0 0 0 1px var(--borda-sutil) !important;
+}
+
+/* ABORTAR na janela SELETORA (2026-10) - "Escolha o tipo de operacao",
+   "Qual o motivo do cancelamento?". O mapa acima so cobria .janela-msg
+   e .tela_dialogo: o Cancelar da seletora (bt_tec_1) nascia CINZA, sem
+   o contorno vermelho de acao que aborta. Mesmo mapa do style100
+   (21.2) e do style2. Aqui o botao unico ja caia no abortar pela
+   regra da 17.2; o mapa explicito vale tambem com dois botoes. O bt_tec_2 entra junto pela mesma razao
+   de la; os demais codigos da seletora ficam sem mapa ate ter dump. */
+.janela-seletor .bt_bbar.bt_tec_1,
+.janela-seletor .bt_bbar.bt_tec_2 {
+    background: var(--dlg-abortar-fundo) !important;
+    box-shadow: inset 0 0 0 var(--dlg-btn-respiro) var(--dlg-rodape-fundo) !important;
+    animation: none !important;
+}
+.janela-seletor .bt_bbar.bt_tec_1 .x-btn-inner,
+.janela-seletor .bt_bbar.bt_tec_2 .x-btn-inner,
+.janela-seletor .bt_bbar.bt_tec_1 span,
+.janela-seletor .bt_bbar.bt_tec_2 span {
+    color: var(--dlg-abortar-texto) !important;
+}
+.janela-seletor .bt_bbar.bt_tec_1:active:not(.x-btn-disabled),
+.janela-seletor .bt_bbar.bt_tec_2:active:not(.x-btn-disabled) {
+    background: var(--dlg-abortar-fundo-ativo) !important;
+}
+
+/* BOTAO SOZINHO NAO E CANCELAR (2026-10). O codigo bt_tec_N e a TECLA,
+   nao a funcao: a propria Interface usa tec:1 para "Voltar", "Fechar",
+   "Quantidade", "Balanca"... e o Zeus manda "OK" com codigos que este
+   mapa trata como abortar. Com o abortar em vermelho cheio, o OK
+   sozinho saia vermelho. Regra: em mensagem e coletora, um botao
+   SOZINHO no rodape (2o de 3 filhos: tbfill, botao, tbfill) com codigo
+   de abortar fica NEUTRO. Com par ao lado (o Cancelar junto do "Sem
+   usar PinPad") segue vermelho. Custo assumido: um Cancelar sozinho
+   numa mensagem tambem sai neutro. A seletora fica de fora - la o
+   botao sozinho e sempre o Cancelar. */
+.janela-msg   .bt_bbar.bt_tec_1:nth-child(2):nth-last-child(2),
+.janela-msg   .bt_bbar.bt_tec_2:nth-child(2):nth-last-child(2),
+.tela_dialogo .bt_bbar.bt_tec_11:nth-child(2):nth-last-child(2) {
+    background: var(--dlg-recusar-fundo) !important;
+    box-shadow: inset 0 0 0 var(--dlg-btn-respiro) var(--dlg-rodape-fundo) !important;
+    animation: none !important;
+}
+.janela-msg   .bt_bbar.bt_tec_1:nth-child(2):nth-last-child(2) .x-btn-inner,
+.janela-msg   .bt_bbar.bt_tec_2:nth-child(2):nth-last-child(2) .x-btn-inner,
+.tela_dialogo .bt_bbar.bt_tec_11:nth-child(2):nth-last-child(2) .x-btn-inner,
+.janela-msg   .bt_bbar.bt_tec_1:nth-child(2):nth-last-child(2) span,
+.janela-msg   .bt_bbar.bt_tec_2:nth-child(2):nth-last-child(2) span,
+.tela_dialogo .bt_bbar.bt_tec_11:nth-child(2):nth-last-child(2) span {
+    color: var(--dlg-recusar-texto) !important;
+}
+.janela-msg   .bt_bbar.bt_tec_1:nth-child(2):nth-last-child(2):active:not(.x-btn-disabled),
+.janela-msg   .bt_bbar.bt_tec_2:nth-child(2):nth-last-child(2):active:not(.x-btn-disabled),
+.tela_dialogo .bt_bbar.bt_tec_11:nth-child(2):nth-last-child(2):active:not(.x-btn-disabled) {
+    background: var(--dlg-recusar-fundo-ativo) !important;
 }
 
 /* Raio dos botoes de dialogo.
@@ -2469,18 +2611,23 @@ img[class*="processando"] {
 
    Especificidade 4 (2 classes + 2 pseudo) vence os 3 da 17.2, e vem
    depois no arquivo. Zero box-model. */
-.bt_bbar[class*="bt_tec_"]:nth-child(2):nth-last-child(2) {
+/* (2026-10) SO NA SELETORA. Antes valia para QUALQUER botao sozinho no
+   rodape - e isso pegava "Ok" e "Liberar", que nao sao Cancelar, e o
+   OK saia vermelho. Na seletora o botao sozinho e sempre o Cancelar.
+   Fica no contorno; cores explicitas porque o texto do abortar
+   (--dlg-abortar-texto) agora e branco. */
+.janela-seletor .bt_bbar[class*="bt_tec_"]:nth-child(2):nth-last-child(2) {
     background: transparent !important;
     box-shadow: inset 0 0 0 var(--dlg-btn-respiro) var(--dlg-rodape-fundo),
                 inset 0 0 0 calc(var(--dlg-btn-respiro) + var(--dlg-ghost-espessura)) var(--dlg-abortar-contorno) !important;
     animation: none !important;
 }
-.bt_bbar[class*="bt_tec_"]:nth-child(2):nth-last-child(2) .x-btn-inner,
-.bt_bbar[class*="bt_tec_"]:nth-child(2):nth-last-child(2) span {
-    color: var(--dlg-abortar-texto) !important;
+.janela-seletor .bt_bbar[class*="bt_tec_"]:nth-child(2):nth-last-child(2) .x-btn-inner,
+.janela-seletor .bt_bbar[class*="bt_tec_"]:nth-child(2):nth-last-child(2) span {
+    color: var(--dlg-abortar-contorno) !important;
 }
-.bt_bbar[class*="bt_tec_"]:nth-child(2):nth-last-child(2):active:not(.x-btn-disabled) {
-    background: var(--dlg-abortar-fundo-ativo) !important;
+.janela-seletor .bt_bbar[class*="bt_tec_"]:nth-child(2):nth-last-child(2):active:not(.x-btn-disabled) {
+    background: var(--p-perigo-claro-2) !important;
 }
 /* =======================================================================
    18. POP-UPS / DIALOGOS (visual)
@@ -2841,8 +2988,8 @@ div[id^="coletadadoscon-"] div[class*="x-panel-body-default-framed"] {
       Fora daqui, bt_teclado_a segue amarelo. */
 div[id^="coletor-"] .bt_teclado_a,
 div[id^="coletadadoscon-"] .bt_teclado_a {
-    background: transparent !important;
-    box-shadow: inset 0 0 0 var(--dlg-ghost-espessura) var(--dlg-abortar-contorno) !important;
+    background: var(--dlg-abortar-fundo) !important;
+    box-shadow: none !important;
 }
 div[id^="coletor-"] .bt_teclado_a span,
 div[id^="coletadadoscon-"] .bt_teclado_a span {
