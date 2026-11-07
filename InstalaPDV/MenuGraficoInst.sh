@@ -133,6 +133,7 @@ import gi
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, Gdk, GLib, Pango  # noqa: E402
 
+import ipaddress
 import os
 import re
 import glob
@@ -141,6 +142,10 @@ import subprocess
 import sys
 import time
 
+# Nome fixo da janela (app_id no Wayland, WM_CLASS no X): e por ele que o
+# labwc reconhece a janela, em vez do nome do arquivo.
+GLib.set_prgname("zanthus-menu")
+
 # ==============================================================================
 # CONFIGURACAO
 # ==============================================================================
@@ -148,8 +153,9 @@ import time
 CONF_DIR = "/home/zanthus/tmp/Script"
 CLAZ_FILE = "/Zanthus/Zeus/pdvJava/CLAZ.CFG"
 ECF_FILE = "/Zanthus/Zeus/pdvJava/ECF9F.CFG"
-URL_LAUNCHER = ("https://raw.githubusercontent.com/JMoratelli/Zanthus/"
-                "refs/heads/main/InstalaPDV/LauncherPDV.sh")
+URL_BASE = "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/"
+URL_LAUNCHER = URL_BASE + "LauncherPDV.sh"                 # Ubuntu 22
+URL_LAUNCHER_DEBIAN = URL_BASE + "Debian/LauncherPDV.sh"   # Debian 13 (labwc)
 
 # Caminho real deste arquivo. Fica None se o script for executado via stdin
 # (`python3 - < arquivo` ou `curl | python3`), caso em que a splash e pulada.
@@ -222,8 +228,8 @@ def executar_root(args):
     if acao == "ler" and len(args) == 2 and args[1] in (CLAZ_FILE, ECF_FILE):
         with open(args[1], "r", errors="ignore") as fh:
             return fh.read()
-    if acao == "hostname" and len(args) == 2:
-        Ambiente.gravar_hostname(args[1])
+    if acao == "hostname" and len(args) in (2, 3):
+        Ambiente.gravar_hostname(*args[1:])
         return ""
     if acao == "conf" and len(args) >= 2:
         Ambiente.gravar_arquivos_conf(args[1:])
@@ -411,21 +417,32 @@ class Ambiente:
         return "divergente" in (self.cfg_filial, self.cfg_cnpj)
 
     def aplicar_hostname(self):
-        como_root("hostname", self.hostname_novo)
+        if self.debian and self.ip:
+            como_root("hostname", self.hostname_novo, self.ip)
+        else:
+            como_root("hostname", self.hostname_novo)
         self.hostname_atual = self.hostname_novo
 
     @staticmethod
-    def gravar_hostname(nome):
-        """Modo --root."""
+    def gravar_hostname(nome, ip=""):
+        """Modo --root. Sem ip (Ubuntu): linha 127.0.1.1, que o LauncherPDV.sh
+        troca depois pelo IP. Com ip (Debian): a linha do IP no formato que o
+        perfil-360 grava, "<ip> <nome>.local <nome>", no lugar da antiga."""
         if not NOME_HOST.match(nome):
             raise ValueError("hostname inválido: %s" % nome)
+        if ip:
+            ipaddress.IPv4Address(ip)
         subprocess.check_call(["hostnamectl", "set-hostname", nome])
         try:
             with open("/etc/hosts", "r") as fh:
-                linhas = [l for l in fh if "127.0.1.1" not in l]
+                linhas = [l for l in fh if "127.0.1.1" not in l
+                          and not (ip and l.split()[:1] == [ip])]
         except OSError:
             linhas = []
-        linhas.append("127.0.1.1\t%s\n" % nome)
+        if ip:
+            linhas.append("%s %s.local %s\n" % (ip, nome, nome))
+        else:
+            linhas.append("127.0.1.1\t%s\n" % nome)
         with open("/etc/hosts", "w") as fh:
             fh.writelines(linhas)
 
@@ -794,10 +811,10 @@ class Dialogo(Gtk.Dialog):
 
 PID_SPLASH = "/tmp/pdv_splash_menu.pid"
 
-# Trecho presente na linha de comando da splash do LauncherPDV.sh
-# (ela sobe como `python3 -c "...ATUALIZANDO O SISTEMA..."`).
+# Trecho presente na linha de comando do alerta do LauncherPDV.sh: nos dois
+# sistemas ele grava a janela em /tmp/aviso/aviso.py e roda o arquivo.
 # A splash generica so sai do ar quando esse processo aparece.
-MARCA_LAUNCHER = "ATUALIZANDO O SISTEMA"
+MARCA_LAUNCHER = "/tmp/aviso/aviso.py"
 TETO_ESPERA = 900          # s: rede de seguranca, caso a outra nunca suba
 
 CSS_SPLASH = b"""
@@ -824,9 +841,21 @@ def _splash_label(texto, nome, espacamento=0):
     return lb
 
 
-def _splash_monitor(geo):
-    janela = Gtk.Window(type=Gtk.WindowType.POPUP)
-    janela.set_keep_above(True)
+def _wayland():
+    return "Wayland" in type(Gdk.Display.get_default()).__name__
+
+
+def _splash_monitor(geo, indice):
+    # X11: POPUP posicionado por coordenada, por cima de tudo. Wayland nao
+    # posiciona janela por coordenada nem tem "sempre por cima": la cada
+    # monitor ganha uma janela comum em tela cheia.
+    if _wayland():
+        janela = Gtk.Window()
+        janela.set_decorated(False)
+        janela.connect("delete-event", lambda *_a: True)
+    else:
+        janela = Gtk.Window(type=Gtk.WindowType.POPUP)
+        janela.set_keep_above(True)
 
     over = Gtk.Overlay()
     caixa = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=26)
@@ -851,10 +880,14 @@ def _splash_monitor(geo):
     over.add_overlay(cred)
 
     janela.add(over)
-    janela.set_size_request(geo.width, geo.height)
-    janela.show_all()
-    janela.move(geo.x, geo.y)
-    janela.resize(geo.width, geo.height)
+    if _wayland():
+        janela.show_all()
+        janela.fullscreen_on_monitor(Gdk.Screen.get_default(), indice)
+    else:
+        janela.set_size_request(geo.width, geo.height)
+        janela.show_all()
+        janela.move(geo.x, geo.y)
+        janela.resize(geo.width, geo.height)
     try:
         janela.get_window().set_cursor(
             Gdk.Cursor(Gdk.CursorType.BLANK_CURSOR))
@@ -889,7 +922,7 @@ def rodar_splash(marca=MARCA_LAUNCHER, limite=TETO_ESPERA):
 
     display = Gdk.Display.get_default()
     for i in range(display.get_n_monitors()):
-        _splash_monitor(display.get_monitor(i).get_geometry())
+        _splash_monitor(display.get_monitor(i).get_geometry(), i)
 
     try:
         with open(PID_SPLASH, "w") as fh:
@@ -1161,8 +1194,8 @@ class Janela(Gtk.Window):
             classe = "faixa-erro"
         elif a.debian:
             titulo = "Instalação ainda não liberada no Debian"
-            texto = ("O LauncherPDV.sh foi feito para o Ubuntu 22 e ainda não "
-                     "foi adaptado a este sistema. A conferência e a correção "
+            texto = ("O instalador do Debian (Debian/LauncherPDV.sh) está em "
+                     "validação no terminal de teste. A conferência e a correção "
                      "do hostname funcionam; a instalação fica travada até lá.")
             classe = "faixa-erro"
         elif a.cfg_caixa == "divergente":
@@ -1401,7 +1434,8 @@ class Janela(Gtk.Window):
             "trap '%s' EXIT INT TERM; "
             "f=$(mktemp /tmp/LauncherPDV.XXXXXX) && "
             "curl -fsSL '%s' -o \"$f\" && %sbash \"$f\""
-            % (matar, URL_LAUNCHER, "" if EH_ROOT else "sudo "))
+            % (matar, URL_LAUNCHER_DEBIAN if self.amb.debian else URL_LAUNCHER,
+               "" if EH_ROOT else "sudo "))
         self.destroy()
 
     @staticmethod
