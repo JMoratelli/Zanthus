@@ -53,6 +53,7 @@ log_step() {
 }
 log_ok()    { echo -e "  ${C_GREEN}✔${C_RESET} $1"; }
 log_skip()  { echo -e "  ${C_YELLOW}↷${C_RESET} $1 ${C_YELLOW}(já aplicado, pulando)${C_RESET}"; }
+log_fora()  { echo -e "  ${C_YELLOW}↷${C_RESET} $1"; }   # fora no Debian de propósito (não é "já aplicado")
 log_fail()  { echo -e "  ${C_RED}✘${C_RESET} $1"; }
 log_info()  { echo -e "  ${C_CYAN}➜${C_RESET} $1"; }
 
@@ -424,7 +425,7 @@ log_step 4 "Bloqueio de atalhos de teclado"
 # Sem keyd no Debian: os atalhos ficam no rc.xml do labwc, gerado a cada boot
 # pelo zeuspdv-launcher.sh, e o keyd brigaria com Ctrl+Alt+D e Ctrl+Alt+F
 # que a Zanthus usa ali.
-log_skip "Debian: atalhos controlados pelo labwc (Zanthus)"
+log_fora "Debian: atalhos controlados pelo labwc (Zanthus)"
 
 #===============================================================================
 # 5. Ajustes de rede: sysctl
@@ -568,7 +569,7 @@ fi
 #===============================================================================
 log_step 12 "Configurando impressora fiscal - Loja $NOME_LOJA"
 if ! command -v lpadmin >/dev/null 2>&1; then
-  log_skip "Sem CUPS: impressora IMP-NFE não cadastrada"
+  log_fora "Sem CUPS: impressora IMP-NFE não cadastrada"
 elif lpstat -p IMP-NFE >/dev/null 2>&1; then
   log_skip "Impressora IMP-NFE já cadastrada no CUPS"
 else
@@ -722,7 +723,7 @@ fi
 # instalação e só então trazer o CliSiTef de volta (instalando o pacote 7zip
 # antes da extração). O bloco original segue abaixo, comentado.
 log_step 17 "Configurando CliSiTef"
-log_skip "Debian: CliSiTef fora por enquanto, até validar o resto da instalação"
+log_fora "Debian: CliSiTef fora por enquanto, até validar o resto da instalação"
 # if [ "$tipoInstala" == "SelfCheckout" ]; then
 #     safe_download "https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/PDVJava/Self/CliSiTef.ini" "/Zanthus/Zeus/pdvJava/CliSiTef.ini"
 # else
@@ -758,7 +759,7 @@ fi
 #===============================================================================
 log_step 19 "Conferindo monitores"
 if [ -f /etc/zeuspdv-monitores.conf ]; then
-  log_skip "Monitores pelo Zeus Config: $(tr '\n' ' ' < /etc/zeuspdv-monitores.conf)"
+  log_fora "Monitores pelo Zeus Config: $(tr '\n' ' ' < /etc/zeuspdv-monitores.conf)"
 else
   log_fail "Sem /etc/zeuspdv-monitores.conf: identifique os monitores no Zeus Config"
 fi
@@ -907,7 +908,7 @@ EOF
   run_silent "Habilitando o protetor na sessão do zanthus" systemctl --global enable zanthus-protetor.service
 else
   systemctl --global disable zanthus-protetor.service >/dev/null 2>&1
-  log_skip "Protetor de tela não se aplica a ${tipoInstala:-tipo desconhecido}"
+  log_fora "Protetor de tela não se aplica a ${tipoInstala:-tipo desconhecido}"
 fi
 
 #===============================================================================
@@ -920,7 +921,7 @@ fi
 #    Os blocos originais seguem abaixo, comentados.
 #===============================================================================
 log_step 24 "Launcher PDVTouch.sh"
-log_skip "Debian: PDVTouch.sh e launcher.conf fora até validar o resto"
+log_fora "Debian: PDVTouch.sh e launcher.conf fora até validar o resto"
 
 # #===============================================================================
 # # 24. Download do launcher (só se o tamanho mudou)
