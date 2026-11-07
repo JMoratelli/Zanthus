@@ -165,6 +165,7 @@ CAMINHO_SCRIPT = os.path.abspath(__file__) if "__file__" in globals() else None
 EH_ROOT = os.geteuid() == 0
 
 ESPERA_CONFIRMACAO = 3  # segundos de travamento no botao da confirmacao final
+ESPERA_SAIR = 5         # segundos de travamento no botao de sair do instalador
 
 # gateway -> (loja, display_filial, id_filial, cnpj)
 FILIAIS = {
@@ -750,6 +751,7 @@ class Dialogo(Gtk.Dialog):
 
         botoes = Gtk.Box(spacing=10)
         botoes.set_halign(Gtk.Align.END)
+        bc = None
         if cancelar:
             bc = Gtk.Button(label=cancelar)
             add_class(bc, "secundaria")
@@ -771,6 +773,11 @@ class Dialogo(Gtk.Dialog):
             self._resta = espera
             self.bt_ok.set_sensitive(False)
             self.bt_ok.set_label("%s  (%d)" % (ok, self._resta))
+            # largura fixa na do rotulo com a contagem: o texto muda, o botao
+            # nao encolhe nem empurra o Cancelar
+            self.bt_ok.set_size_request(self.bt_ok.get_preferred_width()[1], -1)
+            if bc:
+                bc.grab_focus()           # foco nasce na saida segura
             self._fonte = GLib.timeout_add_seconds(1, self._tique)
 
     def _tique(self):
@@ -1314,7 +1321,26 @@ class Janela(Gtk.Window):
         add_class(self.bt_instalar, "acao")
         self.bt_instalar.connect("clicked", self.on_instalar)
         cx.pack_end(self.bt_instalar, False, False, 0)
+
+        # Saida sempre disponivel: sem ela, filial nao identificada ou
+        # CLAZ.CFG divergente prendiam o tecnico na tela cheia.
+        bt_sair = Gtk.Button(label="Sair")
+        add_class(bt_sair, "secundaria")
+        bt_sair.set_valign(Gtk.Align.CENTER)
+        bt_sair.connect("clicked", self.on_sair)
+        cx.pack_end(bt_sair, False, False, 0)
         return cx
+
+    def on_sair(self, _b):
+        # Neutro, nao vermelho: sair nao destroi nada. O peso vem da
+        # confirmacao travada, porque a instalacao nao volta sozinha.
+        if Dialogo.confirmar(
+                self, None, "Sair do instalador?",
+                "A instalação do PDV não será iniciada e não começa de novo "
+                "sozinha: para instalar este terminal depois, será preciso "
+                "abrir o menu outra vez pelo terminal.",
+                ok="Sair do instalador", espera=ESPERA_SAIR):
+            self.destroy()
 
     # -- estado --------------------------------------------------------------
     def recarregar(self):
