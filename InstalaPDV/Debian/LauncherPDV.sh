@@ -15,7 +15,8 @@
 #   - monitores e touch: zeuspdv-telas.sh (/etc/zeuspdv-telas.json);
 #   - bloqueio de atalhos: rc.xml do labwc.
 # Este script completa o que é da loja: CFGs da Zanthus, fuso e NTP,
-# EasyCash, desligamento, interface, áudios, sinaleiro e periféricos.
+# EasyCash, desligamento, CUPS e IMP-NFE, interface, áudios, sinaleiro,
+# periféricos e o protetor de tela (refeito para Wayland, seção 23).
 #===============================================================================
 clear
 
@@ -111,6 +112,21 @@ safe_wget() {
 }
 
 pkg_instalado() { dpkg -s "$1" >/dev/null 2>&1; }
+
+# A imagem Debian vem com as listas do apt vazias: o primeiro pacote que faltar
+# dispara um apt-get update, e só esse.
+APT_ATUALIZADO=""
+instala_pacote() {
+  local pkg="$1"
+  if pkg_instalado "$pkg"; then
+    log_skip "Pacote $pkg"
+    return 0
+  fi
+  if [ -z "$APT_ATUALIZADO" ]; then
+    run_silent "apt-get update" apt-get update -y && APT_ATUALIZADO=1
+  fi
+  run_silent "Instalando $pkg" env DEBIAN_FRONTEND=noninteractive apt-get install -y -qq "$pkg"
+}
 
 #===============================================================================
 # ALERTA VISUAL - código da janela GTK (pode pular esta função na leitura)
@@ -386,7 +402,9 @@ carregar_config_filial "$filial"
 #    (vinham do antigo instala_screensaver.sh - passo2)
 #===============================================================================
 # URL de origem do vídeo do screensaver (usada pelo launcher/atualizaSC embutido).
-SCREENSAVER_URL_BASE="http://serv-web/uploads/screensaver"   # + /<filial>/screensaver.mp4
+# Nome completo: no Debian o "serv-web" curto só resolve com o search do
+# resolv.conf, que o perfil-360 reescreve sem ele quando é reaplicado.
+SCREENSAVER_URL_BASE="http://serv-web.machadao.corp/uploads/screensaver"   # + /<filial>/screensaver.mp4
 
 # Onde o launcher.conf será gravado.
 CONF_PATH="/Zanthus/Zeus/pdvJava/launcher.conf"
@@ -531,11 +549,12 @@ log_ok "ZMWS1201.CFG ajustado (timeout Sefaz)"
 #===============================================================================
 # 11. CUPS - configuração global
 #===============================================================================
-# A imagem Debian não traz o CUPS. Enquanto não se decide se a IMP-NFE (Kyocera
-# de rede) segue no Debian, as seções 11 e 12 só rodam se o CUPS existir.
+# A imagem Debian não traz o CUPS, e a IMP-NFE (Kyocera de rede da loja) segue
+# necessária (decidido em 07/11/2026): o pacote é instalado aqui.
 log_step 11 "Ajustando CUPS"
+instala_pacote cups
 if ! command -v cupsctl >/dev/null 2>&1; then
-  log_skip "CUPS não instalado na imagem Debian (IMP-NFE aguardando decisão)"
+  log_fail "CUPS não ficou instalado - impressora IMP-NFE não será configurada"
 else
   sed 's/^BrowseLocalProtocols.*$/BrowseLocalProtocols\ none/' -i /etc/cups/cupsd.conf
   run_silent "Reiniciando serviço CUPS" bash -c "cupsctl Web=yes; systemctl restart cups"
@@ -777,14 +796,119 @@ chmod +x /home/zanthus/PerifericosUSB.sh
 run_silent "Executando PerifericosUSB.sh" /home/zanthus/PerifericosUSB.sh
 
 #===============================================================================
-# 23. Protetor de tela
-#    Fora no Debian: o xscreensaver só funciona em X11 (aqui é Wayland), o
-#    ubuntu-restricted-extras não existe no Debian, e o "export DISPLAY=:0" no
-#    /etc/profile vazaria para o login do tty1 que sobe o labwc. O substituto
-#    do protetor de tela ainda está por decidir.
+# 23. Protetor de tela (Wayland)
+#    O xscreensaver do Ubuntu só funciona em X11. O equivalente aqui:
+#    - zanthus-protetor: swayidle (ociosidade do labwc) abre o mesmo vídeo no
+#      mpv em tela cheia; qualquer toque ou tecla fecha. Sobe por um serviço de
+#      usuário global (/etc/systemd/user), junto com a sessão do zanthus, sem
+#      mexer no autostart do labwc, que é da Zanthus;
+#    - zanthus-atualiza-protetor: baixa o vídeo da filial a cada boot quando o
+#      tamanho no servidor muda. No Ubuntu isso é o atualizaSC do PDVTouch.sh,
+#      que no Debian não roda.
+#    Mesma regra do Ubuntu: protetor só em PDV Comum, Touch e Lanchonete.
+#    Fora também: ubuntu-restricted-extras (não existe no Debian) e o
+#    "export DISPLAY=:0" no /etc/profile (vazaria para o login que sobe o labwc).
 #===============================================================================
-log_step 23 "Protetor de tela"
-log_skip "Debian: protetor de tela aguardando decisão (xscreensaver não roda em Wayland)"
+log_step 23 "Configurando protetor de tela"
+PROTETOR_VIDEO="/home/zanthus/scsmachadao.mp4"
+PROTETOR_TEMPO=600                 # s sem uso até o vídeo (o timeout do .xscreensaver)
+
+if [[ "$tipoInstala" == "PDVComum" || "$tipoInstala" == "PDVTouch" || "$tipoInstala" == "Lanchonete" ]]; then
+  instala_pacote swayidle
+  instala_pacote mpv
+
+  # --- atualização do vídeo (root, no boot) ---------------------------------
+  {
+    echo '#!/bin/bash'
+    echo '# Gerado pelo Debian/LauncherPDV.sh. Baixa o vídeo do protetor da filial'
+    echo '# quando o tamanho no servidor muda (o atualizaSC do Ubuntu).'
+    echo "URL=\"${SCREENSAVER_URL_BASE}/${filial}/screensaver.mp4\""
+    echo "DESTINO=\"${PROTETOR_VIDEO}\""
+    cat << 'EOF'
+remoto=$(curl -sIL -m 20 "$URL" | grep -ioP '^content-length:\s*\K[0-9]+' | tail -n1)
+atual=$(stat -c%s "$DESTINO" 2>/dev/null || echo 0)
+if [ -z "$remoto" ] || [ "$remoto" -eq 0 ]; then
+  logger -t zanthus-protetor "sem tamanho remoto para $URL - mantendo o vídeo atual"
+  exit 0
+fi
+[ "$remoto" -eq "$atual" ] && exit 0
+tmp="${DESTINO}.baixando"
+if curl -sfL -m 900 -o "$tmp" "$URL" && [ "$(stat -c%s "$tmp")" -eq "$remoto" ]; then
+  chown zanthus:zanthus "$tmp" && mv -f "$tmp" "$DESTINO"
+  logger -t zanthus-protetor "vídeo atualizado ($remoto bytes)"
+else
+  rm -f "$tmp"
+  logger -t zanthus-protetor "falha ao baixar $URL"
+fi
+EOF
+  } > /usr/local/bin/zanthus-atualiza-protetor
+  chmod 755 /usr/local/bin/zanthus-atualiza-protetor
+
+  cat > /etc/systemd/system/zanthus-atualiza-protetor.service << 'EOF'
+[Unit]
+Description=Zanthus - atualiza o video do protetor de tela da filial
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/zanthus-atualiza-protetor
+
+[Install]
+WantedBy=multi-user.target
+EOF
+  run_silent "Habilitando a atualização do vídeo no boot" systemctl enable zanthus-atualiza-protetor.service
+  run_silent "Baixando o vídeo do protetor da filial ${filial}" /usr/local/bin/zanthus-atualiza-protetor
+
+  # --- protetor na sessão do zanthus ---------------------------------------
+  {
+    echo '#!/bin/bash'
+    echo '# Gerado pelo Debian/LauncherPDV.sh. Protetor de tela do PDV no labwc:'
+    echo '# depois de TEMPO sem uso, o vídeo da filial em tela cheia; qualquer toque'
+    echo '# ou tecla fecha. Sobe pelo serviço de usuário zanthus-protetor.'
+    echo "TEMPO=${PROTETOR_TEMPO}"
+    echo "VIDEO=\"${PROTETOR_VIDEO}\""
+    cat << 'EOF'
+export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"
+# a sessão do usuário sobe antes do labwc: espera o socket aparecer
+until [ -S "$XDG_RUNTIME_DIR/wayland-0" ]; do sleep 2; done
+export WAYLAND_DISPLAY=wayland-0
+# tela do operador, como o Zeus Config deixou
+SAIDA=$(sed -n 's/^OPERADOR_SAIDA=//p' /etc/zeuspdv-monitores.conf 2>/dev/null)
+MPV="mpv --fullscreen ${SAIDA:+--fs-screen-name=$SAIDA} --loop=inf --no-osc --no-osd-bar"
+MPV="$MPV --keepaspect=no --really-quiet --no-input-default-bindings"
+MPV="$MPV --wayland-app-id=zanthus-protetor"
+# Sem isto o mpv pede ao labwc para não considerar o sistema ocioso enquanto
+# toca, o swayidle entende como retomada e fecha o vídeo assim que ele abre.
+MPV="$MPV --stop-screensaver=no"
+# A retomada encerra pelo PID gravado na abertura: um pkill -f pelo nome do
+# vídeo ou do título casaria também com a linha de comando deste swayidle.
+PID="$XDG_RUNTIME_DIR/zanthus-protetor.pid"
+exec swayidle \
+  timeout "$TEMPO" "[ -s '$VIDEO' ] && { $MPV '$VIDEO' & echo \$! > '$PID'; }" \
+  resume "[ -f '$PID' ] && kill \$(cat '$PID') 2>/dev/null; rm -f '$PID'"
+EOF
+  } > /usr/local/bin/zanthus-protetor
+  chmod 755 /usr/local/bin/zanthus-protetor
+
+  cat > /etc/systemd/user/zanthus-protetor.service << 'EOF'
+[Unit]
+Description=Zanthus - protetor de tela do PDV (swayidle + mpv)
+ConditionUser=zanthus
+
+[Service]
+ExecStart=/usr/local/bin/zanthus-protetor
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=default.target
+EOF
+  run_silent "Habilitando o protetor na sessão do zanthus" systemctl --global enable zanthus-protetor.service
+else
+  systemctl --global disable zanthus-protetor.service >/dev/null 2>&1
+  log_skip "Protetor de tela não se aplica a ${tipoInstala:-tipo desconhecido}"
+fi
 
 #===============================================================================
 # 24 e 25. Launcher PDVTouch.sh e launcher.conf
