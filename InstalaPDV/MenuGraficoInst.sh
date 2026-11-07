@@ -1199,12 +1199,6 @@ class Janela(Gtk.Window):
             texto = ("O gateway %s não consta na tabela de filiais. Verifique a "
                      "rede antes de prosseguir." % (a.gateway or "ausente"))
             classe = "faixa-erro"
-        elif a.debian:
-            titulo = "Instalação ainda não liberada no Debian"
-            texto = ("O instalador do Debian (Debian/LauncherPDV.sh) está em "
-                     "validação no terminal de teste. A conferência e a correção "
-                     "do hostname funcionam; a instalação fica travada até lá.")
-            classe = "faixa-erro"
         elif a.cfg_caixa == "divergente":
             titulo = "Número de caixa divergente no ECF9F.CFG"
             texto = ("O ECF9F.CFG aponta caixa %s, mas o esperado para este IP é %s. "
@@ -1357,8 +1351,6 @@ class Janela(Gtk.Window):
             bloqueio = "CLAZ.CFG divergente. Refaça a instalação da base Zanthus."
         elif a.id_filial is None:
             bloqueio = "Filial não identificada pelo gateway."
-        elif a.debian:
-            bloqueio = "Instalação ainda não liberada no Debian."
         elif self.perfil is None:
             bloqueio = "Selecione um perfil para continuar."
         else:
