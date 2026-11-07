@@ -4,35 +4,92 @@
 # Desenvolvido por @JJMoratelli
 #
 # Uso:  curl -sL https://raw.githubusercontent.com/JMoratelli/Zanthus/refs/heads/main/InstalaPDV/MenuGraficoInst.sh | bash
+#       Funciona como root, como o usuario da sessao ou com `| sudo bash`.
+#
+# A janela roda no usuario dono da sessao grafica: root no Ubuntu 22, onde o
+# tty1 entra como root numa sessao X, e zanthus no Debian 13, onde o labwc
+# (Wayland) e do usuario e o root nao consegue abrir janela. So o que precisa
+# de root passa pelo sudo.
 #
 # O corpo em Python fica embutido neste mesmo arquivo e e gravado em disco
 # antes de rodar, porque a interface precisa se reinvocar (splash de
-# transicao) e isso nao funciona com o script vindo de um pipe.
+# transicao e acoes de root) e isso nao funciona com o script vindo de um pipe.
 # ==============================================================================
 
 set -u
 
 RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'; NC='\033[0m'
 
-# ------------------------------------------------------------------ root ----
-if [ "$(id -u)" -ne 0 ]; then
-    echo -e "${RED}ERRO: execute como root.${NC}"
+# ------------------------------------------------------------ privilegio ----
+# Root direto dispensa o sudo. Fora disso o sudo tem de responder; se ele
+# pedir senha, ela e pedida aqui no terminal, antes de a tela abrir.
+if [ "$(id -u)" -eq 0 ]; then
+    SUDO=""
+else
+    SUDO="sudo"
+    if ! sudo -n true 2>/dev/null; then
+        echo -e "${YELLOW}O menu precisa de permissao de administrador (sudo).${NC}"
+        sudo -v || {
+            echo -e "${RED}ERRO: o usuario $(id -un) nao conseguiu usar o sudo.${NC}"
+            exit 1; }
+    fi
+fi
+
+# ---------------------------------------------------------------- sessao ----
+# Descobre em qual tela abrir e de quem ela e:
+#   Wayland (Debian/labwc): socket wayland-N em /run/user/<uid>;
+#   X11 (Ubuntu/openbox):   DISPLAY, dono do socket em /tmp/.X11-unix.
+# Sockets de usuario de sistema (o greeter do gdm, por exemplo) sao ignorados.
+detectar_sessao() {
+    SESSAO_UID=""; SESSAO_TIPO=""
+    local s="" u _s _h
+
+    if [ -n "${WAYLAND_DISPLAY:-}" ] && [ -S "${XDG_RUNTIME_DIR:-/nao}/${WAYLAND_DISPLAY}" ]; then
+        s="${XDG_RUNTIME_DIR}/${WAYLAND_DISPLAY}"
+    else
+        for _s in /run/user/*/wayland-[0-9]; do
+            [ -S "$_s" ] || continue
+            u=$(stat -c %u "$_s")
+            if [ "$u" -eq 0 ] || [ "$u" -ge 1000 ]; then s="$_s"; break; fi
+        done
+    fi
+    if [ -n "$s" ]; then
+        SESSAO_TIPO="wayland"
+        SESSAO_UID=$(stat -c %u "$s")
+        export XDG_RUNTIME_DIR="${s%/*}"
+        export WAYLAND_DISPLAY="${s##*/}"
+        export GDK_BACKEND="wayland"
+        return 0
+    fi
+
+    export DISPLAY="${DISPLAY:-:0}"
+    s="/tmp/.X11-unix/X$(echo "${DISPLAY#*:}" | cut -d. -f1)"
+    [ -S "$s" ] || return 1
+    SESSAO_TIPO="x11"
+    SESSAO_UID=$(stat -c %u "$s")
+    if [ -z "${XAUTHORITY:-}" ]; then
+        for _h in "$(getent passwd "$SESSAO_UID" | cut -d: -f6)" /root /home/zanthus; do
+            if [ -f "${_h}/.Xauthority" ]; then
+                export XAUTHORITY="${_h}/.Xauthority"
+                break
+            fi
+        done
+        # sem acesso para conferir (ex.: zanthus olhando o /root): aponta para
+        # o do dono da sessao, que e quem vai abrir a janela
+        [ -n "${XAUTHORITY:-}" ] || \
+            export XAUTHORITY="$(getent passwd "$SESSAO_UID" | cut -d: -f6)/.Xauthority"
+    fi
+    return 0
+}
+
+if ! detectar_sessao; then
+    echo -e "${RED}ERRO: nenhuma sessao grafica encontrada (nem Wayland, nem X em ${DISPLAY:-:0}).${NC}"
     exit 1
 fi
+USUARIO_SESSAO=$(id -nu "$SESSAO_UID")
 
-# --------------------------------------------------------------- display ----
-export DISPLAY="${DISPLAY:-:0}"
-
-if [ -z "${XAUTHORITY:-}" ]; then
-    for _u in $(who 2>/dev/null | awk '{print $1}' | sort -u) zanthus; do
-        if [ -f "/home/${_u}/.Xauthority" ]; then
-            export XAUTHORITY="/home/${_u}/.Xauthority"
-            break
-        fi
-    done
-fi
-
-if ! timeout 5 xset q >/dev/null 2>&1; then
+if [ "$SESSAO_TIPO" = "x11" ] && [ "$(id -u)" -eq "$SESSAO_UID" ] \
+        && ! timeout 5 xset q >/dev/null 2>&1; then
     echo -e "${YELLOW}Aviso: nao foi possivel falar com o servidor X em ${DISPLAY}.${NC}"
     echo -e "${YELLOW}Tentando liberar acesso local...${NC}"
     xhost +local: >/dev/null 2>&1 || true
@@ -46,29 +103,30 @@ python3 -c "import gi; gi.require_version('Gtk','3.0')" >/dev/null 2>&1 \
 
 if [ -n "$(echo "$FALTANDO" | tr -d ' ')" ]; then
     echo -e "${YELLOW}Instalando dependencias:${FALTANDO}${NC}"
-    apt-get update -qq >/dev/null 2>&1
+    $SUDO apt-get update -qq >/dev/null 2>&1
     # shellcheck disable=SC2086
-    apt-get install -y $FALTANDO >/dev/null 2>&1 || {
+    $SUDO apt-get install -y $FALTANDO >/dev/null 2>&1 || {
         echo -e "${RED}ERRO: falha ao instalar${FALTANDO}${NC}"; exit 1; }
 fi
 
 # ------------------------------------------------- grava a interface em disco
 DESTINO="/usr/local/lib/zanthus"
 ALVO="${DESTINO}/menu_grafico_pdv.py"
-mkdir -p "$DESTINO"
+$SUDO mkdir -p "$DESTINO"
 
-cat > "$ALVO" <<'FIM_PY_ZANTHUS'
+$SUDO tee "$ALVO" >/dev/null <<'FIM_PY_ZANTHUS'
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 Instalador PDV Zanthus - Interface GTK3 (modo kiosk)
 Desenvolvido por @JJMoratelli
 
-Dependencias (Ubuntu 22.04):
+Dependencias (Ubuntu 22.04 e Debian 13):
     sudo apt install python3-gi gir1.2-gtk-3.0
 
-Execucao (a partir de um terminal, pois o instalador assume a tela ao final):
-    sudo -E python3 instalador_pdv.py
+Execucao: pelo MenuGraficoInst.sh, a partir de um terminal (o instalador
+assume a tela ao final). A janela roda no usuario dono da sessao grafica; o
+que precisa de root e feito por este mesmo arquivo no modo --root, via sudo.
 """
 
 import gi
@@ -96,6 +154,9 @@ URL_LAUNCHER = ("https://raw.githubusercontent.com/JMoratelli/Zanthus/"
 # Caminho real deste arquivo. Fica None se o script for executado via stdin
 # (`python3 - < arquivo` ou `curl | python3`), caso em que a splash e pulada.
 CAMINHO_SCRIPT = os.path.abspath(__file__) if "__file__" in globals() else None
+
+# Root no Ubuntu 22 (o tty1 entra como root); usuario comum no Debian 13.
+EH_ROOT = os.geteuid() == 0
 
 ESPERA_CONFIRMACAO = 3  # segundos de travamento no botao da confirmacao final
 
@@ -132,6 +193,65 @@ VERMELHO = "#a51d2d"
 
 
 # ==============================================================================
+# ACOES DE ROOT
+# A janela nao roda como root no Debian. O pouco que exige root e feito por
+# este mesmo arquivo no modo --root, chamado por `sudo -n`, recebendo tudo por
+# argumento: grava exatamente o que o tecnico confirmou na tela.
+# ==============================================================================
+
+NOME_CONF = re.compile(r"^[A-Za-z0-9_.-]+\.conf$")
+NOME_HOST = re.compile(r"^[A-Za-z0-9-]{1,63}$")
+
+
+def sudo_disponivel():
+    """Root direto, ou sudo que responde sem pedir senha (se precisava de
+    senha, o MenuGraficoInst.sh ja pediu no terminal)."""
+    if EH_ROOT:
+        return True
+    try:
+        return subprocess.call(["sudo", "-n", "true"],
+                               stdout=subprocess.DEVNULL,
+                               stderr=subprocess.DEVNULL) == 0
+    except OSError:
+        return False
+
+
+def executar_root(args):
+    """Corpo do modo --root. Devolve o texto a imprimir na saida padrao."""
+    acao = args[0] if args else ""
+    if acao == "ler" and len(args) == 2 and args[1] in (CLAZ_FILE, ECF_FILE):
+        with open(args[1], "r", errors="ignore") as fh:
+            return fh.read()
+    if acao == "hostname" and len(args) == 2:
+        Ambiente.gravar_hostname(args[1])
+        return ""
+    if acao == "conf" and len(args) >= 2:
+        Ambiente.gravar_arquivos_conf(args[1:])
+        return ""
+    raise ValueError("acao de root invalida: %s" % " ".join(args))
+
+
+def como_root(*args):
+    """Executa uma acao do modo --root com privilegio de root. Em caso de
+    falha sobe RuntimeError com a mensagem do outro lado."""
+    args = [str(a) for a in args]
+    if EH_ROOT:
+        try:
+            return executar_root(args)
+        except Exception as erro:
+            raise RuntimeError(str(erro))
+    if not CAMINHO_SCRIPT:
+        raise RuntimeError("script sem arquivo em disco: não dá para usar o sudo")
+    r = subprocess.run(["sudo", "-n", sys.executable, CAMINHO_SCRIPT, "--root"] + args,
+                       stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    if r.returncode != 0:
+        erros = [l for l in r.stdout.splitlines() if l.startswith("ERRO: ")]
+        raise RuntimeError(erros[-1][6:] if erros else
+                           (r.stderr.strip() or "sudo falhou (código %d)" % r.returncode))
+    return r.stdout
+
+
+# ==============================================================================
 # DETECCAO DE AMBIENTE (sem efeitos colaterais)
 # ==============================================================================
 
@@ -163,15 +283,43 @@ class Ambiente:
             return ""
 
     @staticmethod
-    def _ler_chave(caminho, chave):
+    def _ler_texto(caminho):
+        """Conteudo do arquivo, ou None. No Debian o CLAZ.CFG e root:root
+        0640: sem root, a leitura passa pelo sudo."""
         try:
             with open(caminho, "r", errors="ignore") as fh:
-                for linha in fh:
-                    if linha.strip().upper().startswith(chave.upper() + "="):
-                        return linha.split("=", 1)[1].strip()
+                return fh.read()
+        except PermissionError:
+            if EH_ROOT:
+                return None
+            try:
+                return como_root("ler", caminho)
+            except RuntimeError:
+                return None
         except OSError:
             return None
+
+    @classmethod
+    def _ler_chave(cls, caminho, chave):
+        texto = cls._ler_texto(caminho)
+        if texto is None:
+            return None
+        for linha in texto.splitlines():
+            if linha.strip().upper().startswith(chave.upper() + "="):
+                return linha.split("=", 1)[1].strip()
         return None
+
+    @staticmethod
+    def _sistema():
+        """ID do /etc/os-release: 'ubuntu', 'debian'..."""
+        try:
+            with open("/etc/os-release", "r") as fh:
+                for linha in fh:
+                    if linha.startswith("ID="):
+                        return linha.split("=", 1)[1].strip().strip('"')
+        except OSError:
+            pass
+        return ""
 
     @staticmethod
     def cnpj_fmt(v):
@@ -181,6 +329,8 @@ class Ambiente:
         return "%s.%s.%s/%s-%s" % (d[:2], d[2:5], d[5:8], d[8:12], d[12:])
 
     def detectar(self):
+        self.pode_elevar = sudo_disponivel()
+        self.debian = self._sistema() == "debian"
         self.gateway = self._gateway()
         self.ip = self._ip_local()
         self.hostname_atual = socket.gethostname()
@@ -261,36 +411,51 @@ class Ambiente:
         return "divergente" in (self.cfg_filial, self.cfg_cnpj)
 
     def aplicar_hostname(self):
-        subprocess.check_call(["hostnamectl", "set-hostname", self.hostname_novo])
+        como_root("hostname", self.hostname_novo)
+        self.hostname_atual = self.hostname_novo
+
+    @staticmethod
+    def gravar_hostname(nome):
+        """Modo --root."""
+        if not NOME_HOST.match(nome):
+            raise ValueError("hostname inválido: %s" % nome)
+        subprocess.check_call(["hostnamectl", "set-hostname", nome])
         try:
             with open("/etc/hosts", "r") as fh:
                 linhas = [l for l in fh if "127.0.1.1" not in l]
         except OSError:
             linhas = []
-        linhas.append("127.0.1.1\t%s\n" % self.hostname_novo)
+        linhas.append("127.0.1.1\t%s\n" % nome)
         with open("/etc/hosts", "w") as fh:
             fh.writelines(linhas)
-        self.hostname_atual = self.hostname_novo
+
+    def arquivos_conf(self, perfil_id):
+        nomes = []
+        if self.id_filial is not None:
+            nomes.append("filial%d.conf" % self.id_filial)
+        if self.numero_final is not None:
+            nomes.append("caixa%d.conf" % self.numero_final)
+        nomes.append(self.balanca_conf)
+        nomes += [arq for pid, _n, _c, arq, _d in PERFIS if pid == perfil_id]
+        return nomes
 
     def gravar_conf(self, perfil_id):
+        como_root("conf", *self.arquivos_conf(perfil_id))
+
+    @staticmethod
+    def gravar_arquivos_conf(nomes):
+        """Modo --root. Recria CONF_DIR so com os marcadores informados."""
+        for nome in nomes:
+            if not NOME_CONF.match(nome):
+                raise ValueError("nome de arquivo inválido: %s" % nome)
         os.makedirs(CONF_DIR, exist_ok=True)
         for antigo in glob.glob(os.path.join(CONF_DIR, "*")):
             try:
                 os.remove(antigo)
             except OSError:
                 pass
-
-        def toca(nome):
+        for nome in nomes:
             open(os.path.join(CONF_DIR, nome), "a").close()
-
-        if self.id_filial is not None:
-            toca("filial%d.conf" % self.id_filial)
-        if self.numero_final is not None:
-            toca("caixa%d.conf" % self.numero_final)
-        toca(self.balanca_conf)
-        for pid, _n, _c, arquivo, _d in PERFIS:
-            if pid == perfil_id:
-                toca(arquivo)
 
 
 # ==============================================================================
@@ -893,7 +1058,7 @@ class Janela(Gtk.Window):
             bt_host = Gtk.Button(label="Corrigir")
             add_class(bt_host, "secundaria")
             bt_host.set_halign(Gtk.Align.START)
-            bt_host.set_sensitive(os.geteuid() == 0)
+            bt_host.set_sensitive(a.pode_elevar)
             bt_host.connect("clicked", self.on_corrigir_hostname)
 
         linha1 = [
@@ -977,7 +1142,13 @@ class Janela(Gtk.Window):
             self.faixa.remove(filho)
 
         a = self.amb
-        if a.claz_bloqueia:
+        if not a.pode_elevar:
+            titulo = "Sem permissão de administrador"
+            texto = ("O usuário %s não conseguiu usar o sudo sem senha. Rode o "
+                     "menu pelo terminal: a senha é pedida lá, antes de a tela "
+                     "abrir." % os.environ.get("USER", str(os.geteuid())))
+            classe = "faixa-erro"
+        elif a.claz_bloqueia:
             titulo = "CLAZ.CFG divergente — instalação bloqueada"
             texto = ("Os dados gravados em CLAZ.CFG não correspondem à filial "
                      "detectada na rede. É necessário refazer a instalação da "
@@ -988,9 +1159,11 @@ class Janela(Gtk.Window):
             texto = ("O gateway %s não consta na tabela de filiais. Verifique a "
                      "rede antes de prosseguir." % (a.gateway or "ausente"))
             classe = "faixa-erro"
-        elif os.geteuid() != 0:
-            titulo = "Sem privilégios de root"
-            texto = "Execute com: sudo -E python3 instalador_pdv.py"
+        elif a.debian:
+            titulo = "Instalação ainda não liberada no Debian"
+            texto = ("O LauncherPDV.sh foi feito para o Ubuntu 22 e ainda não "
+                     "foi adaptado a este sistema. A conferência e a correção "
+                     "do hostname funcionam; a instalação fica travada até lá.")
             classe = "faixa-erro"
         elif a.cfg_caixa == "divergente":
             titulo = "Número de caixa divergente no ECF9F.CFG"
@@ -1119,18 +1292,20 @@ class Janela(Gtk.Window):
 
     def _atualizar_estado(self):
         a = self.amb
-        if os.geteuid() != 0:
-            bloqueio = "Necessário executar como root."
+        if not a.pode_elevar:
+            bloqueio = "Sem permissão de administrador (sudo)."
         elif a.claz_bloqueia:
             bloqueio = "CLAZ.CFG divergente. Refaça a instalação da base Zanthus."
         elif a.id_filial is None:
             bloqueio = "Filial não identificada pelo gateway."
+        elif a.debian:
+            bloqueio = "Instalação ainda não liberada no Debian."
         elif self.perfil is None:
             bloqueio = "Selecione um perfil para continuar."
         else:
             bloqueio = None
 
-        liberado = (os.geteuid() == 0 and not a.claz_bloqueia
+        liberado = (a.pode_elevar and not a.claz_bloqueia
                     and a.id_filial is not None)
         for bt, _trilho, _marca in self.botoes_perfil.values():
             bt.set_sensitive(liberado)
@@ -1203,7 +1378,7 @@ class Janela(Gtk.Window):
 
         try:
             a.gravar_conf(self.perfil)
-        except OSError as erro:
+        except Exception as erro:
             Dialogo.avisar(self, "Falha ao gravar configuração",
                            "Não foi possível escrever em %s." % CONF_DIR,
                            [("erro", erro)])
@@ -1217,13 +1392,16 @@ class Janela(Gtk.Window):
         # 2) sobe a splash como processo independente (sobrevive ao exec)
         pid_splash = self.abrir_splash()
 
-        # 3) entrega o controle ao terminal; a splash morre junto com o script
+        # 3) entrega o controle ao terminal; a splash morre junto com o script.
+        #    O LauncherPDV.sh precisa de root: fora do root, vai pelo sudo. O
+        #    arquivo e temporario e proprio, porque um /tmp/LauncherPDV.sh de
+        #    uma execucao anterior como root nao deixaria o curl sobrescrever.
         matar = ("kill %d 2>/dev/null" % pid_splash) if pid_splash else "true"
         self.comando_final = (
             "trap '%s' EXIT INT TERM; "
-            "curl -fsSL '%s' -o /tmp/LauncherPDV.sh && "
-            "chmod +x /tmp/LauncherPDV.sh && bash /tmp/LauncherPDV.sh"
-            % (matar, URL_LAUNCHER))
+            "f=$(mktemp /tmp/LauncherPDV.XXXXXX) && "
+            "curl -fsSL '%s' -o \"$f\" && %sbash \"$f\""
+            % (matar, URL_LAUNCHER, "" if EH_ROOT else "sudo "))
         self.destroy()
 
     @staticmethod
@@ -1241,6 +1419,15 @@ class Janela(Gtk.Window):
 
 
 def main():
+    if "--root" in sys.argv:
+        i = sys.argv.index("--root")
+        try:
+            sys.stdout.write(executar_root(sys.argv[i + 1:]))
+        except Exception as erro:
+            print("ERRO: %s" % erro)
+            sys.exit(1)
+        return
+
     if "--splash" in sys.argv:
         i = sys.argv.index("--splash")
         marca = sys.argv[i + 1] if len(sys.argv) > i + 1 else MARCA_LAUNCHER
@@ -1261,7 +1448,21 @@ if __name__ == "__main__":
     main()
 FIM_PY_ZANTHUS
 
-chmod 0755 "$ALVO"
+$SUDO chmod 0755 "$ALVO"
 
-echo -e "${GREEN}Abrindo o menu grafico...${NC}"
-exec python3 "$ALVO"
+# ------------------------------------------- abre no usuario dono da sessao
+VARS=()
+for _v in DISPLAY XAUTHORITY WAYLAND_DISPLAY XDG_RUNTIME_DIR GDK_BACKEND; do
+    [ -n "${!_v:-}" ] && VARS+=("${_v}=${!_v}")
+done
+[ "$SESSAO_TIPO" = "wayland" ] \
+    && VARS+=("DBUS_SESSION_BUS_ADDRESS=unix:path=${XDG_RUNTIME_DIR}/bus")
+
+echo -e "${GREEN}Abrindo o menu grafico (sessao ${SESSAO_TIPO} de ${USUARIO_SESSAO})...${NC}"
+if [ "$(id -u)" -eq "$SESSAO_UID" ]; then
+    exec python3 "$ALVO"
+elif [ "$(id -u)" -eq 0 ]; then
+    exec runuser -u "$USUARIO_SESSAO" -- env "${VARS[@]}" python3 "$ALVO"
+else
+    exec sudo -u "$USUARIO_SESSAO" env "${VARS[@]}" python3 "$ALVO"
+fi
